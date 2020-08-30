@@ -1,0 +1,8 @@
+bin/
+obj/
+.DS_Store
+.vs/
+
+Log/
+TestResults/
+commit-hook-tests/
