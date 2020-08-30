@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="ErrorHandle\" />
+    <Folder Include="Services\" />
+    <Folder Include="Model\" />
+    <Folder Include="Listener\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EncoreAssessment\EncoreAssessment.csproj" />
+    <ProjectReference Include="..\EncorePrivateCompatibilityCheck\EncorePrivateCompatibilityCheck.csproj" />
+    <ProjectReference Include="..\EncoreCommon\EncoreCommon.csproj" />
+    <ProjectReference Include="..\EncoreApiAnalysis\EncoreApiAnalysis.csproj" />
+    <ProjectReference Include="..\EncoreCache\EncoreCache.csproj" />
+    <ProjectReference Include="..\EncorePortingProjectFile\EncorePortingProjectFile.csproj" />
+    <ProjectReference Include="..\EncorePorting\EncorePorting.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.Core" Version="3.3.107.6" />
+    <PackageReference Include="Serilog" Version="2.9.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.5" />
+    <PackageReference Include="Autofac" Version="4.0.0" />
+  </ItemGroup>
+</Project>
