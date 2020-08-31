@@ -28,7 +28,7 @@ namespace PortingAssistant.ApiAnalysis
             _hanler = handler;
         }
 
-        public SolutionAnalysisResult AnalyzeSolution(
+        public SolutionApiAnalysisResult AnalyzeSolution(
             string solutionFilename, List<Project> projects)
         {
             var options = new AnalyzerConfiguration(LanguageOptions.CSharp)
@@ -42,22 +42,22 @@ namespace PortingAssistant.ApiAnalysis
             var analyzer = CodeAnalyzerFactory.GetAnalyzer(options, Log.Logger);
             var analyzersTask = analyzer.AnalyzeSolution(solutionFilename);
 
-            return new SolutionAnalysisResult
+            return new SolutionApiAnalysisResult
             {
-                ProjectAnalysisResults = projects
+                ProjectApiAnalysisResults = projects
                     .Select((project) => AnalyzeProject(solutionFilename, project, analyzersTask))
                     .ToDictionary(p => p.Key, p => p.Value)
             };
         }
 
-        private KeyValuePair<string, Task<ProjectAnalysisResult>> AnalyzeProject(
+        private KeyValuePair<string, Task<ProjectApiAnalysisResult>> AnalyzeProject(
             string solutionFilename, Project project, Task<List<AnalyzerResult>> analyzersTask)
         {
             var task = AnalyzeProjectAsync(solutionFilename, project, analyzersTask);
             return KeyValuePair.Create(project.ProjectPath, task);
         }
 
-        private async Task<ProjectAnalysisResult> AnalyzeProjectAsync(
+        private async Task<ProjectApiAnalysisResult> AnalyzeProjectAsync(
             string solutionFilename, Project project, Task<List<AnalyzerResult>> analyzersTask)
         {
             try
@@ -94,7 +94,7 @@ namespace PortingAssistant.ApiAnalysis
                 var invocationsWithCompatibility = InvocationExpressionModelToInvocations.Convert(
                     sourceFileToInvocations, project, _hanler);
 
-                return new ProjectAnalysisResult
+                return new ProjectApiAnalysisResult
                 {
                     ProjectName = project.ProjectName,
                     ProjectFile = project.ProjectPath,

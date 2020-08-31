@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace PortingAssistant.Model
 {
-    public class SolutionAnalysisResults
+    public class SolutionAnalysisResult
     {
         private string Version { get; set; }
         public SolutionDetails SolutionDetails { get; set; }
@@ -12,9 +12,9 @@ namespace PortingAssistant.Model
         public List<string> Errors { get; set; } //Solution errors; solution file errors etc.
     }
 
-    public class SolutionAnalysisResult
+    public class SolutionApiAnalysisResult
     {
-        public Dictionary<string, Task<ProjectAnalysisResult>> ProjectAnalysisResults { get; set; }
+        public Dictionary<string, Task<ProjectApiAnalysisResult>> ProjectApiAnalysisResults { get; set; }
     }
 
 

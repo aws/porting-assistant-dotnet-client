@@ -2,7 +2,7 @@
 
 namespace PortingAssistant.Model
 {
-    public class ProjectAnalysisResults
+    public class ProjectAnalysisResult
     {
         public string ProjectName { get; set; }
         public string ProjectFile { get; set; }
@@ -11,7 +11,7 @@ namespace PortingAssistant.Model
         public List<PackageAnalysisResult> PackageAnalysisResults;
     }
 
-    public class ProjectAnalysisResult
+    public class ProjectApiAnalysisResult
     {
         public string ProjectName { get; set; }
         public string ProjectFile { get; set; }

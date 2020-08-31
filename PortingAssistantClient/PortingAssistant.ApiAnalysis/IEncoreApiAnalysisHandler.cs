@@ -5,6 +5,6 @@ namespace PortingAssistant.ApiAnalysis
 {
     public interface IPortingAssistantApiAnalysisHandler
     {
-        SolutionAnalysisResult AnalyzeSolution(string solutionFilename, List<Project> projects);
+        SolutionApiAnalysisResult AnalyzeSolution(string solutionFilename, List<Project> projects);
     }
 }

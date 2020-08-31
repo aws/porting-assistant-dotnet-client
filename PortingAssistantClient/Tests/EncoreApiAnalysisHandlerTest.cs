@@ -116,8 +116,8 @@ namespace PortingAssistantApiAnalysisTest
         public void AnalyzeSolution()
         {
             var result = _PortingAssistantApiAnalysisHandler.AnalyzeSolution(solutionFile, projects);
-            Task.WaitAll(result.ProjectAnalysisResults.Values.ToArray());
-            var values = result.ProjectAnalysisResults.Values.First().Result;
+            Task.WaitAll(result.ProjectApiAnalysisResults.Values.ToArray());
+            var values = result.ProjectApiAnalysisResults.Values.First().Result;
             Assert.AreEqual(projects.First().ProjectPath, values.ProjectFile);
             Assert.AreEqual("Newtonsoft.Json", values.SourceFileToInvocations.First().Value.First().invocation.PackageId);
             Assert.AreEqual("11.0.1", values.SourceFileToInvocations.First().Value.First().invocation.Version);
@@ -134,13 +134,13 @@ namespace PortingAssistantApiAnalysisTest
             Assert.Throws<AggregateException>(() =>
             {
                 var result = _PortingAssistantApiAnalysisHandler.AnalyzeSolution("", projects);
-                Task.WaitAll(result.ProjectAnalysisResults.Values.ToArray());
+                Task.WaitAll(result.ProjectApiAnalysisResults.Values.ToArray());
             });
 
             Assert.Throws<AggregateException>(() =>
             {
                 var result = _PortingAssistantApiAnalysisHandler.AnalyzeSolution(Path.Combine(solutionFile, "radn.sln"), projects);
-                Task.WaitAll(result.ProjectAnalysisResults.Values.ToArray());
+                Task.WaitAll(result.ProjectApiAnalysisResults.Values.ToArray());
             });
         }
 
