@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Woot.Portable.Framework.Sdk" Version="4.0.0" />
+    <PackageReference Include="Woot.Portable.Framework.Stats" Version="8.0.0" />
+    <PackageReference Include="Woot.Portable.Framework.Testing" Version="5.2.7" />
+    <PackageReference Include="Woot.Portable.Framework.Web" Version="8.0.0" />
+  </ItemGroup>
+</Project>

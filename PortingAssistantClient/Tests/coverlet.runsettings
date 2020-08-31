@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat code coverage">
+        <Configuration>
+          <Format>json,cobertura</Format>
+          <ExcludeByFile>
+          **/AwsCodeAnalyzer/**/*.cs,
+          **/PortingAssistantApiElectron/**/*.cs,
+          **/PortingAssistant.Common/**/**.cs,
+          **/Tests/TestXml/SolutionWithApi/**/**.cs,
+          **/PortingAssistant.ApiAnalysis/Model/**/**.cs
+          </ExcludeByFile> <!-- Globbing filter -->
+          <SingleHit>false</SingleHit>
+          <UseSourceLink>true</UseSourceLink>
+          <IncludeTestAssembly>true</IncludeTestAssembly>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>
