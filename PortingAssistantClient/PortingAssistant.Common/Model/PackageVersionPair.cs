@@ -5,6 +5,7 @@ namespace PortingAssistant.Model
     {
         public string PackageId { get; set; }
         public string Version { get; set; }
+        public PackageSourceType PackageSourceType { get; set; }
 
         public override bool Equals(object obj)
         {

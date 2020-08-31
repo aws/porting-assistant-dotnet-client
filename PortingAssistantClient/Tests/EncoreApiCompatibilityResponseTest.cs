@@ -12,13 +12,13 @@ namespace Tests
         [Test]
         public void TestDeserialize()
         {
-            var json = "[{\"methodSignature\": \"Signature1\", \"compatible\": \"NOT_FOUND\"}, {\"methodSignature\": \"Signature2\", \"compatible\": \"INCOMPATIBLE\"}, {\"methodSignature\": \"Signature3\", \"compatible\": \"COMPATIBLE\"}]";
+            var json = "[{\"methodSignature\": \"Signature1\", \"compatible\": \"UNKNOWN\"}, {\"methodSignature\": \"Signature2\", \"compatible\": \"INCOMPATIBLE\"}, {\"methodSignature\": \"Signature3\", \"compatible\": \"COMPATIBLE\"}]";
             var result = JsonConvert.DeserializeObject<List<PortingAssistantApiCompatibilityResponse>>(json);
             Assert.AreEqual(new List<PortingAssistantApiCompatibilityResponse> {
                 new PortingAssistantApiCompatibilityResponse
                 {
                     MethodSignature = "Signature1",
-                    Compatible = Compatibility.NOT_FOUND
+                    Compatible = Compatibility.UNKNOWN
                 },
                 new PortingAssistantApiCompatibilityResponse
                 {

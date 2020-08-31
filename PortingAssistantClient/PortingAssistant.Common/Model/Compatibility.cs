@@ -3,8 +3,8 @@ namespace PortingAssistant.Model
 {
     public enum Compatibility
     {
-        NOT_FOUND,
+        UNKNOWN,
         COMPATIBLE,
-        INCOMPATIBLE
+        INCOMPATIBLE,
     };
 }

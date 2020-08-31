@@ -158,7 +158,7 @@ namespace PortingAssistant.NuGet
                 {
                     return new compatibleResult
                     {
-                        compatible = Compatibility.NOT_FOUND,
+                        compatible = Compatibility.UNKNOWN,
                         upgradeOptions = new List<string>()
                     };
                 }
@@ -173,7 +173,7 @@ namespace PortingAssistant.NuGet
                 _logger.LogError("parse package version {0} {1}with error {2}", packageVersionPair.PackageId, packageVersionPair.Version, e);
                 return new compatibleResult
                 {
-                    compatible = Compatibility.NOT_FOUND,
+                    compatible = Compatibility.UNKNOWN,
                     upgradeOptions = new List<string>()
                 };
             }

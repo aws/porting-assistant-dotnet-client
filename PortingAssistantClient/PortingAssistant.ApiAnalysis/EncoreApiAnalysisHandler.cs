@@ -96,8 +96,7 @@ namespace PortingAssistant.ApiAnalysis
 
                 return new ProjectAnalysisResult
                 {
-                    ElapseTime = DateTime.Now.Ticks - startTime,
-                    SolutionFile = solutionFilename,
+                    ProjectName = project.ProjectName,
                     ProjectFile = project.ProjectPath,
                     Errors = analyzer.ProjectResult.BuildErrors,
                     SourceFileToInvocations = invocationsWithCompatibility,

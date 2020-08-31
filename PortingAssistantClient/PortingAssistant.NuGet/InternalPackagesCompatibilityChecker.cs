@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using NuGet.Configuration;
 using NuGet.Protocol.Core.Types;
 using PortingAssistant.InternalNuGetChecker;
 using PortingAssistant.InternalNuGetChecker.Model;
@@ -12,6 +11,8 @@ using NuGet.Common;
 using NuGet.Versioning;
 using Microsoft.Extensions.Logging;
 using PortingAssistant.Model;
+using NuGet.Configuration;
+using Settings = NuGet.Configuration.Settings;
 
 namespace PortingAssistant.NuGet
 {
