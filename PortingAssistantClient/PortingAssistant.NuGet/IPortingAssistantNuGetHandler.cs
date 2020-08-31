@@ -6,7 +6,7 @@ namespace PortingAssistant.NuGet
 {
     public interface IPortingAssistantNuGetHandler
     {
-        public Dictionary<PackageVersionPair, Task<PackageVersionResult>> GetNugetPackages(List<PackageVersionPair> nugetPackages, string pathToSolution);
+        public Dictionary<PackageVersionPair, Task<PackageAnalysisResult>> GetNugetPackages(List<PackageVersionPair> nugetPackages, string pathToSolution);
         public Task<PackageDetails> GetPackageDetails(PackageVersionPair package);
     }
 }

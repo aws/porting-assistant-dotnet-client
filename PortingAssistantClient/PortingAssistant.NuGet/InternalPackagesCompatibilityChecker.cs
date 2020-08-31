@@ -184,9 +184,9 @@ namespace PortingAssistant.NuGet
             return internalPackages;
         }
 
-        public CompatibilityCheckerType GetCompatibilityCheckerType()
+        public PackageSourceType GetCompatibilityCheckerType()
         {
-            return CompatibilityCheckerType.PRIVATE;
+            return PackageSourceType.PRIVATE;
         }
     }
 }

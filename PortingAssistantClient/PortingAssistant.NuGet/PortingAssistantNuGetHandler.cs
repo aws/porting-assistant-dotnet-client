@@ -42,7 +42,7 @@ namespace PortingAssistant.NuGet
             throw new PackageVersionNotFoundException(package.PackageId, package.Version, null);
         }
 
-        public Dictionary<PackageVersionPair, Task<PackageVersionResult>> GetNugetPackages(List<PackageVersionPair> packageVersions, string pathToSolution)
+        public Dictionary<PackageVersionPair, Task<PackageAnalysisResult>> GetNugetPackages(List<PackageVersionPair> packageVersions, string pathToSolution)
         {
 
             var packageVersionsToQuery = new List<PackageVersionPair>();
@@ -53,7 +53,7 @@ namespace PortingAssistant.NuGet
                     packageVersion,
                     new PackageVersionPairResult
                     {
-                        taskCompletionSource = new TaskCompletionSource<PackageVersionResult>(),
+                        taskCompletionSource = new TaskCompletionSource<PackageAnalysisResult>(),
                         packageTaskCompletionSource = new TaskCompletionSource<PackageDetails>()
                     }
                     );
@@ -63,7 +63,7 @@ namespace PortingAssistant.NuGet
                 }
                 _resultsDict.TryGetValue(packageVersion, out var packageVersionPairResult);
 
-                return new Tuple<PackageVersionPair, Task<PackageVersionResult>>(packageVersion, packageVersionPairResult.taskCompletionSource.Task);
+                return new Tuple<PackageVersionPair, Task<PackageAnalysisResult>>(packageVersion, packageVersionPairResult.taskCompletionSource.Task);
             }).ToDictionary(t => t.Item1, t => t.Item2);
 
             _logger.LogInformation("Checking compatibility for {0} packages", packageVersionsToQuery.Count);
@@ -77,7 +77,7 @@ namespace PortingAssistant.NuGet
 
         private async void Process(List<PackageVersionPair> packageVersions, string pathToSolution)
         {
-            var checkResult = new Dictionary<CompatibilityCheckerType, Dictionary<PackageVersionPair, Task<PackageDetails>>>();
+            var checkResult = new Dictionary<PackageSourceType, Dictionary<PackageVersionPair, Task<PackageDetails>>>();
             var nextPackageVersions = packageVersions.Aggregate(new Dictionary<string, List<PackageVersionPair>>(), (agg, cur) =>
             {
                 if (!agg.ContainsKey(cur.PackageId))
@@ -104,12 +104,28 @@ namespace PortingAssistant.NuGet
                                 nextPackageVersions.Remove(result.Key.PackageId);
                                 var compatResult = isCompatible(task.Result, result.Key);
                                 packageVersionPairResult.packageTaskCompletionSource.TrySetResult(task.Result);
-                                packageVersionPairResult.taskCompletionSource.TrySetResult(new PackageVersionResult
+                                packageVersionPairResult.taskCompletionSource.TrySetResult(new PackageAnalysisResult
                                 {
-                                    PackageId = result.Key.PackageId,
-                                    Version = result.Key.Version,
-                                    Compatible = compatResult.compatible,
-                                    packageUpgradeStrategies = compatResult.upgradeOptions
+                                    PackageVersionPair = new PackageVersionPair
+                                    {
+                                        PackageId = result.Key.PackageId,
+                                        Version = result.Key.Version,
+                                        PackageSourceType = checker.GetCompatibilityCheckerType()
+                                    },
+                                    PackageRecommendation = new PackageRecommendation
+                                    {
+                                        RecommendationStrategy = RecommendationStrategy.UpgradePackage,
+                                        TargetFrameworkCompatibleVersionPair = new Dictionary<string, PackageCompatibilityInfo>
+                                        {
+                                            {
+                                                DEFAULT_TARGET, new PackageCompatibilityInfo
+                                                {
+                                                    CompatibilityResult = compatResult.CompatibilityResult,
+                                                    CompatibleVersion = compatResult.CompatibleVersion
+                                                }
+                                            }
+                                        }  
+                                    }
                                 });
                             }
                             else
@@ -141,40 +157,40 @@ namespace PortingAssistant.NuGet
             }
         }
 
-        private compatibleResult isCompatible(PackageDetails packageDetails, PackageVersionPair packageVersionPair, string target = DEFAULT_TARGET)
+        private PackageCompatibilityInfo isCompatible(PackageDetails packageDetails, PackageVersionPair packageVersionPair, string target = DEFAULT_TARGET)
         {
             try
             {
                 var foundTarget = packageDetails.Targets.GetValueOrDefault(target, null);
                 if (foundTarget == null)
                 {
-                    return new compatibleResult
+                    return new PackageCompatibilityInfo
                     {
-                        compatible = Compatibility.INCOMPATIBLE,
-                        upgradeOptions = new List<string>()
+                        CompatibilityResult = Compatibility.INCOMPATIBLE,
+                        CompatibleVersion = new List<string>()
                     };
                 }
                 if (!SemVersion.TryParse(packageVersionPair.Version, out var version))
                 {
-                    return new compatibleResult
+                    return new PackageCompatibilityInfo
                     {
-                        compatible = Compatibility.UNKNOWN,
-                        upgradeOptions = new List<string>()
+                        CompatibilityResult = Compatibility.UNKNOWN,
+                        CompatibleVersion = new List<string>()
                     };
                 }
-                return new compatibleResult
+                return new PackageCompatibilityInfo
                 {
-                    compatible = foundTarget.Any(v => SemVersion.Compare(version, SemVersion.Parse(v)) >= 0) ? Compatibility.COMPATIBLE : Compatibility.INCOMPATIBLE,
-                    upgradeOptions = foundTarget.Where(v => SemVersion.Compare(SemVersion.Parse(v), version) > 0).ToList()
+                    CompatibilityResult = foundTarget.Any(v => SemVersion.Compare(version, SemVersion.Parse(v)) >= 0) ? Compatibility.COMPATIBLE : Compatibility.INCOMPATIBLE,
+                    CompatibleVersion = foundTarget.Where(v => SemVersion.Compare(SemVersion.Parse(v), version) > 0).ToList()
                 };
             }
             catch (Exception e)
             {
                 _logger.LogError("parse package version {0} {1}with error {2}", packageVersionPair.PackageId, packageVersionPair.Version, e);
-                return new compatibleResult
+                return new PackageCompatibilityInfo
                 {
-                    compatible = Compatibility.UNKNOWN,
-                    upgradeOptions = new List<string>()
+                    CompatibilityResult = Compatibility.UNKNOWN,
+                    CompatibleVersion = new List<string>()
                 };
             }
 
@@ -182,14 +198,8 @@ namespace PortingAssistant.NuGet
 
         private class PackageVersionPairResult
         {
-            public TaskCompletionSource<PackageVersionResult> taskCompletionSource { get; set; }
+            public TaskCompletionSource<PackageAnalysisResult> taskCompletionSource { get; set; }
             public TaskCompletionSource<PackageDetails> packageTaskCompletionSource { get; set; }
-        }
-
-        private class compatibleResult
-        {
-            public Compatibility compatible { get; set; }
-            public List<string> upgradeOptions { get; set; }
         }
     }
 }

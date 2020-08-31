@@ -4,7 +4,7 @@ namespace PortingAssistant.Model
 {
     public class PackageCompatibilityInfo
     {
-        Compatibility CompatibilityResult { get; set; }
-        SortedSet<string> CompatibleVersion { get; set; }
+        public Compatibility CompatibilityResult { get; set; }
+        public List<string> CompatibleVersion { get; set; }
     }
 }

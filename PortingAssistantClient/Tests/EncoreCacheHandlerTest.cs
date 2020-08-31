@@ -348,10 +348,10 @@ namespace PortingAssistantNuGetTest
             };
             var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionFolderPath, "TestSolution.sln"));
             Task.WaitAll(resultTasks.Values.ToArray());
-            Assert.AreEqual(packages.First().PackageId, resultTasks.Values.First().Result.PackageId);
-            Assert.AreEqual(packages.First().Version, resultTasks.Values.First().Result.Version);
-            Assert.AreEqual(Compatibility.COMPATIBLE, resultTasks.Values.First().Result.Compatible);
-            Assert.AreEqual(1, resultTasks.Values.First().Result.packageUpgradeStrategies.Count());
+            Assert.AreEqual(packages.First().PackageId, resultTasks.Values.First().Result.PackageVersionPair.PackageId);
+            Assert.AreEqual(packages.First().Version, resultTasks.Values.First().Result.PackageVersionPair.Version);
+            Assert.AreEqual(Compatibility.COMPATIBLE, resultTasks.Values.First().Result.PackageRecommendation.TargetFrameworkCompatibleVersionPair.GetValueOrDefault("netcoreapp3.1").CompatibilityResult);
+            Assert.AreEqual(1, resultTasks.Values.First().Result.PackageRecommendation.TargetFrameworkCompatibleVersionPair.GetValueOrDefault("netcoreapp3.1").CompatibleVersion.Count());
         }
 
         [Test]
@@ -378,9 +378,9 @@ namespace PortingAssistantNuGetTest
             };
             var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionFolderPath, "TestSolution.sln"));
             Task.WaitAll(resultTasks.Values.ToArray());
-            Assert.AreEqual(packages.First().PackageId, resultTasks.Values.First().Result.PackageId);
-            Assert.AreEqual(packages.First().Version, resultTasks.Values.First().Result.Version);
-            Assert.AreEqual(Compatibility.COMPATIBLE, resultTasks.Values.First().Result.Compatible);
+            Assert.AreEqual(packages.First().PackageId, resultTasks.Values.First().Result.PackageVersionPair.PackageId);
+            Assert.AreEqual(packages.First().Version, resultTasks.Values.First().Result.PackageVersionPair.Version);
+            Assert.AreEqual(Compatibility.COMPATIBLE, resultTasks.Values.First().Result.PackageRecommendation.TargetFrameworkCompatibleVersionPair.GetValueOrDefault("netcoreapp3.1").CompatibilityResult);
         }
 
 
@@ -395,10 +395,11 @@ namespace PortingAssistantNuGetTest
             };
             var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionFolderPath, "TestSolution.sln"));
             Task.WaitAll(resultTasks.Values.ToArray());
-            Assert.AreEqual(packages.First().PackageId, resultTasks.Values.First().Result.PackageId);
-            Assert.AreEqual(packages.First().Version, resultTasks.Values.First().Result.Version);
-            Assert.AreEqual(Compatibility.INCOMPATIBLE, resultTasks.Values.First().Result.Compatible);
-            Assert.AreEqual(2, resultTasks.Values.First().Result.packageUpgradeStrategies.Count());
+
+            Assert.AreEqual(packages.First().PackageId, resultTasks.Values.First().Result.PackageVersionPair.PackageId);
+            Assert.AreEqual(packages.First().Version, resultTasks.Values.First().Result.PackageVersionPair.Version);
+            Assert.AreEqual(Compatibility.INCOMPATIBLE, resultTasks.Values.First().Result.PackageRecommendation.TargetFrameworkCompatibleVersionPair.GetValueOrDefault("netcoreapp3.1").CompatibilityResult);
+            Assert.AreEqual(2, resultTasks.Values.First().Result.PackageRecommendation.TargetFrameworkCompatibleVersionPair.GetValueOrDefault("netcoreapp3.1").CompatibleVersion.Count());
         }
 
         [Test]
@@ -425,10 +426,11 @@ namespace PortingAssistantNuGetTest
             };
             var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionFolderPath, "TestSolution.sln"));
             Task.WaitAll(resultTasks.Values.ToArray());
-            Assert.AreEqual(packages.First().PackageId, resultTasks.Values.First().Result.PackageId);
-            Assert.AreEqual(packages.First().Version, resultTasks.Values.First().Result.Version);
-            Assert.AreEqual(Compatibility.INCOMPATIBLE, resultTasks.Values.First().Result.Compatible);
-            Assert.AreEqual(0, resultTasks.Values.First().Result.packageUpgradeStrategies.Count());
+
+            Assert.AreEqual(packages.First().PackageId, resultTasks.Values.First().Result.PackageVersionPair.PackageId);
+            Assert.AreEqual(packages.First().Version, resultTasks.Values.First().Result.PackageVersionPair.Version);
+            Assert.AreEqual(Compatibility.INCOMPATIBLE, resultTasks.Values.First().Result.PackageRecommendation.TargetFrameworkCompatibleVersionPair.GetValueOrDefault("netcoreapp3.1").CompatibilityResult);
+            Assert.AreEqual(0, resultTasks.Values.First().Result.PackageRecommendation.TargetFrameworkCompatibleVersionPair.GetValueOrDefault("netcoreapp3.1").CompatibleVersion.Count());
         }
 
         [Test]

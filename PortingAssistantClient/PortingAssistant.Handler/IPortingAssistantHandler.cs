@@ -9,6 +9,5 @@ namespace PortingAssistantHandler
     {
         List<Solution> GetSolutions(List<string> pathToSolutions);
         GetProjectResult GetProjects(string pathToSolution, bool projectsOnly);
-        Dictionary<PackageVersionPair, Task<PackageVersionResult>> GetNugetPackages(List<PackageVersionPair> packageVersions, string solutionPath);
     }
 }

@@ -7,7 +7,7 @@ namespace PortingAssistant.NuGet
 {
     public interface ICompatibilityChecker
     {
-        public CompatibilityCheckerType GetCompatibilityCheckerType();
+        public PackageSourceType GetCompatibilityCheckerType();
         public Dictionary<PackageVersionPair, Task<PackageDetails>> CheckAsync(List<PackageVersionPair> packageVersions, string pathToSolution);
     }
 }

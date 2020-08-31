@@ -118,10 +118,5 @@ namespace PortingAssistantHandler
                 };
             }
         }
-
-        public Dictionary<PackageVersionPair, Task<PackageVersionResult>> GetNugetPackages(List<PackageVersionPair> packageVersions, string pathToSolution)
-        {
-            return _cache.GetNugetPackages(packageVersions, pathToSolution);
-        }
     }
 }

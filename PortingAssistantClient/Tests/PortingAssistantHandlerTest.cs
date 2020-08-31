@@ -46,16 +46,26 @@ namespace PortingAssistantAssessmentTest
                 {
                     return list.Distinct().Select(packageVersion =>
                     {
-                        var taskCompletionSource = new TaskCompletionSource<PackageVersionResult>();
+                        var taskCompletionSource = new TaskCompletionSource<PackageAnalysisResult>();
                         taskCompletionSource.SetResult(
-                            new PackageVersionResult
+                            new PackageAnalysisResult
                             {
-                                PackageId = packageVersion.PackageId,
-                                Version = packageVersion.Version,
-                                Compatible = Compatibility.COMPATIBLE,
-                                packageUpgradeStrategies = new List<string> { packageVersion.Version }
+                                PackageVersionPair = packageVersion,
+                                PackageRecommendation = new PackageRecommendation
+                                {
+                                    RecommendationStrategy = RecommendationStrategy.UpgradePackage,
+                                    TargetFrameworkCompatibleVersionPair = new Dictionary<string, PackageCompatibilityInfo>
+                                    {
+                                        {
+                                            "netcoreapp3.1", new PackageCompatibilityInfo {
+                                                CompatibilityResult = Compatibility.COMPATIBLE,
+                                                CompatibleVersion = new List<string> { packageVersion.Version }
+                                             }
+                                        }
+                                    }
+                                }
                             });
-                        return new Tuple<PackageVersionPair, Task<PackageVersionResult>>(
+                        return new Tuple<PackageVersionPair, Task<PackageAnalysisResult>>(
                             packageVersion, taskCompletionSource.Task
                         );
                     }).ToDictionary(t => t.Item1, t => t.Item2);
@@ -108,22 +118,6 @@ namespace PortingAssistantAssessmentTest
             var results = _assessmentHandler.GetProjects(testSolutionPath, true);
             Assert.AreEqual(0, results.Projects.Count);
             Assert.AreEqual(1, results.FailedProjects.Count);
-        }
-
-
-        [Test]
-        public void TestGetNugetPackages()
-        {
-            var projects = _assessmentHandler.GetProjects(Path.Combine(_solutionFolder, "ModernSolution.sln"), false);
-            var nugetDependencies = projects.Projects.SelectMany(p => p.NugetDependencies).ToList();
-            var results = _assessmentHandler.GetNugetPackages(
-                nugetDependencies,
-                Path.Combine(_solutionFolder, "ModernSolution.sln"));
-
-            var testdata = nugetDependencies.Distinct().ToList();
-
-            Assert.AreEqual(nugetDependencies.Distinct().ToList().Count, results.ToList().Count);
-            Assert.AreEqual(nugetDependencies.Distinct().Select(n => n.PackageId).ToHashSet(), results.Select(r => r.Key.PackageId).ToHashSet());
         }
     }
 }

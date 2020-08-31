@@ -3,7 +3,8 @@ namespace PortingAssistant.Model
 {
     public enum PackageSourceType
     {
-        NuGet,
-        SDK
+        NUGET,
+        PORTABILITY_ANALYZER,
+        PRIVATE
     }
 }

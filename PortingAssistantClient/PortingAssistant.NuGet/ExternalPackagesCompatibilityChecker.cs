@@ -146,9 +146,9 @@ namespace PortingAssistant.NuGet
             }
         }
 
-        public CompatibilityCheckerType GetCompatibilityCheckerType()
+        public PackageSourceType GetCompatibilityCheckerType()
         {
-            return CompatibilityCheckerType.EXTERNAL;
+            return PackageSourceType.NUGET;
         }
 
         private class PackageFromS3
