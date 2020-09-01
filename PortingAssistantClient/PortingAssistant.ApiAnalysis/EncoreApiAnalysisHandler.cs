@@ -29,7 +29,7 @@ namespace PortingAssistant.ApiAnalysis
         }
 
         public SolutionApiAnalysisResult AnalyzeSolution(
-            string solutionFilename, List<Project> projects)
+            string solutionFilename, List<ProjectDetails> projects)
         {
             var options = new AnalyzerConfiguration(LanguageOptions.CSharp)
             {
@@ -51,14 +51,14 @@ namespace PortingAssistant.ApiAnalysis
         }
 
         private KeyValuePair<string, Task<ProjectApiAnalysisResult>> AnalyzeProject(
-            string solutionFilename, Project project, Task<List<AnalyzerResult>> analyzersTask)
+            string solutionFilename, ProjectDetails project, Task<List<AnalyzerResult>> analyzersTask)
         {
             var task = AnalyzeProjectAsync(solutionFilename, project, analyzersTask);
-            return KeyValuePair.Create(project.ProjectPath, task);
+            return KeyValuePair.Create(project.ProjectFilePath, task);
         }
 
         private async Task<ProjectApiAnalysisResult> AnalyzeProjectAsync(
-            string solutionFilename, Project project, Task<List<AnalyzerResult>> analyzersTask)
+            string solutionFilename, ProjectDetails project, Task<List<AnalyzerResult>> analyzersTask)
         {
             try
             {
@@ -66,18 +66,18 @@ namespace PortingAssistant.ApiAnalysis
                 var analyzers = await analyzersTask;
                 var invocationsMethodSignatures = new HashSet<string>();
 
-                var analyzer = analyzers.Find((a) => a.ProjectResult.ProjectFilePath.Equals(project.ProjectPath));
+                var analyzer = analyzers.Find((a) => a.ProjectResult.ProjectFilePath.Equals(project.ProjectFilePath));
 
                 if (analyzer == null || analyzer.ProjectResult == null)
                 {
                     _logger.LogError("Unable to build {0}.", project.ProjectName);
-                    throw new ApiAnalysisException(solutionFilename, project.ProjectPath, null, null);
+                    throw new ApiAnalysisException(solutionFilename, project.ProjectFilePath, null, null);
                 }
 
                 if (analyzer.ProjectResult.BuildErrorsCount > 0 && analyzer.ProjectResult.SourceFileResults.Count() == 0)
                 {
                     _logger.LogError("Encountered errors during compilation in {0}.", project.ProjectName);
-                    throw new ApiAnalysisException(solutionFilename, project.ProjectPath, analyzer.ProjectResult.BuildErrors, null);
+                    throw new ApiAnalysisException(solutionFilename, project.ProjectFilePath, analyzer.ProjectResult.BuildErrors, null);
                 }
 
                 var sourceFileToInvocations = analyzer.ProjectResult.SourceFileResults.Select((sourceFile) =>
@@ -107,7 +107,7 @@ namespace PortingAssistant.ApiAnalysis
             catch (Exception ex)
             {
                 _logger.LogError("Error while analyzing {0}, {1}", project.ProjectName, ex);
-                throw new ApiAnalysisException(solutionFilename, project.ProjectPath, null, ex); ;
+                throw new ApiAnalysisException(solutionFilename, project.ProjectFilePath, null, ex); ;
             }
         }
     }

@@ -13,7 +13,7 @@ namespace PortingAssistantApiAnalysis.Utils
     {
         public static List<SourceFileAnalysisResult> Convert(
             Dictionary<string, List<InvocationExpression>> sourceFileToInvocations,
-            Project project, IPortingAssistantNuGetHandler handler)
+            ProjectDetails project, IPortingAssistantNuGetHandler handler)
         {
 
             return sourceFileToInvocations.Select(sourceFile =>
@@ -23,7 +23,7 @@ namespace PortingAssistantApiAnalysis.Utils
                     SourceFilePath = sourceFile.Key,
                     ApiAnalysisResults = sourceFile.Value.Select(invocation =>
                     {
-                        var potentialNugetPackages = project.NugetDependencies.FindAll((n) => invocation.SemanticNamespace.ToLower().Contains(n.PackageId.ToLower()));
+                        var potentialNugetPackages = project.PackageReferences.FindAll((n) => invocation.SemanticNamespace.ToLower().Contains(n.PackageId.ToLower()));
                         PackageVersionPair nugetPackage = null;
                         if (potentialNugetPackages.Count() > 0)
                         {

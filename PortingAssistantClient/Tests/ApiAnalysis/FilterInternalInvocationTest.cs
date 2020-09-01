@@ -17,7 +17,7 @@ namespace Tests.ApiAnalysis
                 new MockInvocationExpressionModel("definition1", "namespace1")
             };
 
-            var project = new Project
+            var project = new ProjectDetails
             {
                 ProjectName = "namespace3.csproj",
                 ProjectReferences = new List<ProjectReference>
@@ -43,7 +43,7 @@ namespace Tests.ApiAnalysis
                 new MockInvocationExpressionModel("definition2", "namespace2.anothernamespace")
             };
 
-            var project = new Project
+            var project = new ProjectDetails
             {
                 ProjectName = "namespace1.csproj",
                 ProjectReferences = new List<ProjectReference>
@@ -66,7 +66,7 @@ namespace Tests.ApiAnalysis
                 new MockInvocationExpressionModel("definition1", "namespace1"),
             };
 
-            var project = new Project
+            var project = new ProjectDetails
             {
                 ProjectName = "namespace1",
                 ProjectReferences = new List<ProjectReference>()

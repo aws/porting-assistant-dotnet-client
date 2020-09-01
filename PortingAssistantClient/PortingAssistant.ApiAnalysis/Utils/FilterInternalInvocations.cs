@@ -8,7 +8,7 @@ namespace PortingAssistant.ApiAnalysis.Utils
 {
     public static class FilterInternalInvocations
     {
-        public static List<InvocationExpression> Filter(List<InvocationExpression> allInvocations, Project project)
+        public static List<InvocationExpression> Filter(List<InvocationExpression> allInvocations, ProjectDetails project)
         {
             var projectReferences = project.ProjectReferences.Select((references) =>
             {

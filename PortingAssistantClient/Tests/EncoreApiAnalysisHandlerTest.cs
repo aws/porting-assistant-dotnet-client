@@ -21,7 +21,7 @@ namespace PortingAssistantApiAnalysisTest
         private Mock<IPortingAssistantNuGetHandler> _handler;
         private PortingAssistantApiAnalysisHandler _PortingAssistantApiAnalysisHandler;
         private string solutionFile;
-        private List<Project> projects;
+        private List<ProjectDetails> projects;
 
         private readonly PackageDetails _packageDetails = new PackageDetails
         {
@@ -80,7 +80,7 @@ namespace PortingAssistantApiAnalysisTest
                 });
         }
 
-        private List<Project> getProjects(string pathToSolution)
+        private List<ProjectDetails> getProjects(string pathToSolution)
         {
             var solution = SolutionFile.Parse(pathToSolution);
             var failedProjects = new List<string>();
@@ -94,17 +94,19 @@ namespace PortingAssistantApiAnalysisTest
 
                 var projectParser = new ProjectFileParser(p.AbsolutePath);
 
-                return new Project
+                return new ProjectDetails
                 {
+                    SolutionPath = pathToSolution,
                     ProjectName = p.ProjectName,
-                    ProjectPath = p.AbsolutePath,
+                    ProjectFilePath = p.AbsolutePath,
                     ProjectGuid = p.ProjectGuid,
+                    ProjectType = p.ProjectType.ToString(),
                     TargetFrameworks = projectParser.GetTargetFrameworks().Select(tfm =>
                     {
                         var framework = NuGetFramework.Parse(tfm);
                         return string.Format("{0} {1}", framework.Framework, NuGetVersion.Parse(framework.Version.ToString()).ToNormalizedString());
                     }).ToList(),
-                    NugetDependencies = projectParser.GetPackageReferences(),
+                    PackageReferences = projectParser.GetPackageReferences(),
                     ProjectReferences = projectParser.GetProjectReferences()
                 };
             }).Where(p => p != null).ToList();

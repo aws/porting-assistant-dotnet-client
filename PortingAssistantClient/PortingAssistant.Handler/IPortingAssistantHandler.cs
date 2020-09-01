@@ -7,7 +7,7 @@ namespace PortingAssistantHandler
 {
     public interface IAssessmentHandler
     {
-        List<Solution> GetSolutions(List<string> pathToSolutions);
-        GetProjectResult GetProjects(string pathToSolution, bool projectsOnly);
+        SolutionDetails GetSolutionDetails(string solutionFilePath);
+        SolutionAnalysisResult AnalyzeSolution(string solutionFilePath, AssessmentConfiguration Configuration);
     }
 }

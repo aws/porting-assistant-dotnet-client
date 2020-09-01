@@ -79,9 +79,9 @@ namespace Tests.ApiAnalysis
                 }
             };
 
-            var project = new Project
+            var project = new ProjectDetails
             {
-                NugetDependencies = new List<PackageVersionPair>
+                PackageReferences = new List<PackageVersionPair>
                 {
                     new PackageVersionPair {
                         PackageId = "namespace",
@@ -113,9 +113,9 @@ namespace Tests.ApiAnalysis
                 }
             };
 
-            var project = new Project
+            var project = new ProjectDetails
             {
-                NugetDependencies = new List<PackageVersionPair>
+                PackageReferences = new List<PackageVersionPair>
                 {
                     new PackageVersionPair {
                         PackageId = "namespace",
@@ -151,9 +151,9 @@ namespace Tests.ApiAnalysis
                 }
             };
 
-            var project = new Project
+            var project = new ProjectDetails
             {
-                NugetDependencies = new List<PackageVersionPair>
+                PackageReferences = new List<PackageVersionPair>
                 {
                     new PackageVersionPair {
                         PackageId = "namespace",

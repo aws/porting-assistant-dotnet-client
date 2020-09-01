@@ -18,105 +18,98 @@ namespace PortingAssistantHandler
     public class AssessmentHandler : IAssessmentHandler
     {
         private readonly ILogger _logger;
-        private readonly IPortingAssistantNuGetHandler _cache;
+        private readonly IPortingAssistantNuGetHandler _handler;
         private readonly IPortingAssistantApiAnalysisHandler _apiAnalysis;
 
         public AssessmentHandler(ILogger<AssessmentHandler> logger,
-            IPortingAssistantNuGetHandler cache,
+            IPortingAssistantNuGetHandler handler,
             IPortingAssistantApiAnalysisHandler apiAnalysis)
         {
             _logger = logger;
-            _cache = cache;
+            _handler = handler;
             _apiAnalysis = apiAnalysis;
         }
 
-        public List<Solution> GetSolutions(List<string> pathToSolutions)
+        public SolutionDetails GetSolutionDetails(string solutionFilePath)
         {
-            var solutions = new List<Solution>();
-            var failedSolutions = new Dictionary<string, Exception>();
-            foreach (var pathToSolution in pathToSolutions)
-            {
-                try
-                {
-                    var solution = SolutionFile.Parse(pathToSolution);
-                    solutions.Add(new Solution
-                    {
-                        SolutionPath = pathToSolution,
-                        NumProjects = solution.ProjectsInOrder
-                            .Where(p => p.ProjectType == SolutionProjectType.KnownToBeMSBuildFormat)
-                            .Count()
-                    });
-                }
-                catch (Exception ex)
-                {
-                    failedSolutions.Add(pathToSolution, ex);
-                }
-            }
-            return solutions;
-        }
-
-        public GetProjectResult GetProjects(string pathToSolution, bool projectsOnly)
-        {
-            var manager = new AnalyzerManager(pathToSolution);
-            var solution = SolutionFile.Parse(pathToSolution);
+            var solution = SolutionFile.Parse(solutionFilePath);
             var failedProjects = new List<string>();
 
-            var projects = solution.ProjectsInOrder.Select(p =>
-            {
-                if (p.ProjectType != SolutionProjectType.KnownToBeMSBuildFormat && p.ProjectType != SolutionProjectType.WebProject)
-                {
-                    return null;
-                }
-
-                _logger.LogInformation("Analyzing: {0}", p.ProjectName);
-
-                try
-                {
-                    var projectParser = new ProjectFileParser(p.AbsolutePath);
-
-                    return new Project
-                    {
-                        ProjectName = p.ProjectName,
-                        SolutionPath = pathToSolution,
-                        ProjectPath = p.AbsolutePath,
-                        ProjectGuid = p.ProjectGuid,
-                        TargetFrameworks = projectParser.GetTargetFrameworks().Select(tfm =>
+            var Projects = solution.ProjectsInOrder
+                        .Where(p => p.ProjectType == SolutionProjectType.KnownToBeMSBuildFormat || p.ProjectType == SolutionProjectType.WebProject)
+                        .Select(p =>
                         {
-                            var framework = NuGetFramework.Parse(tfm);
-                            return string.Format("{0} {1}", framework.Framework, NuGetVersion.Parse(framework.Version.ToString()).ToNormalizedString());
-                        }).ToList(),
-                        NugetDependencies = projectParser.GetPackageReferences(),
-                        ProjectReferences = projectParser.GetProjectReferences()
+                            _logger.LogInformation("Analyzing: {0}", p.ProjectName);
+                            try
+                            {
+                                var projectParser = new ProjectFileParser(p.AbsolutePath);
+
+                                return new ProjectDetails
+                                {
+                                    SolutionPath = solutionFilePath,
+                                    ProjectName = p.ProjectName,
+                                    ProjectFilePath = p.AbsolutePath,
+                                    ProjectGuid = p.ProjectGuid,
+                                    ProjectType = p.ProjectType.ToString(),
+                                    TargetFrameworks = projectParser.GetTargetFrameworks().Select(tfm =>
+                                    {
+                                        var framework = NuGetFramework.Parse(tfm);
+                                        return string.Format("{0} {1}", framework.Framework, NuGetVersion.Parse(framework.Version.ToString()).ToNormalizedString());
+                                    }).ToList(),
+                                    PackageReferences = projectParser.GetPackageReferences(),
+                                    ProjectReferences = projectParser.GetProjectReferences(),
+
+                                };
+                            }
+                            catch (Exception ex)
+                            {
+                                failedProjects.Add(p.AbsolutePath);
+                                _logger.LogWarning("Failed to assess {0}, exception: {1}", p.ProjectName, ex);
+                                return null;
+                            }
+
+                        }).Where(p => p != null).ToList();
+
+            return new SolutionDetails
+            {
+                SolutionFilePath = solutionFilePath,
+                Projects = Projects,
+                FailedProjects = failedProjects
+            };
+        }
+
+        public SolutionAnalysisResult AnalyzeSolution(string solutionFilePath, AssessmentConfiguration Configuration)
+        {
+            var solutionDetails = GetSolutionDetails(solutionFilePath);
+            var solutionApiAnalysisResult = _apiAnalysis.AnalyzeSolution(solutionFilePath, solutionDetails.Projects);
+
+            var solutionAnalysisResult = new SolutionAnalysisResult
+            {
+                FailedProjects = solutionDetails.FailedProjects,
+                SolutionDetails = solutionDetails,
+                ProjectAnalysisResult = solutionDetails.Projects.Select(p =>
+                {
+                    var projectApiAnalysisResult = solutionApiAnalysisResult.ProjectApiAnalysisResults.GetValueOrDefault(p.ProjectFilePath);
+                    projectApiAnalysisResult.Wait();
+                    var packageAnalysisResults = _handler.GetNugetPackages(p.PackageReferences, solutionFilePath)
+                                                    .Values.Select(package =>
+                                                    {
+                                                        package.Wait();
+                                                        return package.Result;
+                                                    }).Where(p => p != null).ToList();
+                    return new ProjectAnalysisResult
+                    {
+                        Errors = projectApiAnalysisResult.Result.Errors,
+                        ProjectFile = p.ProjectFilePath,
+                        ProjectName = p.ProjectName,
+                        SourceFileAnalysisResults = projectApiAnalysisResult.Result.SourceFileAnalysisResults,
+                        PackageAnalysisResults = packageAnalysisResults
                     };
-                }
-                catch (Exception ex)
-                {
-                    failedProjects.Add(p.AbsolutePath);
-                    _logger.LogWarning("Failed to assess {0}, exception: {1}", p.ProjectName, ex);
-                    return null;
-                }
-            }).Where(p => p != null).ToList();
+                }).ToList()
 
-            if (!projectsOnly)
-            {
+            };
 
-                var apiCompatibilityResults = _apiAnalysis.AnalyzeSolution(pathToSolution, projects);
-
-                return new GetProjectResult
-                {
-                    Projects = projects,
-                    ApiInvocations = apiCompatibilityResults,
-                    FailedProjects = failedProjects
-                };
-            }
-            else
-            {
-                return new GetProjectResult
-                {
-                    Projects = projects,
-                    FailedProjects = failedProjects
-                };
-            }
+            return solutionAnalysisResult;
         }
     }
 }
