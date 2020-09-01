@@ -93,11 +93,11 @@ namespace Tests.ApiAnalysis
             var result = InvocationExpressionModelToInvocations.Convert(
                 sourceFileToInvocations, project, _handler.Object);
 
-            Assert.AreEqual(1, result["file1"].Count);
-            Assert.AreEqual("11.2.0", result["file1"][0].invocation.Version);
-            Assert.AreEqual(true, result["file1"][0].isCompatible);
-            Assert.AreEqual(true, result["file1"][0].deprecated);
-            Assert.AreEqual("12.0.4", result["file1"][0].replacement);
+            Assert.AreEqual(1, result[0].ApiAnalysisResults.Count);
+            Assert.AreEqual("11.2.0", result[0].ApiAnalysisResults[0].Invocation.Version);
+            Assert.AreEqual(Compatibility.COMPATIBLE, result[0].ApiAnalysisResults[0].CompatibilityResult);
+            Assert.AreEqual(true, result[0].ApiAnalysisResults[0].isDeprecated);
+            Assert.AreEqual("12.0.4", result[0].ApiAnalysisResults[0].ApiRecommendation.UpgradeVersion);
         }
 
         [Test]
@@ -131,11 +131,11 @@ namespace Tests.ApiAnalysis
             var result = InvocationExpressionModelToInvocations.Convert(
                 sourceFileToInvocations, project, _handler.Object);
 
-            Assert.AreEqual(1, result["file1"].Count);
-            Assert.AreEqual("11.2.0", result["file1"][0].invocation.Version);
-            Assert.AreEqual(true, result["file1"][0].isCompatible);
-            Assert.AreEqual(true, result["file1"][0].deprecated);
-            Assert.AreEqual("12.0.4", result["file1"][0].replacement);
+            Assert.AreEqual(1, result[0].ApiAnalysisResults.Count);
+            Assert.AreEqual("11.2.0", result[0].ApiAnalysisResults[0].Invocation.Version);
+            Assert.AreEqual(Compatibility.COMPATIBLE, result[0].ApiAnalysisResults[0].CompatibilityResult);
+            Assert.AreEqual(true, result[0].ApiAnalysisResults[0].isDeprecated);
+            Assert.AreEqual("12.0.4", result[0].ApiAnalysisResults[0].ApiRecommendation.UpgradeVersion);
         }
 
         [Test]
@@ -169,12 +169,12 @@ namespace Tests.ApiAnalysis
             var result = InvocationExpressionModelToInvocations.Convert(
                 sourceFileToInvocations, project, _handler.Object);
 
-            Assert.AreEqual(1, result["file1"].Count);
-            Assert.AreEqual("namespace.namespace2", result["file1"][0].invocation.PackageId);
-            Assert.IsNull(result["file1"][0].invocation.Version);
-            Assert.AreEqual(false, result["file1"][0].isCompatible);
-            Assert.AreEqual(true, result["file1"][0].deprecated);
-            Assert.IsNull(result["file1"][0].replacement);
+            Assert.AreEqual(1, result[0].ApiAnalysisResults.Count);
+            Assert.AreEqual("namespace.namespace2", result[0].ApiAnalysisResults[0].Invocation.PackageId);
+            Assert.IsNull(result[0].ApiAnalysisResults[0].Invocation.Version);
+            Assert.AreEqual(Compatibility.INCOMPATIBLE, result[0].ApiAnalysisResults[0].CompatibilityResult);
+            Assert.AreEqual(true, result[0].ApiAnalysisResults[0].isDeprecated);
+            Assert.IsNull(result[0].ApiAnalysisResults[0].ApiRecommendation.UpgradeVersion);
         }
     }
 }

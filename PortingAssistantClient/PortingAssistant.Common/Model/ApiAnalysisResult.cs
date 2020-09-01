@@ -4,8 +4,9 @@ namespace PortingAssistant.Model
 {
     public class ApiAnalysisResult
     {
-        public Invocation Invocation;
+        public Invocation Invocation { get; set; }
         public Compatibility CompatibilityResult { get; set; }
-        public ApiRecommendation ApiRecommendation;
+        public bool isDeprecated { get; set; }
+        public ApiRecommendation ApiRecommendation { get; set; }
     }
 }

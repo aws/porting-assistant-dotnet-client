@@ -91,15 +91,13 @@ namespace PortingAssistant.ApiAnalysis
 
                 _logger.LogInformation("API: Project {0} has {1} invocations", project.ProjectName, invocationsMethodSignatures.Count());
 
-                var invocationsWithCompatibility = InvocationExpressionModelToInvocations.Convert(
+                var SourceFileAnalysisResults = InvocationExpressionModelToInvocations.Convert(
                     sourceFileToInvocations, project, _hanler);
 
                 return new ProjectApiAnalysisResult
                 {
-                    ProjectName = project.ProjectName,
-                    ProjectFile = project.ProjectPath,
                     Errors = analyzer.ProjectResult.BuildErrors,
-                    SourceFileToInvocations = invocationsWithCompatibility,
+                    SourceFileAnalysisResults = SourceFileAnalysisResults,
                 };
             }
             catch (ApiAnalysisException ex)

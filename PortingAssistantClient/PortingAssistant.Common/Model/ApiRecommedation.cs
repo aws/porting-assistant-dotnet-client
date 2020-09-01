@@ -3,6 +3,7 @@ namespace PortingAssistant.Model
 {
     public class ApiRecommendation : Recommendation
     {
-        Invocation Invocation { get; set; }
+        //public Invocation Invocation { get; set; }
+        public string UpgradeVersion { get; set; }
     }
 }

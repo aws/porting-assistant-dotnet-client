@@ -11,15 +11,17 @@ namespace PortingAssistantApiAnalysis.Utils
 {
     public static class InvocationExpressionModelToInvocations
     {
-        public static Dictionary<string, List<InvocationWithCompatibility>> Convert(
+        public static List<SourceFileAnalysisResult> Convert(
             Dictionary<string, List<InvocationExpression>> sourceFileToInvocations,
             Project project, IPortingAssistantNuGetHandler handler)
         {
 
             return sourceFileToInvocations.Select(sourceFile =>
-                KeyValuePair.Create(
-                    sourceFile.Key,
-                    sourceFile.Value.Select(invocation =>
+            {
+                return new SourceFileAnalysisResult
+                {
+                    SourceFilePath = sourceFile.Key,
+                    ApiAnalysisResults = sourceFile.Value.Select(invocation =>
                     {
                         var potentialNugetPackages = project.NugetDependencies.FindAll((n) => invocation.SemanticNamespace.ToLower().Contains(n.PackageId.ToLower()));
                         PackageVersionPair nugetPackage = null;
@@ -34,10 +36,8 @@ namespace PortingAssistantApiAnalysis.Utils
                         }
                         var packageDetails = handler.GetPackageDetails(nugetPackage);
                         packageDetails.Wait();
-
-                        return new InvocationWithCompatibility
-                        {
-                            invocation = new Invocation
+                        return new ApiAnalysisResult {
+                            Invocation = new Invocation
                             {
                                 MethodName = invocation.MethodName,
                                 Namespace = invocation.SemanticNamespace,
@@ -53,22 +53,25 @@ namespace PortingAssistantApiAnalysis.Utils
                                 PackageId = nugetPackage?.PackageId,
                                 Version = nugetVersion?.ToNormalizedString()
                             },
-                            isCompatible = ApiCompatiblity.apiInPackageVersion(
+                            CompatibilityResult = ApiCompatiblity.apiInPackageVersion(
                                 packageDetails.Result,
                                 invocation.SemanticOriginalDefinition,
-                                nugetVersion?.ToNormalizedString()),
-                            deprecated = packageDetails.Result.Deprecated,
-                            replacement = ApiCompatiblity.upgradeStrategy(
-                                packageDetails.Result,
-                                invocation.SemanticOriginalDefinition,
-                                nugetVersion?.ToNormalizedString())
+                                nugetVersion?.ToNormalizedString()) ? Compatibility.COMPATIBLE : Compatibility.INCOMPATIBLE,
+                            isDeprecated = packageDetails.Result.Deprecated,
+                            ApiRecommendation = new ApiRecommendation
+                            {
+                                RecommendationStrategy = RecommendationStrategy.UpgradePackage,
+                                UpgradeVersion = ApiCompatiblity.upgradeStrategy(
+                                    packageDetails.Result,
+                                    invocation.SemanticOriginalDefinition,
+                                    nugetVersion?.ToNormalizedString())
+                            }
                         };
-                    })
-                    .Where(invocation => invocation != null)
+                    }).Where(invocation => invocation != null)
                     .ToList()
-                )
-            ).ToDictionary(p => p.Key, p => p.Value);
-
+                };
+            }
+            ).ToList();
         }
     }
 }

@@ -118,14 +118,14 @@ namespace PortingAssistantApiAnalysisTest
             var result = _PortingAssistantApiAnalysisHandler.AnalyzeSolution(solutionFile, projects);
             Task.WaitAll(result.ProjectApiAnalysisResults.Values.ToArray());
             var values = result.ProjectApiAnalysisResults.Values.First().Result;
-            Assert.AreEqual(projects.First().ProjectPath, values.ProjectFile);
-            Assert.AreEqual("Newtonsoft.Json", values.SourceFileToInvocations.First().Value.First().invocation.PackageId);
-            Assert.AreEqual("11.0.1", values.SourceFileToInvocations.First().Value.First().invocation.Version);
+            //Assert.AreEqual(projects.First().ProjectPath, values.);
+            Assert.AreEqual("Newtonsoft.Json", values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().Invocation.PackageId);
+            Assert.AreEqual("11.0.1", values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().Invocation.Version);
             Assert.AreEqual("Newtonsoft.Json.JsonConvert.SerializeObject(object)",
-                values.SourceFileToInvocations.First().Value.First().invocation.OriginalDefinition);
-            Assert.AreEqual(false, values.SourceFileToInvocations.First().Value.First().deprecated);
-            Assert.AreEqual(true, values.SourceFileToInvocations.First().Value.First().isCompatible);
-            Assert.AreEqual("12.0.4", values.SourceFileToInvocations.First().Value.First().replacement);
+                values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().Invocation.OriginalDefinition);
+            Assert.AreEqual(false, values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().isDeprecated);
+            Assert.AreEqual(Compatibility.COMPATIBLE, values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().CompatibilityResult);
+            Assert.AreEqual("12.0.4", values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().ApiRecommendation.UpgradeVersion);
         }
 
         [Test]
