@@ -53,7 +53,7 @@ namespace PortingAssistantAssessmentTest
                                 PackageVersionPair = packageVersion,
                                 PackageRecommendation = new PackageRecommendation
                                 {
-                                    RecommendationStrategy = RecommendationStrategy.UpgradePackage,
+                                    RecommendedActionType = RecommendedActionType.UpgradePackage,
                                     TargetFrameworkCompatibleVersionPair = new Dictionary<string, PackageCompatibilityInfo>
                                     {
                                         {

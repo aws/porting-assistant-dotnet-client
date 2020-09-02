@@ -46,7 +46,6 @@ namespace PortingAssistantHandler
 
                                 return new ProjectDetails
                                 {
-                                    SolutionPath = solutionFilePath,
                                     ProjectName = p.ProjectName,
                                     ProjectFilePath = p.AbsolutePath,
                                     ProjectGuid = p.ProjectGuid,
@@ -78,7 +77,7 @@ namespace PortingAssistantHandler
             };
         }
 
-        public SolutionAnalysisResult AnalyzeSolution(string solutionFilePath, AssessmentConfiguration Configuration)
+        public SolutionAnalysisResult AnalyzeSolution(string solutionFilePath)
         {
             var solutionDetails = GetSolutionDetails(solutionFilePath);
             var solutionApiAnalysisResult = _apiAnalysis.AnalyzeSolution(solutionFilePath, solutionDetails.Projects);

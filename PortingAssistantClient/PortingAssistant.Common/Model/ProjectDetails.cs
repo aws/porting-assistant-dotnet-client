@@ -4,7 +4,6 @@ namespace PortingAssistant.Model
 {
     public class ProjectDetails
     {
-        public string SolutionPath { get; set; }
         public string ProjectName { get; set; }
         public string ProjectFilePath { get; set; }
         public string ProjectGuid { get; set; }

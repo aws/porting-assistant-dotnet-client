@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace PortingAssistant.Model
 {
-    public class AssessmentConfiguration
+    public class AnalyzerConfiguration
     {
         public Settings Settings { get; set; }
 

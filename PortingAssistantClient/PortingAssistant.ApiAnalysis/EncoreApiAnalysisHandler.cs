@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Serilog;
 using PortingAssistant.NuGet;
 using PortingAssistant.ApiAnalysis.Utils;
+using AnalyzerConfiguration = AwsCodeAnalyzer.AnalyzerConfiguration;
 
 namespace PortingAssistant.ApiAnalysis
 {

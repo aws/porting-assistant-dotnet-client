@@ -8,6 +8,6 @@ namespace PortingAssistantHandler
     public interface IAssessmentHandler
     {
         SolutionDetails GetSolutionDetails(string solutionFilePath);
-        SolutionAnalysisResult AnalyzeSolution(string solutionFilePath, AssessmentConfiguration Configuration);
+        SolutionAnalysisResult AnalyzeSolution(string solutionFilePath);
     }
 }

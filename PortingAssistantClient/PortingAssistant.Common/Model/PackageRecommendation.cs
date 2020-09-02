@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace PortingAssistant.Model
 {
-    public class PackageRecommendation : Recommendation
+    public class PackageRecommendation : RecommendationAction
     {
         public Dictionary<string, PackageCompatibilityInfo> TargetFrameworkCompatibleVersionPair { get; set; }
     }

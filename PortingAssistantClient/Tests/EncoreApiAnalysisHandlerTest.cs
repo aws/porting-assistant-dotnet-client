@@ -96,7 +96,6 @@ namespace PortingAssistantApiAnalysisTest
 
                 return new ProjectDetails
                 {
-                    SolutionPath = pathToSolution,
                     ProjectName = p.ProjectName,
                     ProjectFilePath = p.AbsolutePath,
                     ProjectGuid = p.ProjectGuid,
@@ -121,8 +120,8 @@ namespace PortingAssistantApiAnalysisTest
             Task.WaitAll(result.ProjectApiAnalysisResults.Values.ToArray());
             var values = result.ProjectApiAnalysisResults.Values.First().Result;
             //Assert.AreEqual(projects.First().ProjectPath, values.);
-            Assert.AreEqual("Newtonsoft.Json", values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().Invocation.PackageId);
-            Assert.AreEqual("11.0.1", values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().Invocation.Version);
+            Assert.AreEqual("Newtonsoft.Json", values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().Invocation.Package.PackageId);
+            Assert.AreEqual("11.0.1", values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().Invocation.Package.Version);
             Assert.AreEqual("Newtonsoft.Json.JsonConvert.SerializeObject(object)",
                 values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().Invocation.OriginalDefinition);
             Assert.AreEqual(false, values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().isDeprecated);

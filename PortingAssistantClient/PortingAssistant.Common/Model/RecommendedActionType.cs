@@ -1,10 +1,9 @@
 ﻿using System;
 namespace PortingAssistant.Model
 {
-    public enum RecommendationStrategy
+    public enum RecommendedActionType
     {
         UpgradePackage,
-        NotAvailable,
         ReplaceApi,
         //Future
         ReplaceNamespace,

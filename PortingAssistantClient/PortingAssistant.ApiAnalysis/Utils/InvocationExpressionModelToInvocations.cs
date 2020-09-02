@@ -6,6 +6,7 @@ using PortingAssistant.NuGet;
 using NuGet.Versioning;
 using System.Threading.Tasks;
 using PortingAssistant.ApiAnalysis.Utils;
+using TextSpan = PortingAssistant.Model.TextSpan;
 
 namespace PortingAssistantApiAnalysis.Utils
 {
@@ -43,15 +44,18 @@ namespace PortingAssistantApiAnalysis.Utils
                                 Namespace = invocation.SemanticNamespace,
                                 MethodSignature = invocation.SemanticMethodSignature,
                                 OriginalDefinition = invocation.SemanticOriginalDefinition,
-                                Location = new InvocationLocation
+                                Location = new TextSpan
                                 {
                                     StartCharPosition = invocation.TextSpan.StartCharPosition,
                                     EndCharPosition = invocation.TextSpan.EndCharPosition,
                                     StartLinePosition = invocation.TextSpan.StartLinePosition,
                                     EndLinePosition = invocation.TextSpan.EndLinePosition
                                 },
-                                PackageId = nugetPackage?.PackageId,
-                                Version = nugetVersion?.ToNormalizedString()
+                                Package = new PackageVersionPair
+                                {
+                                    PackageId = nugetPackage?.PackageId,
+                                    Version = nugetVersion?.ToNormalizedString()
+                                }
                             },
                             CompatibilityResult = ApiCompatiblity.apiInPackageVersion(
                                 packageDetails.Result,
@@ -60,11 +64,13 @@ namespace PortingAssistantApiAnalysis.Utils
                             isDeprecated = packageDetails.Result.Deprecated,
                             ApiRecommendation = new ApiRecommendation
                             {
-                                RecommendationStrategy = RecommendationStrategy.UpgradePackage,
+                                RecommendedActionType = RecommendedActionType.UpgradePackage,
                                 UpgradeVersion = ApiCompatiblity.upgradeStrategy(
-                                    packageDetails.Result,
-                                    invocation.SemanticOriginalDefinition,
-                                    nugetVersion?.ToNormalizedString())
+                                                packageDetails.Result,
+                                                invocation.SemanticOriginalDefinition,
+                                                nugetVersion?.ToNormalizedString())
+                                 
+                                
                             }
                         };
                     }).Where(invocation => invocation != null)

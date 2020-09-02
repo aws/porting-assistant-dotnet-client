@@ -17,7 +17,7 @@ namespace PortingAssistantHandler
         {
             serviceCollection.AddSingleton<IAssessmentHandler, AssessmentHandler>();
             serviceCollection.AddSingleton<IPortingAssistantInternalNuGetCompatibilityHandler, PortingAssistantInternalNuGetCompatibilityHandler>();
-            serviceCollection.Configure<EndpointOptions>(cacheConfig);
+            serviceCollection.Configure<AnalyzerConfiguration>(cacheConfig);
             serviceCollection.AddSingleton<IPortingAssistantNuGetHandler, PortingAssistantNuGetHandler>();
             serviceCollection.AddSingleton<IPortingAssistantApiAnalysisHandler, PortingAssistantApiAnalysisHandler>();
             serviceCollection.AddSingleton<ICompatibilityChecker, InternalPackagesCompatibilityChecker>();

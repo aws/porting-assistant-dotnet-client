@@ -1,6 +1,6 @@
 ﻿namespace PortingAssistant.Model
 {
-    public class InvocationLocation
+    public class TextSpan
     {
         public long StartCharPosition { get; set; }
         public long EndCharPosition { get; set; }

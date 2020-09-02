@@ -114,7 +114,7 @@ namespace PortingAssistant.NuGet
                                     },
                                     PackageRecommendation = new PackageRecommendation
                                     {
-                                        RecommendationStrategy = RecommendationStrategy.UpgradePackage,
+                                        RecommendedActionType = RecommendedActionType.UpgradePackage,
                                         TargetFrameworkCompatibleVersionPair = new Dictionary<string, PackageCompatibilityInfo>
                                         {
                                             {

@@ -5,7 +5,7 @@ namespace PortingAssistant.Model
 {
     public class SolutionAnalysisResult
     {
-        private string Version { get; set; }
+        public string Version { get; set; }
         public SolutionDetails SolutionDetails { get; set; }
         public List<ProjectAnalysisResult> ProjectAnalysisResult { get; set; }
         public List<string> FailedProjects { get; set; }
