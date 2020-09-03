@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -9,17 +8,17 @@ using System.IO;
 using System.IO.Compression;
 using PortingAssistant.Model;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace PortingAssistant.NuGet
 {
-    public class NamespaceCompatibilityChecker
+    public class NamespaceCompatibilityChecker : IPortingAssistantNamespaceHandler
     {
         private readonly ILogger _logger;
         private readonly IOptions<AnalyzerConfiguration> _configuration;
         private readonly ITransferUtility _transferUtility;
         private readonly ConcurrentDictionary<string, NamespaceResult> _resultsDict;
-        private static readonly int _maxProcessConcurrency = 3;
-        private static readonly SemaphoreSlim _processConcurrency = new SemaphoreSlim(_maxProcessConcurrency);
 
         public NamespaceCompatibilityChecker(
             ITransferUtility transferUtility,
@@ -30,66 +29,75 @@ namespace PortingAssistant.NuGet
             _logger = logger;
             _transferUtility = transferUtility;
             _configuration = configuration;
+            _resultsDict = new ConcurrentDictionary<string, NamespaceResult>();
         }
 
-        public Task<NamespaceDetails> GetNamespaceDetails(string Namespace)
+        public Dictionary<string, Task<NamespaceDetails>> GetNamespaceDetails(List<string> Namespaces)
         {
-            var isNotRunning = _resultsDict.TryAdd(
+            var nameSpacesToQuery = new List<string>();
+            var tasks = Namespaces.Select(Namespace =>
+            {
+                var isNotRunning = _resultsDict.TryAdd(
                     Namespace,
                     new NamespaceResult
                     {
                         TaskCompletionSource = new TaskCompletionSource<NamespaceDetails>()
                     });
-            if (isNotRunning)
-            {
-                Process(Namespace);
-            }
-            _resultsDict.TryGetValue(Namespace, out var NamespaceResult);
+                if (isNotRunning)
+                {
+                    Process(Namespaces);
+                }
+                _resultsDict.TryGetValue(Namespace, out var NamespaceResult);
 
-            _logger.LogInformation("Checking compatibility for namespace: {0}", Namespace);
-            return NamespaceResult.TaskCompletionSource.Task;
+                return new Tuple<string, Task<NamespaceDetails>>(Namespace, NamespaceResult.TaskCompletionSource.Task);
+            }).ToDictionary(t => t.Item1, t=> t.Item2);
+
+            _logger.LogInformation("Checking compatibility for {0} namespaces", nameSpacesToQuery.Count);
+            if(nameSpacesToQuery.Count > 0)
+            {
+                Process(nameSpacesToQuery);
+            }
+            return tasks;
+
         }
 
-        private void Process(string Namespace)
+        private void Process(List<string> Namespaces)
         {
-            try
+            foreach (var Namespace in Namespaces)
             {
-                _logger.LogInformation("Downloading {0} from {1}", Namespace + ".json.gz", _configuration.Value.DataStoreSettings.S3Endpoint);
-                using var stream = _transferUtility.OpenStream(
-                    _configuration.Value.DataStoreSettings.S3Endpoint, Namespace.ToLower() + ".json.gz");
-                using var gzipStream = new GZipStream(stream, CompressionMode.Decompress);
-                using var streamReader = new StreamReader(gzipStream);
-                var result = JsonConvert.DeserializeObject<PackageFromS3>(streamReader.ReadToEnd());
-                // Validate result
-                if (result.NamespaceDetails.Package.Name == null || result.NamespaceDetails.Package.Name.Trim().ToLower() != Namespace.Trim().ToLower())
+                try
                 {
-                    throw new Exception(); //To be fill
+                    _logger.LogInformation("Downloading {0} from {1}", Namespace + ".json.gz", _configuration.Value.DataStoreSettings.S3Endpoint);
+                    using var stream = _transferUtility.OpenStream(
+                        _configuration.Value.DataStoreSettings.S3Endpoint, Namespace.ToLower() + ".json.gz");
+                    using var gzipStream = new GZipStream(stream, CompressionMode.Decompress);
+                    using var streamReader = new StreamReader(gzipStream);
+                    var result = JsonConvert.DeserializeObject<PackageFromS3>(streamReader.ReadToEnd());
+                    // Validate result
+                    if (result.NamespaceDetails.Package.Name == null || result.NamespaceDetails.Package.Name.Trim().ToLower() != Namespace.Trim().ToLower())
+                    {
+                        throw new Exception("Namespace file is corrupted"); //To be fill
+                    }
+                    if (_resultsDict.TryGetValue(Namespace, out var namespaceResult))
+                    {
+                        namespaceResult.TaskCompletionSource.SetResult(result.NamespaceDetails);
+                    }
                 }
-                if (_resultsDict.TryGetValue(Namespace, out var namespaceResult))
+                catch (Exception ex)
                 {
-                    namespaceResult.TaskCompletionSource.SetResult(result.NamespaceDetails);
-                }      
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("Failed when download and parsing {0} from {1}, {2}", Namespace.ToLower() + ".json.gz", _configuration.Value.DataStoreSettings.S3Endpoint, ex);
-                if (_resultsDict.TryGetValue(Namespace, out var namespaceResult))
-                {
-                    namespaceResult.TaskCompletionSource.SetException(ex);
+                    _logger.LogError("Failed when download and parsing {0} from {1}, {2}", Namespace.ToLower() + ".json.gz", _configuration.Value.DataStoreSettings.S3Endpoint, ex);
+                    if (_resultsDict.TryGetValue(Namespace, out var namespaceResult))
+                    {
+                        namespaceResult.TaskCompletionSource.SetException(ex);
+                    }
                 }
             }
+            
         }
 
         public PackageSourceType GetCompatibilityCheckerType()
         {
             return PackageSourceType.SDK;
-        }
-
-        public class NamespaceDetails
-        {
-            public PackageDetails Package { get; set; }
-            public string[] Namespaces { get; set; }
-            public string[] Assemblies { get; set; }
         }
 
         private class PackageFromS3

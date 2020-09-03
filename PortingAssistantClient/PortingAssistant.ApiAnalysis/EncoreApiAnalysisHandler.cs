@@ -19,14 +19,18 @@ namespace PortingAssistant.ApiAnalysis
     public class PortingAssistantApiAnalysisHandler : IPortingAssistantApiAnalysisHandler
     {
         private readonly ILogger<PortingAssistantApiAnalysisHandler> _logger;
-        private readonly IPortingAssistantNuGetHandler _hanler;
+        private readonly IPortingAssistantNuGetHandler _nugethanler;
+        private readonly IPortingAssistantNamespaceHandler _namespacehandler;
         private static readonly int _maxBuildConcurrency = 1;
         private static readonly SemaphoreSlim _buildConcurrency = new SemaphoreSlim(_maxBuildConcurrency);
 
-        public PortingAssistantApiAnalysisHandler(ILogger<PortingAssistantApiAnalysisHandler> logger, IPortingAssistantNuGetHandler handler)
+        public PortingAssistantApiAnalysisHandler(ILogger<PortingAssistantApiAnalysisHandler> logger,
+            IPortingAssistantNamespaceHandler namespaceHandler,
+            IPortingAssistantNuGetHandler nugetHandler)
         {
             _logger = logger;
-            _hanler = handler;
+            _nugethanler = nugetHandler;
+            _namespacehandler = namespaceHandler;
         }
 
         public SolutionApiAnalysisResult AnalyzeSolution(
@@ -66,6 +70,7 @@ namespace PortingAssistant.ApiAnalysis
                 var startTime = DateTime.Now.Ticks;
                 var analyzers = await analyzersTask;
                 var invocationsMethodSignatures = new HashSet<string>();
+                var SemanticNamespaces = new HashSet<string>();
 
                 var analyzer = analyzers.Find((a) => a.ProjectResult.ProjectFilePath.Equals(project.ProjectFilePath));
 
@@ -87,13 +92,15 @@ namespace PortingAssistant.ApiAnalysis
                     _logger.LogInformation("API: SourceFile {0} has {1} invocations pre-filter", sourceFile.FileFullPath, invocationsInSourceFile.Count());
                     var invocations = FilterInternalInvocations.Filter(invocationsInSourceFile, project);
                     invocationsMethodSignatures.UnionWith(invocations.Select(invocation => invocation.SemanticOriginalDefinition));
+                    SemanticNamespaces.UnionWith(invocations.Select(invocation => invocation.SemanticNamespace));
                     return KeyValuePair.Create(sourceFile.FileFullPath, invocations);
                 }).ToDictionary(p => p.Key, p => p.Value);
 
                 _logger.LogInformation("API: Project {0} has {1} invocations", project.ProjectName, invocationsMethodSignatures.Count());
 
+                var nameSpaceresults = _namespacehandler.GetNamespaceDetails(SemanticNamespaces.ToList());
                 var SourceFileAnalysisResults = InvocationExpressionModelToInvocations.Convert(
-                    sourceFileToInvocations, project, _hanler);
+                    sourceFileToInvocations, project, _nugethanler, nameSpaceresults);
 
                 return new ProjectApiAnalysisResult
                 {

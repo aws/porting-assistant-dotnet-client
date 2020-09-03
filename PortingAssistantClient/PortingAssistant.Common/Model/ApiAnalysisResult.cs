@@ -6,7 +6,6 @@ namespace PortingAssistant.Model
     {
         public Invocation Invocation { get; set; }
         public Compatibility CompatibilityResult { get; set; }
-        public bool isDeprecated { get; set; }
         public ApiRecommendation ApiRecommendation { get; set; }
     }
 }

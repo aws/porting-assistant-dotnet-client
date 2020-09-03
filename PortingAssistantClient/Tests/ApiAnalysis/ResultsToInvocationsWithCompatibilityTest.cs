@@ -63,7 +63,7 @@ namespace Tests.ApiAnalysis
                     { "MIT", new SortedSet<string> { "12.0.3", "12.0.4" } }
                 }
             },
-            Deprecated = true
+            Deprecated = false
         };
 
         [Test]
@@ -91,12 +91,11 @@ namespace Tests.ApiAnalysis
             };
 
             var result = InvocationExpressionModelToInvocations.Convert(
-                sourceFileToInvocations, project, _handler.Object);
+                sourceFileToInvocations, project, _handler.Object, new Dictionary<string, Task<NamespaceDetails>>());
 
             Assert.AreEqual(1, result[0].ApiAnalysisResults.Count);
             Assert.AreEqual("11.2.0", result[0].ApiAnalysisResults[0].Invocation.Package.Version);
             Assert.AreEqual(Compatibility.COMPATIBLE, result[0].ApiAnalysisResults[0].CompatibilityResult);
-            Assert.AreEqual(true, result[0].ApiAnalysisResults[0].isDeprecated);
             Assert.AreEqual("12.0.4", result[0].ApiAnalysisResults[0].ApiRecommendation.UpgradeVersion);
         }
 
@@ -129,12 +128,11 @@ namespace Tests.ApiAnalysis
             };
 
             var result = InvocationExpressionModelToInvocations.Convert(
-                sourceFileToInvocations, project, _handler.Object);
+                sourceFileToInvocations, project, _handler.Object, new Dictionary<string, Task<NamespaceDetails>>());
 
             Assert.AreEqual(1, result[0].ApiAnalysisResults.Count);
             Assert.AreEqual("11.2.0", result[0].ApiAnalysisResults[0].Invocation.Package.Version);
             Assert.AreEqual(Compatibility.COMPATIBLE, result[0].ApiAnalysisResults[0].CompatibilityResult);
-            Assert.AreEqual(true, result[0].ApiAnalysisResults[0].isDeprecated);
             Assert.AreEqual("12.0.4", result[0].ApiAnalysisResults[0].ApiRecommendation.UpgradeVersion);
         }
 
@@ -167,13 +165,12 @@ namespace Tests.ApiAnalysis
             };
 
             var result = InvocationExpressionModelToInvocations.Convert(
-                sourceFileToInvocations, project, _handler.Object);
+                sourceFileToInvocations, project, _handler.Object, new Dictionary<string, Task<NamespaceDetails>>());
 
             Assert.AreEqual(1, result[0].ApiAnalysisResults.Count);
             Assert.AreEqual("namespace.namespace2", result[0].ApiAnalysisResults[0].Invocation.Package.PackageId);
             Assert.IsNull(result[0].ApiAnalysisResults[0].Invocation.Package.Version);
             Assert.AreEqual(Compatibility.INCOMPATIBLE, result[0].ApiAnalysisResults[0].CompatibilityResult);
-            Assert.AreEqual(true, result[0].ApiAnalysisResults[0].isDeprecated);
             Assert.IsNull(result[0].ApiAnalysisResults[0].ApiRecommendation.UpgradeVersion);
         }
     }

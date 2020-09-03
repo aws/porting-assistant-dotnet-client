@@ -14,7 +14,8 @@ namespace PortingAssistantApiAnalysis.Utils
     {
         public static List<SourceFileAnalysisResult> Convert(
             Dictionary<string, List<InvocationExpression>> sourceFileToInvocations,
-            ProjectDetails project, IPortingAssistantNuGetHandler handler)
+            ProjectDetails project, IPortingAssistantNuGetHandler handler,
+            Dictionary<string, Task<NamespaceDetails>> nameSpaceresults)
         {
 
             return sourceFileToInvocations.Select(sourceFile =>
@@ -36,7 +37,6 @@ namespace PortingAssistantApiAnalysis.Utils
                             NuGetVersion.TryParse(nugetPackage.Version, out nugetVersion);
                         }
                         var packageDetails = handler.GetPackageDetails(nugetPackage);
-                        packageDetails.Wait();
                         return new ApiAnalysisResult {
                             Invocation = new Invocation
                             {
@@ -58,15 +58,14 @@ namespace PortingAssistantApiAnalysis.Utils
                                 }
                             },
                             CompatibilityResult = ApiCompatiblity.apiInPackageVersion(
-                                packageDetails.Result,
+                                packageDetails,
                                 invocation.SemanticOriginalDefinition,
-                                nugetVersion?.ToNormalizedString()) ? Compatibility.COMPATIBLE : Compatibility.INCOMPATIBLE,
-                            isDeprecated = packageDetails.Result.Deprecated,
+                                nugetVersion?.ToNormalizedString()),
                             ApiRecommendation = new ApiRecommendation
                             {
                                 RecommendedActionType = RecommendedActionType.UpgradePackage,
                                 UpgradeVersion = ApiCompatiblity.upgradeStrategy(
-                                                packageDetails.Result,
+                                                packageDetails,
                                                 invocation.SemanticOriginalDefinition,
                                                 nugetVersion?.ToNormalizedString())
                                  

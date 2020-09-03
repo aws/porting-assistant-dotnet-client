@@ -19,6 +19,7 @@ namespace PortingAssistantApiAnalysisTest
     public class PortingAssistantApiAnalysisHandlerTest
     {
         private Mock<IPortingAssistantNuGetHandler> _handler;
+        private Mock<IPortingAssistantNamespaceHandler> _nameSpacehandler;
         private PortingAssistantApiAnalysisHandler _PortingAssistantApiAnalysisHandler;
         private string solutionFile;
         private List<ProjectDetails> projects;
@@ -60,7 +61,8 @@ namespace PortingAssistantApiAnalysisTest
         public void OneTimeSetUp()
         {
             _handler = new Mock<IPortingAssistantNuGetHandler>();
-            _PortingAssistantApiAnalysisHandler = new PortingAssistantApiAnalysisHandler(NullLogger<PortingAssistantApiAnalysisHandler>.Instance, _handler.Object);
+            _nameSpacehandler = new Mock<IPortingAssistantNamespaceHandler>();
+            _PortingAssistantApiAnalysisHandler = new PortingAssistantApiAnalysisHandler(NullLogger<PortingAssistantApiAnalysisHandler>.Instance,_nameSpacehandler.Object, _handler.Object);
         }
 
         [SetUp]
@@ -77,6 +79,22 @@ namespace PortingAssistantApiAnalysisTest
                     var task = new TaskCompletionSource<PackageDetails>();
                     task.SetResult(_packageDetails);
                     return task.Task;
+                });
+
+            _nameSpacehandler.Reset();
+            _nameSpacehandler.Setup(handler => handler.GetNamespaceDetails(It.IsAny<List<string>>()))
+                .Returns((List<string> namespaces) =>
+                {
+                    var task = new TaskCompletionSource<NamespaceDetails>();
+                    task.SetResult(new NamespaceDetails
+                    {
+                        Package = _packageDetails,
+                        Namespaces = new string[]{ "TestNameSpace"},
+                    });
+                    return new Dictionary<string, Task<NamespaceDetails>>
+                    {
+                        {"TestNameSpace", task.Task }
+                    };
                 });
         }
 
@@ -124,7 +142,6 @@ namespace PortingAssistantApiAnalysisTest
             Assert.AreEqual("11.0.1", values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().Invocation.Package.Version);
             Assert.AreEqual("Newtonsoft.Json.JsonConvert.SerializeObject(object)",
                 values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().Invocation.OriginalDefinition);
-            Assert.AreEqual(false, values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().isDeprecated);
             Assert.AreEqual(Compatibility.COMPATIBLE, values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().CompatibilityResult);
             Assert.AreEqual("12.0.4", values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().ApiRecommendation.UpgradeVersion);
         }
