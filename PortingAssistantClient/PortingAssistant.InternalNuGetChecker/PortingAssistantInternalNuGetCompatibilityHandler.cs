@@ -10,6 +10,7 @@ using NuGet.Versioning;
 using NuGet.Frameworks;
 using NuGet.Packaging.Core;
 using Microsoft.Extensions.Logging;
+using PortingAssistant.Model;
 using PortingAssistant.InternalNuGetChecker.Model;
 
 namespace PortingAssistant.InternalNuGetChecker
@@ -54,7 +55,7 @@ namespace PortingAssistant.InternalNuGetChecker
             if (packageSource == null)
             {
                 _logger.LogError("Error: No Package Source Found !!!");
-                throw new PackageSourceNotFoundException();
+                throw new PortingAssistantClientException("Error: No Package Source Found!" , null);
             }
 
             var downloadResource = await packageSource.Source.GetResourceAsync<DownloadResource>();

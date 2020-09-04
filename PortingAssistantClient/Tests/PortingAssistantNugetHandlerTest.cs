@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using PortingAssistant.NuGet;
-using PortingAssistant;
 using PortingAssistant.Model;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
@@ -27,7 +26,6 @@ namespace PortingAssistantNuGetTest
         private Mock<ITransferUtility> _transferUtilityMock;
         private Mock<IPortingAssistantInternalNuGetCompatibilityHandler> _checkComptHanderMock;
         private Mock<InternalPackagesCompatibilityChecker> _internalChecker;
-        private NamespaceCompatibilityChecker _namesapceHandler;
         private ExternalPackagesCompatibilityChecker _externalChecker;
         private Mock<ILogger<PortingAssistantNuGetHandler>> _logger;
         private readonly string _testSolutionFolderPath = Path.Combine(TestContext.CurrentContext.TestDirectory,
@@ -222,17 +220,6 @@ namespace PortingAssistantNuGetTest
                 _transferUtilityMock.Object,
                 NullLogger<ExternalPackagesCompatibilityChecker>.Instance,
                 Options.Create(new AnalyzerConfiguration {
-                    DataStoreSettings = new DataStoreSettings
-                    {
-                        S3Endpoint = "Bucket"
-                    }
-                })
-                );
-
-            _namesapceHandler = new NamespaceCompatibilityChecker(_transferUtilityMock.Object,
-                NullLogger<NamespaceCompatibilityChecker>.Instance,
-                Options.Create(new AnalyzerConfiguration
-                {
                     DataStoreSettings = new DataStoreSettings
                     {
                         S3Endpoint = "Bucket"

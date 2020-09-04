@@ -13,4 +13,8 @@
     <ProjectReference Include="..\PortingAssistant.Common\PortingAssistant.Common.csproj" />
     <ProjectReference Include="..\PortingAssistant.InternalNuGetChecker\PortingAssistant.InternalNuGetChecker.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Interfaces\" />
+    <Folder Include="Checkers\" />
+  </ItemGroup>
 </Project>

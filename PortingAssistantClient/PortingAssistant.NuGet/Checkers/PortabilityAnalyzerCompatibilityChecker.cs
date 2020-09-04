@@ -102,69 +102,54 @@ namespace PortingAssistant.NuGet
         {
             var foundSet = new HashSet<PackageVersionPair>();
             var errorSet = new HashSet<PackageVersionPair>();
-            try
-            {
-                foreach (var url in foundPackages)
-                {
-                    try
-                    {
-                        _logger.LogInformation("Downloading {0} from {1}", url.Key, _options.Value.DataStoreSettings.S3Endpoint);
-                        using var stream = _transferUtility.OpenStream(
-                            _options.Value.DataStoreSettings.S3Endpoint, url.Key.Substring(_options.Value.DataStoreSettings.S3Endpoint.Length + 6));
-                        using var gzipStream = new GZipStream(stream, CompressionMode.Decompress);
-                        using var streamReader = new StreamReader(gzipStream);
-                        var result = JsonConvert.DeserializeObject<PackageFromS3>(streamReader.ReadToEnd());
-                        result.Package.Name = url.Value.First().PackageId;
-                        foreach (var packageVersion in url.Value)
-                        {
-                            if (resultsDict.TryGetValue(packageVersion, out var taskCompletionSource))
-                            {
-                                taskCompletionSource.SetResult(result.Package);
-                                foundSet.Add(packageVersion);
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError("Failed when download and parsing {0} from {1}, {2}", url.Key, _options.Value.DataStoreSettings.S3Endpoint.Length, ex);
-                        foreach (var packageVersion in url.Value)
-                        {
-                            if (resultsDict.TryGetValue(packageVersion, out var taskCompletionSource))
-                            {
-                                taskCompletionSource.SetException(new PortingAssistantClientException($"Cannot found package {packageVersion.PackageId} {packageVersion.Version}", ex));
-                                errorSet.Add(packageVersion);
-                            }
-                        }
-                    }
-                }
 
-                foreach (var packageVersion in packageVersions)
+            foreach (var url in foundPackages)
+            {
+                try
                 {
-                    if (!foundSet.Contains(packageVersion) && !errorSet.Contains(packageVersion))
+                    _logger.LogInformation("Downloading {0} from {1}", url.Key, _options.Value.DataStoreSettings.S3Endpoint);
+                    using var stream = _transferUtility.OpenStream(
+                        _options.Value.DataStoreSettings.S3Endpoint, url.Key.Substring(_options.Value.DataStoreSettings.S3Endpoint.Length + 6));
+                    using var gzipStream = new GZipStream(stream, CompressionMode.Decompress);
+                    using var streamReader = new StreamReader(gzipStream);
+                    var result = JsonConvert.DeserializeObject<PackageFromS3>(streamReader.ReadToEnd());
+                    result.Package.Name = url.Value.First().PackageId;
+                    foreach (var packageVersion in url.Value)
                     {
                         if (resultsDict.TryGetValue(packageVersion, out var taskCompletionSource))
                         {
-                            _logger.LogInformation(
-                                $"Can Not Find package {packageVersion.PackageId} " +
-                                $"{packageVersion.Version} in external source, check internal source");
-                            taskCompletionSource.TrySetException(
-                               new PortingAssistantClientException($"Cannot found package {packageVersion.PackageId} {packageVersion.Version}", null));
+                            taskCompletionSource.SetResult(result.Package);
+                            foundSet.Add(packageVersion);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError("Failed when download and parsing {0} from {1}, {2}", url.Key, _options.Value.DataStoreSettings.S3Endpoint.Length, ex);
+                    foreach (var packageVersion in url.Value)
+                    {
+                        if (resultsDict.TryGetValue(packageVersion, out var taskCompletionSource))
+                        {
+                            taskCompletionSource.SetException(new PortingAssistantClientException($"Cannot found package {packageVersion.PackageId} {packageVersion.Version}", ex));
+                            errorSet.Add(packageVersion);
                         }
                     }
                 }
             }
-            catch (Exception ex)
+
+            foreach (var packageVersion in packageVersions)
             {
-                foreach (var packageVersion in packageVersions)
+                if (!foundSet.Contains(packageVersion) && !errorSet.Contains(packageVersion))
                 {
                     if (resultsDict.TryGetValue(packageVersion, out var taskCompletionSource))
                     {
+                        _logger.LogInformation(
+                            $"Can Not Find package {packageVersion.PackageId} " +
+                            $"{packageVersion.Version} in external source, check internal source");
                         taskCompletionSource.TrySetException(
-                            new PortingAssistantClientException($"Cannot found package {packageVersion.PackageId} {packageVersion.Version}", ex));
+                            new PortingAssistantClientException($"Cannot found package {packageVersion.PackageId} {packageVersion.Version}", null));
                     }
                 }
-
-                _logger.LogError("Process Package Compatibility with Error: {0}", ex);
             }
         }
 

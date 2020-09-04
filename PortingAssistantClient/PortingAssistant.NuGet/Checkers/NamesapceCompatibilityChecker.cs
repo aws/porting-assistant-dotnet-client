@@ -5,10 +5,9 @@ using PortingAssistant.Model;
 
 namespace PortingAssistant.NuGet
 {
-    public class ExternalPackagesCompatibilityChecker : ExternalCompatibilityChecker
+    public class NamespacesCompatibilityChecker : ExternalCompatibilityChecker
     {
-
-        public ExternalPackagesCompatibilityChecker(
+        public NamespacesCompatibilityChecker(
             ITransferUtility transferUtility,
             ILogger<ExternalCompatibilityChecker> logger,
             IOptions<AnalyzerConfiguration> options
@@ -18,7 +17,7 @@ namespace PortingAssistant.NuGet
 
         public override PackageSourceType GetCompatibilityCheckerType()
         {
-            return PackageSourceType.NUGET;
+            return PackageSourceType.SDK;
         }
     }
 
