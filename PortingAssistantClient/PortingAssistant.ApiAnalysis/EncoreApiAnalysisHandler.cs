@@ -19,18 +19,16 @@ namespace PortingAssistant.ApiAnalysis
     public class PortingAssistantApiAnalysisHandler : IPortingAssistantApiAnalysisHandler
     {
         private readonly ILogger<PortingAssistantApiAnalysisHandler> _logger;
-        private readonly IPortingAssistantNuGetHandler _nugethanler;
-        private readonly IPortingAssistantNamespaceHandler _namespacehandler;
+        private readonly IPortingAssistantNuGetHandler _handler;
+
         private static readonly int _maxBuildConcurrency = 1;
         private static readonly SemaphoreSlim _buildConcurrency = new SemaphoreSlim(_maxBuildConcurrency);
 
         public PortingAssistantApiAnalysisHandler(ILogger<PortingAssistantApiAnalysisHandler> logger,
-            IPortingAssistantNamespaceHandler namespaceHandler,
-            IPortingAssistantNuGetHandler nugetHandler)
+            IPortingAssistantNuGetHandler handler)
         {
             _logger = logger;
-            _nugethanler = nugetHandler;
-            _namespacehandler = namespaceHandler;
+            _handler = handler;
         }
 
         public SolutionApiAnalysisResult AnalyzeSolution(
@@ -51,6 +49,7 @@ namespace PortingAssistant.ApiAnalysis
             {
                 ProjectApiAnalysisResults = projects
                     .Select((project) => AnalyzeProject(solutionFilename, project, analyzersTask))
+                    .Where(p => p.Value != null)
                     .ToDictionary(p => p.Key, p => p.Value)
             };
         }
@@ -77,13 +76,13 @@ namespace PortingAssistant.ApiAnalysis
                 if (analyzer == null || analyzer.ProjectResult == null)
                 {
                     _logger.LogError("Unable to build {0}.", project.ProjectName);
-                    throw new ApiAnalysisException(solutionFilename, project.ProjectFilePath, null, null);
+                    throw new PortingAssistantClientException($"Build {project.ProjectName} failed", null);
                 }
 
                 if (analyzer.ProjectResult.BuildErrorsCount > 0 && analyzer.ProjectResult.SourceFileResults.Count() == 0)
                 {
                     _logger.LogError("Encountered errors during compilation in {0}.", project.ProjectName);
-                    throw new ApiAnalysisException(solutionFilename, project.ProjectFilePath, analyzer.ProjectResult.BuildErrors, null);
+                    throw new PortingAssistantClientException($"Errors during compilation in {project.ProjectName}.", null);
                 }
 
                 var sourceFileToInvocations = analyzer.ProjectResult.SourceFileResults.Select((sourceFile) =>
@@ -98,9 +97,15 @@ namespace PortingAssistant.ApiAnalysis
 
                 _logger.LogInformation("API: Project {0} has {1} invocations", project.ProjectName, invocationsMethodSignatures.Count());
 
-                var nameSpaceresults = _namespacehandler.GetNamespaceDetails(SemanticNamespaces.ToList());
+                var fakePackages = SemanticNamespaces.Select(Namespace => {
+                    return new PackageVersionPair
+                    {
+                        PackageId = Namespace
+                    };
+                }).ToList();
+                var nameSpaceresults = _handler.GetNugetPackages(fakePackages, null);
                 var SourceFileAnalysisResults = InvocationExpressionModelToInvocations.Convert(
-                    sourceFileToInvocations, project, _nugethanler, nameSpaceresults);
+                    sourceFileToInvocations, project, _handler, nameSpaceresults);
 
                 return new ProjectApiAnalysisResult
                 {
@@ -108,14 +113,14 @@ namespace PortingAssistant.ApiAnalysis
                     SourceFileAnalysisResults = SourceFileAnalysisResults,
                 };
             }
-            catch (ApiAnalysisException ex)
+            catch (PortingAssistantClientException)
             {
-                throw ex;
+                return null;
             }
             catch (Exception ex)
             {
                 _logger.LogError("Error while analyzing {0}, {1}", project.ProjectName, ex);
-                throw new ApiAnalysisException(solutionFilename, project.ProjectFilePath, null, ex); ;
+                throw new PortingAssistantException($"Error while analyzing {project.ProjectName}", ex); ;
             }
         }
     }

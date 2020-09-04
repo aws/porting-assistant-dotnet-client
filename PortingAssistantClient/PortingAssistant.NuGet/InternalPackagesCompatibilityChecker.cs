@@ -88,7 +88,7 @@ namespace PortingAssistant.NuGet
             await Task.WhenAll(tasks.ToArray());
             if (versions.Count == 0)
             {
-                taskCompletionSource.SetException(new PackageVersionNotFoundException(packageId, null, null));
+                taskCompletionSource.SetException(new PortingAssistantClientException($"Cannot found package {packageId}", null));
             }
             var packageDetails = new PackageDetails()
             {

@@ -19,7 +19,6 @@ namespace PortingAssistantApiAnalysisTest
     public class PortingAssistantApiAnalysisHandlerTest
     {
         private Mock<IPortingAssistantNuGetHandler> _handler;
-        private Mock<IPortingAssistantNamespaceHandler> _nameSpacehandler;
         private PortingAssistantApiAnalysisHandler _PortingAssistantApiAnalysisHandler;
         private string solutionFile;
         private List<ProjectDetails> projects;
@@ -61,8 +60,8 @@ namespace PortingAssistantApiAnalysisTest
         public void OneTimeSetUp()
         {
             _handler = new Mock<IPortingAssistantNuGetHandler>();
-            _nameSpacehandler = new Mock<IPortingAssistantNamespaceHandler>();
-            _PortingAssistantApiAnalysisHandler = new PortingAssistantApiAnalysisHandler(NullLogger<PortingAssistantApiAnalysisHandler>.Instance,_nameSpacehandler.Object, _handler.Object);
+            //_nameSpacehandler = new Mock<IPortingAssistantNamespaceHandler>();
+            _PortingAssistantApiAnalysisHandler = new PortingAssistantApiAnalysisHandler(NullLogger<PortingAssistantApiAnalysisHandler>.Instance, _handler.Object);
         }
 
         [SetUp]
@@ -81,19 +80,17 @@ namespace PortingAssistantApiAnalysisTest
                     return task.Task;
                 });
 
-            _nameSpacehandler.Reset();
-            _nameSpacehandler.Setup(handler => handler.GetNamespaceDetails(It.IsAny<List<string>>()))
-                .Returns((List<string> namespaces) =>
+            _handler.Setup(handler => handler.GetNugetPackages(It.IsAny<List<PackageVersionPair>>(), It.IsAny<string>()))
+                .Returns((List<PackageVersionPair> packageVersionPairs, string path) =>
                 {
-                    var task = new TaskCompletionSource<NamespaceDetails>();
-                    task.SetResult(new NamespaceDetails
+                    var task = new TaskCompletionSource<PackageDetails>();
+                    task.SetResult(new PackageDetails
                     {
-                        Package = _packageDetails,
                         Namespaces = new string[]{ "TestNameSpace"},
                     });
-                    return new Dictionary<string, Task<NamespaceDetails>>
+                    return new Dictionary<PackageVersionPair, Task<PackageDetails>>
                     {
-                        {"TestNameSpace", task.Task }
+                        {new PackageVersionPair(), task.Task }
                     };
                 });
         }

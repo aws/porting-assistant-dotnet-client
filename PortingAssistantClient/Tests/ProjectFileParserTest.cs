@@ -2,9 +2,9 @@
 using System.IO;
 using System.Linq;
 using Buildalyzer;
-using PortingAssistant.ErrorHandle;
 using PortingAssistant.FileParser;
 using NUnit.Framework;
+using PortingAssistant.Model;
 
 namespace PortingAssistantAssessmentTest.FileParser
 {
@@ -39,7 +39,7 @@ namespace PortingAssistantAssessmentTest.FileParser
         {
             var path = Path.Combine(TestContext.CurrentContext.TestDirectory,
                 "TestXml", "SolutionWithFailedContent", "Nop.Core.csproj");
-            Assert.Throws<PortingAssistantAssessmentException>(() =>
+            Assert.Throws<PortingAssistantClientException>(() =>
             {
                 var handler = new ProjectFileParser(path);
                 handler.GetPackageReferences();

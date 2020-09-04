@@ -15,7 +15,7 @@ namespace PortingAssistantApiAnalysis.Utils
         public static List<SourceFileAnalysisResult> Convert(
             Dictionary<string, List<InvocationExpression>> sourceFileToInvocations,
             ProjectDetails project, IPortingAssistantNuGetHandler handler,
-            Dictionary<string, Task<NamespaceDetails>> nameSpaceresults)
+            Dictionary<PackageVersionPair, Task<PackageDetails>> namespaceresults)
         {
 
             return sourceFileToInvocations.Select(sourceFile =>
@@ -32,11 +32,21 @@ namespace PortingAssistantApiAnalysis.Utils
                             nugetPackage = potentialNugetPackages.Aggregate((max, cur) => cur.PackageId.Length > max.PackageId.Length ? cur : max);
                         }
                         NuGetVersion nugetVersion = null;
+
+                        Task<PackageDetails> packageDetails = null;
                         if (nugetPackage != null)
                         {
                             NuGetVersion.TryParse(nugetPackage.Version, out nugetVersion);
+                            packageDetails = handler.GetPackageDetails(nugetPackage);
                         }
-                        var packageDetails = handler.GetPackageDetails(nugetPackage);
+                        else
+                        {
+                            packageDetails = namespaceresults.GetValueOrDefault(new PackageVersionPair
+                            {
+                                PackageId = invocation.SemanticNamespace
+                            });
+                        }
+                        
                         return new ApiAnalysisResult {
                             Invocation = new Invocation
                             {

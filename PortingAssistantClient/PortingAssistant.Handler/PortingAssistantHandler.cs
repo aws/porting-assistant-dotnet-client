@@ -5,6 +5,7 @@ using PortingAssistant.ApiAnalysis;
 using PortingAssistant.FileParser;
 using PortingAssistant.NuGet;
 using PortingAssistant.Model;
+using PortingAssistant.Utils;
 using Microsoft.Build.Construction;
 using Microsoft.Extensions.Logging;
 using NuGet.Frameworks;
@@ -88,10 +89,28 @@ namespace PortingAssistant
                     var projectApiAnalysisResult = solutionApiAnalysisResult.ProjectApiAnalysisResults.GetValueOrDefault(p.ProjectFilePath);
                     projectApiAnalysisResult.Wait();
                     var packageAnalysisResults = _handler.GetNugetPackages(p.PackageReferences, solutionFilePath)
-                                                    .Values.Select(package =>
+                                                    .Select(package =>
                                                     {
-                                                        package.Wait();
-                                                        return package.Result;
+                                                        var result = PackageCompatibility.isCompatible(package.Value, package.Key, _logger);
+
+                                                        return new PackageAnalysisResult
+                                                        {
+                                                            PackageVersionPair = package.Key,
+                                                            PackageRecommendation = new PackageRecommendation
+                                                            {
+                                                                RecommendedActionType = RecommendedActionType.UpgradePackage,
+                                                                TargetFrameworkCompatibleVersionPair = new Dictionary<string, PackageCompatibilityInfo>
+                                                                {
+                                                                    {
+                                                                        PackageCompatibility.DEFAULT_TARGET, new PackageCompatibilityInfo
+                                                                        {
+                                                                            CompatibilityResult = result.CompatibilityResult,
+                                                                            CompatibleVersion = result.CompatibleVersion
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        };
                                                     }).Where(p => p != null).ToList();
                     return new ProjectAnalysisResult
                     {

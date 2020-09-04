@@ -27,6 +27,7 @@ namespace PortingAssistantNuGetTest
         private Mock<ITransferUtility> _transferUtilityMock;
         private Mock<IPortingAssistantInternalNuGetCompatibilityHandler> _checkComptHanderMock;
         private Mock<InternalPackagesCompatibilityChecker> _internalChecker;
+        private NamespaceCompatibilityChecker _namesapceHandler;
         private ExternalPackagesCompatibilityChecker _externalChecker;
         private Mock<ILogger<PortingAssistantNuGetHandler>> _logger;
         private readonly string _testSolutionFolderPath = Path.Combine(TestContext.CurrentContext.TestDirectory,
@@ -220,12 +221,22 @@ namespace PortingAssistantNuGetTest
             _externalChecker = new ExternalPackagesCompatibilityChecker(
                 _transferUtilityMock.Object,
                 NullLogger<ExternalPackagesCompatibilityChecker>.Instance,
-                Options.Create(new EndpointOptions
+                Options.Create(new AnalyzerConfiguration {
+                    DataStoreSettings = new DataStoreSettings
+                    {
+                        S3Endpoint = "Bucket"
+                    }
+                })
+                );
+
+            _namesapceHandler = new NamespaceCompatibilityChecker(_transferUtilityMock.Object,
+                NullLogger<NamespaceCompatibilityChecker>.Instance,
+                Options.Create(new AnalyzerConfiguration
                 {
-                    NugetPackageBucket = "Bucket",
-                    Region = "us-west-2",
-                    AwsAccessKey = "ACCESS_KEY",
-                    AwsSecretKey = "SECRET_KEY",
+                    DataStoreSettings = new DataStoreSettings
+                    {
+                        S3Endpoint = "Bucket"
+                    }
                 })
                 );
 
@@ -301,12 +312,12 @@ namespace PortingAssistantNuGetTest
             var externalchecker = new ExternalPackagesCompatibilityChecker(
                 _transferUtilityMock.Object,
                 NullLogger<ExternalPackagesCompatibilityChecker>.Instance,
-                Options.Create(new EndpointOptions
+                Options.Create(new AnalyzerConfiguration
                 {
-                    NugetPackageBucket = "Bucket",
-                    Region = "us-west-2",
-                    AwsAccessKey = "ACCESS_KEY",
-                    AwsSecretKey = "SECRET_KEY",
+                    DataStoreSettings = new DataStoreSettings
+                    {
+                        S3Endpoint = "Bucket"
+                    }
                 })
             );
 
@@ -337,7 +348,6 @@ namespace PortingAssistantNuGetTest
                 });
         }
 
-
         [Test]
         public void TestCompatibleExternalSource()
         {
@@ -348,10 +358,10 @@ namespace PortingAssistantNuGetTest
             };
             var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionFolderPath, "TestSolution.sln"));
             Task.WaitAll(resultTasks.Values.ToArray());
-            Assert.AreEqual(packages.First().PackageId, resultTasks.Values.First().Result.PackageVersionPair.PackageId);
-            Assert.AreEqual(packages.First().Version, resultTasks.Values.First().Result.PackageVersionPair.Version);
-            Assert.AreEqual(Compatibility.COMPATIBLE, resultTasks.Values.First().Result.PackageRecommendation.TargetFrameworkCompatibleVersionPair.GetValueOrDefault("netcoreapp3.1").CompatibilityResult);
-            Assert.AreEqual(1, resultTasks.Values.First().Result.PackageRecommendation.TargetFrameworkCompatibleVersionPair.GetValueOrDefault("netcoreapp3.1").CompatibleVersion.Count());
+            Assert.AreEqual(_packageDetails.Name, resultTasks.Values.First().Result.Name);
+            Assert.AreEqual(_packageDetails.Api.Count(), resultTasks.Values.First().Result.Api.Count());
+            Assert.AreEqual(_packageDetails.Targets.Count(), resultTasks.Values.First().Result.Targets.Count());
+            Assert.AreEqual(_packageDetails.Versions.Count(), resultTasks.Values.First().Result.Versions.Count());
         }
 
         [Test]
@@ -378,9 +388,8 @@ namespace PortingAssistantNuGetTest
             };
             var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionFolderPath, "TestSolution.sln"));
             Task.WaitAll(resultTasks.Values.ToArray());
-            Assert.AreEqual(packages.First().PackageId, resultTasks.Values.First().Result.PackageVersionPair.PackageId);
-            Assert.AreEqual(packages.First().Version, resultTasks.Values.First().Result.PackageVersionPair.Version);
-            Assert.AreEqual(Compatibility.COMPATIBLE, resultTasks.Values.First().Result.PackageRecommendation.TargetFrameworkCompatibleVersionPair.GetValueOrDefault("netcoreapp3.1").CompatibilityResult);
+            Assert.AreEqual(packages.First().PackageId, resultTasks.Values.First().Result.Name);
+            Assert.AreEqual(packages.First().Version, resultTasks.Values.First().Result.Targets["netcoreapp3.1"].First());
         }
 
 
@@ -395,11 +404,10 @@ namespace PortingAssistantNuGetTest
             };
             var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionFolderPath, "TestSolution.sln"));
             Task.WaitAll(resultTasks.Values.ToArray());
-
-            Assert.AreEqual(packages.First().PackageId, resultTasks.Values.First().Result.PackageVersionPair.PackageId);
-            Assert.AreEqual(packages.First().Version, resultTasks.Values.First().Result.PackageVersionPair.Version);
-            Assert.AreEqual(Compatibility.INCOMPATIBLE, resultTasks.Values.First().Result.PackageRecommendation.TargetFrameworkCompatibleVersionPair.GetValueOrDefault("netcoreapp3.1").CompatibilityResult);
-            Assert.AreEqual(2, resultTasks.Values.First().Result.PackageRecommendation.TargetFrameworkCompatibleVersionPair.GetValueOrDefault("netcoreapp3.1").CompatibleVersion.Count());
+            Assert.AreEqual(_packageDetails.Name, resultTasks.Values.First().Result.Name);
+            Assert.AreEqual(_packageDetails.Api.Count(), resultTasks.Values.First().Result.Api.Count());
+            Assert.AreEqual(_packageDetails.Targets.Count(), resultTasks.Values.First().Result.Targets.Count());
+            Assert.AreEqual(_packageDetails.Versions.Count(), resultTasks.Values.First().Result.Versions.Count());
         }
 
         [Test]
@@ -427,10 +435,9 @@ namespace PortingAssistantNuGetTest
             var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionFolderPath, "TestSolution.sln"));
             Task.WaitAll(resultTasks.Values.ToArray());
 
-            Assert.AreEqual(packages.First().PackageId, resultTasks.Values.First().Result.PackageVersionPair.PackageId);
-            Assert.AreEqual(packages.First().Version, resultTasks.Values.First().Result.PackageVersionPair.Version);
-            Assert.AreEqual(Compatibility.INCOMPATIBLE, resultTasks.Values.First().Result.PackageRecommendation.TargetFrameworkCompatibleVersionPair.GetValueOrDefault("netcoreapp3.1").CompatibilityResult);
-            Assert.AreEqual(0, resultTasks.Values.First().Result.PackageRecommendation.TargetFrameworkCompatibleVersionPair.GetValueOrDefault("netcoreapp3.1").CompatibleVersion.Count());
+            Assert.AreEqual(packages.First().PackageId, resultTasks.Values.First().Result.Name);
+            Assert.AreEqual("netcoreapp3.1", resultTasks.Values.First().Result.Targets.First().Key);
+            Assert.AreEqual(0, resultTasks.Values.First().Result.Targets["netcoreapp3.1"].Count);
         }
 
         [Test]

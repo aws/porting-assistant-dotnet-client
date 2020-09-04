@@ -40,6 +40,7 @@ namespace PortingAssistantAssessmentTest
             _PortingAssistantNuGetMock.Reset();
 
             // Setup Nuget Dependencies
+            /*
             _PortingAssistantNuGetMock
                 .Setup(NuGet => NuGet.GetNugetPackages(It.IsAny<List<PackageVersionPair>>(), It.IsAny<string>()))
                 .Returns((List<PackageVersionPair> list, string pathToSolution) =>
@@ -71,7 +72,7 @@ namespace PortingAssistantAssessmentTest
                     }).ToDictionary(t => t.Item1, t => t.Item2);
                 });
         }
-        /*
+        
         [Test]
         public void TestGetSolution()
         {
@@ -119,5 +120,6 @@ namespace PortingAssistantAssessmentTest
             Assert.AreEqual(0, results.Projects.Count);
             Assert.AreEqual(1, results.FailedProjects.Count);
         }*/
+        }
     }
 }

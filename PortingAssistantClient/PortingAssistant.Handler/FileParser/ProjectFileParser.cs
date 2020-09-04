@@ -5,7 +5,6 @@ using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
 using Buildalyzer;
-using PortingAssistant.ErrorHandle;
 using PortingAssistant.Model;
 using PortingAssistant.Utils;
 using NuGet.Packaging;
@@ -104,7 +103,7 @@ namespace PortingAssistant.FileParser
             }
             catch (XmlException ex)
             {
-                throw new PortingAssistantAssessmentException("Unable to parse packages.config file", ex);
+                throw new PortingAssistantClientException("Unable to parse packages.config file", ex);
             }
         }
     }

@@ -32,7 +32,7 @@ namespace PortingAssistant.NuGet
             _resultsDict = new ConcurrentDictionary<string, NamespaceResult>();
         }
 
-        public Dictionary<string, Task<NamespaceDetails>> GetNamespaceDetails(List<string> Namespaces)
+        public Dictionary<string, Task<PackageDetails>> GetNamespaceDetails(List<string> Namespaces)
         {
             var nameSpacesToQuery = new List<string>();
             var tasks = Namespaces.Select(Namespace =>
@@ -41,7 +41,7 @@ namespace PortingAssistant.NuGet
                     Namespace,
                     new NamespaceResult
                     {
-                        TaskCompletionSource = new TaskCompletionSource<NamespaceDetails>()
+                        TaskCompletionSource = new TaskCompletionSource<PackageDetails>()
                     });
                 if (isNotRunning)
                 {
@@ -49,7 +49,7 @@ namespace PortingAssistant.NuGet
                 }
                 _resultsDict.TryGetValue(Namespace, out var NamespaceResult);
 
-                return new Tuple<string, Task<NamespaceDetails>>(Namespace, NamespaceResult.TaskCompletionSource.Task);
+                return new Tuple<string, Task<PackageDetails>>(Namespace, NamespaceResult.TaskCompletionSource.Task);
             }).ToDictionary(t => t.Item1, t=> t.Item2);
 
             _logger.LogInformation("Checking compatibility for {0} namespaces", nameSpacesToQuery.Count);
@@ -74,13 +74,14 @@ namespace PortingAssistant.NuGet
                     using var streamReader = new StreamReader(gzipStream);
                     var result = JsonConvert.DeserializeObject<PackageFromS3>(streamReader.ReadToEnd());
                     // Validate result
-                    if (result.NamespaceDetails.Package.Name == null || result.NamespaceDetails.Package.Name.Trim().ToLower() != Namespace.Trim().ToLower())
+                    
+                    if (result.Namespaces.Name == null || result.Namespaces.Name.Trim().ToLower() != Namespace.Trim().ToLower())
                     {
-                        throw new Exception("Namespace file is corrupted"); //To be fill
+                        throw new PortingAssistantClientException($"package download did not match {Namespace}", null);
                     }
                     if (_resultsDict.TryGetValue(Namespace, out var namespaceResult))
                     {
-                        namespaceResult.TaskCompletionSource.SetResult(result.NamespaceDetails);
+                        namespaceResult.TaskCompletionSource.SetResult(result.Namespaces);
                     }
                 }
                 catch (Exception ex)
@@ -102,12 +103,12 @@ namespace PortingAssistant.NuGet
 
         private class PackageFromS3
         {
-            public NamespaceDetails NamespaceDetails { get; set; }
+            public PackageDetails Namespaces { get; set; }
         }
 
         private class NamespaceResult
         {
-            public TaskCompletionSource<NamespaceDetails> TaskCompletionSource { get; set; }
+            public TaskCompletionSource<PackageDetails> TaskCompletionSource { get; set; }
         }
     }
 }

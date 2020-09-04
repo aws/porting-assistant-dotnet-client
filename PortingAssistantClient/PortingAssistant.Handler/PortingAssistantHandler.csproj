@@ -6,7 +6,6 @@
 
   <ItemGroup>
     <Folder Include="FileParser\" />
-    <Folder Include="ErrorHandle\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PortingAssistant.Common\PortingAssistant.Common.csproj" />

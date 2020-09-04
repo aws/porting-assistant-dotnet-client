@@ -11,6 +11,9 @@ namespace PortingAssistant.Model
         public LicenseDetails License { get; set; }
         public ApiDetails[] Api { get; set; }
         public bool Deprecated { get; set; }
+        // only for name space
+        public string[] Namespaces { get; set; }
+        public string[] Assemblies { get; set; }
 
         public override bool Equals(object obj)
         {

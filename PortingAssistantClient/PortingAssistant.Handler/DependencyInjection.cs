@@ -22,6 +22,7 @@ namespace PortingAssistant
             serviceCollection.AddSingleton<IPortingAssistantApiAnalysisHandler, PortingAssistantApiAnalysisHandler>();
             serviceCollection.AddSingleton<ICompatibilityChecker, InternalPackagesCompatibilityChecker>();
             serviceCollection.AddSingleton<ICompatibilityChecker, ExternalPackagesCompatibilityChecker>();
+            serviceCollection.AddSingleton<ICompatibilityChecker, NamespacesCompatibilityChecker>();
             serviceCollection.AddSingleton<ICompatibilityChecker, PortabilityAnalyzerCompatibilityChecker>();
             serviceCollection.AddSingleton<ITransferUtility, TransferUtility>();
         }

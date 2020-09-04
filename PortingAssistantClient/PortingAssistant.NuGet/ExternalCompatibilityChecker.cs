@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using PortingAssistant.Model;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Amazon.S3.Transfer;
 using System.IO;
 using System.IO.Compression;
+using PortingAssistant.Model;
 
 namespace PortingAssistant.NuGet
 {
-    public class PortabilityAnalyzerCompatibilityChecker : ICompatibilityChecker
+    public class ExternalCompatibilityChecker : ICompatibilityChecker
     {
         private readonly ILogger _logger;
         private readonly IOptions<AnalyzerConfiguration> _options;
@@ -21,9 +21,9 @@ namespace PortingAssistant.NuGet
         private static readonly int _maxProcessConcurrency = 3;
         private static readonly SemaphoreSlim _processConcurrency = new SemaphoreSlim(_maxProcessConcurrency);
 
-        public PortabilityAnalyzerCompatibilityChecker(
+        public ExternalCompatibilityChecker(
             ITransferUtility transferUtility,
-            ILogger<ExternalPackagesCompatibilityChecker> logger,
+            ILogger<ExternalCompatibilityChecker> logger,
             IOptions<AnalyzerConfiguration> options
             )
         {
@@ -37,97 +37,76 @@ namespace PortingAssistant.NuGet
             string pathToSolution
             )
         {
-            var resultsDict = new Dictionary<PackageVersionPair, TaskCompletionSource<PackageDetails>>();
-
-            try
+            var resultsDict = packageVersions.Select(packageVersion =>
             {
-                using var stream = _transferUtility.OpenStream(
-                    _options.Value.DataStoreSettings.S3Endpoint, "microsoftlibs.namespace.lookup.json");
-                using var streamReader = new StreamReader(stream);
-                var manifest = JsonConvert.DeserializeObject<Dictionary<string, string>>(streamReader.ReadToEnd())
-                    .ToDictionary(k => k.Key.ToLower(), v => v.Value);
+                return new Tuple<PackageVersionPair, TaskCompletionSource<PackageDetails>>(packageVersion, new TaskCompletionSource<PackageDetails>());
+            }).ToDictionary(t => t.Item1, t => t.Item2);
 
-                var foundPackages = new Dictionary<string, List<PackageVersionPair>>();
-                packageVersions
-                    .ForEach(p =>
-                    {
-                        var value = manifest.GetValueOrDefault(p.PackageId.ToLower(), null);
-                        if (value != null)
-                        {
-                            resultsDict.Add(p, new TaskCompletionSource<PackageDetails>());
-                            if (!foundPackages.ContainsKey(value))
-                            {
-                                foundPackages.Add(value, new List<PackageVersionPair>());
-                            }
-                            foundPackages.GetValueOrDefault(value).Add(p);
-                        }
-                    });
-
-                _logger.LogInformation("Checking Portability Analyzer source for {0} packages Compatiblity", foundPackages.Count);
-                if (foundPackages.Count > 0)
-                {
-                    Task.Run(() =>
-                    {
-                        _processConcurrency.Wait();
-                        try
-                        {
-                            ProcessCompatibility(packageVersions, foundPackages, resultsDict);
-                        }
-                        finally
-                        {
-                            _processConcurrency.Release();
-                        }
-                    });
-                }
-
-                return resultsDict.ToDictionary(t => t.Key, t => t.Value.Task);
-            }
-            catch (Exception ex)
+            _logger.LogInformation("Checking external source for {0} packages Compatiblity", packageVersions.Count);
+            if (packageVersions.Count > 0)
             {
-                foreach (var packageVersion in packageVersions)
+                Task.Run(() =>
                 {
-                    if (resultsDict.TryGetValue(packageVersion, out var taskCompletionSource))
+                    _processConcurrency.Wait();
+                    try
                     {
-                        taskCompletionSource.TrySetException(
-                            new PortingAssistantClientException($"Cannot found package {packageVersion.PackageId} {packageVersion.Version}", ex));
+                        ProcessCompatibility(packageVersions, resultsDict);
                     }
-                }
-                return resultsDict.ToDictionary(t => t.Key, t => t.Value.Task);
+                    finally
+                    {
+                        _processConcurrency.Release();
+                    }
+                });
             }
+
+            return resultsDict.ToDictionary(t => t.Key, t => t.Value.Task);
         }
 
         private void ProcessCompatibility(List<PackageVersionPair> packageVersions,
-            Dictionary<string, List<PackageVersionPair>> foundPackages,
             Dictionary<PackageVersionPair, TaskCompletionSource<PackageDetails>> resultsDict)
         {
             var foundSet = new HashSet<PackageVersionPair>();
             var errorSet = new HashSet<PackageVersionPair>();
             try
             {
-                foreach (var url in foundPackages)
+                var packageVersionsAgg = packageVersions.Aggregate(new Dictionary<string, List<PackageVersionPair>>(), (agg, packageVersion) =>
+                {
+                    if (!agg.ContainsKey(packageVersion.PackageId))
+                    {
+                        agg.Add(packageVersion.PackageId, new List<PackageVersionPair>());
+                    }
+                    agg[packageVersion.PackageId].Add(packageVersion);
+                    return agg;
+                });
+                foreach (var package in packageVersionsAgg)
                 {
                     try
                     {
-                        _logger.LogInformation("Downloading {0} from {1}", url.Key, _options.Value.DataStoreSettings.S3Endpoint);
+                        _logger.LogInformation("Downloading {0} from {1}", package.Key.ToLower() + ".json.gz", _options.Value.DataStoreSettings.S3Endpoint);
                         using var stream = _transferUtility.OpenStream(
-                            _options.Value.DataStoreSettings.S3Endpoint, url.Key.Substring(_options.Value.DataStoreSettings.S3Endpoint.Length + 6));
+                            _options.Value.DataStoreSettings.S3Endpoint, package.Key.ToLower() + ".json.gz");
                         using var gzipStream = new GZipStream(stream, CompressionMode.Decompress);
                         using var streamReader = new StreamReader(gzipStream);
-                        var result = JsonConvert.DeserializeObject<PackageFromS3>(streamReader.ReadToEnd());
-                        result.Package.Name = url.Value.First().PackageId;
-                        foreach (var packageVersion in url.Value)
+                        var data = JsonConvert.DeserializeObject<PackageFromS3>(streamReader.ReadToEnd());
+                        var result = data.Package == null ? data.Namespaces : data.Package;
+                        // Validate result
+                        if (result.Name == null || result.Name.Trim().ToLower() != package.Key.Trim().ToLower())
+                        {
+                            throw new PortingAssistantClientException($"package/namespace download did not match {package.Key}", null);
+                        }
+                        foreach (var packageVersion in package.Value)
                         {
                             if (resultsDict.TryGetValue(packageVersion, out var taskCompletionSource))
                             {
-                                taskCompletionSource.SetResult(result.Package);
+                                taskCompletionSource.SetResult(result);
                                 foundSet.Add(packageVersion);
                             }
                         }
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError("Failed when download and parsing {0} from {1}, {2}", url.Key, _options.Value.DataStoreSettings.S3Endpoint.Length, ex);
-                        foreach (var packageVersion in url.Value)
+                        _logger.LogError("Failed when download and parsing {0} from {1}, {2}", package.Key.ToLower() + ".json.gz", _options.Value.DataStoreSettings.S3Endpoint, ex);
+                        foreach (var packageVersion in package.Value)
                         {
                             if (resultsDict.TryGetValue(packageVersion, out var taskCompletionSource))
                             {
@@ -160,7 +139,7 @@ namespace PortingAssistant.NuGet
                     if (resultsDict.TryGetValue(packageVersion, out var taskCompletionSource))
                     {
                         taskCompletionSource.TrySetException(
-                            new PortingAssistantClientException($"Cannot found package {packageVersion.PackageId} {packageVersion.Version}", ex));
+                            new PortingAssistantClientException($"Cannot found package {packageVersion.PackageId} {packageVersion.Version}", null));
                     }
                 }
 
@@ -168,14 +147,15 @@ namespace PortingAssistant.NuGet
             }
         }
 
-        public PackageSourceType GetCompatibilityCheckerType()
+        public virtual PackageSourceType GetCompatibilityCheckerType()
         {
-            return PackageSourceType.PORTABILITY_ANALYZER;
+            return PackageSourceType.NUGET;
         }
 
         private class PackageFromS3
         {
             public PackageDetails Package { get; set; }
+            public PackageDetails Namespaces { get; set; }
         }
     }
 

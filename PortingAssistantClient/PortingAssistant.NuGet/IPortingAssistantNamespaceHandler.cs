@@ -6,6 +6,6 @@ namespace PortingAssistant.NuGet
 {
     public interface IPortingAssistantNamespaceHandler
     {
-        public Dictionary<string, Task<NamespaceDetails>> GetNamespaceDetails(List<string> Namespace);
+        public Dictionary<string, Task<PackageDetails>> GetNamespaceDetails(List<string> Namespace);
     }
 }
