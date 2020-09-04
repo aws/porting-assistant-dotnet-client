@@ -5,7 +5,7 @@ using PortingAssistant.Model;
 using Newtonsoft.Json;
 using NUnit.Framework;
 
-namespace Tests
+namespace PortingAssistantApiCompatibilityResponseTest
 {
     public class PortingAssistantApiCompatibilityResponseTest
     {

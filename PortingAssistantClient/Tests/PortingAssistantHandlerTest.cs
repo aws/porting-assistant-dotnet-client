@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using PortingAssistant.ApiAnalysis;
-using PortingAssistantHandler;
+using PortingAssistant;
 using PortingAssistant.NuGet;
 using PortingAssistant.Model;
 using Microsoft.Extensions.Logging.Abstractions;

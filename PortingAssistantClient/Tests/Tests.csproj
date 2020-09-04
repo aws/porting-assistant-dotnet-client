@@ -140,6 +140,7 @@
     <ProjectReference Include="..\PortingAssistant.InternalNuGetChecker\PortingAssistant.InternalNuGetChecker.csproj" />
     <ProjectReference Include="..\PortingAssistant.NuGet\PortingAssistant.NuGet.csproj" />
     <ProjectReference Include="..\PortingAssistant.Handler\PortingAssistantHandler.csproj" />
+    <ProjectReference Include="..\PortingAssistant.Porting\PortingAssistant.Porting.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="TestXml\SolutionWithApi\testproject\Program.cs">

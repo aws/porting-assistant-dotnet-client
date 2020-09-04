@@ -9,7 +9,7 @@ using NUnit.Framework;
 using System.Threading.Tasks;
 using System.IO;
 using Microsoft.Build.Construction;
-using PortingAssistantHandler.FileParser;
+using PortingAssistant.FileParser;
 using NuGet.Frameworks;
 using NuGet.Versioning;
 using PortingAssistant.ApiAnalysis;
@@ -137,7 +137,6 @@ namespace PortingAssistantApiAnalysisTest
             var result = _PortingAssistantApiAnalysisHandler.AnalyzeSolution(solutionFile, projects);
             Task.WaitAll(result.ProjectApiAnalysisResults.Values.ToArray());
             var values = result.ProjectApiAnalysisResults.Values.First().Result;
-            //Assert.AreEqual(projects.First().ProjectPath, values.);
             Assert.AreEqual("Newtonsoft.Json", values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().Invocation.Package.PackageId);
             Assert.AreEqual("11.0.1", values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().Invocation.Package.Version);
             Assert.AreEqual("Newtonsoft.Json.JsonConvert.SerializeObject(object)",

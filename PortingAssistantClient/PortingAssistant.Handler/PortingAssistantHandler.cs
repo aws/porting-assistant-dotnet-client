@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Buildalyzer;
 using PortingAssistant.ApiAnalysis;
-using PortingAssistantHandler.FileParser;
-using PortingAssistantHandler.Model;
+using PortingAssistant.FileParser;
 using PortingAssistant.NuGet;
 using PortingAssistant.Model;
 using Microsoft.Build.Construction;
@@ -13,7 +10,7 @@ using Microsoft.Extensions.Logging;
 using NuGet.Frameworks;
 using NuGet.Versioning;
 
-namespace PortingAssistantHandler
+namespace PortingAssistant
 {
     public class AssessmentHandler : IAssessmentHandler
     {

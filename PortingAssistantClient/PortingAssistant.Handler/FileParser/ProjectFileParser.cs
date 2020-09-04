@@ -5,13 +5,14 @@ using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
 using Buildalyzer;
-using PortingAssistantHandler.ErrorHandle;
+using PortingAssistant.ErrorHandle;
 using PortingAssistant.Model;
 using PortingAssistant.Utils;
 using NuGet.Packaging;
 using NuGet.Versioning;
+using XmlUtility = NuGet.Common.XmlUtility;
 
-namespace PortingAssistantHandler.FileParser
+namespace PortingAssistant.FileParser
 {
     public class ProjectFileParser
     {
@@ -97,7 +98,7 @@ namespace PortingAssistantHandler.FileParser
         {
             try
             {
-                XDocument xDocument = NuGet.Common.XmlUtility.Load(_packageConfigFile);
+                XDocument xDocument = XmlUtility.Load(_packageConfigFile);
                 var reader = new PackagesConfigReader(xDocument);
                 return reader.GetPackages(true).ToList();
             }

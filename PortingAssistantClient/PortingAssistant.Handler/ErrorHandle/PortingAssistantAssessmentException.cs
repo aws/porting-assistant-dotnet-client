@@ -1,5 +1,5 @@
 ﻿using System;
-namespace PortingAssistantHandler.ErrorHandle
+namespace PortingAssistant.ErrorHandle
 {
     public class PortingAssistantAssessmentException : Exception
     {

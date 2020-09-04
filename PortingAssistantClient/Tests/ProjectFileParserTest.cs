@@ -2,8 +2,8 @@
 using System.IO;
 using System.Linq;
 using Buildalyzer;
-using PortingAssistantHandler.ErrorHandle;
-using PortingAssistantHandler.FileParser;
+using PortingAssistant.ErrorHandle;
+using PortingAssistant.FileParser;
 using NUnit.Framework;
 
 namespace PortingAssistantAssessmentTest.FileParser

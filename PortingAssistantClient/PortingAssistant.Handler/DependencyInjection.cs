@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 
-namespace PortingAssistantHandler
+namespace PortingAssistant
 {
     public static class DependencyInjection
     {

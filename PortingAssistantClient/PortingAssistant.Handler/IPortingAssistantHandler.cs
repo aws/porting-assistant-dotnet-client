@@ -1,9 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using PortingAssistantHandler.Model;
-using PortingAssistant.Model;
+﻿using PortingAssistant.Model;
 
-namespace PortingAssistantHandler
+namespace PortingAssistant
 {
     public interface IAssessmentHandler
     {

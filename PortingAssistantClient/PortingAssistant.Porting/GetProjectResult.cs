@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using PortingAssistant.Model;
 
-namespace PortingAssistantHandler.Model
+namespace PortingAssistant.Model
 {
     public class GetProjectResult
     {

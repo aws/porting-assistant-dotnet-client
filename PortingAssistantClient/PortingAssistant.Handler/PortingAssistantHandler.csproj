@@ -5,7 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Model\" />
     <Folder Include="FileParser\" />
     <Folder Include="ErrorHandle\" />
   </ItemGroup>
