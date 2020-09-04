@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using PortingAssistant.ApiAnalysis;
-using PortingAssistant.FileParser;
+using PortingAssistantHandler.FileParser;
 using PortingAssistant.NuGet;
 using PortingAssistant.Model;
 using PortingAssistant.Utils;
@@ -14,7 +14,7 @@ using NuGet.Versioning;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace PortingAssistant
+namespace PortingAssistantHandler
 {
     public class PortingAssistantHandler : IPortingAssistantHandler
     {

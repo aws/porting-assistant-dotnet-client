@@ -6,3 +6,5 @@ obj/
 Log/
 TestResults/
 commit-hook-tests/
+.vshistory/
+.idea/

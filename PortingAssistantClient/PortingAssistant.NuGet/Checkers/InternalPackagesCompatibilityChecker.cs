@@ -9,8 +9,10 @@ using System.Threading;
 using NuGet.Common;
 using NuGet.Versioning;
 using Microsoft.Extensions.Logging;
-using PortingAssistant.Model;
 using NuGet.Configuration;
+using PortingAssistant.InternalNuGetChecker;
+using PortingAssistant.InternalNuGetChecker.Model;
+using PortingAssistant.Model;
 using Settings = NuGet.Configuration.Settings;
 
 namespace PortingAssistant.NuGet

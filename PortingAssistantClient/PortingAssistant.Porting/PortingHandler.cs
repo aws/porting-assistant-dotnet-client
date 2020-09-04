@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 using PortingAssistant.Model;
 using PortingAssistant.PortingProjectFile;
-using Microsoft.Extensions.Logging;
 
 namespace PortingAssistant.Porting
 {

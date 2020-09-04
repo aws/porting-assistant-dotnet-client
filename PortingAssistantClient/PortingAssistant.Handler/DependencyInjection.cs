@@ -1,5 +1,4 @@
-﻿using Amazon;
-using Amazon.S3.Transfer;
+﻿using Amazon.S3.Transfer;
 using PortingAssistant.ApiAnalysis;
 using PortingAssistant.NuGet;
 using PortingAssistant.Model;
@@ -9,8 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using PortingAssistant.Porting;
 
-
-namespace PortingAssistant
+namespace PortingAssistantHandler
 {
     public static class DependencyInjection
     {

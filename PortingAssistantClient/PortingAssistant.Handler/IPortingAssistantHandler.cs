@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using PortingAssistant.Model;
 
-namespace PortingAssistant
+namespace PortingAssistantHandler
 {
     public interface IPortingAssistantHandler
     {
