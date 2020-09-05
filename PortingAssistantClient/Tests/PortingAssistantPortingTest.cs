@@ -9,15 +9,15 @@ using System.Linq;
 using PortingAssistant.Model;
 using NuGet.Frameworks;
 using NuGet.Versioning;
-using PortingAssistant.FileParser;
+using PortingAssistantHandler.FileParser;
 
-namespace PortingAssistantPortingTest
+namespace Tests
 {
-    public class EncorePortingTest
+    public class PortingAssistantPortingTest
     {
-        string tmpDirctory;
-        string tmpProjectPath;
-        string tmpSolutionDirctory;
+        private string tmpDirectory;
+        private string tmpProjectPath;
+        private string tmpSolutionDirectory;
         private IPortingHandler _portingHandler;
         private IPortingProjectFileHandler _portingProjectFileHandler;
 
@@ -28,10 +28,10 @@ namespace PortingAssistantPortingTest
             _portingHandler = new PortingHandler(NullLogger<PortingHandler>.Instance, _portingProjectFileHandler);
 
             var solutionDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestXml", "TestPorting");
-            tmpDirctory = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestXml", "testDircteory");
-            DirectoryCopy(solutionDirectory, tmpDirctory, true);
-            tmpSolutionDirctory = Path.Combine(tmpDirctory, "src");
-            tmpProjectPath = Path.Combine(tmpSolutionDirctory, "Libraries", "Nop.Core", "Nop.Core.csproj");
+            tmpDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestXml", "testDircteory");
+            DirectoryCopy(solutionDirectory, tmpDirectory, true);
+            tmpSolutionDirectory = Path.Combine(tmpDirectory, "src");
+            tmpProjectPath = Path.Combine(tmpSolutionDirectory, "Libraries", "Nop.Core", "Nop.Core.csproj");
             
 
         }
@@ -39,7 +39,7 @@ namespace PortingAssistantPortingTest
         [TearDown]
         public void Cleanup()
         {
-            Directory.Delete(tmpDirctory, true);
+            Directory.Delete(tmpDirectory, true);
         }
 
         private void DirectoryCopy(string sourceDirName, string destDirName, bool copySubDirs)
@@ -107,7 +107,7 @@ namespace PortingAssistantPortingTest
             var result = _portingHandler.ApplyPortProjectFileChanges
                 (
                 new List<string> { tmpProjectPath },
-                tmpSolutionDirctory,
+                tmpSolutionDirectory,
                 "netcoreapp3.1.0",
                 new Dictionary<string, string> {["Newtonsoft.Json"] = "12.0.3"
                 });
@@ -134,7 +134,7 @@ namespace PortingAssistantPortingTest
             var result = _portingHandler.ApplyPortProjectFileChanges
                 (
                 new List<string> { "randompath" },
-                tmpSolutionDirctory,
+                tmpSolutionDirectory,
                 "netcoreapp3.1.0",
                 new Dictionary<string, string>
                 {

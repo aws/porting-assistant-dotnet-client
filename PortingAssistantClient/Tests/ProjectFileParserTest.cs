@@ -1,12 +1,10 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
-using Buildalyzer;
-using PortingAssistant.FileParser;
+using PortingAssistantHandler.FileParser;
 using NUnit.Framework;
 using PortingAssistant.Model;
 
-namespace PortingAssistantAssessmentTest.FileParser
+namespace Tests
 {
     public class ProjectFileParserTest
     {

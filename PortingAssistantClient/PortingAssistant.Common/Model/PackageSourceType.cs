@@ -1,5 +1,4 @@
-﻿using System;
-namespace PortingAssistant.Model
+﻿namespace PortingAssistant.Model
 {
     public enum PackageSourceType
     {

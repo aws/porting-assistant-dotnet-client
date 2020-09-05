@@ -10,12 +10,12 @@ using NUnit.Framework;
 using System.Threading.Tasks;
 using System.IO;
 using Microsoft.Build.Construction;
-using PortingAssistant.FileParser;
+using PortingAssistantHandler.FileParser;
 using NuGet.Frameworks;
 using NuGet.Versioning;
 using PortingAssistant.ApiAnalysis;
 
-namespace PortingAssistantApiAnalysisTest
+namespace Tests
 {
     public class PortingAssistantApiAnalysisHandlerTest
     {

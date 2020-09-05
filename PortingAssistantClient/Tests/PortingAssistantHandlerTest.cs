@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.IO;
 using PortingAssistant.ApiAnalysis;
 using PortingAssistant;
 using PortingAssistant.Utils;
@@ -14,8 +10,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using NUnit.Framework;
 
-
-namespace PortingAssistantAssessmentTest
+namespace Tests
 {
     public class PortingAssistantHandlerTest
     {
