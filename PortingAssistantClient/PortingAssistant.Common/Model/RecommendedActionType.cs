@@ -7,6 +7,7 @@ namespace PortingAssistant.Model
         ReplaceApi,
         //Future
         ReplaceNamespace,
-        ReplacePackage
+        ReplacePackage,
+        NoRecommendation
     }
 }

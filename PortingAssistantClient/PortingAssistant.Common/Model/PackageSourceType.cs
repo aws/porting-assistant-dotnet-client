@@ -6,6 +6,7 @@ namespace PortingAssistant.Model
         NUGET,
         SDK,
         PORTABILITY_ANALYZER,
+        RECOMMENDATION,
         PRIVATE
     }
 }

@@ -19,6 +19,7 @@ namespace PortingAssistantApiAnalysisTest
     public class PortingAssistantApiAnalysisHandlerTest
     {
         private Mock<IPortingAssistantNuGetHandler> _handler;
+        private Mock<IPortingAssistantRecommendationHandler> _recommendationHandler;
         private PortingAssistantApiAnalysisHandler _PortingAssistantApiAnalysisHandler;
         private string solutionFile;
         private List<ProjectDetails> projects;
@@ -60,8 +61,9 @@ namespace PortingAssistantApiAnalysisTest
         public void OneTimeSetUp()
         {
             _handler = new Mock<IPortingAssistantNuGetHandler>();
+            _recommendationHandler = new Mock<IPortingAssistantRecommendationHandler>();
             //_nameSpacehandler = new Mock<IPortingAssistantNamespaceHandler>();
-            _PortingAssistantApiAnalysisHandler = new PortingAssistantApiAnalysisHandler(NullLogger<PortingAssistantApiAnalysisHandler>.Instance, _handler.Object);
+            _PortingAssistantApiAnalysisHandler = new PortingAssistantApiAnalysisHandler(NullLogger<PortingAssistantApiAnalysisHandler>.Instance, _handler.Object, _recommendationHandler.Object);
         }
 
         [SetUp]

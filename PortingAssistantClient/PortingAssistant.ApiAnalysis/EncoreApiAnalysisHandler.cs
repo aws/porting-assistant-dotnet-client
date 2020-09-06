@@ -20,15 +20,16 @@ namespace PortingAssistant.ApiAnalysis
     {
         private readonly ILogger<PortingAssistantApiAnalysisHandler> _logger;
         private readonly IPortingAssistantNuGetHandler _handler;
-
+        private readonly IPortingAssistantRecommendationHandler _recommendationHandler;
         private static readonly int _maxBuildConcurrency = 1;
         private static readonly SemaphoreSlim _buildConcurrency = new SemaphoreSlim(_maxBuildConcurrency);
 
         public PortingAssistantApiAnalysisHandler(ILogger<PortingAssistantApiAnalysisHandler> logger,
-            IPortingAssistantNuGetHandler handler)
+            IPortingAssistantNuGetHandler handler, IPortingAssistantRecommendationHandler recommendationHandler)
         {
             _logger = logger;
             _handler = handler;
+            _recommendationHandler = recommendationHandler;
         }
 
         public SolutionApiAnalysisResult AnalyzeSolution(
@@ -103,9 +104,13 @@ namespace PortingAssistant.ApiAnalysis
                         PackageId = Namespace
                     };
                 }).ToList();
+                var resultsDict = new Dictionary<string, Task<RecommendationDetails>>();
+
                 var nameSpaceresults = _handler.GetNugetPackages(fakePackages, null);
+                resultsDict = _recommendationHandler.GetApiRecommendation(SemanticNamespaces.ToList());
+
                 var SourceFileAnalysisResults = InvocationExpressionModelToInvocations.Convert(
-                    sourceFileToInvocations, project, _handler, nameSpaceresults);
+                    sourceFileToInvocations, project, _handler, nameSpaceresults, resultsDict);
 
                 return new ProjectApiAnalysisResult
                 {

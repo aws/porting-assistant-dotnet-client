@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using PortingAssistant.Model;
 using Semver;
+using System.Collections.Generic;
 
 namespace PortingAssistant.ApiAnalysis.Utils
 {
@@ -60,22 +61,22 @@ namespace PortingAssistant.ApiAnalysis.Utils
             return targetVersions.Any(v => SemVersion.Compare(target, SemVersion.Parse(v)) > 0);
         }
 
-        public static string upgradeStrategy(Task<PackageDetails> nugetPackage, string apiMethodSignature, string version)
+        public static (RecommendedActionType, string) upgradeStrategy(Task<PackageDetails> nugetPackage, string apiMethodSignature, string version, string nameSpaceToQuery, Dictionary<string, Task<RecommendationDetails>> _recommendationDetails)
         {
             if (nugetPackage == null || apiMethodSignature == null || version == null)
             {
-                return null;
+                return (RecommendedActionType.NoRecommendation,null);
             }
 
             nugetPackage.Wait();
             if (!nugetPackage.IsCompletedSuccessfully)
             {
-                return null;
+                return (RecommendedActionType.NoRecommendation,null);
             }
             var targetApi = GetApiDetails(nugetPackage.Result, apiMethodSignature);
             if (targetApi == null || targetApi.Targets == null || !targetApi.Targets.TryGetValue(DEFAULT_TARGET, out var versions))
             {
-                return null;
+                return (RecommendedActionType.NoRecommendation,null);
             }
 
             var upgradeVersion = versions.Last();
@@ -83,13 +84,33 @@ namespace PortingAssistant.ApiAnalysis.Utils
             {
                 if (SemVersion.Compare(SemVersion.Parse(version), SemVersion.Parse(upgradeVersion)) > 0)
                 {
-                    return null;
+                    // No Package upgrade. Check for API recommendation
+                    if (_recommendationDetails.TryGetValue(nameSpaceToQuery, out var taskCompletionSource)) { /* use myValue */ }
+                        { 
+                            var apiList = _recommendationDetails[nameSpaceToQuery];
+                            apiList.Wait();
+                            if (!apiList.IsCompletedSuccessfully)
+                            {
+                                return (RecommendedActionType.NoRecommendation,null);
+                            }
+
+                            var recommendationActions = apiList.Result.RecommendedActions;
+                            foreach (var eachRecommendationAPI in recommendationActions)
+                            {
+                                if (eachRecommendationAPI.Value == apiMethodSignature) 
+                                {
+                                    // First recommendation is the preferred one.
+                                    return (RecommendedActionType.ReplaceApi,eachRecommendationAPI.Recommendation.First().Description);
+                                }
+                            }
+                        }
+                    return (RecommendedActionType.NoRecommendation,null);
                 }
-                return upgradeVersion;
+                return (RecommendedActionType.UpgradePackage,upgradeVersion);
             }
             catch
             {
-                return null;
+                return (RecommendedActionType.NoRecommendation,null);
             }
         }
 
