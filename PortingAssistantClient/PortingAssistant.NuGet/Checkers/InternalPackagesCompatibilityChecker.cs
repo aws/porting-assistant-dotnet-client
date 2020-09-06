@@ -116,7 +116,7 @@ namespace PortingAssistant.NuGet
                     internalRepositories
                     );
             }
-            catch (Exception error) when (error is OperationCanceledException || error is PackageSourceNotFoundException)
+            catch (Exception error) when (error is PortingAssistantClientException)
             {
                 _logger.LogInformation($"Can Not Check for package {packageVersion.PackageId} {packageVersion.Version} with error: {error.Message}");
             }
@@ -169,11 +169,6 @@ namespace PortingAssistant.NuGet
                         {
                             internalPackages.Add(package);
                         }
-                    }
-                    catch (OperationCanceledException error)
-                    {
-                        _logger.LogInformation($"Check for package {package.Version} {package.PackageId} was cancelled: {error.Message}");
-                        continue;
                     }
                     catch (Exception error)
                     {

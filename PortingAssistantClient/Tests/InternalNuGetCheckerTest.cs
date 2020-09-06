@@ -3,13 +3,13 @@ using System.IO;
 using System.Xml;
 using PortingAssistant.InternalNuGetChecker;
 using Microsoft.Extensions.Logging.Abstractions;
-using PortingAssistant.NuGet;
 using System.Collections.Generic;
 using NuGet.Protocol.Core.Types;
 using NuGet.Configuration;
 using System.Linq;
 using System;
-using System.Threading;
+using PortingAssistant.Model;
+using Settings = NuGet.Configuration.Settings;
 
 namespace PortingAssistantPrivateCompatibilityCheckTests
 {
@@ -74,7 +74,7 @@ namespace PortingAssistantPrivateCompatibilityCheckTests
         [Test]
         public void TestNotExists()
         {
-            Assert.ThrowsAsync<PackageSourceNotFoundException>(async () =>
+            Assert.ThrowsAsync<PortingAssistantClientException>(async () =>
                  await checker.CheckCompatibilityAsync("Newtonsoft.Json", "12.0.5", "netcoreapp3.1", sourceRepositories));
         }
 

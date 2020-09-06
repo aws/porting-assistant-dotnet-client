@@ -67,83 +67,79 @@ namespace PortingAssistant.NuGet
         {
             var foundSet = new HashSet<PackageVersionPair>();
             var errorSet = new HashSet<PackageVersionPair>();
-            try
-            {
-                var packageVersionsAgg = packageVersions.Aggregate(new Dictionary<string, List<PackageVersionPair>>(), (agg, packageVersion) =>
-                {
-                    if (!agg.ContainsKey(packageVersion.PackageId))
-                    {
-                        agg.Add(packageVersion.PackageId, new List<PackageVersionPair>());
-                    }
-                    agg[packageVersion.PackageId].Add(packageVersion);
-                    return agg;
-                });
-                foreach (var package in packageVersionsAgg)
-                {
-                    try
-                    {
-                        _logger.LogInformation("Downloading {0} from {1}", package.Key.ToLower() + ".json.gz", _options.Value.DataStoreSettings.S3Endpoint);
-                        using var stream = _transferUtility.OpenStream(
-                            _options.Value.DataStoreSettings.S3Endpoint, package.Key.ToLower() + ".json.gz");
-                        using var gzipStream = new GZipStream(stream, CompressionMode.Decompress);
-                        using var streamReader = new StreamReader(gzipStream);
-                        var data = JsonConvert.DeserializeObject<PackageFromS3>(streamReader.ReadToEnd());
-                        var result = data.Package == null ? data.Namespaces : data.Package;
-                        // Validate result
-                        if (result.Name == null || result.Name.Trim().ToLower() != package.Key.Trim().ToLower())
-                        {
-                            throw new PortingAssistantClientException($"package/namespace download did not match {package.Key}", null);
-                        }
-                        foreach (var packageVersion in package.Value)
-                        {
-                            if (resultsDict.TryGetValue(packageVersion, out var taskCompletionSource))
-                            {
-                                taskCompletionSource.SetResult(result);
-                                foundSet.Add(packageVersion);
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError("Failed when download and parsing {0} from {1}, {2}", package.Key.ToLower() + ".json.gz", _options.Value.DataStoreSettings.S3Endpoint, ex);
-                        foreach (var packageVersion in package.Value)
-                        {
-                            if (resultsDict.TryGetValue(packageVersion, out var taskCompletionSource))
-                            {
-                                taskCompletionSource.SetException(new PortingAssistantClientException($"Cannot found package {packageVersion.PackageId} {packageVersion.Version}", ex));
-                                errorSet.Add(packageVersion);
-                            }
-                        }
-                    }
-                }
 
-                foreach (var packageVersion in packageVersions)
+            var packageVersionsAgg = packageVersions.Aggregate(new Dictionary<string, List<PackageVersionPair>>(), (agg, packageVersion) =>
+            {
+                if (!agg.ContainsKey(packageVersion.PackageId))
                 {
-                    if (!foundSet.Contains(packageVersion) && !errorSet.Contains(packageVersion))
+                    agg.Add(packageVersion.PackageId, new List<PackageVersionPair>());
+                }
+                agg[packageVersion.PackageId].Add(packageVersion);
+                return agg;
+            });
+            foreach (var package in packageVersionsAgg)
+            {
+                try
+                {
+                    _logger.LogInformation("Downloading {0} from {1}", package.Key.ToLower() + ".json.gz", _options.Value.DataStoreSettings.S3Endpoint);
+                    using var stream = _transferUtility.OpenStream(
+                        _options.Value.DataStoreSettings.S3Endpoint, package.Key.ToLower() + ".json.gz");
+                    using var gzipStream = new GZipStream(stream, CompressionMode.Decompress);
+                    using var streamReader = new StreamReader(gzipStream);
+                    var data = JsonConvert.DeserializeObject<PackageFromS3>(streamReader.ReadToEnd());
+                    var result = data.Package == null ? data.Namespaces : data.Package;
+                    // Validate result
+                    if (result.Name == null || result.Name.Trim().ToLower() != package.Key.Trim().ToLower())
+                    {
+                        throw new PortingAssistantClientException($"package/namespace download did not match {package.Key}", null);
+                    }
+                    foreach (var packageVersion in package.Value)
                     {
                         if (resultsDict.TryGetValue(packageVersion, out var taskCompletionSource))
                         {
-                            _logger.LogInformation(
-                                $"Can Not Find package {packageVersion.PackageId} " +
-                                $"{packageVersion.Version} in external source, check internal source");
-                            taskCompletionSource.TrySetException(
-                               new PortingAssistantClientException($"Cannot found package {packageVersion.PackageId} {packageVersion.Version}", null));
+                            taskCompletionSource.SetResult(result);
+                            foundSet.Add(packageVersion);
+                        }
+                    }
+                }
+                catch (Amazon.S3.AmazonS3Exception ex) when (ex.ErrorCode.Contains("404"))
+                {
+                    foreach (var packageVersion in package.Value)
+                    {
+                        if (resultsDict.TryGetValue(packageVersion, out var taskCompletionSource))
+                        {
+                            taskCompletionSource.SetException(new PortingAssistantClientException($"Cannot found package {packageVersion.PackageId} {packageVersion.Version}", ex));
+                            errorSet.Add(packageVersion);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError("Failed when download and parsing {0} from {1}, {2}", package.Key.ToLower() + ".json.gz", _options.Value.DataStoreSettings.S3Endpoint, ex);
+                    foreach (var packageVersion in package.Value)
+                    {
+                        if (resultsDict.TryGetValue(packageVersion, out var taskCompletionSource))
+                        {
+                            taskCompletionSource.SetException(new PortingAssistantClientException($"Cannot found package {packageVersion.PackageId} {packageVersion.Version}", ex));
+                            errorSet.Add(packageVersion);
                         }
                     }
                 }
             }
-            catch (Exception ex)
+
+            foreach (var packageVersion in packageVersions)
             {
-                foreach (var packageVersion in packageVersions)
+                if (!foundSet.Contains(packageVersion) && !errorSet.Contains(packageVersion))
                 {
                     if (resultsDict.TryGetValue(packageVersion, out var taskCompletionSource))
                     {
+                        _logger.LogInformation(
+                            $"Can Not Find package {packageVersion.PackageId} " +
+                            $"{packageVersion.Version} in external source, check internal source");
                         taskCompletionSource.TrySetException(
                             new PortingAssistantClientException($"Cannot found package {packageVersion.PackageId} {packageVersion.Version}", null));
                     }
                 }
-
-                _logger.LogError("Process Package Compatibility with Error: {0}", ex);
             }
         }
 
