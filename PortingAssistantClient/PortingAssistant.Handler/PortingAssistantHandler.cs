@@ -10,6 +10,7 @@ using Microsoft.Build.Construction;
 using Microsoft.Extensions.Logging;
 using NuGet.Frameworks;
 using NuGet.Versioning;
+using System.IO;
 
 namespace PortingAssistant
 {
@@ -69,6 +70,7 @@ namespace PortingAssistant
 
             return new SolutionDetails
             {
+                SolutionName = Path.GetFileNameWithoutExtension(solutionFilePath),
                 SolutionFilePath = solutionFilePath,
                 Projects = Projects,
                 FailedProjects = failedProjects
@@ -91,33 +93,14 @@ namespace PortingAssistant
                     var packageAnalysisResults = _handler.GetNugetPackages(p.PackageReferences, solutionFilePath)
                                                     .Select(package =>
                                                     {
-                                                        var result = PackageCompatibility.isCompatible(package.Value, package.Key, _logger);
-
-                                                        return new PackageAnalysisResult
-                                                        {
-                                                            PackageVersionPair = package.Key,
-                                                            PackageRecommendation = new PackageRecommendation
-                                                            {
-                                                                RecommendedActionType = RecommendedActionType.UpgradePackage,
-                                                                TargetFrameworkCompatibleVersionPair = new Dictionary<string, PackageCompatibilityInfo>
-                                                                {
-                                                                    {
-                                                                        PackageCompatibility.DEFAULT_TARGET, new PackageCompatibilityInfo
-                                                                        {
-                                                                            CompatibilityResult = result.CompatibilityResult,
-                                                                            CompatibleVersion = result.CompatibleVersion
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        };
+                                                        var result = PackageCompatibility.isCompatibleAsync(package.Value, package.Key, _logger);
+                                                        return PackageCompatibility.GetPackageAnalysisResult(result, package.Key);
                                                     }).Where(p => p != null).ToList();
                     return new ProjectAnalysisResult
                     {
-                        Errors = projectApiAnalysisResult.Result.Errors,
                         ProjectFile = p.ProjectFilePath,
                         ProjectName = p.ProjectName,
-                        SourceFileAnalysisResults = projectApiAnalysisResult.Result.SourceFileAnalysisResults,
+                        ProjectApiAnalysisResult = projectApiAnalysisResult,
                         PackageAnalysisResults = packageAnalysisResults
                     };
                 }).ToList()

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AwsCodeAnalyzer;
-using AwsCodeAnalyzer.Common;
 using AwsCodeAnalyzer.Model;
 using PortingAssistantApiAnalysis.Utils;
 using PortingAssistant.Model;
@@ -120,7 +119,7 @@ namespace PortingAssistant.ApiAnalysis
             catch (Exception ex)
             {
                 _logger.LogError("Error while analyzing {0}, {1}", project.ProjectName, ex);
-                throw new PortingAssistantException($"Error while analyzing {project.ProjectName}", ex); ;
+                throw new PortingAssistantException($"Error while analyzing {project.ProjectName}", ex);
             }
         }
     }

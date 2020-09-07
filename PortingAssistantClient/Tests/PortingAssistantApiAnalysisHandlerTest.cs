@@ -60,7 +60,6 @@ namespace PortingAssistantApiAnalysisTest
         public void OneTimeSetUp()
         {
             _handler = new Mock<IPortingAssistantNuGetHandler>();
-            //_nameSpacehandler = new Mock<IPortingAssistantNamespaceHandler>();
             _PortingAssistantApiAnalysisHandler = new PortingAssistantApiAnalysisHandler(NullLogger<PortingAssistantApiAnalysisHandler>.Instance, _handler.Object);
         }
 
