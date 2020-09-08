@@ -5,6 +5,6 @@ namespace PortingAssistant.Model
     {
         public Invocation Invocation { get; set; }
         public string UpgradeVersion { get; set; }
-        public RecommendedActionType recommendationType { get; set; }
+        public RecommendationAction recommendationType { get; set; }
     }
 }
