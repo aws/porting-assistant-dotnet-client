@@ -15,7 +15,9 @@ namespace PortingAssistantApiAnalysis.Utils
         public static List<SourceFileAnalysisResult> Convert(
             Dictionary<string, List<InvocationExpression>> sourceFileToInvocations,
             ProjectDetails project, IPortingAssistantNuGetHandler handler,
-            Dictionary<PackageVersionPair, Task<PackageDetails>> namespaceresults)
+            Dictionary<PackageVersionPair, Task<PackageDetails>> namespaceresults,
+            Dictionary<string, Task<RecommendationDetails>> recommendationDetails
+        )
         {
 
             return sourceFileToInvocations.Select(sourceFile =>
@@ -71,16 +73,12 @@ namespace PortingAssistantApiAnalysis.Utils
                                 packageDetails,
                                 invocation.SemanticOriginalDefinition,
                                 nugetVersion?.ToNormalizedString()),
-                            ApiRecommendation = new ApiRecommendation
-                            {
-                                RecommendedActionType = RecommendedActionType.UpgradePackage,
-                                UpgradeVersion = ApiCompatiblity.upgradeStrategy(
+                            ApiRecommendation = ApiCompatiblity.upgradeStrategy(
                                                 packageDetails,
                                                 invocation.SemanticOriginalDefinition,
-                                                nugetVersion?.ToNormalizedString())
-                                 
-                                
-                            }
+                                                nugetVersion?.ToNormalizedString(),
+                                                invocation.SemanticNamespace,
+                                                recommendationDetails)
                         };
                     }).Where(invocation => invocation != null)
                     .ToList()

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using PortingAssistant.Model;
 using Semver;
+using System.Collections.Generic;
 
 namespace PortingAssistant.ApiAnalysis.Utils
 {
@@ -60,22 +61,34 @@ namespace PortingAssistant.ApiAnalysis.Utils
             return targetVersions.Any(v => SemVersion.Compare(target, SemVersion.Parse(v)) > 0);
         }
 
-        public static string upgradeStrategy(Task<PackageDetails> nugetPackage, string apiMethodSignature, string version)
+        public static ApiRecommendation upgradeStrategy(Task<PackageDetails> nugetPackage, string apiMethodSignature, string version, string nameSpaceToQuery, Dictionary<string, Task<RecommendationDetails>> _recommendationDetails)
         {
             if (nugetPackage == null || apiMethodSignature == null || version == null)
             {
-                return null;
+                return new ApiRecommendation{
+                    RecommendedActionType = RecommendedActionType.NoRecommendation,
+                    desciption = null,
+                    UpgradeVersion = null
+                };
             }
 
             nugetPackage.Wait();
             if (!nugetPackage.IsCompletedSuccessfully)
             {
-                return null;
+                return new ApiRecommendation{
+                    RecommendedActionType = RecommendedActionType.NoRecommendation,
+                    desciption = null,
+                    UpgradeVersion = null
+                };
             }
             var targetApi = GetApiDetails(nugetPackage.Result, apiMethodSignature);
             if (targetApi == null || targetApi.Targets == null || !targetApi.Targets.TryGetValue(DEFAULT_TARGET, out var versions))
             {
-                return null;
+                return new ApiRecommendation{
+                    RecommendedActionType = RecommendedActionType.NoRecommendation,
+                    desciption = null,
+                    UpgradeVersion = null
+                };
             }
 
             var upgradeVersion = versions.Last();
@@ -83,13 +96,61 @@ namespace PortingAssistant.ApiAnalysis.Utils
             {
                 if (SemVersion.Compare(SemVersion.Parse(version), SemVersion.Parse(upgradeVersion)) > 0)
                 {
-                    return null;
+                    // No Package upgrade. Check for API recommendation
+                    if (_recommendationDetails.TryGetValue(nameSpaceToQuery, out var taskCompletionSource))
+                        { 
+                            var apiList = _recommendationDetails[nameSpaceToQuery];
+                            apiList.Wait();
+                            if (!apiList.IsCompletedSuccessfully)
+                            {
+                                return new ApiRecommendation{
+                                    RecommendedActionType = RecommendedActionType.NoRecommendation,
+                                    desciption = null,
+                                    UpgradeVersion = null
+                                };
+                            }
+
+                            var recommendationActions = apiList.Result.RecommendedActions;
+                            foreach (var eachRecommendationAPI in recommendationActions)
+                            {
+                                if (eachRecommendationAPI.Value == apiMethodSignature) 
+                                {
+                                    if (eachRecommendationAPI.Recommendation != null || eachRecommendationAPI.Recommendation.Length != 0){
+                                        // First recommendation is the preferred one.
+                                        return new ApiRecommendation{
+                                            RecommendedActionType = RecommendedActionType.ReplaceApi,
+                                            desciption = eachRecommendationAPI.Recommendation.First().Description,
+                                            UpgradeVersion = null
+                                        };
+                                    }
+                                }
+                            }
+                        }
+                    else {
+                            return new ApiRecommendation
+                                {
+                                    RecommendedActionType = RecommendedActionType.NoRecommendation,
+                                    desciption = null,
+                                    UpgradeVersion = null
+                                };
+                        }
                 }
-                return upgradeVersion;
+                return new ApiRecommendation
+                    {
+                        RecommendedActionType = RecommendedActionType.UpgradePackage,
+                        desciption = null,
+                        UpgradeVersion = upgradeVersion
+                    };
+ 
             }
             catch
             {
-                return null;
+                return new ApiRecommendation
+                    {
+                        RecommendedActionType = RecommendedActionType.NoRecommendation,
+                        desciption = null,
+                        UpgradeVersion = null
+                    };
             }
         }
 

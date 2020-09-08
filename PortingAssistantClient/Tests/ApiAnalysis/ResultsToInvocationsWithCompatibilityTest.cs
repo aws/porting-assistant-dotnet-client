@@ -91,7 +91,7 @@ namespace Tests.ApiAnalysis
             };
 
             var result = InvocationExpressionModelToInvocations.Convert(
-                sourceFileToInvocations, project, _handler.Object, new Dictionary<PackageVersionPair, Task<PackageDetails>>());
+                sourceFileToInvocations, project, _handler.Object, new Dictionary<PackageVersionPair, Task<PackageDetails>>(), new Dictionary<string, Task<RecommendationDetails>>());
 
             Assert.AreEqual(1, result[0].ApiAnalysisResults.Count);
             Assert.AreEqual("11.2.0", result[0].ApiAnalysisResults[0].Invocation.Package.Version);
@@ -128,7 +128,7 @@ namespace Tests.ApiAnalysis
             };
 
             var result = InvocationExpressionModelToInvocations.Convert(
-                sourceFileToInvocations, project, _handler.Object, new Dictionary<PackageVersionPair, Task<PackageDetails>>());
+                sourceFileToInvocations, project, _handler.Object, new Dictionary<PackageVersionPair, Task<PackageDetails>>(), new Dictionary<string, Task<RecommendationDetails>>());
 
             Assert.AreEqual(1, result[0].ApiAnalysisResults.Count);
             Assert.AreEqual("11.2.0", result[0].ApiAnalysisResults[0].Invocation.Package.Version);
@@ -165,7 +165,7 @@ namespace Tests.ApiAnalysis
             };
 
             var result = InvocationExpressionModelToInvocations.Convert(
-                sourceFileToInvocations, project, _handler.Object, new Dictionary<PackageVersionPair, Task<PackageDetails>>());
+                sourceFileToInvocations, project, _handler.Object, new Dictionary<PackageVersionPair, Task<PackageDetails>>(), new Dictionary<string, Task<RecommendationDetails>>());
 
             Assert.AreEqual(1, result[0].ApiAnalysisResults.Count);
             Assert.AreEqual("namespace.namespace2", result[0].ApiAnalysisResults[0].Invocation.Package.PackageId);
