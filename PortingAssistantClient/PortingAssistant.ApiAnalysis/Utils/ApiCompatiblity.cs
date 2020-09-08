@@ -66,11 +66,8 @@ namespace PortingAssistant.ApiAnalysis.Utils
             if (nugetPackage == null || apiMethodSignature == null || version == null)
             {
                 return new ApiRecommendation{
-                    recommendationType = new RecommendationAction
-                    {
-                        RecommendedActionType = RecommendedActionType.NoRecommendation,
-                        desciption = null
-                    },
+                    RecommendedActionType = RecommendedActionType.NoRecommendation,
+                    desciption = null,
                     UpgradeVersion = null
                 };
             }
@@ -79,11 +76,8 @@ namespace PortingAssistant.ApiAnalysis.Utils
             if (!nugetPackage.IsCompletedSuccessfully)
             {
                 return new ApiRecommendation{
-                    recommendationType = new RecommendationAction
-                    {
-                        RecommendedActionType = RecommendedActionType.NoRecommendation,
-                        desciption = null
-                    },
+                    RecommendedActionType = RecommendedActionType.NoRecommendation,
+                    desciption = null,
                     UpgradeVersion = null
                 };
             }
@@ -91,11 +85,8 @@ namespace PortingAssistant.ApiAnalysis.Utils
             if (targetApi == null || targetApi.Targets == null || !targetApi.Targets.TryGetValue(DEFAULT_TARGET, out var versions))
             {
                 return new ApiRecommendation{
-                    recommendationType = new RecommendationAction
-                    {
-                        RecommendedActionType = RecommendedActionType.NoRecommendation,
-                        desciption = null
-                    },
+                    RecommendedActionType = RecommendedActionType.NoRecommendation,
+                    desciption = null,
                     UpgradeVersion = null
                 };
             }
@@ -113,11 +104,8 @@ namespace PortingAssistant.ApiAnalysis.Utils
                             if (!apiList.IsCompletedSuccessfully)
                             {
                                 return new ApiRecommendation{
-                                    recommendationType = new RecommendationAction
-                                    {
-                                        RecommendedActionType = RecommendedActionType.NoRecommendation,
-                                        desciption = null
-                                    },
+                                    RecommendedActionType = RecommendedActionType.NoRecommendation,
+                                    desciption = null,
                                     UpgradeVersion = null
                                 };
                             }
@@ -130,11 +118,8 @@ namespace PortingAssistant.ApiAnalysis.Utils
                                     if (eachRecommendationAPI.Recommendation != null || eachRecommendationAPI.Recommendation.Length != 0){
                                         // First recommendation is the preferred one.
                                         return new ApiRecommendation{
-                                            recommendationType = new RecommendationAction
-                                            {
-                                                RecommendedActionType = RecommendedActionType.ReplaceApi,
-                                                desciption = eachRecommendationAPI.Recommendation.First().Description
-                                            },
+                                            RecommendedActionType = RecommendedActionType.ReplaceApi,
+                                            desciption = eachRecommendationAPI.Recommendation.First().Description,
                                             UpgradeVersion = null
                                         };
                                     }
@@ -142,36 +127,30 @@ namespace PortingAssistant.ApiAnalysis.Utils
                             }
                         }
                     else {
-                            return new ApiRecommendation{
-                                recommendationType = new RecommendationAction
+                            return new ApiRecommendation
                                 {
                                     RecommendedActionType = RecommendedActionType.NoRecommendation,
-                                    desciption = null
-                                },
-                                UpgradeVersion = null
-                            };
+                                    desciption = null,
+                                    UpgradeVersion = null
+                                };
                         }
                 }
-                return new ApiRecommendation{
-                    recommendationType = new RecommendationAction
+                return new ApiRecommendation
                     {
                         RecommendedActionType = RecommendedActionType.UpgradePackage,
-                        desciption = null
-                    },
-                    UpgradeVersion = upgradeVersion
-                };
+                        desciption = null,
+                        UpgradeVersion = upgradeVersion
+                    };
+ 
             }
             catch
             {
-
-                return new ApiRecommendation{
-                    recommendationType = new RecommendationAction
-                        {
-                            RecommendedActionType = RecommendedActionType.NoRecommendation,
-                            desciption = null
-                        },
+                return new ApiRecommendation
+                    {
+                        RecommendedActionType = RecommendedActionType.NoRecommendation,
+                        desciption = null,
                         UpgradeVersion = null
-                };
+                    };
             }
         }
 
