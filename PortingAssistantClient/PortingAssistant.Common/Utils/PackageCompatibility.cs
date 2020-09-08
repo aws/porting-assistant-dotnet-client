@@ -12,11 +12,34 @@ namespace PortingAssistant.Utils
     {
         public const string DEFAULT_TARGET = "netcoreapp3.1";
 
-        public static PackageCompatibilityInfo isCompatible(Task<PackageDetails> packageDetails, PackageVersionPair packageVersionPair, ILogger _logger, string target = DEFAULT_TARGET)
+        public static async Task<PackageAnalysisResult> GetPackageAnalysisResult(Task<PackageCompatibilityInfo> packageCompatibilityInfo, PackageVersionPair packageVersionPair)
+        {
+            var result = await packageCompatibilityInfo;
+            return new PackageAnalysisResult
+            {
+                PackageVersionPair = packageVersionPair,
+                PackageRecommendation = new PackageRecommendation
+                {
+                    RecommendedActionType = RecommendedActionType.UpgradePackage,
+                    TargetFrameworkCompatibleVersionPair = new Dictionary<string, PackageCompatibilityInfo>
+                    {
+                        {
+                            DEFAULT_TARGET, new PackageCompatibilityInfo
+                            {
+                                CompatibilityResult = result.CompatibilityResult,
+                                CompatibleVersion = result.CompatibleVersion
+                            }
+                        }
+                    }
+                }
+            };
+        }
+
+        public static async Task<PackageCompatibilityInfo> isCompatibleAsync(Task<PackageDetails> packageDetails, PackageVersionPair packageVersionPair, ILogger _logger, string target = DEFAULT_TARGET)
         {
             try
             {
-                packageDetails.Wait();
+                await packageDetails;
                 if (!packageDetails.IsCompletedSuccessfully)
                 {
                     return new PackageCompatibilityInfo

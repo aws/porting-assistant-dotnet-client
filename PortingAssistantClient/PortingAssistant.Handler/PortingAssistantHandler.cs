@@ -6,125 +6,135 @@ using PortingAssistant.FileParser;
 using PortingAssistant.NuGet;
 using PortingAssistant.Model;
 using PortingAssistant.Utils;
+using PortingAssistant.Porting;
 using Microsoft.Build.Construction;
 using Microsoft.Extensions.Logging;
 using NuGet.Frameworks;
 using NuGet.Versioning;
+using System.IO;
 
 namespace PortingAssistant
 {
-    public class AssessmentHandler : IAssessmentHandler
+    public class PortingAssistantHandler : IPortingAssistantHandler
     {
         private readonly ILogger _logger;
         private readonly IPortingAssistantNuGetHandler _handler;
         private readonly IPortingAssistantApiAnalysisHandler _apiAnalysis;
+        private readonly IPortingHandler _portingHandler;
 
-        public AssessmentHandler(ILogger<AssessmentHandler> logger,
+        public PortingAssistantHandler(ILogger<PortingAssistantHandler> logger,
             IPortingAssistantNuGetHandler handler,
-            IPortingAssistantApiAnalysisHandler apiAnalysis)
+            IPortingAssistantApiAnalysisHandler apiAnalysis,
+            IPortingHandler portingHandler
+            )
         {
             _logger = logger;
             _handler = handler;
             _apiAnalysis = apiAnalysis;
+            _portingHandler = portingHandler;
         }
 
         public SolutionDetails GetSolutionDetails(string solutionFilePath)
         {
-            var solution = SolutionFile.Parse(solutionFilePath);
-            var failedProjects = new List<string>();
-
-            var Projects = solution.ProjectsInOrder
-                        .Where(p => p.ProjectType == SolutionProjectType.KnownToBeMSBuildFormat || p.ProjectType == SolutionProjectType.WebProject)
-                        .Select(p =>
-                        {
-                            _logger.LogInformation("Analyzing: {0}", p.ProjectName);
-                            try
-                            {
-                                var projectParser = new ProjectFileParser(p.AbsolutePath);
-
-                                return new ProjectDetails
-                                {
-                                    ProjectName = p.ProjectName,
-                                    ProjectFilePath = p.AbsolutePath,
-                                    ProjectGuid = p.ProjectGuid,
-                                    ProjectType = p.ProjectType.ToString(),
-                                    TargetFrameworks = projectParser.GetTargetFrameworks().Select(tfm =>
-                                    {
-                                        var framework = NuGetFramework.Parse(tfm);
-                                        return string.Format("{0} {1}", framework.Framework, NuGetVersion.Parse(framework.Version.ToString()).ToNormalizedString());
-                                    }).ToList(),
-                                    PackageReferences = projectParser.GetPackageReferences(),
-                                    ProjectReferences = projectParser.GetProjectReferences(),
-
-                                };
-                            }
-                            catch (Exception ex)
-                            {
-                                failedProjects.Add(p.AbsolutePath);
-                                _logger.LogWarning("Failed to assess {0}, exception: {1}", p.ProjectName, ex);
-                                return null;
-                            }
-
-                        }).Where(p => p != null).ToList();
-
-            return new SolutionDetails
+            try
             {
-                SolutionFilePath = solutionFilePath,
-                Projects = Projects,
-                FailedProjects = failedProjects
-            };
+                var solution = SolutionFile.Parse(solutionFilePath);
+                var failedProjects = new List<string>();
+
+                var Projects = solution.ProjectsInOrder
+                            .Where(p => p.ProjectType == SolutionProjectType.KnownToBeMSBuildFormat || p.ProjectType == SolutionProjectType.WebProject)
+                            .Select(p =>
+                            {
+                                _logger.LogInformation("Analyzing: {0}", p.ProjectName);
+                                try
+                                {
+                                    var projectParser = new ProjectFileParser(p.AbsolutePath);
+
+                                    return new ProjectDetails
+                                    {
+                                        ProjectName = p.ProjectName,
+                                        ProjectFilePath = p.AbsolutePath,
+                                        ProjectGuid = p.ProjectGuid,
+                                        ProjectType = p.ProjectType.ToString(),
+                                        TargetFrameworks = projectParser.GetTargetFrameworks().Select(tfm =>
+                                        {
+                                            var framework = NuGetFramework.Parse(tfm);
+                                            return string.Format("{0} {1}", framework.Framework, NuGetVersion.Parse(framework.Version.ToString()).ToNormalizedString());
+                                        }).ToList(),
+                                        PackageReferences = projectParser.GetPackageReferences(),
+                                        ProjectReferences = projectParser.GetProjectReferences(),
+
+                                    };
+                                }
+                                catch (Exception ex)
+                                {
+                                    failedProjects.Add(p.AbsolutePath);
+                                    _logger.LogWarning("Failed to assess {0}, exception: {1}", p.ProjectName, ex);
+                                    return null;
+                                }
+
+                            }).Where(p => p != null).ToList();
+
+                return new SolutionDetails
+                {
+                    SolutionName = Path.GetFileNameWithoutExtension(solutionFilePath),
+                    SolutionFilePath = solutionFilePath,
+                    Projects = Projects,
+                    FailedProjects = failedProjects
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new PortingAssistantException($"Cannot Analyze solution {solutionFilePath}", ex);
+            }
+            
         }
 
         public SolutionAnalysisResult AnalyzeSolution(string solutionFilePath)
         {
-            var solutionDetails = GetSolutionDetails(solutionFilePath);
-            var solutionApiAnalysisResult = _apiAnalysis.AnalyzeSolution(solutionFilePath, solutionDetails.Projects);
-
-            var solutionAnalysisResult = new SolutionAnalysisResult
+            try
             {
-                FailedProjects = solutionDetails.FailedProjects,
-                SolutionDetails = solutionDetails,
-                ProjectAnalysisResult = solutionDetails.Projects.Select(p =>
+                var solutionDetails = GetSolutionDetails(solutionFilePath);
+                var solutionApiAnalysisResult = _apiAnalysis.AnalyzeSolution(solutionFilePath, solutionDetails.Projects);
+
+                var solutionAnalysisResult = new SolutionAnalysisResult
                 {
-                    var projectApiAnalysisResult = solutionApiAnalysisResult.ProjectApiAnalysisResults.GetValueOrDefault(p.ProjectFilePath);
-                    projectApiAnalysisResult.Wait();
-                    var packageAnalysisResults = _handler.GetNugetPackages(p.PackageReferences, solutionFilePath)
-                                                    .Select(package =>
-                                                    {
-                                                        var result = PackageCompatibility.isCompatible(package.Value, package.Key, _logger);
-
-                                                        return new PackageAnalysisResult
-                                                        {
-                                                            PackageVersionPair = package.Key,
-                                                            PackageRecommendation = new PackageRecommendation
-                                                            {
-                                                                RecommendedActionType = RecommendedActionType.UpgradePackage,
-                                                                TargetFrameworkCompatibleVersionPair = new Dictionary<string, PackageCompatibilityInfo>
-                                                                {
-                                                                    {
-                                                                        PackageCompatibility.DEFAULT_TARGET, new PackageCompatibilityInfo
-                                                                        {
-                                                                            CompatibilityResult = result.CompatibilityResult,
-                                                                            CompatibleVersion = result.CompatibleVersion
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        };
-                                                    }).Where(p => p != null).ToList();
-                    return new ProjectAnalysisResult
+                    FailedProjects = solutionDetails.FailedProjects,
+                    SolutionDetails = solutionDetails,
+                    ProjectAnalysisResult = solutionDetails.Projects.Select(p =>
                     {
-                        Errors = projectApiAnalysisResult.Result.Errors,
-                        ProjectFile = p.ProjectFilePath,
-                        ProjectName = p.ProjectName,
-                        SourceFileAnalysisResults = projectApiAnalysisResult.Result.SourceFileAnalysisResults,
-                        PackageAnalysisResults = packageAnalysisResults
-                    };
-                }).ToList()
+                        var projectApiAnalysisResult = solutionApiAnalysisResult.ProjectApiAnalysisResults.GetValueOrDefault(p.ProjectFilePath);
+                        var packageAnalysisResults = _handler.GetNugetPackages(p.PackageReferences, solutionFilePath)
+                                                        .Select(package =>
+                                                        {
+                                                            var result = PackageCompatibility.isCompatibleAsync(package.Value, package.Key, _logger);
+                                                            return PackageCompatibility.GetPackageAnalysisResult(result, package.Key);
+                                                        }).Where(p => p != null).ToList();
+                        return new ProjectAnalysisResult
+                        {
+                            ProjectFile = p.ProjectFilePath,
+                            ProjectName = p.ProjectName,
+                            ProjectApiAnalysisResult = projectApiAnalysisResult,
+                            PackageAnalysisResults = packageAnalysisResults
+                        };
+                    }).ToList()
 
-            };
+                };
 
-            return solutionAnalysisResult;
+                return solutionAnalysisResult;
+
+            }
+            catch (Exception ex)
+            {
+                throw new PortingAssistantException($"Cannot Analyze solution {solutionFilePath}", ex);
+            } 
+
+        }
+
+        public List<PortingProjectFileResult> ApplyPortingProjectFileChanges(ApplyPortingProjectFileChangesRequest request)
+        {
+            return _portingHandler.ApplyPortProjectFileChanges(request.ProjectPaths, request.SolutionPath,
+                request.TargetFramework, request.UpgradeVersions);
         }
     }
 }

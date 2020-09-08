@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace PortingAssistant.Model
 {
@@ -6,9 +7,8 @@ namespace PortingAssistant.Model
     {
         public string ProjectName { get; set; }
         public string ProjectFile { get; set; }
-        public List<string> Errors { get; set; }
-        public List<SourceFileAnalysisResult> SourceFileAnalysisResults;
-        public List<PackageAnalysisResult> PackageAnalysisResults;
+        public Task<ProjectApiAnalysisResult> ProjectApiAnalysisResult;
+        public List<Task<PackageAnalysisResult>> PackageAnalysisResults;
     }
 
     public class ProjectApiAnalysisResult
