@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace PortingAssistant.InternalNuGetChecker.Model
+namespace PortingAssistant.Model
 {
-    public class CompatibilityResult
+    public class InternalNuGetCompatibilityResult
     {
         public bool IsCompatible { get; set; }
         public string source { get; set; }

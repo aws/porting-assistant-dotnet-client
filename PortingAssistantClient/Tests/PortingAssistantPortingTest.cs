@@ -69,7 +69,7 @@ namespace PortingAssistantPortingTest
             }
         }
 
-        private List<Project> getProjects(string pathToSolution)
+        private List<ProjectDetails> getProjects(string pathToSolution)
         {
             var solution = SolutionFile.Parse(pathToSolution);
             var failedProjects = new List<string>();
@@ -83,17 +83,17 @@ namespace PortingAssistantPortingTest
 
                 var projectParser = new ProjectFileParser(p.AbsolutePath);
 
-                return new Project
+                return new ProjectDetails
                 {
                     ProjectName = p.ProjectName,
-                    ProjectPath = p.AbsolutePath,
+                    ProjectFilePath = p.AbsolutePath,
                     ProjectGuid = p.ProjectGuid,
                     TargetFrameworks = projectParser.GetTargetFrameworks().Select(tfm =>
                     {
                         var framework = NuGetFramework.Parse(tfm);
                         return string.Format("{0} {1}", framework.Framework, NuGetVersion.Parse(framework.Version.ToString()).ToNormalizedString());
                     }).ToList(),
-                    NugetDependencies = projectParser.GetPackageReferences(),
+                    PackageReferences = projectParser.GetPackageReferences(),
                     ProjectReferences = projectParser.GetProjectReferences()
                 };
             }).Where(p => p != null).ToList();
@@ -117,14 +117,14 @@ namespace PortingAssistantPortingTest
             Assert.AreEqual("Nop.Core", result[0].ProjectName);
 
             var portResult = getProjects(Path.Combine(tmpSolutionDirctory, "NopCommerce.sln")).Find(package => package.ProjectName == "Nop.Core");
-            Assert.AreEqual(tmpProjectPath, portResult.ProjectPath);
+            Assert.AreEqual(tmpProjectPath, portResult.ProjectFilePath);
             Assert.AreEqual(".NETCoreApp 3.1.0", portResult.TargetFrameworks[0]);
             Assert.AreEqual(
                 new PackageVersionPair {
                 PackageId = "Newtonsoft.Json",
                 Version = "12.0.3"
                 },
-                portResult.NugetDependencies.Find(nugetpackage => nugetpackage.PackageId == "Newtonsoft.Json"));
+                portResult.PackageReferences.Find(nugetpackage => nugetpackage.PackageId == "Newtonsoft.Json"));
         }
 
         

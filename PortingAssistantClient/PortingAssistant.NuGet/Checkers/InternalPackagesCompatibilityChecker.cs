@@ -2,8 +2,7 @@
 using System.IO;
 using System.Linq;
 using NuGet.Protocol.Core.Types;
-using PortingAssistant.InternalNuGetChecker;
-using PortingAssistant.InternalNuGetChecker.Model;
+using PortingAssistant.NuGet.InternalNuGetChecker;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Threading;
@@ -103,7 +102,7 @@ namespace PortingAssistant.NuGet
             taskCompletionSource.SetResult(packageDetails);
         }
 
-        private async Task<CompatibilityResult> processCompatibility(
+        private async Task<InternalNuGetCompatibilityResult> processCompatibility(
             PackageVersionPair packageVersion,
             IEnumerable<SourceRepository> internalRepositories)
         {

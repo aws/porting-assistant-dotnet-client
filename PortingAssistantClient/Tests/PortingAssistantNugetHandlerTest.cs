@@ -10,8 +10,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using PortingAssistant.InternalNuGetChecker;
-using PortingAssistant.InternalNuGetChecker.Model;
+using PortingAssistant.NuGet.InternalNuGetChecker;
 using NuGet.Protocol.Core.Types;
 using NuGet.Versioning;
 using System.IO;
@@ -64,12 +63,12 @@ namespace PortingAssistantNuGetTest
             }
         };
 
-        private async Task<CompatibilityResult> getCompatibilityResult(
+        private async Task<InternalNuGetCompatibilityResult> getCompatibilityResult(
             int timeout, bool compatility)
         {
             await Task.Delay(timeout);
 
-            return new CompatibilityResult
+            return new InternalNuGetCompatibilityResult
             {
                 CompatibleDlls = null,
                 IsCompatible = compatility,

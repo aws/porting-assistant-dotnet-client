@@ -135,16 +135,15 @@
     <Folder Include="TestXml\TestPorting\corrupt\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PortingAssistant.ApiAnalysis\PortingAssistant.ApiAnalysis.csproj" />
-    <ProjectReference Include="..\PortingAssistant.Common\PortingAssistant.Common.csproj" />
-    <ProjectReference Include="..\PortingAssistant.InternalNuGetChecker\PortingAssistant.InternalNuGetChecker.csproj" />
-    <ProjectReference Include="..\PortingAssistant.NuGet\PortingAssistant.NuGet.csproj" />
-    <ProjectReference Include="..\PortingAssistant.Handler\PortingAssistantHandler.csproj" />
-    <ProjectReference Include="..\PortingAssistant.Porting\PortingAssistant.Porting.csproj" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Update="TestXml\SolutionWithApi\testproject\Program.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PortingAssistant.ApiAnalysis\PortingAssistant.ApiAnalysis.csproj" />
+    <ProjectReference Include="..\PortingAssistant.Common\PortingAssistant.Common.csproj" />
+    <ProjectReference Include="..\PortingAssistant.NuGet\PortingAssistant.NuGet.csproj" />
+    <ProjectReference Include="..\PortingAssistant.Porting\PortingAssistant.Porting.csproj" />
+    <ProjectReference Include="..\PortingAssistant.Handler\PortingAssistantHandler.csproj" />
   </ItemGroup>
 </Project>

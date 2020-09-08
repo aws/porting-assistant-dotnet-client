@@ -11,9 +11,10 @@ using NuGet.Frameworks;
 using NuGet.Packaging.Core;
 using Microsoft.Extensions.Logging;
 using PortingAssistant.Model;
-using PortingAssistant.InternalNuGetChecker.Model;
+using NuGet.Common;
+using ILogger = Microsoft.Extensions.Logging.ILogger;
 
-namespace PortingAssistant.InternalNuGetChecker
+namespace PortingAssistant.NuGet.InternalNuGetChecker
 {
     public class PortingAssistantInternalNuGetCompatibilityHandler : IPortingAssistantInternalNuGetCompatibilityHandler
     {
@@ -26,7 +27,7 @@ namespace PortingAssistant.InternalNuGetChecker
             cacheContext = new SourceCacheContext();
         }
 
-        public async Task<CompatibilityResult> CheckCompatibilityAsync(string packageName, string version, string targetFramework, IEnumerable<SourceRepository> internalRepositories)
+        public async Task<InternalNuGetCompatibilityResult> CheckCompatibilityAsync(string packageName, string version, string targetFramework, IEnumerable<SourceRepository> internalRepositories)
         {
             if (internalRepositories == null || packageName == null || targetFramework == null)
             {
@@ -44,7 +45,7 @@ namespace PortingAssistant.InternalNuGetChecker
             {
                 var dependencyInfoResource = await sourceRepository.GetResourceAsync<DependencyInfoResource>();
                 packageSource = await dependencyInfoResource.ResolvePackage(
-                    package, framework, cacheContext, NuGet.Common.NullLogger.Instance, CancellationToken.None);
+                    package, framework, cacheContext, NullLogger.Instance, CancellationToken.None);
                 if (packageSource != null)
                 {
                     break;
@@ -63,7 +64,7 @@ namespace PortingAssistant.InternalNuGetChecker
                 packageSource,
                 new PackageDownloadContext(cacheContext),
                 Path.Combine(tmpPath),
-                NuGet.Common.NullLogger.Instance, CancellationToken.None);
+                NullLogger.Instance, CancellationToken.None);
             var packageReader = downloadResult.PackageReader;
             var nuspecReader = packageReader.NuspecReader;
             var dependencies = nuspecReader.GetDependencyGroups();
@@ -92,7 +93,7 @@ namespace PortingAssistant.InternalNuGetChecker
                 .Where(x => x.EndsWith("dll", System.StringComparison.OrdinalIgnoreCase))
                 .ToList();
 
-            return new CompatibilityResult
+            return new InternalNuGetCompatibilityResult
             {
                 IncompatibleDlls = incompatibleDlls,
                 CompatibleDlls = compatibleDlls,

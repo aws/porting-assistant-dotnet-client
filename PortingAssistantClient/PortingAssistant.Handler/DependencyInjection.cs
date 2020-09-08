@@ -3,7 +3,7 @@ using Amazon.S3.Transfer;
 using PortingAssistant.ApiAnalysis;
 using PortingAssistant.NuGet;
 using PortingAssistant.Model;
-using PortingAssistant.InternalNuGetChecker;
+using PortingAssistant.NuGet.InternalNuGetChecker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
