@@ -16,13 +16,13 @@ using NUnit.Framework;
 
 namespace PortingAssistantAssessmentTest
 {
-    public class AssessmentHandlerTest
+    public class PortingAssistantHandlerTest
     {
 
         private Mock<IPortingAssistantNuGetHandler> _PortingAssistantNuGetMock;
         private Mock<IPortingAssistantApiAnalysisHandler> _apiAnalysisMock;
         private Mock<IPortingHandler> _portingHandler;
-        private AssessmentHandler _assessmentHandler;
+        private PortingAssistantHandler _PortingAssistantHandler;
         private readonly string _solutionFolder = Path.Combine(TestContext.CurrentContext.TestDirectory,
                 "TestXml", "SolutionWithProjects");
 
@@ -78,8 +78,8 @@ namespace PortingAssistantAssessmentTest
             _PortingAssistantNuGetMock = new Mock<IPortingAssistantNuGetHandler>();
             _apiAnalysisMock = new Mock<IPortingAssistantApiAnalysisHandler>();
             _portingHandler = new Mock<IPortingHandler>();
-            _assessmentHandler = new AssessmentHandler(
-                NullLogger<AssessmentHandler>.Instance,
+            _PortingAssistantHandler = new PortingAssistantHandler(
+                NullLogger<PortingAssistantHandler>.Instance,
                 _PortingAssistantNuGetMock.Object,
                 _apiAnalysisMock.Object,
                 _portingHandler.Object);
@@ -132,7 +132,7 @@ namespace PortingAssistantAssessmentTest
         [Test]
         public void TestGetSolutionDetails()
         {
-            var solutionDetail = _assessmentHandler.GetSolutionDetails(
+            var solutionDetail = _PortingAssistantHandler.GetSolutionDetails(
                 Path.Combine(_solutionFolder, "ModernSolution.sln")
             );
             Assert.AreEqual("ModernSolution", solutionDetail.SolutionName);
@@ -162,14 +162,14 @@ namespace PortingAssistantAssessmentTest
         {
             Assert.Throws<PortingAssistantException>(() =>
             {
-                var solutionDetails = _assessmentHandler.GetSolutionDetails(Path.Combine(_solutionFolder, "failed.sln"));
+                var solutionDetails = _PortingAssistantHandler.GetSolutionDetails(Path.Combine(_solutionFolder, "failed.sln"));
             });
         }
 
         [Test]
         public void TestAnalyzeSolution()
         {
-            var results = _assessmentHandler.AnalyzeSolution(Path.Combine(_solutionFolder, "ModernSolution.sln"));
+            var results = _PortingAssistantHandler.AnalyzeSolution(Path.Combine(_solutionFolder, "ModernSolution.sln"));
             var projctAnalysResult = results.ProjectAnalysisResult.Find(p => p.ProjectName == "Nop.Core");
             var projectApiAnlysisResult = projctAnalysResult.ProjectApiAnalysisResult;
             var packageAnalysisResult = projctAnalysResult.PackageAnalysisResults;
@@ -193,7 +193,7 @@ namespace PortingAssistantAssessmentTest
 
             Assert.Throws<PortingAssistantException>(() =>
             {
-                var solutionDetails = _assessmentHandler.GetSolutionDetails(Path.Combine(_solutionFolder, "testSolutionPath"));
+                var solutionDetails = _PortingAssistantHandler.GetSolutionDetails(Path.Combine(_solutionFolder, "testSolutionPath"));
             });
         }
         

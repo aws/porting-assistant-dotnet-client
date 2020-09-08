@@ -3,7 +3,7 @@ using PortingAssistant.Model;
 
 namespace PortingAssistant
 {
-    public interface IAssessmentHandler
+    public interface IPortingAssistantHandler
     {
         SolutionDetails GetSolutionDetails(string solutionFilePath);
         SolutionAnalysisResult AnalyzeSolution(string solutionFilePath);

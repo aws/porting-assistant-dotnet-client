@@ -16,7 +16,7 @@ namespace PortingAssistant
     {
         public static void AddAssessment(this IServiceCollection serviceCollection, IConfiguration cacheConfig)
         {
-            serviceCollection.AddSingleton<IAssessmentHandler, AssessmentHandler>();
+            serviceCollection.AddSingleton<IPortingAssistantHandler, PortingAssistantHandler>();
             serviceCollection.AddSingleton<IPortingAssistantInternalNuGetCompatibilityHandler, PortingAssistantInternalNuGetCompatibilityHandler>();
             serviceCollection.Configure<AnalyzerConfiguration>(cacheConfig);
             serviceCollection.AddSingleton<IPortingAssistantNuGetHandler, PortingAssistantNuGetHandler>();

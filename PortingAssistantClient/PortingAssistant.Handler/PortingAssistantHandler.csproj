@@ -9,9 +9,9 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PortingAssistant.Common\PortingAssistant.Common.csproj" />
-    <ProjectReference Include="..\PortingAssistant.NuGet\PortingAssistant.NuGet.csproj" />
     <ProjectReference Include="..\PortingAssistant.ApiAnalysis\PortingAssistant.ApiAnalysis.csproj" />
     <ProjectReference Include="..\PortingAssistant.Porting\PortingAssistant.Porting.csproj" />
+    <ProjectReference Include="..\PortingAssistant.NuGet\PortingAssistant.NuGet.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Build" Version="16.6.0" />

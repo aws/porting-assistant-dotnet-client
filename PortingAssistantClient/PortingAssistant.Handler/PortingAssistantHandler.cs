@@ -15,14 +15,14 @@ using System.IO;
 
 namespace PortingAssistant
 {
-    public class AssessmentHandler : IAssessmentHandler
+    public class PortingAssistantHandler : IPortingAssistantHandler
     {
         private readonly ILogger _logger;
         private readonly IPortingAssistantNuGetHandler _handler;
         private readonly IPortingAssistantApiAnalysisHandler _apiAnalysis;
         private readonly IPortingHandler _portingHandler;
 
-        public AssessmentHandler(ILogger<AssessmentHandler> logger,
+        public PortingAssistantHandler(ILogger<PortingAssistantHandler> logger,
             IPortingAssistantNuGetHandler handler,
             IPortingAssistantApiAnalysisHandler apiAnalysis,
             IPortingHandler portingHandler
