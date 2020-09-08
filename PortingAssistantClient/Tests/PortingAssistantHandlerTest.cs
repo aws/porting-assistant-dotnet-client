@@ -177,10 +177,10 @@ namespace PortingAssistantAssessmentTest
             projectApiAnlysisResult.Wait();
             Assert.AreEqual(sourceFileAnalysisResult, projectApiAnlysisResult.Result.SourceFileAnalysisResults.First());
 
-            Task.WaitAll(packageAnalysisResult.ToArray());
-            var packageResult = packageAnalysisResult.First(p => p.Result.PackageVersionPair.PackageId == _packageDetails.Name);
-            Assert.AreEqual(RecommendedActionType.UpgradePackage, packageResult.Result.PackageRecommendation.RecommendedActionType);
-            var compatibilityinfo = packageResult.Result.PackageRecommendation.TargetFrameworkCompatibleVersionPair.GetValueOrDefault(PackageCompatibility.DEFAULT_TARGET);
+            Task.WaitAll(packageAnalysisResult.Values.ToArray());
+            var packageResult = packageAnalysisResult.First(p => p.Value.Result.PackageVersionPair.PackageId == _packageDetails.Name);
+            Assert.AreEqual(RecommendedActionType.UpgradePackage, packageResult.Value.Result.PackageRecommendation.RecommendedActionType); ;
+            var compatibilityinfo = packageResult.Value.Result.PackageRecommendation.TargetFrameworkCompatibleVersionPair.GetValueOrDefault(PackageCompatibility.DEFAULT_TARGET);
             Assert.AreEqual(Compatibility.COMPATIBLE, compatibilityinfo.CompatibilityResult);
             Assert.AreEqual("12.0.4", compatibilityinfo.CompatibleVersion.First());
         }

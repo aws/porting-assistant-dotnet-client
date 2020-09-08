@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using NuGet.Frameworks;
 using NuGet.Versioning;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace PortingAssistant
 {
@@ -108,8 +109,9 @@ namespace PortingAssistant
                                                         .Select(package =>
                                                         {
                                                             var result = PackageCompatibility.isCompatibleAsync(package.Value, package.Key, _logger);
-                                                            return PackageCompatibility.GetPackageAnalysisResult(result, package.Key);
-                                                        }).Where(p => p != null).ToList();
+                                                            var pacakgeAnalysisResult = PackageCompatibility.GetPackageAnalysisResult(result, package.Key);
+                                                            return new Tuple<PackageVersionPair, Task<PackageAnalysisResult>>(package.Key, pacakgeAnalysisResult);
+                                                        }).ToDictionary(t => t.Item1, t => t.Item2);
                         return new ProjectAnalysisResult
                         {
                             ProjectFile = p.ProjectFilePath,
