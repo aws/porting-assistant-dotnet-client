@@ -1,4 +1,5 @@
-﻿using PortingAssistant.Model;
+﻿using System.Collections.Generic;
+using PortingAssistant.Model;
 
 namespace PortingAssistant
 {
@@ -6,5 +7,6 @@ namespace PortingAssistant
     {
         SolutionDetails GetSolutionDetails(string solutionFilePath);
         SolutionAnalysisResult AnalyzeSolution(string solutionFilePath);
+        List<PortingProjectFileResult> ApplyPortingProjectFileChanges(ApplyPortingProjectFileChangesRequest request);
     }
 }

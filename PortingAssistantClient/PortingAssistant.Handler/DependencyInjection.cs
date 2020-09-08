@@ -7,6 +7,7 @@ using PortingAssistant.InternalNuGetChecker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using PortingAssistant.Porting;
 
 
 namespace PortingAssistant
@@ -24,6 +25,7 @@ namespace PortingAssistant
             serviceCollection.AddSingleton<ICompatibilityChecker, ExternalPackagesCompatibilityChecker>();
             serviceCollection.AddSingleton<ICompatibilityChecker, NamespacesCompatibilityChecker>();
             serviceCollection.AddSingleton<ICompatibilityChecker, PortabilityAnalyzerCompatibilityChecker>();
+            serviceCollection.AddSingleton<IPortingHandler, PortingHandler>();
             serviceCollection.AddSingleton<ITransferUtility, TransferUtility>();
         }
     }
