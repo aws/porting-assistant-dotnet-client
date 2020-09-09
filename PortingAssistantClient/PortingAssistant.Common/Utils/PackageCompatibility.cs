@@ -28,11 +28,17 @@ namespace PortingAssistant.Utils
                             }
                         }
                     },
-                PackageRecommendation = new PackageRecommendation
+                Recommendations = new Recommendations
                 {
-                    PackageId = packageVersionPair.PackageId,
-                    RecommendedActionType = RecommendedActionType.UpgradePackage,
-                    TargetVersions = result.CompatibleVersion
+                    RecommendedActions = new List<RecommendedAction>
+                    {
+                        new PackageRecommendation
+                        {
+                            PackageId = packageVersionPair.PackageId,
+                            RecommendedActionType = RecommendedActionType.UpgradePackage,
+                            TargetVersions = result.CompatibleVersion
+                        }
+                    }
                 }
             };
         }

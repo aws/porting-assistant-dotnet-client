@@ -77,12 +77,18 @@ namespace PortingAssistantApiAnalysis.Utils
                                     invocation.SemanticOriginalDefinition,
                                     nugetVersion?.ToNormalizedString())}
                             },
-                            ApiRecommendation = ApiCompatiblity.upgradeStrategy(
+                            Recommendations = new Recommendations
+                            {
+                                RecommendedActions = new List<RecommendedAction>
+                                {
+                                    ApiCompatiblity.upgradeStrategy(
                                                 packageDetails,
                                                 invocation.SemanticOriginalDefinition,
                                                 nugetVersion?.ToNormalizedString(),
                                                 invocation.SemanticNamespace,
                                                 recommendationDetails)
+                                }
+                            }
                         };
                     }).Where(invocation => invocation != null)
                     .ToList()

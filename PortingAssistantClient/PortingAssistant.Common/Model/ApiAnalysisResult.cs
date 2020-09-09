@@ -6,6 +6,6 @@ namespace PortingAssistant.Model
     {
         public CodeEntityDetails CodeEntityDetails { get; set; }
         public Dictionary<string, Compatibility> CompatibilityResult { get; set; } // Target Framework CompatibilityResult pair
-        public ApiRecommendation ApiRecommendation { get; set; }
+        public Recommendations Recommendations { get; set; }
     }
 }

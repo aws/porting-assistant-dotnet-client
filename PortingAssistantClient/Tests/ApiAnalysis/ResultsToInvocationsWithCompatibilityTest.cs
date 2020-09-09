@@ -7,6 +7,7 @@ using PortingAssistant.Model;
 using PortingAssistant.ApiAnalysis.Utils;
 using Moq;
 using NUnit.Framework;
+using System.Linq;
 
 namespace Tests.ApiAnalysis
 {
@@ -97,7 +98,7 @@ namespace Tests.ApiAnalysis
             Assert.AreEqual(1, result[0].ApiAnalysisResults.Count);
             Assert.AreEqual("11.2.0", result[0].ApiAnalysisResults[0].CodeEntityDetails.Package.Version);
             Assert.AreEqual(Compatibility.COMPATIBLE, result[0].ApiAnalysisResults[0].CompatibilityResult.GetValueOrDefault(ApiCompatiblity.DEFAULT_TARGET));
-            Assert.AreEqual("12.0.4", result[0].ApiAnalysisResults[0].ApiRecommendation.desciption);
+            Assert.AreEqual("12.0.4", result[0].ApiAnalysisResults[0].Recommendations.RecommendedActions.First().desciption); ;
         }
 
         [Test]
@@ -134,7 +135,7 @@ namespace Tests.ApiAnalysis
             Assert.AreEqual(1, result[0].ApiAnalysisResults.Count);
             Assert.AreEqual("11.2.0", result[0].ApiAnalysisResults[0].CodeEntityDetails.Package.Version);
             Assert.AreEqual(Compatibility.COMPATIBLE, result[0].ApiAnalysisResults[0].CompatibilityResult.GetValueOrDefault(ApiCompatiblity.DEFAULT_TARGET));
-            Assert.AreEqual("12.0.4", result[0].ApiAnalysisResults[0].ApiRecommendation.desciption);
+            Assert.AreEqual("12.0.4", result[0].ApiAnalysisResults[0].Recommendations.RecommendedActions.First().desciption);
         }
 
         [Test]
@@ -172,7 +173,7 @@ namespace Tests.ApiAnalysis
             Assert.AreEqual("namespace.namespace2", result[0].ApiAnalysisResults[0].CodeEntityDetails.Package.PackageId);
             Assert.IsNull(result[0].ApiAnalysisResults[0].CodeEntityDetails.Package.Version);
             Assert.AreEqual(Compatibility.INCOMPATIBLE, result[0].ApiAnalysisResults[0].CompatibilityResult.GetValueOrDefault(ApiCompatiblity.DEFAULT_TARGET));
-            Assert.IsNull(result[0].ApiAnalysisResults[0].ApiRecommendation.desciption);
+            Assert.IsNull(result[0].ApiAnalysisResults[0].Recommendations.RecommendedActions.First().desciption);
         }
     }
 }

@@ -142,7 +142,7 @@ namespace PortingAssistantApiAnalysisTest
             Assert.AreEqual("Newtonsoft.Json.JsonConvert.SerializeObject(object)",
                 values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().CodeEntityDetails.OriginalDefinition);
             Assert.AreEqual(Compatibility.COMPATIBLE, values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().CompatibilityResult.GetValueOrDefault(ApiCompatiblity.DEFAULT_TARGET));
-            Assert.AreEqual("12.0.4", values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().ApiRecommendation.desciption);
+            Assert.AreEqual("12.0.4", values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().Recommendations.RecommendedActions.First().desciption);
         }
 
         [Test]

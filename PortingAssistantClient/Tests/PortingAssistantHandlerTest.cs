@@ -183,7 +183,7 @@ namespace PortingAssistantAssessmentTest
 
             Task.WaitAll(packageAnalysisResult.Values.ToArray());
             var packageResult = packageAnalysisResult.First(p => p.Value.Result.PackageVersionPair.PackageId == _packageDetails.Name);
-            Assert.AreEqual(RecommendedActionType.UpgradePackage, packageResult.Value.Result.PackageRecommendation.RecommendedActionType); ;
+            Assert.AreEqual(RecommendedActionType.UpgradePackage, packageResult.Value.Result.Recommendations.RecommendedActions.First().RecommendedActionType); ;
             var compatibilityinfo = packageResult.Value.Result.CompatibilityResult.GetValueOrDefault(PackageCompatibility.DEFAULT_TARGET);
             Assert.AreEqual(Compatibility.COMPATIBLE, compatibilityinfo.Compatibility);
             Assert.AreEqual("12.0.4", compatibilityinfo.CompatibleVersion.First());

@@ -6,6 +6,6 @@ namespace PortingAssistant.Model
     {
         public PackageVersionPair PackageVersionPair { get; set; }
         public Dictionary<string, CompatibilityResult> CompatibilityResult { get; set; } // Target Framework CompatibilityResult pair
-        public PackageRecommendation PackageRecommendation { get; set; }
+        public Recommendations Recommendations { get; set; }
     }
 }
