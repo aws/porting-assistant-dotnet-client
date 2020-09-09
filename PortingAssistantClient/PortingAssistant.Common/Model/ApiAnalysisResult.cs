@@ -4,8 +4,8 @@ namespace PortingAssistant.Model
 {
     public class ApiAnalysisResult
     {
-        public Invocation Invocation { get; set; }
-        public Compatibility CompatibilityResult { get; set; }
+        public CodeEntityDetails CodeEntityDetails { get; set; }
+        public Dictionary<string, Compatibility> CompatibilityResult { get; set; } // Target Framework CompatibilityResult pair
         public ApiRecommendation ApiRecommendation { get; set; }
     }
 }

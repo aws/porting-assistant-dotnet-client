@@ -9,6 +9,7 @@ using PortingAssistant.Utils;
 using PortingAssistant.NuGet;
 using PortingAssistant.Model;
 using PortingAssistant.Porting;
+using PortingAssistant.ApiAnalysis.Utils;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using NUnit.Framework;
@@ -67,7 +68,10 @@ namespace PortingAssistantAssessmentTest
             {
                 new ApiAnalysisResult
                 {
-                    CompatibilityResult = Compatibility.COMPATIBLE,
+                    CompatibilityResult = new Dictionary<string, Compatibility>
+                    {
+                        { ApiCompatiblity.DEFAULT_TARGET, Compatibility.COMPATIBLE}
+                    }
                 }
             }
         };
@@ -169,7 +173,7 @@ namespace PortingAssistantAssessmentTest
         [Test]
         public void TestAnalyzeSolution()
         {
-            var results = _PortingAssistantHandler.AnalyzeSolution(Path.Combine(_solutionFolder, "ModernSolution.sln"));
+            var results = _PortingAssistantHandler.AnalyzeSolution(Path.Combine(_solutionFolder, "ModernSolution.sln"), new Settings());
             var projctAnalysResult = results.ProjectAnalysisResult.Find(p => p.ProjectName == "Nop.Core");
             var projectApiAnlysisResult = projctAnalysResult.ProjectApiAnalysisResult;
             var packageAnalysisResult = projctAnalysResult.PackageAnalysisResults;
@@ -180,8 +184,8 @@ namespace PortingAssistantAssessmentTest
             Task.WaitAll(packageAnalysisResult.Values.ToArray());
             var packageResult = packageAnalysisResult.First(p => p.Value.Result.PackageVersionPair.PackageId == _packageDetails.Name);
             Assert.AreEqual(RecommendedActionType.UpgradePackage, packageResult.Value.Result.PackageRecommendation.RecommendedActionType); ;
-            var compatibilityinfo = packageResult.Value.Result.PackageRecommendation.TargetFrameworkCompatibleVersionPair.GetValueOrDefault(PackageCompatibility.DEFAULT_TARGET);
-            Assert.AreEqual(Compatibility.COMPATIBLE, compatibilityinfo.CompatibilityResult);
+            var compatibilityinfo = packageResult.Value.Result.CompatibilityResult.GetValueOrDefault(PackageCompatibility.DEFAULT_TARGET);
+            Assert.AreEqual(Compatibility.COMPATIBLE, compatibilityinfo.Compatibility);
             Assert.AreEqual("12.0.4", compatibilityinfo.CompatibleVersion.First());
         }
         

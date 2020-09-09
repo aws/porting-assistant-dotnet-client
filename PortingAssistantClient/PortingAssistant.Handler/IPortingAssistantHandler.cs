@@ -6,7 +6,7 @@ namespace PortingAssistant
     public interface IPortingAssistantHandler
     {
         SolutionDetails GetSolutionDetails(string solutionFilePath);
-        SolutionAnalysisResult AnalyzeSolution(string solutionFilePath);
+        SolutionAnalysisResult AnalyzeSolution(string solutionFilePath, Settings settings);
         List<PortingProjectFileResult> ApplyPortingProjectFileChanges(ApplyPortingProjectFileChangesRequest request);
     }
 }

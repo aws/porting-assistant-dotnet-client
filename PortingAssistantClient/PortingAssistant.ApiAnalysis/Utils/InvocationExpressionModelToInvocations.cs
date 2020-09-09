@@ -50,13 +50,13 @@ namespace PortingAssistantApiAnalysis.Utils
                         }
                         
                         return new ApiAnalysisResult {
-                            Invocation = new Invocation
+                            CodeEntityDetails = new CodeEntityDetails
                             {
-                                MethodName = invocation.MethodName,
+                                Name = invocation.MethodName,
                                 Namespace = invocation.SemanticNamespace,
-                                MethodSignature = invocation.SemanticMethodSignature,
+                                Signature = invocation.SemanticMethodSignature,
                                 OriginalDefinition = invocation.SemanticOriginalDefinition,
-                                Location = new TextSpan
+                                TextSpan = new TextSpan
                                 {
                                     StartCharPosition = invocation.TextSpan.StartCharPosition,
                                     EndCharPosition = invocation.TextSpan.EndCharPosition,
@@ -69,10 +69,14 @@ namespace PortingAssistantApiAnalysis.Utils
                                     Version = nugetVersion?.ToNormalizedString()
                                 }
                             },
-                            CompatibilityResult = ApiCompatiblity.apiInPackageVersion(
-                                packageDetails,
-                                invocation.SemanticOriginalDefinition,
-                                nugetVersion?.ToNormalizedString()),
+                            CompatibilityResult = new Dictionary<string, Compatibility>
+                            {
+                                { ApiCompatiblity.DEFAULT_TARGET,
+                                    ApiCompatiblity.apiInPackageVersion(
+                                    packageDetails,
+                                    invocation.SemanticOriginalDefinition,
+                                    nugetVersion?.ToNormalizedString())}
+                            },
                             ApiRecommendation = ApiCompatiblity.upgradeStrategy(
                                                 packageDetails,
                                                 invocation.SemanticOriginalDefinition,

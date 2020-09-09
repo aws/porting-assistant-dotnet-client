@@ -12,39 +12,40 @@ namespace PortingAssistant.Utils
     {
         public const string DEFAULT_TARGET = "netcoreapp3.1";
 
-        public static async Task<PackageAnalysisResult> GetPackageAnalysisResult(Task<PackageCompatibilityInfo> packageCompatibilityInfo, PackageVersionPair packageVersionPair)
+        public static async Task<PackageAnalysisResult> GetPackageAnalysisResult(Task<CompatibilityResult> CompatibilityResult, PackageVersionPair packageVersionPair)
         {
-            var result = await packageCompatibilityInfo;
+            var result = await CompatibilityResult;
             return new PackageAnalysisResult
             {
                 PackageVersionPair = packageVersionPair,
-                PackageRecommendation = new PackageRecommendation
-                {
-                    RecommendedActionType = RecommendedActionType.UpgradePackage,
-                    TargetFrameworkCompatibleVersionPair = new Dictionary<string, PackageCompatibilityInfo>
+                CompatibilityResult = new Dictionary<string, CompatibilityResult>
                     {
                         {
-                            DEFAULT_TARGET, new PackageCompatibilityInfo
+                            DEFAULT_TARGET, new CompatibilityResult
                             {
-                                CompatibilityResult = result.CompatibilityResult,
+                                Compatibility = result.Compatibility,
                                 CompatibleVersion = result.CompatibleVersion
                             }
                         }
-                    }
+                    },
+                PackageRecommendation = new PackageRecommendation
+                {
+                    RecommendedActionType = RecommendedActionType.UpgradePackage,
+                    TargetVersions = result.CompatibleVersion
                 }
             };
         }
 
-        public static async Task<PackageCompatibilityInfo> isCompatibleAsync(Task<PackageDetails> packageDetails, PackageVersionPair packageVersionPair, ILogger _logger, string target = DEFAULT_TARGET)
+        public static async Task<CompatibilityResult> isCompatibleAsync(Task<PackageDetails> packageDetails, PackageVersionPair packageVersionPair, ILogger _logger, string target = DEFAULT_TARGET)
         {
             try
             {
                 await packageDetails;
                 if (!packageDetails.IsCompletedSuccessfully)
                 {
-                    return new PackageCompatibilityInfo
+                    return new CompatibilityResult
                     {
-                        CompatibilityResult = Compatibility.UNKNOWN,
+                        Compatibility = Compatibility.UNKNOWN,
                         CompatibleVersion = new List<string>()
                     };
                 }
@@ -52,32 +53,32 @@ namespace PortingAssistant.Utils
                 var foundTarget = packageDetails.Result.Targets.GetValueOrDefault(target, null);
                 if (foundTarget == null)
                 {
-                    return new PackageCompatibilityInfo
+                    return new CompatibilityResult
                     {
-                        CompatibilityResult = Compatibility.INCOMPATIBLE,
+                        Compatibility = Compatibility.INCOMPATIBLE,
                         CompatibleVersion = new List<string>()
                     };
                 }
                 if (!SemVersion.TryParse(packageVersionPair.Version, out var version))
                 {
-                    return new PackageCompatibilityInfo
+                    return new CompatibilityResult
                     {
-                        CompatibilityResult = Compatibility.UNKNOWN,
+                        Compatibility = Compatibility.UNKNOWN,
                         CompatibleVersion = new List<string>()
                     };
                 }
-                return new PackageCompatibilityInfo
+                return new CompatibilityResult
                 {
-                    CompatibilityResult = foundTarget.Any(v => SemVersion.Compare(version, SemVersion.Parse(v)) >= 0) ? Compatibility.COMPATIBLE : Compatibility.INCOMPATIBLE,
+                    Compatibility = foundTarget.Any(v => SemVersion.Compare(version, SemVersion.Parse(v)) >= 0) ? Compatibility.COMPATIBLE : Compatibility.INCOMPATIBLE,
                     CompatibleVersion = foundTarget.Where(v => SemVersion.Compare(SemVersion.Parse(v), version) > 0).ToList()
                 };
             }
             catch (Exception e)
             {
                 _logger.LogError("parse package version {0} {1}with error {2}", packageVersionPair.PackageId, packageVersionPair.Version, e);
-                return new PackageCompatibilityInfo
+                return new CompatibilityResult
                 {
-                    CompatibilityResult = Compatibility.UNKNOWN,
+                    Compatibility = Compatibility.UNKNOWN,
                     CompatibleVersion = new List<string>()
                 };
             }

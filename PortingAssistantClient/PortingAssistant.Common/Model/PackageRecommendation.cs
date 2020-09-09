@@ -5,6 +5,6 @@ namespace PortingAssistant.Model
 {
     public class PackageRecommendation : RecommendationAction
     {
-        public Dictionary<string, PackageCompatibilityInfo> TargetFrameworkCompatibleVersionPair { get; set; }
+        public List<string> TargetVersions { get; set; }
     }
 }

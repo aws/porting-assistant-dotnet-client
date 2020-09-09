@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using PortingAssistant.Model;
 using System.Linq;
 using PortingAssistant.NuGet;
+using PortingAssistant.ApiAnalysis.Utils;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using NUnit.Framework;
@@ -136,12 +137,12 @@ namespace PortingAssistantApiAnalysisTest
             var result = _PortingAssistantApiAnalysisHandler.AnalyzeSolution(solutionFile, projects);
             Task.WaitAll(result.ProjectApiAnalysisResults.Values.ToArray());
             var values = result.ProjectApiAnalysisResults.Values.First().Result;
-            Assert.AreEqual("Newtonsoft.Json", values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().Invocation.Package.PackageId);
-            Assert.AreEqual("11.0.1", values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().Invocation.Package.Version);
+            Assert.AreEqual("Newtonsoft.Json", values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().CodeEntityDetails.Package.PackageId);
+            Assert.AreEqual("11.0.1", values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().CodeEntityDetails.Package.Version);
             Assert.AreEqual("Newtonsoft.Json.JsonConvert.SerializeObject(object)",
-                values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().Invocation.OriginalDefinition);
-            Assert.AreEqual(Compatibility.COMPATIBLE, values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().CompatibilityResult);
-            Assert.AreEqual("12.0.4", values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().ApiRecommendation.UpgradeVersion);
+                values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().CodeEntityDetails.OriginalDefinition);
+            Assert.AreEqual(Compatibility.COMPATIBLE, values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().CompatibilityResult.GetValueOrDefault(ApiCompatiblity.DEFAULT_TARGET));
+            Assert.AreEqual("12.0.4", values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().ApiRecommendation.desciption);
         }
 
         [Test]

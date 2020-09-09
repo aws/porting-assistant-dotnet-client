@@ -4,6 +4,7 @@ using AwsCodeAnalyzer.Model;
 using PortingAssistantApiAnalysis.Utils;
 using PortingAssistant.NuGet;
 using PortingAssistant.Model;
+using PortingAssistant.ApiAnalysis.Utils;
 using Moq;
 using NUnit.Framework;
 
@@ -94,9 +95,9 @@ namespace Tests.ApiAnalysis
                 sourceFileToInvocations, project, _handler.Object, new Dictionary<PackageVersionPair, Task<PackageDetails>>(), new Dictionary<string, Task<RecommendationDetails>>());
 
             Assert.AreEqual(1, result[0].ApiAnalysisResults.Count);
-            Assert.AreEqual("11.2.0", result[0].ApiAnalysisResults[0].Invocation.Package.Version);
-            Assert.AreEqual(Compatibility.COMPATIBLE, result[0].ApiAnalysisResults[0].CompatibilityResult);
-            Assert.AreEqual("12.0.4", result[0].ApiAnalysisResults[0].ApiRecommendation.UpgradeVersion);
+            Assert.AreEqual("11.2.0", result[0].ApiAnalysisResults[0].CodeEntityDetails.Package.Version);
+            Assert.AreEqual(Compatibility.COMPATIBLE, result[0].ApiAnalysisResults[0].CompatibilityResult.GetValueOrDefault(ApiCompatiblity.DEFAULT_TARGET));
+            Assert.AreEqual("12.0.4", result[0].ApiAnalysisResults[0].ApiRecommendation.desciption);
         }
 
         [Test]
@@ -131,9 +132,9 @@ namespace Tests.ApiAnalysis
                 sourceFileToInvocations, project, _handler.Object, new Dictionary<PackageVersionPair, Task<PackageDetails>>(), new Dictionary<string, Task<RecommendationDetails>>());
 
             Assert.AreEqual(1, result[0].ApiAnalysisResults.Count);
-            Assert.AreEqual("11.2.0", result[0].ApiAnalysisResults[0].Invocation.Package.Version);
-            Assert.AreEqual(Compatibility.COMPATIBLE, result[0].ApiAnalysisResults[0].CompatibilityResult);
-            Assert.AreEqual("12.0.4", result[0].ApiAnalysisResults[0].ApiRecommendation.UpgradeVersion);
+            Assert.AreEqual("11.2.0", result[0].ApiAnalysisResults[0].CodeEntityDetails.Package.Version);
+            Assert.AreEqual(Compatibility.COMPATIBLE, result[0].ApiAnalysisResults[0].CompatibilityResult.GetValueOrDefault(ApiCompatiblity.DEFAULT_TARGET));
+            Assert.AreEqual("12.0.4", result[0].ApiAnalysisResults[0].ApiRecommendation.desciption);
         }
 
         [Test]
@@ -168,10 +169,10 @@ namespace Tests.ApiAnalysis
                 sourceFileToInvocations, project, _handler.Object, new Dictionary<PackageVersionPair, Task<PackageDetails>>(), new Dictionary<string, Task<RecommendationDetails>>());
 
             Assert.AreEqual(1, result[0].ApiAnalysisResults.Count);
-            Assert.AreEqual("namespace.namespace2", result[0].ApiAnalysisResults[0].Invocation.Package.PackageId);
-            Assert.IsNull(result[0].ApiAnalysisResults[0].Invocation.Package.Version);
-            Assert.AreEqual(Compatibility.INCOMPATIBLE, result[0].ApiAnalysisResults[0].CompatibilityResult);
-            Assert.IsNull(result[0].ApiAnalysisResults[0].ApiRecommendation.UpgradeVersion);
+            Assert.AreEqual("namespace.namespace2", result[0].ApiAnalysisResults[0].CodeEntityDetails.Package.PackageId);
+            Assert.IsNull(result[0].ApiAnalysisResults[0].CodeEntityDetails.Package.Version);
+            Assert.AreEqual(Compatibility.INCOMPATIBLE, result[0].ApiAnalysisResults[0].CompatibilityResult.GetValueOrDefault(ApiCompatiblity.DEFAULT_TARGET));
+            Assert.IsNull(result[0].ApiAnalysisResults[0].ApiRecommendation.desciption);
         }
     }
 }

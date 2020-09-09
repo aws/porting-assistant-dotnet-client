@@ -91,7 +91,7 @@ namespace PortingAssistant
             
         }
 
-        public SolutionAnalysisResult AnalyzeSolution(string solutionFilePath)
+        public SolutionAnalysisResult AnalyzeSolution(string solutionFilePath, Settings settings)
         {
             try
             {
@@ -102,7 +102,9 @@ namespace PortingAssistant
                 {
                     FailedProjects = solutionDetails.FailedProjects,
                     SolutionDetails = solutionDetails,
-                    ProjectAnalysisResult = solutionDetails.Projects.Select(p =>
+                    ProjectAnalysisResult = solutionDetails.Projects
+                    .Where(p => settings.IgnoreProjects == null || !settings.IgnoreProjects.Contains(p.ProjectFilePath))
+                    .Select(p =>
                     {
                         var projectApiAnalysisResult = solutionApiAnalysisResult.ProjectApiAnalysisResults.GetValueOrDefault(p.ProjectFilePath);
                         var packageAnalysisResults = _handler.GetNugetPackages(p.PackageReferences, solutionFilePath)

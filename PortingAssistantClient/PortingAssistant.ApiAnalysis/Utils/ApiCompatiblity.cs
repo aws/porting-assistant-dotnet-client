@@ -9,7 +9,7 @@ namespace PortingAssistant.ApiAnalysis.Utils
 {
     public static class ApiCompatiblity
     {
-        private const string DEFAULT_TARGET = "netcoreapp3.1";
+        public const string DEFAULT_TARGET = "netcoreapp3.1";
 
         public static Compatibility apiInPackageVersion(Task<PackageDetails> package, string apiMethodSignature, string version, string target = DEFAULT_TARGET, bool checkLesserPackage = true)
         {
@@ -66,9 +66,7 @@ namespace PortingAssistant.ApiAnalysis.Utils
             if (nugetPackage == null || apiMethodSignature == null || version == null)
             {
                 return new ApiRecommendation{
-                    RecommendedActionType = RecommendedActionType.NoRecommendation,
-                    desciption = null,
-                    UpgradeVersion = null
+                    RecommendedActionType = RecommendedActionType.NoRecommendation
                 };
             }
 
@@ -76,18 +74,14 @@ namespace PortingAssistant.ApiAnalysis.Utils
             if (!nugetPackage.IsCompletedSuccessfully)
             {
                 return new ApiRecommendation{
-                    RecommendedActionType = RecommendedActionType.NoRecommendation,
-                    desciption = null,
-                    UpgradeVersion = null
+                    RecommendedActionType = RecommendedActionType.NoRecommendation
                 };
             }
             var targetApi = GetApiDetails(nugetPackage.Result, apiMethodSignature);
             if (targetApi == null || targetApi.Targets == null || !targetApi.Targets.TryGetValue(DEFAULT_TARGET, out var versions))
             {
                 return new ApiRecommendation{
-                    RecommendedActionType = RecommendedActionType.NoRecommendation,
-                    desciption = null,
-                    UpgradeVersion = null
+                    RecommendedActionType = RecommendedActionType.NoRecommendation
                 };
             }
 
@@ -104,9 +98,7 @@ namespace PortingAssistant.ApiAnalysis.Utils
                             if (!apiList.IsCompletedSuccessfully)
                             {
                                 return new ApiRecommendation{
-                                    RecommendedActionType = RecommendedActionType.NoRecommendation,
-                                    desciption = null,
-                                    UpgradeVersion = null
+                                    RecommendedActionType = RecommendedActionType.NoRecommendation
                                 };
                             }
 
@@ -119,8 +111,7 @@ namespace PortingAssistant.ApiAnalysis.Utils
                                         // First recommendation is the preferred one.
                                         return new ApiRecommendation{
                                             RecommendedActionType = RecommendedActionType.ReplaceApi,
-                                            desciption = eachRecommendationAPI.Recommendation.First().Description,
-                                            UpgradeVersion = null
+                                            desciption = eachRecommendationAPI.Recommendation.First().Description
                                         };
                                     }
                                 }
@@ -129,17 +120,14 @@ namespace PortingAssistant.ApiAnalysis.Utils
                     else {
                             return new ApiRecommendation
                                 {
-                                    RecommendedActionType = RecommendedActionType.NoRecommendation,
-                                    desciption = null,
-                                    UpgradeVersion = null
+                                    RecommendedActionType = RecommendedActionType.NoRecommendation
                                 };
                         }
                 }
                 return new ApiRecommendation
                     {
                         RecommendedActionType = RecommendedActionType.UpgradePackage,
-                        desciption = null,
-                        UpgradeVersion = upgradeVersion
+                        desciption = upgradeVersion
                     };
  
             }
@@ -147,9 +135,7 @@ namespace PortingAssistant.ApiAnalysis.Utils
             {
                 return new ApiRecommendation
                     {
-                        RecommendedActionType = RecommendedActionType.NoRecommendation,
-                        desciption = null,
-                        UpgradeVersion = null
+                        RecommendedActionType = RecommendedActionType.NoRecommendation
                     };
             }
         }
