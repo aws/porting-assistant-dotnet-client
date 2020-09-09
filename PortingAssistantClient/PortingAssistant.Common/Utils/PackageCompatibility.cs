@@ -30,6 +30,7 @@ namespace PortingAssistant.Utils
                     },
                 PackageRecommendation = new PackageRecommendation
                 {
+                    PackageId = packageVersionPair.PackageId,
                     RecommendedActionType = RecommendedActionType.UpgradePackage,
                     TargetVersions = result.CompatibleVersion
                 }

@@ -30,15 +30,15 @@ namespace PortingAssistant.PortingProjectFile
             _facility = new MigrationFacility(_logger);
         }
 
-        public List<PortingProjectFileResult> ApplyProjectChanges(
+        public List<PortingResult> ApplyProjectChanges(
             List<string> projectPaths, string solutionPath, string targetFramework,
             Dictionary<string, string> upgradeVersions)
         {
             _logger.LogInformation("Applying porting changes to {0}", projectPaths);
 
-            var results = new List<PortingProjectFileResult>();
+            var results = new List<PortingResult>();
             var projectFilesNotFound = projectPaths.Where((path) => !File.Exists(path)).ToList();
-            projectFilesNotFound.ForEach((path) => results.Add(new PortingProjectFileResult
+            projectFilesNotFound.ForEach((path) => results.Add(new PortingResult
             {
                 Message = "File not found.",
                 ProjectFile = path,
@@ -74,7 +74,7 @@ namespace PortingAssistant.PortingProjectFile
 
                     if (writer.TryWrite(project))
                     {
-                        results.Add(new PortingProjectFileResult
+                        results.Add(new PortingResult
                         {
                             Success = true,
                             ProjectFile = project.FilePath.FullName,
@@ -82,7 +82,7 @@ namespace PortingAssistant.PortingProjectFile
                         });
                     } else
                     {
-                        results.Add(new PortingProjectFileResult
+                        results.Add(new PortingResult
                         {
                             Success = false,
                             ProjectFile = project.FilePath.FullName,
@@ -95,7 +95,7 @@ namespace PortingAssistant.PortingProjectFile
                     _logger.LogError(ex, "Project {Item} analysis has thrown an exception",
                         project.ProjectName);
 
-                    results.Add(new PortingProjectFileResult
+                    results.Add(new PortingResult
                     {
                         Success = false,
                         ProjectFile = project.FilePath.FullName,

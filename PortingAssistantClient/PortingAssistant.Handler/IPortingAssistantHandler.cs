@@ -7,6 +7,6 @@ namespace PortingAssistant
     {
         SolutionDetails GetSolutionDetails(string solutionFilePath);
         SolutionAnalysisResult AnalyzeSolution(string solutionFilePath, Settings settings);
-        List<PortingProjectFileResult> ApplyPortingProjectFileChanges(ApplyPortingProjectFileChangesRequest request);
+        List<PortingResult> ApplyPortingChanges(PortingRequest request);
     }
 }

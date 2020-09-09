@@ -6,7 +6,7 @@ namespace PortingAssistant.Porting
 {
     public interface IPortingHandler
     {
-        List<PortingProjectFileResult> ApplyPortProjectFileChanges(
+        List<PortingResult> ApplyPortProjectFileChanges(
             List<string> projectPaths,
             string solutionPath,
             string targetFramework,

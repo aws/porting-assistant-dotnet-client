@@ -135,10 +135,25 @@ namespace PortingAssistant
 
         }
 
-        public List<PortingProjectFileResult> ApplyPortingProjectFileChanges(ApplyPortingProjectFileChangesRequest request)
+        public List<PortingResult> ApplyPortingChanges(PortingRequest request)
         {
-            return _portingHandler.ApplyPortProjectFileChanges(request.ProjectPaths, request.SolutionPath,
-                request.TargetFramework, request.UpgradeVersions);
+            try
+            {
+                var UpgradeVersions = request.RecommendedActions
+                    .Where(r => r.RecommendedActionType == RecommendedActionType.UpgradePackage)
+                    .Select(recommedation =>
+                    {
+                        var Recommendations = (PackageRecommendation)recommedation;
+                        return new Tuple<string, string>(Recommendations.PackageId, Recommendations.TargetVersions.First());
+                    }).ToDictionary(t => t.Item1, t => t.Item2);
+                return _portingHandler.ApplyPortProjectFileChanges(request.ProjectPaths, request.SolutionPath,
+                    request.TargetFramework, UpgradeVersions);
+            }
+            catch (Exception ex)
+            {
+                throw new PortingAssistantException("Cannot Apply Porting Changes", ex);
+            }
+
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System;
 namespace PortingAssistant.Model
 {
-    public class PortingProjectFileResult
+    public class PortingResult
     {
         public bool Success { get; set; }
         public string ProjectFile { get; set; }

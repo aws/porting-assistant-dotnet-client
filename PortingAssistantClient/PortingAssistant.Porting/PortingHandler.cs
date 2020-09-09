@@ -17,7 +17,7 @@ namespace PortingAssistant.Porting
             _portingProjectFileHandler = portingProjectFileHandler;
         }
         
-        public List<PortingProjectFileResult> ApplyPortProjectFileChanges(
+        public List<PortingResult> ApplyPortProjectFileChanges(
             List<string> projectPaths, string solutionPath, string targetFramework,
             Dictionary<string, string> upgradeVersions)
         {

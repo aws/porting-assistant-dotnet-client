@@ -5,7 +5,7 @@ namespace PortingAssistant.PortingProjectFile
 {
     public interface IPortingProjectFileHandler
     {
-        List<PortingProjectFileResult> ApplyProjectChanges(
+        List<PortingResult> ApplyProjectChanges(
             List<string> projectPaths, string solutionPath, string targetFramework,
             Dictionary<string, string> upgradeVersions);
     }

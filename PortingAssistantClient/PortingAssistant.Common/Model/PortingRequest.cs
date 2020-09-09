@@ -1,12 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace PortingAssistant.Model
 {
-    public class ApplyPortingProjectFileChangesRequest
+    public class PortingRequest
     {
         public List<string> ProjectPaths { get; set; }
         public string SolutionPath { get; set; }
         public string TargetFramework { get; set; }
-        public Dictionary<string, string> UpgradeVersions { get; set; }
+        public List<RecommendedAction> RecommendedActions { get; set; }
     }
 }
