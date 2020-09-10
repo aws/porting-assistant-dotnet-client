@@ -5,9 +5,8 @@ using PortingAssistant.Model;
 using PortingAssistant.NuGet.InternalNuGetChecker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using PortingAssistant.Porting;
-using PortingAssistant.Handler;
+using PortingAssistant.PortingProjectFile;
 
 namespace PortingAssistant.Handler
 {
@@ -26,6 +25,7 @@ namespace PortingAssistant.Handler
             serviceCollection.AddSingleton<ICompatibilityChecker, NamespacesCompatibilityChecker>();
             serviceCollection.AddSingleton<ICompatibilityChecker, PortabilityAnalyzerCompatibilityChecker>();
             serviceCollection.AddSingleton<IPortingHandler, PortingHandler>();
+            serviceCollection.AddSingleton<IPortingProjectFileHandler, PortingProjectFileHandler>();
             serviceCollection.AddSingleton<ITransferUtility, TransferUtility>();
         }
     }
