@@ -144,6 +144,6 @@
     <ProjectReference Include="..\PortingAssistant.Common\PortingAssistant.Common.csproj" />
     <ProjectReference Include="..\PortingAssistant.NuGet\PortingAssistant.NuGet.csproj" />
     <ProjectReference Include="..\PortingAssistant.Porting\PortingAssistant.Porting.csproj" />
-    <ProjectReference Include="..\PortingAssistant.Handler\PortingAssistantHandler.csproj" />
+    <ProjectReference Include="..\PortingAssistant.Handler\PortingAssistant.Handler.csproj" />
   </ItemGroup>
 </Project>

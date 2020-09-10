@@ -1,6 +1,6 @@
 ﻿using System.IO;
 using System.Linq;
-using PortingAssistantHandler.FileParser;
+using PortingAssistant.Handler.FileParser;
 using NUnit.Framework;
 using PortingAssistant.Model;
 
@@ -9,7 +9,7 @@ namespace Tests
     public class ProjectFileParserTest
     {
         [Test]
-        public void TestProjectWtihPackageConfig()
+        public void TestProjectWithPackageConfig()
         {
             var path = Path.Combine(TestContext.CurrentContext.TestDirectory,
                 "TestXml", "ProjectWithPackagesConfig", "project.csproj");

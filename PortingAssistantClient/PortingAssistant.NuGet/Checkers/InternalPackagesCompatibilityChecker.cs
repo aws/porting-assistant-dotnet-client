@@ -10,8 +10,6 @@ using NuGet.Common;
 using NuGet.Versioning;
 using Microsoft.Extensions.Logging;
 using NuGet.Configuration;
-using PortingAssistant.InternalNuGetChecker;
-using PortingAssistant.InternalNuGetChecker.Model;
 using PortingAssistant.Model;
 using Settings = NuGet.Configuration.Settings;
 

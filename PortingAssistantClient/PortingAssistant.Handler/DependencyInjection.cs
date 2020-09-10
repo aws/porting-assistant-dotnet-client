@@ -7,8 +7,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using PortingAssistant.Porting;
+using PortingAssistant.Handler;
 
-namespace PortingAssistantHandler
+namespace PortingAssistant.Handler
 {
     public static class DependencyInjection
     {

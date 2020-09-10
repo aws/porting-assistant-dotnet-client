@@ -9,7 +9,7 @@ using System.Linq;
 using PortingAssistant.Model;
 using NuGet.Frameworks;
 using NuGet.Versioning;
-using PortingAssistantHandler.FileParser;
+using PortingAssistant.Handler.FileParser;
 
 namespace Tests
 {
@@ -116,15 +116,16 @@ namespace Tests
             Assert.AreEqual(tmpProjectPath, result[0].ProjectFile);
             Assert.AreEqual("Nop.Core", result[0].ProjectName);
 
-            var portResult = getProjects(Path.Combine(tmpSolutionDirctory, "NopCommerce.sln")).Find(package => package.ProjectName == "Nop.Core");
+            var portResult = getProjects(Path.Combine(tmpSolutionDirectory, "NopCommerce.sln")).Find(package => package.ProjectName == "Nop.Core");
             Assert.AreEqual(tmpProjectPath, portResult.ProjectFilePath);
             Assert.AreEqual(".NETCoreApp 3.1.0", portResult.TargetFrameworks[0]);
             Assert.AreEqual(
-                new PackageVersionPair {
-                PackageId = "Newtonsoft.Json",
-                Version = "12.0.3"
+                new PackageVersionPair 
+                {
+                    PackageId = "Newtonsoft.Json",
+                    Version = "12.0.3"
                 },
-                portResult.PackageReferences.Find(nugetpackage => nugetpackage.PackageId == "Newtonsoft.Json"));
+                portResult.PackageReferences.Find(nugetPackage => nugetPackage.PackageId == "Newtonsoft.Json"));
         }
 
         

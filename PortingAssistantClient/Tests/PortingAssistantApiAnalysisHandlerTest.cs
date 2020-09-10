@@ -10,7 +10,7 @@ using NUnit.Framework;
 using System.Threading.Tasks;
 using System.IO;
 using Microsoft.Build.Construction;
-using PortingAssistantHandler.FileParser;
+using PortingAssistant.Handler.FileParser;
 using NuGet.Frameworks;
 using NuGet.Versioning;
 using PortingAssistant.ApiAnalysis;
