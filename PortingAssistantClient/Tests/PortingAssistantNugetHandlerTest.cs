@@ -18,7 +18,7 @@ using Amazon.S3.Transfer;
 using Newtonsoft.Json;
 using System.IO.Compression;
 
-namespace PortingAssistantNuGetTest
+namespace Tests
 {
     public class PortingAssistantNuGetHandlerTest
     {

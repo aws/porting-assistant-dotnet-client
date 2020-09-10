@@ -1,29 +1,30 @@
-
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortingAssistantClient", "PortingAssistantClient\PortingAssistantClient.csproj", "{E10A97D6-15E7-48F9-8414-8963ED325620}"
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30320.27
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PortingAssistantClient", "PortingAssistantClient\PortingAssistantClient.csproj", "{E10A97D6-15E7-48F9-8414-8963ED325620}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AwsCodeAnalyzer", "..\..\AwsCodeAnalyzerRoslyn\src\AwsCodeAnalyzer\AwsCodeAnalyzer.csproj", "{692A34A6-EB0C-4833-B9DB-C5E66DBF5F14}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AwsCodeAnalyzer", "..\..\AwsCodeAnalyzerRoslyn\src\AwsCodeAnalyzer\AwsCodeAnalyzer.csproj", "{692A34A6-EB0C-4833-B9DB-C5E66DBF5F14}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AwsCodeAnalyzer.Build", "..\..\AwsCodeAnalyzerRoslyn\src\AwsCodeAnalyzer.Build\AwsCodeAnalyzer.Build.csproj", "{82F19F8E-D680-4CED-85C9-BF7E1817B80C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AwsCodeAnalyzer.Build", "..\..\AwsCodeAnalyzerRoslyn\src\AwsCodeAnalyzer.Build\AwsCodeAnalyzer.Build.csproj", "{82F19F8E-D680-4CED-85C9-BF7E1817B80C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AwsCodeAnalyzer.Common", "..\..\AwsCodeAnalyzerRoslyn\src\AwsCodeAnalyzer.Common\AwsCodeAnalyzer.Common.csproj", "{9F501443-C6D2-48AA-A082-990C0C8645C7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AwsCodeAnalyzer.Common", "..\..\AwsCodeAnalyzerRoslyn\src\AwsCodeAnalyzer.Common\AwsCodeAnalyzer.Common.csproj", "{9F501443-C6D2-48AA-A082-990C0C8645C7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AwsCodeAnalyzer.CSharp", "..\..\AwsCodeAnalyzerRoslyn\src\AwsCodeAnalyzer.CSharp\AwsCodeAnalyzer.CSharp.csproj", "{EDF20178-DB31-4F04-9FF4-6910710DA543}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AwsCodeAnalyzer.CSharp", "..\..\AwsCodeAnalyzerRoslyn\src\AwsCodeAnalyzer.CSharp\AwsCodeAnalyzer.CSharp.csproj", "{EDF20178-DB31-4F04-9FF4-6910710DA543}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AwsCodeAnalyzer.Model", "..\..\AwsCodeAnalyzerRoslyn\src\AwsCodeAnalyzer.Model\AwsCodeAnalyzer.Model.csproj", "{9B7B25A1-3017-4ACE-AA76-B55FF95A5DD6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AwsCodeAnalyzer.Model", "..\..\AwsCodeAnalyzerRoslyn\src\AwsCodeAnalyzer.Model\AwsCodeAnalyzer.Model.csproj", "{9B7B25A1-3017-4ACE-AA76-B55FF95A5DD6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortingAssistant.Common", "PortingAssistant.Common\PortingAssistant.Common.csproj", "{73463208-681B-47A9-A73F-65DD37CACBCC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PortingAssistant.Common", "PortingAssistant.Common\PortingAssistant.Common.csproj", "{73463208-681B-47A9-A73F-65DD37CACBCC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortingAssistantHandler", "PortingAssistant.Handler\PortingAssistantHandler.csproj", "{DEC7CBB8-ADE8-47E6-96FF-79F39B26E402}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PortingAssistant.Handler", "PortingAssistant.Handler\PortingAssistant.Handler.csproj", "{DEC7CBB8-ADE8-47E6-96FF-79F39B26E402}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortingAssistant.NuGet", "PortingAssistant.NuGet\PortingAssistant.NuGet.csproj", "{492A6A84-872D-4963-9EF2-A6F75B2C8DA7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PortingAssistant.NuGet", "PortingAssistant.NuGet\PortingAssistant.NuGet.csproj", "{492A6A84-872D-4963-9EF2-A6F75B2C8DA7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortingAssistant.ApiAnalysis", "PortingAssistant.ApiAnalysis\PortingAssistant.ApiAnalysis.csproj", "{BF71D30E-1F83-4CAE-BD50-96FDC9C59B3D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PortingAssistant.ApiAnalysis", "PortingAssistant.ApiAnalysis\PortingAssistant.ApiAnalysis.csproj", "{BF71D30E-1F83-4CAE-BD50-96FDC9C59B3D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{1D07C319-C458-4DD1-978F-2281BE7BFDDD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests.csproj", "{1D07C319-C458-4DD1-978F-2281BE7BFDDD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortingAssistant.Porting", "PortingAssistant.Porting\PortingAssistant.Porting.csproj", "{B2B0C493-D9F5-4512-AA84-F9658ABBF872}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PortingAssistant.Porting", "PortingAssistant.Porting\PortingAssistant.Porting.csproj", "{B2B0C493-D9F5-4512-AA84-F9658ABBF872}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -79,5 +80,11 @@ Global
 		{B2B0C493-D9F5-4512-AA84-F9658ABBF872}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B2B0C493-D9F5-4512-AA84-F9658ABBF872}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B2B0C493-D9F5-4512-AA84-F9658ABBF872}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {46F39674-A8DA-4581-8C3C-FF6E69D5DC31}
 	EndGlobalSection
 EndGlobal

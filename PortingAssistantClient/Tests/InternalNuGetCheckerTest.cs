@@ -11,9 +11,9 @@ using System;
 using PortingAssistant.Model;
 using Settings = NuGet.Configuration.Settings;
 
-namespace PortingAssistantPrivateCompatibilityCheckTests
+namespace Tests
 {
-    public class CheckCompatibilityHandlerTest
+    public class InternalNuGetCheckerTest
     {
         IPortingAssistantInternalNuGetCompatibilityHandler checker;
         string tmpSolutionPath;
@@ -37,7 +37,7 @@ namespace PortingAssistantPrivateCompatibilityCheckTests
         public void Setup()
         {
             checker = new PortingAssistantInternalNuGetCompatibilityHandler(NullLogger<PortingAssistantInternalNuGetCompatibilityHandler>.Instance);
-            tmpSolutionPath = createFakeSolutionPath();
+            tmpSolutionPath = CreateFakeSolutionPath();
             sourceRepositories = GetInternalRepository(tmpSolutionPath);
 
         }
@@ -92,8 +92,7 @@ namespace PortingAssistantPrivateCompatibilityCheckTests
                  await checker.CheckCompatibilityAsync(null, "12.0.3", "netcoreapp3.1", sourceRepositories));
         }
 
-
-        private string createFakeSolutionPath()
+        private string CreateFakeSolutionPath()
         {
             var tmpDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
             Directory.CreateDirectory(tmpDir);
@@ -122,8 +121,8 @@ namespace PortingAssistantPrivateCompatibilityCheckTests
             settings.Indent = true;
             XmlWriter writer = XmlWriter.Create(configFilePath, settings);
             doc.Save(writer);
+            writer.Close();
             return tmpDir;
-
         }
     }
 }

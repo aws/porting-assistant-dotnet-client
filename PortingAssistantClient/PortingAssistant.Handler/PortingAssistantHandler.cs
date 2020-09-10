@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using PortingAssistant.ApiAnalysis;
-using PortingAssistant.FileParser;
+using PortingAssistant.Handler.FileParser;
 using PortingAssistant.NuGet;
 using PortingAssistant.Model;
 using PortingAssistant.Utils;
@@ -14,24 +14,24 @@ using NuGet.Versioning;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace PortingAssistant
+namespace PortingAssistant.Handler
 {
     public class PortingAssistantHandler : IPortingAssistantHandler
     {
         private readonly ILogger _logger;
-        private readonly IPortingAssistantNuGetHandler _handler;
-        private readonly IPortingAssistantApiAnalysisHandler _apiAnalysis;
+        private readonly IPortingAssistantNuGetHandler _nuGetHandler;
+        private readonly IPortingAssistantApiAnalysisHandler _apiAnalysisHandler;
         private readonly IPortingHandler _portingHandler;
 
         public PortingAssistantHandler(ILogger<PortingAssistantHandler> logger,
-            IPortingAssistantNuGetHandler handler,
-            IPortingAssistantApiAnalysisHandler apiAnalysis,
+            IPortingAssistantNuGetHandler nuGetHandler,
+            IPortingAssistantApiAnalysisHandler apiAnalysisHandler,
             IPortingHandler portingHandler
             )
         {
             _logger = logger;
-            _handler = handler;
-            _apiAnalysis = apiAnalysis;
+            _nuGetHandler = nuGetHandler;
+            _apiAnalysisHandler = apiAnalysisHandler;
             _portingHandler = portingHandler;
         }
 
@@ -42,45 +42,45 @@ namespace PortingAssistant
                 var solution = SolutionFile.Parse(solutionFilePath);
                 var failedProjects = new List<string>();
 
-                var Projects = solution.ProjectsInOrder
-                            .Where(p => p.ProjectType == SolutionProjectType.KnownToBeMSBuildFormat || p.ProjectType == SolutionProjectType.WebProject)
-                            .Select(p =>
+                var projects = solution.ProjectsInOrder
+                    .Where(p => p.ProjectType == SolutionProjectType.KnownToBeMSBuildFormat || p.ProjectType == SolutionProjectType.WebProject)
+                    .Select(p =>
+                    {
+                        _logger.LogInformation("Analyzing: {0}", p.ProjectName);
+                        try
+                        {
+                            var projectParser = new ProjectFileParser(p.AbsolutePath);
+
+                            return new ProjectDetails
                             {
-                                _logger.LogInformation("Analyzing: {0}", p.ProjectName);
-                                try
+                                ProjectName = p.ProjectName,
+                                ProjectFilePath = p.AbsolutePath,
+                                ProjectGuid = p.ProjectGuid,
+                                ProjectType = p.ProjectType.ToString(),
+                                TargetFrameworks = projectParser.GetTargetFrameworks().Select(tfm =>
                                 {
-                                    var projectParser = new ProjectFileParser(p.AbsolutePath);
+                                    var framework = NuGetFramework.Parse(tfm);
+                                    return string.Format("{0} {1}", framework.Framework, NuGetVersion.Parse(framework.Version.ToString()).ToNormalizedString());
+                                }).ToList(),
+                                PackageReferences = projectParser.GetPackageReferences(),
+                                ProjectReferences = projectParser.GetProjectReferences(),
 
-                                    return new ProjectDetails
-                                    {
-                                        ProjectName = p.ProjectName,
-                                        ProjectFilePath = p.AbsolutePath,
-                                        ProjectGuid = p.ProjectGuid,
-                                        ProjectType = p.ProjectType.ToString(),
-                                        TargetFrameworks = projectParser.GetTargetFrameworks().Select(tfm =>
-                                        {
-                                            var framework = NuGetFramework.Parse(tfm);
-                                            return string.Format("{0} {1}", framework.Framework, NuGetVersion.Parse(framework.Version.ToString()).ToNormalizedString());
-                                        }).ToList(),
-                                        PackageReferences = projectParser.GetPackageReferences(),
-                                        ProjectReferences = projectParser.GetProjectReferences(),
+                            };
+                        }
+                        catch (Exception ex)
+                        {
+                            failedProjects.Add(p.AbsolutePath);
+                            _logger.LogWarning("Failed to assess {0}, exception: {1}", p.ProjectName, ex);
+                            return null;
+                        }
 
-                                    };
-                                }
-                                catch (Exception ex)
-                                {
-                                    failedProjects.Add(p.AbsolutePath);
-                                    _logger.LogWarning("Failed to assess {0}, exception: {1}", p.ProjectName, ex);
-                                    return null;
-                                }
-
-                            }).Where(p => p != null).ToList();
+                    }).Where(p => p != null).ToList();
 
                 return new SolutionDetails
                 {
                     SolutionName = Path.GetFileNameWithoutExtension(solutionFilePath),
                     SolutionFilePath = solutionFilePath,
-                    Projects = Projects,
+                    Projects = projects,
                     FailedProjects = failedProjects
                 };
             }
@@ -96,7 +96,7 @@ namespace PortingAssistant
             try
             {
                 var solutionDetails = GetSolutionDetails(solutionFilePath);
-                var solutionApiAnalysisResult = _apiAnalysis.AnalyzeSolution(solutionFilePath, solutionDetails.Projects);
+                var solutionApiAnalysisResult = _apiAnalysisHandler.AnalyzeSolution(solutionFilePath, solutionDetails.Projects);
 
                 var solutionAnalysisResult = new SolutionAnalysisResult
                 {
@@ -107,13 +107,14 @@ namespace PortingAssistant
                     .Select(p =>
                     {
                         var projectApiAnalysisResult = solutionApiAnalysisResult.ProjectApiAnalysisResults.GetValueOrDefault(p.ProjectFilePath);
-                        var packageAnalysisResults = _handler.GetNugetPackages(p.PackageReferences, solutionFilePath)
-                                                        .Select(package =>
-                                                        {
-                                                            var result = PackageCompatibility.isCompatibleAsync(package.Value, package.Key, _logger);
-                                                            var pacakgeAnalysisResult = PackageCompatibility.GetPackageAnalysisResult(result, package.Key);
-                                                            return new Tuple<PackageVersionPair, Task<PackageAnalysisResult>>(package.Key, pacakgeAnalysisResult);
-                                                        }).ToDictionary(t => t.Item1, t => t.Item2);
+                        var packageAnalysisResults = _nuGetHandler.GetNugetPackages(p.PackageReferences, solutionFilePath)
+                            .Select(package =>
+                            {
+                                var result = PackageCompatibility.isCompatibleAsync(package.Value, package.Key, _logger);
+                                var packageAnalysisResult = PackageCompatibility.GetPackageAnalysisResult(result, package.Key);
+                                return new Tuple<PackageVersionPair, Task<PackageAnalysisResult>>(package.Key, packageAnalysisResult);
+                            }).ToDictionary(t => t.Item1, t => t.Item2);
+
                         return new ProjectAnalysisResult
                         {
                             ProjectFile = p.ProjectFilePath,
@@ -139,19 +140,24 @@ namespace PortingAssistant
         {
             try
             {
-                var UpgradeVersions = request.RecommendedActions
+                var upgradeVersions = request.RecommendedActions
                     .Where(r => r.RecommendedActionType == RecommendedActionType.UpgradePackage)
-                    .Select(recommedation =>
+                    .Select(recommendation =>
                     {
-                        var Recommendations = (PackageRecommendation)recommedation;
-                        return new Tuple<string, string>(Recommendations.PackageId, Recommendations.TargetVersions.First());
-                    }).ToDictionary(t => t.Item1, t => t.Item2);
-                return _portingHandler.ApplyPortProjectFileChanges(request.ProjectPaths, request.SolutionPath,
-                    request.TargetFramework, UpgradeVersions);
+                        var packageRecommendation = (PackageRecommendation)recommendation;
+                        return new Tuple<string, string>(packageRecommendation.PackageId, packageRecommendation.TargetVersions.First());
+                    })
+                    .ToDictionary(t => t.Item1, t => t.Item2);
+
+                return _portingHandler.ApplyPortProjectFileChanges(
+                    request.ProjectPaths, 
+                    request.SolutionPath,
+                    request.TargetFramework, 
+                    upgradeVersions);
             }
             catch (Exception ex)
             {
-                throw new PortingAssistantException("Cannot Apply Porting Changes", ex);
+                throw new PortingAssistantException("Could not apply porting changes", ex);
             }
 
         }

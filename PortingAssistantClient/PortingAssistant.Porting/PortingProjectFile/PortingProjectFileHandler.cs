@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using PortingAssistant.Model;
 using Microsoft.Extensions.Logging;
+using PortingAssistant.Model;
 using Project2015To2017;
 using Project2015To2017.Analysis;
 using Project2015To2017.Caching;

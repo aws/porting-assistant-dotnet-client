@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using PortingAssistant.Model;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Amazon.S3.Transfer;
 using System.IO;
 using System.IO.Compression;
+using PortingAssistant.Model;
 
 namespace PortingAssistant.NuGet
 {

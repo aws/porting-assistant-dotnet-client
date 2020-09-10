@@ -3,8 +3,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using PortingAssistant.Model;
 using Microsoft.Extensions.Logging;
+using PortingAssistant.Model;
 
 namespace PortingAssistant.NuGet
 {
