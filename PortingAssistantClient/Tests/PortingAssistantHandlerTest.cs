@@ -19,10 +19,10 @@ namespace Tests
     public class PortingAssistantHandlerTest
     {
 
-        private Mock<IPortingAssistantNuGetHandler> _PortingAssistantNuGetMock;
-        private Mock<IPortingAssistantApiAnalysisHandler> _apiAnalysisMock;
-        private Mock<IPortingHandler> _portingHandler;
-        private PortingAssistantHandler _PortingAssistantHandler;
+        private Mock<IPortingAssistantNuGetHandler> _nuGetHandlerMock;
+        private Mock<IPortingAssistantApiAnalysisHandler> _apiAnalysisHandlerMock;
+        private Mock<IPortingHandler> _portingHandlerMock;
+        private PortingAssistantHandler _portingAssistantHandler;
         private readonly string _solutionFolder = Path.Combine(TestContext.CurrentContext.TestDirectory,
                 "TestXml", "SolutionWithProjects");
 
@@ -59,7 +59,7 @@ namespace Tests
             }
         };
 
-        private readonly SourceFileAnalysisResult sourceFileAnalysisResult = new SourceFileAnalysisResult
+        private readonly SourceFileAnalysisResult _sourceFileAnalysisResult = new SourceFileAnalysisResult
         {
             SourceFileName = "test",
             SourceFilePath = "/test/test",
@@ -78,25 +78,24 @@ namespace Tests
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            _PortingAssistantNuGetMock = new Mock<IPortingAssistantNuGetHandler>();
-            _apiAnalysisMock = new Mock<IPortingAssistantApiAnalysisHandler>();
-            _portingHandler = new Mock<IPortingHandler>();
-            _PortingAssistantHandler = new PortingAssistantHandler(
+            _nuGetHandlerMock = new Mock<IPortingAssistantNuGetHandler>();
+            _apiAnalysisHandlerMock = new Mock<IPortingAssistantApiAnalysisHandler>();
+            _portingHandlerMock = new Mock<IPortingHandler>();
+            _portingAssistantHandler = new PortingAssistantHandler(
                 NullLogger<PortingAssistantHandler>.Instance,
-                _PortingAssistantNuGetMock.Object,
-                _apiAnalysisMock.Object,
-                _portingHandler.Object);
+                _nuGetHandlerMock.Object,
+                _apiAnalysisHandlerMock.Object,
+                _portingHandlerMock.Object);
         }
 
         [SetUp]
         public void SetUp()
         {
-            _PortingAssistantNuGetMock.Reset();
+            _nuGetHandlerMock.Reset();
 
             // Setup Nuget Dependencies
-            
-            _PortingAssistantNuGetMock
-                .Setup(NuGet => NuGet.GetNugetPackages(It.IsAny<List<PackageVersionPair>>(), It.IsAny<string>()))
+            _nuGetHandlerMock
+                .Setup(nuGet => nuGet.GetNugetPackages(It.IsAny<List<PackageVersionPair>>(), It.IsAny<string>()))
                 .Returns((List<PackageVersionPair> list, string pathToSolution) =>
                 {
                     return list.Distinct().Select(packageVersion =>
@@ -111,15 +110,15 @@ namespace Tests
                     }).ToDictionary(t => t.Item1, t => t.Item2);
                 });
 
-            _apiAnalysisMock.Reset();
-            _apiAnalysisMock.Setup(analyzer => analyzer.AnalyzeSolution(It.IsAny<string>(), It.IsAny<List<ProjectDetails>>()))
+            _apiAnalysisHandlerMock.Reset();
+            _apiAnalysisHandlerMock.Setup(analyzer => analyzer.AnalyzeSolution(It.IsAny<string>(), It.IsAny<List<ProjectDetails>>()))
                 .Returns((string solutionFilePath, List<ProjectDetails> projects) =>
                 {
                     var taskCompletionSource = new TaskCompletionSource<ProjectApiAnalysisResult>();
                     taskCompletionSource.SetResult(new ProjectApiAnalysisResult {
                         SourceFileAnalysisResults = new List<SourceFileAnalysisResult>
                         {
-                            sourceFileAnalysisResult
+                            _sourceFileAnalysisResult
                         }
                     });
 
@@ -135,10 +134,10 @@ namespace Tests
         [Test]
         public void TestGetSolutionDetails()
         {
-            var solutionDetail = _PortingAssistantHandler.GetSolutionDetails(
-                Path.Combine(_solutionFolder, "ModernSolution.sln")
+            var solutionDetail = _portingAssistantHandler.GetSolutionDetails(
+                Path.Combine(_solutionFolder, "SolutionWithProjects.sln")
             );
-            Assert.AreEqual("ModernSolution", solutionDetail.SolutionName);
+            Assert.AreEqual("SolutionWithProjects", solutionDetail.SolutionName);
             Assert.AreEqual(1, solutionDetail.Projects.Find(p => p.ProjectName == "PortingAssistantApi").ProjectReferences.Count);
             Assert.AreEqual(4, solutionDetail.Projects.Find(p => p.ProjectName == "PortingAssistantApi").PackageReferences.Count);
             Assert.AreEqual(8, solutionDetail.Projects.Find(p => p.ProjectName == "Nop.Core").PackageReferences.Count);
@@ -154,51 +153,48 @@ namespace Tests
             project = solutionDetail.Projects.First(project => project.ProjectName.Equals("Nop.Core"));
             Assert.Contains("Autofac", project.PackageReferences.Select(dep => dep.PackageId).ToList());
             Assert.Contains(".NETFramework 4.5.1", project.TargetFrameworks);
-
-
-
         }
 
         
         [Test]
-        public void TestGetSolutionDetailsWithExpection()
+        public void GetSolutionDetailsForNonexistentSolutionThrowsException()
         {
             Assert.Throws<PortingAssistantException>(() =>
             {
-                var solutionDetails = _PortingAssistantHandler.GetSolutionDetails(Path.Combine(_solutionFolder, "failed.sln"));
+                _portingAssistantHandler.GetSolutionDetails(Path.Combine(_solutionFolder, "NonexistentSolution.sln"));
             });
         }
 
         [Test]
-        public void TestAnalyzeSolution()
+        public void AnalyzeSolutionWithProjectsSucceeds()
         {
-            var results = _PortingAssistantHandler.AnalyzeSolution(Path.Combine(_solutionFolder, "ModernSolution.sln"), new Settings());
-            var projctAnalysResult = results.ProjectAnalysisResult.Find(p => p.ProjectName == "Nop.Core");
-            var projectApiAnlysisResult = projctAnalysResult.ProjectApiAnalysisResult;
-            var packageAnalysisResult = projctAnalysResult.PackageAnalysisResults;
+            var results = _portingAssistantHandler.AnalyzeSolution(Path.Combine(_solutionFolder, "SolutionWithProjects.sln"), new Settings());
+            var projectAnalysisResult = results.ProjectAnalysisResult.Find(p => p.ProjectName == "Nop.Core");
+            var projectApiAnalysisResult = projectAnalysisResult.ProjectApiAnalysisResult;
+            var packageAnalysisResult = projectAnalysisResult.PackageAnalysisResults;
 
-            projectApiAnlysisResult.Wait();
-            Assert.AreEqual(sourceFileAnalysisResult, projectApiAnlysisResult.Result.SourceFileAnalysisResults.First());
+            projectApiAnalysisResult.Wait();
+            Assert.AreEqual(_sourceFileAnalysisResult, projectApiAnalysisResult.Result.SourceFileAnalysisResults.First());
 
             Task.WaitAll(packageAnalysisResult.Values.ToArray());
             var packageResult = packageAnalysisResult.First(p => p.Value.Result.PackageVersionPair.PackageId == _packageDetails.Name);
             Assert.AreEqual(RecommendedActionType.UpgradePackage, packageResult.Value.Result.Recommendations.RecommendedActions.First().RecommendedActionType); ;
-            var compatibilityinfo = packageResult.Value.Result.CompatibilityResult.GetValueOrDefault(PackageCompatibility.DEFAULT_TARGET);
-            Assert.AreEqual(Compatibility.COMPATIBLE, compatibilityinfo.Compatibility);
-            Assert.AreEqual("12.0.4", compatibilityinfo.CompatibleVersion.First());
+            var compatibilityResult = packageResult.Value.Result.CompatibilityResult.GetValueOrDefault(PackageCompatibility.DEFAULT_TARGET);
+            Assert.AreEqual(Compatibility.COMPATIBLE, compatibilityResult.Compatibility);
+            Assert.AreEqual("12.0.4", compatibilityResult.CompatibleVersion.First());
         }
         
         [Test]
-        public void TestGetProjectWithCorruptedSlnFile()
+        public void GetProjectWithCorruptedSolutionFileThrowsException()
         {
+            // TODO: this unit test fails
             var testSolutionPath = Path.Combine(TestContext.CurrentContext.TestDirectory,
                 "TestXml", "SolutionWithFailedContent", "NopCommerce.sln");
 
             Assert.Throws<PortingAssistantException>(() =>
             {
-                var solutionDetails = _PortingAssistantHandler.GetSolutionDetails(Path.Combine(_solutionFolder, "testSolutionPath"));
+                _portingAssistantHandler.GetSolutionDetails(Path.Combine(_solutionFolder, testSolutionPath));
             });
         }
-        
     }
 }

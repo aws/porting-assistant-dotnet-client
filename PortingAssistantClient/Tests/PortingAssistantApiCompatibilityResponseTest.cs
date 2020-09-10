@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using PortingAssistant.ApiAnalysis.Model;
 using PortingAssistant.Model;
 using Newtonsoft.Json;
@@ -10,10 +9,11 @@ namespace Tests
     public class PortingAssistantApiCompatibilityResponseTest
     {
         [Test]
-        public void TestDeserialize()
+        public void DeserializeValidJsonSucceeds()
         {
             var json = "[{\"methodSignature\": \"Signature1\", \"compatible\": \"UNKNOWN\"}, {\"methodSignature\": \"Signature2\", \"compatible\": \"INCOMPATIBLE\"}, {\"methodSignature\": \"Signature3\", \"compatible\": \"COMPATIBLE\"}]";
             var result = JsonConvert.DeserializeObject<List<PortingAssistantApiCompatibilityResponse>>(json);
+
             Assert.AreEqual(new List<PortingAssistantApiCompatibilityResponse> {
                 new PortingAssistantApiCompatibilityResponse
                 {
@@ -34,10 +34,11 @@ namespace Tests
         }
 
         [Test]
-        public void TestInvalidJson()
+        public void DeserializeInvalidJsonMapsToUnknownCompatibility()
         {
             var json = "[{\"methodSignature\": \"Signature1\", \"result\": \"NOT_FOUND\"},]";
             var result = JsonConvert.DeserializeObject<List<PortingAssistantApiCompatibilityResponse>>(json);
+
             Assert.AreNotEqual(new List<PortingAssistantApiCompatibilityResponse> {
                 new PortingAssistantApiCompatibilityResponse
                 {
@@ -46,6 +47,7 @@ namespace Tests
                 }
             }, result);
             Assert.AreNotEqual(result[0].Compatible, Compatibility.COMPATIBLE);
+            Assert.AreEqual(result[0].Compatible, Compatibility.UNKNOWN);
         }
     }
 }
