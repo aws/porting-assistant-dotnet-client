@@ -98,8 +98,8 @@ namespace PortingAssistant.NuGet.InternalNuGetChecker
                 IncompatibleDlls = incompatibleDlls,
                 CompatibleDlls = compatibleDlls,
                 IsCompatible = isCompatible,
-                DepedencyPackages = dependecyPackages,
-                source = packageSource.Source.PackageSource.Name
+                DependencyPackages = dependecyPackages,
+                Source = packageSource.Source.PackageSource.Name
             };
         }
     }

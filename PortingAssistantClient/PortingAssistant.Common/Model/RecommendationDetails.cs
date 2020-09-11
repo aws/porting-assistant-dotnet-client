@@ -56,8 +56,7 @@ namespace PortingAssistant.Model
         public SortedSet<string> Versions { get; set; }
         public string Description { get; set; }
         public Actions[] Actions { get; set; }
- 
- 
+        
         public override bool Equals(object obj)
         {
             return obj is Recommendation details &&

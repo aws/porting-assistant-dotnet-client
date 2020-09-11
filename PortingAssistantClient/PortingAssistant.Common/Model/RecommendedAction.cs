@@ -1,9 +1,8 @@
-﻿using System;
-namespace PortingAssistant.Model
+﻿namespace PortingAssistant.Model
 {
     public class RecommendedAction
     {
         public RecommendedActionType RecommendedActionType { get; set; }
-        public string desciption;
+        public string Description { get; set; }
     }
 }

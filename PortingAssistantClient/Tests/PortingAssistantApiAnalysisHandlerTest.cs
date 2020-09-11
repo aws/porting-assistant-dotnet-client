@@ -19,17 +19,17 @@ namespace Tests
 {
     public class PortingAssistantApiAnalysisHandlerTest
     {
-        private Mock<IPortingAssistantNuGetHandler> _handler;
-        private Mock<IPortingAssistantRecommendationHandler> _recommendationHandler;
-        private PortingAssistantApiAnalysisHandler _PortingAssistantApiAnalysisHandler;
-        private string solutionFile;
-        private List<ProjectDetails> projects;
+        private Mock<IPortingAssistantNuGetHandler> _nuGetHandlerMock;
+        private Mock<IPortingAssistantRecommendationHandler> _recommendationHandlerMock;
+        private PortingAssistantApiAnalysisHandler _apiAnalysisHandler;
+        private string _solutionFile;
+        private List<ProjectDetails> _projects;
 
         private readonly PackageDetails _packageDetails = new PackageDetails
         {
             Name = "Newtonsoft.Json",
             Versions = new SortedSet<string> { "12.0.3", "12.0.4" },
-            Api = new ApiDetails[]
+            ApiDetails = new ApiDetails[]
             {
                 new ApiDetails
                 {
@@ -61,21 +61,20 @@ namespace Tests
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            _handler = new Mock<IPortingAssistantNuGetHandler>();
-            _recommendationHandler = new Mock<IPortingAssistantRecommendationHandler>();
-            //_nameSpacehandler = new Mock<IPortingAssistantNamespaceHandler>();
-            _PortingAssistantApiAnalysisHandler = new PortingAssistantApiAnalysisHandler(NullLogger<PortingAssistantApiAnalysisHandler>.Instance, _handler.Object, _recommendationHandler.Object);
+            _nuGetHandlerMock = new Mock<IPortingAssistantNuGetHandler>();
+            _recommendationHandlerMock = new Mock<IPortingAssistantRecommendationHandler>();
+            _apiAnalysisHandler = new PortingAssistantApiAnalysisHandler(NullLogger<PortingAssistantApiAnalysisHandler>.Instance, _nuGetHandlerMock.Object, _recommendationHandlerMock.Object);
         }
 
         [SetUp]
         public void SetUp()
         {
-            solutionFile = Path.Combine(TestContext.CurrentContext.TestDirectory,
-                "TestXml", "SolutionWithApi", "TestSolution.sln");
-            projects = getProjects(solutionFile);
+            _solutionFile = Path.Combine(TestContext.CurrentContext.TestDirectory,
+                "TestXml", "SolutionWithApi", "SolutionWithApi.sln");
+            _projects = GetProjects(_solutionFile);
 
-            _handler.Reset();
-            _handler.Setup(handler => handler.GetPackageDetails(It.IsAny<PackageVersionPair>()))
+            _nuGetHandlerMock.Reset();
+            _nuGetHandlerMock.Setup(handler => handler.GetPackageDetails(It.IsAny<PackageVersionPair>()))
                 .Returns((PackageVersionPair package) =>
                 {
                     var task = new TaskCompletionSource<PackageDetails>();
@@ -83,13 +82,13 @@ namespace Tests
                     return task.Task;
                 });
 
-            _handler.Setup(handler => handler.GetNugetPackages(It.IsAny<List<PackageVersionPair>>(), It.IsAny<string>()))
+            _nuGetHandlerMock.Setup(handler => handler.GetNugetPackages(It.IsAny<List<PackageVersionPair>>(), It.IsAny<string>()))
                 .Returns((List<PackageVersionPair> packageVersionPairs, string path) =>
                 {
                     var task = new TaskCompletionSource<PackageDetails>();
                     task.SetResult(new PackageDetails
                     {
-                        Namespaces = new string[]{ "TestNameSpace"},
+                        Namespaces = new string[]{ "TestNamespace"},
                     });
                     return new Dictionary<PackageVersionPair, Task<PackageDetails>>
                     {
@@ -98,10 +97,9 @@ namespace Tests
                 });
         }
 
-        private List<ProjectDetails> getProjects(string pathToSolution)
+        private List<ProjectDetails> GetProjects(string pathToSolution)
         {
             var solution = SolutionFile.Parse(pathToSolution);
-            var failedProjects = new List<string>();
 
             var projects = solution.ProjectsInOrder.Select(p =>
             {
@@ -132,34 +130,39 @@ namespace Tests
         }
 
         [Test]
-        public void AnalyzeSolution()
+        public void AnalyzeWellDefinedSolutionSucceeds()
         {
-            var result = _PortingAssistantApiAnalysisHandler.AnalyzeSolution(solutionFile, projects);
+            var result = _apiAnalysisHandler.AnalyzeSolution(_solutionFile, _projects);
             Task.WaitAll(result.ProjectApiAnalysisResults.Values.ToArray());
+
             var values = result.ProjectApiAnalysisResults.Values.First().Result;
+
             Assert.AreEqual("Newtonsoft.Json", values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().CodeEntityDetails.Package.PackageId);
             Assert.AreEqual("11.0.1", values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().CodeEntityDetails.Package.Version);
             Assert.AreEqual("Newtonsoft.Json.JsonConvert.SerializeObject(object)",
                 values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().CodeEntityDetails.OriginalDefinition);
-            Assert.AreEqual(Compatibility.COMPATIBLE, values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().CompatibilityResult.GetValueOrDefault(ApiCompatiblity.DEFAULT_TARGET));
-            Assert.AreEqual("12.0.4", values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().Recommendations.RecommendedActions.First().desciption);
+            Assert.AreEqual(Compatibility.COMPATIBLE, values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().CompatibilityResults.GetValueOrDefault(ApiCompatiblity.DEFAULT_TARGET));
+            Assert.AreEqual("12.0.4", values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().Recommendations.RecommendedActions.First().Description);
         }
 
         [Test]
-        public void AnalyzeFaultPath()
+        public void AnalyzeNullPathThrowsException()
         {
             Assert.Throws<AggregateException>(() =>
             {
-                var result = _PortingAssistantApiAnalysisHandler.AnalyzeSolution("", projects);
-                Task.WaitAll(result.ProjectApiAnalysisResults.Values.ToArray());
-            });
-
-            Assert.Throws<AggregateException>(() =>
-            {
-                var result = _PortingAssistantApiAnalysisHandler.AnalyzeSolution(Path.Combine(solutionFile, "radn.sln"), projects);
+                var result = _apiAnalysisHandler.AnalyzeSolution(Path.Combine(_solutionFile, "Rand.sln"), _projects);
                 Task.WaitAll(result.ProjectApiAnalysisResults.Values.ToArray());
             });
         }
 
+        [Test]
+        public void AnalyzeNonexistentSolutionThrowsException()
+        {
+            Assert.Throws<AggregateException>(() =>
+            {
+                var result = _apiAnalysisHandler.AnalyzeSolution(Path.Combine(_solutionFile, "Rand.sln"), _projects);
+                Task.WaitAll(result.ProjectApiAnalysisResults.Values.ToArray());
+            });
+        }
     }
 }

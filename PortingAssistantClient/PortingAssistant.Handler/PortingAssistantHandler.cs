@@ -73,7 +73,6 @@ namespace PortingAssistant.Handler
                             _logger.LogWarning("Failed to assess {0}, exception: {1}", p.ProjectName, ex);
                             return null;
                         }
-
                     }).Where(p => p != null).ToList();
 
                 return new SolutionDetails

@@ -1,0 +1,9 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=8fac45bf_002D7560_002D4240_002Db53e_002Dd98352ffbe17/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="All tests from PortingAssistantApiAnalysisHandlerTest.cs" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;Or&gt;&#xD;
+    &lt;ProjectFile&gt;1D07C319-C458-4DD1-978F-2281BE7BFDDD/f:PortingAssistantApiAnalysisHandlerTest.cs&lt;/ProjectFile&gt;&#xD;
+    &lt;ProjectFile&gt;1D07C319-C458-4DD1-978F-2281BE7BFDDD/f:PortingAssistantApiCompatibilityResponseTest.cs&lt;/ProjectFile&gt;&#xD;
+    &lt;ProjectFile&gt;1D07C319-C458-4DD1-978F-2281BE7BFDDD/f:PortingAssistantHandlerTest.cs&lt;/ProjectFile&gt;&#xD;
+    &lt;ProjectFile&gt;1D07C319-C458-4DD1-978F-2281BE7BFDDD/f:PortingAssistantPortingTest.cs&lt;/ProjectFile&gt;&#xD;
+  &lt;/Or&gt;&#xD;
+&lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

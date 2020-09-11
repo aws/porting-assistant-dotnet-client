@@ -23,10 +23,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="TestXml\ProjectWithPackagesConfig\project.csproj">
+    <None Include="TestXml\ProjectWithPackagesConfig\ProjectWithPackagesConfig.csproj">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="TestXml\ProjectWithReference\project.csproj">
+    <None Include="TestXml\ProjectWithReference\ProjectWithReference.csproj">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="TestXml\SolutionWithProjects\PortingAssistantApi\PortingAssistantApi.csproj">
@@ -47,7 +47,7 @@
     <None Include="TestXml\SolutionWithProjects\Nop.Core\packages.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="TestXml\SolutionWithProjects\ModernSolution.sln">
+    <None Include="TestXml\SolutionWithProjects\SolutionWithProjects.sln">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="TestXml\SolutionWithNugetConfigFile\Test1\Test1.csproj">
@@ -56,7 +56,7 @@
     <None Include="TestXml\SolutionWithNugetConfigFile\Test2\Test2.csproj">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="TestXml\SolutionWithNugetConfigFile\TestSolution.sln">
+    <None Include="TestXml\SolutionWithNugetConfigFile\SolutionWithNugetConfigFile.sln">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="TestXml\SolutionWithProjects\Nop.Core\Nop.Core.csproj" />
@@ -66,28 +66,28 @@
     <None Include="TestXml\TestPorting\src\Libraries\Nop.Core\Nop.Core.csproj">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="TestXml\SolutionWithApi\TestSolution.sln">
+    <None Include="TestXml\SolutionWithApi\SolutionWithApi.sln">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="TestXml\SolutionWithApi\testproject\testproject.csproj">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="TestXml\SolutionWithFailedContent\NopCommerce.sln">
+    <None Include="TestXml\SolutionWithFailedContent\SolutionWithFailedContent.sln">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="TestXml\SolutionWithFailedContent\Nop.Core.csproj">
+    <None Include="TestXml\SolutionWithFailedContent\ProjectInWrongDirectory.csproj">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="TestXml\SolutionWithFailedContent\test\project.csproj">
+    <None Include="TestXml\SolutionWithFailedContent\test\ProjectWithCorruptPackageVersion.csproj">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="TestXml\SolutionWithFailedContent\test\corrupt.csproj">
+    <None Include="TestXml\SolutionWithFailedContent\test\ProjectWithCorruptContent.csproj">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="TestXml\TestPorting\corrupt\NopCommerce.sln">
+    <None Include="TestXml\TestPorting\corrupt\CorruptSolution.sln">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="TestXml\TestPorting\corrupt\Nop.Core.csproj">
+    <None Include="TestXml\TestPorting\corrupt\CorruptProject.csproj">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -124,15 +124,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="TestXml\" />
     <Folder Include="TestXml\TestNugetRepository\" />
     <Folder Include="TestXml\SolutionWithNugetConfigFile\Test2\" />
     <Folder Include="ApiAnalysis\" />
-    <Folder Include="TestXml\TestPorting\" />
-    <Folder Include="TestXml\SolutionWithApi\" />
-    <Folder Include="TestXml\SolutionWithFailedContent\" />
-    <Folder Include="TestXml\SolutionWithFailedContent\test\" />
-    <Folder Include="TestXml\TestPorting\corrupt\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="TestXml\SolutionWithApi\testproject\Program.cs">

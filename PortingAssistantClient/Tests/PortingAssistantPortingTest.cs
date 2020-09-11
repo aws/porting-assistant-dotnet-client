@@ -15,9 +15,9 @@ namespace Tests
 {
     public class PortingAssistantPortingTest
     {
-        private string tmpDirectory;
-        private string tmpProjectPath;
-        private string tmpSolutionDirectory;
+        private string _tmpDirectory;
+        private string _tmpProjectPath;
+        private string _tmpSolutionDirectory;
         private IPortingHandler _portingHandler;
         private IPortingProjectFileHandler _portingProjectFileHandler;
 
@@ -28,18 +28,17 @@ namespace Tests
             _portingHandler = new PortingHandler(NullLogger<PortingHandler>.Instance, _portingProjectFileHandler);
 
             var solutionDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestXml", "TestPorting");
-            tmpDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestXml", "testDircteory");
-            DirectoryCopy(solutionDirectory, tmpDirectory, true);
-            tmpSolutionDirectory = Path.Combine(tmpDirectory, "src");
-            tmpProjectPath = Path.Combine(tmpSolutionDirectory, "Libraries", "Nop.Core", "Nop.Core.csproj");
-            
+            _tmpDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestXml", "TmpDirectory");
+            DirectoryCopy(solutionDirectory, _tmpDirectory, true);
 
+            _tmpSolutionDirectory = Path.Combine(_tmpDirectory, "src");
+            _tmpProjectPath = Path.Combine(_tmpSolutionDirectory, "Libraries", "Nop.Core", "Nop.Core.csproj");
         }
 
         [TearDown]
         public void Cleanup()
         {
-            Directory.Delete(tmpDirectory, true);
+            Directory.Delete(_tmpDirectory, true);
         }
 
         private void DirectoryCopy(string sourceDirName, string destDirName, bool copySubDirs)
@@ -53,26 +52,25 @@ namespace Tests
             }
 
             FileInfo[] files = dir.GetFiles();
-            foreach (FileInfo file in files)
+            foreach (var fileInfo in files)
             {
-                string temppath = Path.Combine(destDirName, file.Name);
-                file.CopyTo(temppath, false);
+                string tempPath = Path.Combine(destDirName, fileInfo.Name);
+                fileInfo.CopyTo(tempPath, false);
             }
 
             if (copySubDirs)
             {
-                foreach (DirectoryInfo subdir in dirs)
+                foreach (var subDir in dirs)
                 {
-                    string temppath = Path.Combine(destDirName, subdir.Name);
-                    DirectoryCopy(subdir.FullName, temppath, copySubDirs);
+                    string tempPath = Path.Combine(destDirName, subDir.Name);
+                    DirectoryCopy(subDir.FullName, tempPath, true);
                 }
             }
         }
 
-        private List<ProjectDetails> getProjects(string pathToSolution)
+        private List<ProjectDetails> GetProjects(string pathToSolution)
         {
             var solution = SolutionFile.Parse(pathToSolution);
-            var failedProjects = new List<string>();
 
             var projects = solution.ProjectsInOrder.Select(p =>
             {
@@ -102,22 +100,21 @@ namespace Tests
         }
 
         [Test]
-        public void Porting_Success()
+        public void PortingProjectSucceeds()
         {
             var result = _portingHandler.ApplyPortProjectFileChanges
                 (
-                new List<string> { tmpProjectPath },
-                tmpSolutionDirectory,
+                new List<string> { _tmpProjectPath },
+                _tmpSolutionDirectory,
                 "netcoreapp3.1.0",
-                new Dictionary<string, string> {["Newtonsoft.Json"] = "12.0.3"
-                });
+                new Dictionary<string, string> { { "Newtonsoft.Json", "12.0.3" } });
 
             Assert.True(result[0].Success);
-            Assert.AreEqual(tmpProjectPath, result[0].ProjectFile);
+            Assert.AreEqual(_tmpProjectPath, result[0].ProjectFile);
             Assert.AreEqual("Nop.Core", result[0].ProjectName);
 
-            var portResult = getProjects(Path.Combine(tmpSolutionDirectory, "NopCommerce.sln")).Find(package => package.ProjectName == "Nop.Core");
-            Assert.AreEqual(tmpProjectPath, portResult.ProjectFilePath);
+            var portResult = GetProjects(Path.Combine(_tmpSolutionDirectory, "NopCommerce.sln")).Find(package => package.ProjectName == "Nop.Core");
+            Assert.AreEqual(_tmpProjectPath, portResult.ProjectFilePath);
             Assert.AreEqual(".NETCoreApp 3.1.0", portResult.TargetFrameworks[0]);
             Assert.AreEqual(
                 new PackageVersionPair 
@@ -128,35 +125,34 @@ namespace Tests
                 portResult.PackageReferences.Find(nugetPackage => nugetPackage.PackageId == "Newtonsoft.Json"));
         }
 
-        
         [Test]
-        public void Porting_Failed()
+        public void PortingMissingProjectFailsWithErrorMessage()
         {
-            var result = _portingHandler.ApplyPortProjectFileChanges
-                (
-                new List<string> { "randompath" },
-                tmpSolutionDirectory,
+            var somePath = "randomPath";
+            var result = _portingHandler.ApplyPortProjectFileChanges(
+                new List<string> { somePath },
+                _tmpSolutionDirectory,
                 "netcoreapp3.1.0",
                 new Dictionary<string, string>
                 {
-                    ["Newtonsoft"] = "12.0.6"
+                    { "Newtonsoft", "12.0.6" }
                 });
 
             Assert.False(result[0].Success);
-            Assert.AreEqual("randompath", result[0].ProjectFile);
+            Assert.AreEqual(somePath, result[0].ProjectFile);
             Assert.AreEqual("File not found.", result[0].Message);
         }
 
         [Test]
-        public void Porting_withCorruptFile()
+        public void PortingProjectWithCorruptFile()
         {
-            
-            var solutionDir = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestXml", "testDircteory", "corrupt");
-            var projectDir = Path.Combine(solutionDir, "Nop.Core.csproj");
+            var solutionDir = Path.Combine(_tmpDirectory, "corrupt");
+            var corruptSolutionFilePath = Path.Combine(solutionDir, "CorruptSolution.sln");
+            var corruptProjectFilePath = Path.Combine(solutionDir, "CorruptProject.csproj");
             var result = _portingHandler.ApplyPortProjectFileChanges
                 (
-                new List<string> { projectDir },
-                Path.Combine(solutionDir, "NopCommerce.sln"),
+                new List<string> { corruptProjectFilePath },
+                corruptSolutionFilePath,
                 "netcoreapp3.1.0",
                 new Dictionary<string, string>
                 {
@@ -165,6 +161,5 @@ namespace Tests
 
             Assert.AreEqual(1, result.Count);
         }
-
     }
 }

@@ -13,11 +13,11 @@ using Settings = NuGet.Configuration.Settings;
 
 namespace Tests
 {
-    public class InternalNuGetCheckerTest
+    public class PortingAssistantInternalNuGetCompatibilityHandlerTest
     {
-        IPortingAssistantInternalNuGetCompatibilityHandler checker;
-        string tmpSolutionPath;
-        IEnumerable<SourceRepository> sourceRepositories;
+        private IPortingAssistantInternalNuGetCompatibilityHandler _internalNuGetCompatibilityHandler;
+        private string _tmpSolutionPath;
+        private IEnumerable<SourceRepository> _sourceRepositories;
 
         private IEnumerable<SourceRepository> GetInternalRepository(string pathToSolution)
         {
@@ -36,35 +36,33 @@ namespace Tests
         [SetUp]
         public void Setup()
         {
-            checker = new PortingAssistantInternalNuGetCompatibilityHandler(NullLogger<PortingAssistantInternalNuGetCompatibilityHandler>.Instance);
-            tmpSolutionPath = CreateFakeSolutionPath();
-            sourceRepositories = GetInternalRepository(tmpSolutionPath);
-
+            _internalNuGetCompatibilityHandler = new PortingAssistantInternalNuGetCompatibilityHandler(NullLogger<PortingAssistantInternalNuGetCompatibilityHandler>.Instance);
+            _tmpSolutionPath = CreateFakeSolutionFile(Path.Combine(Path.GetTempPath(), Path.GetRandomFileName()));
+            _sourceRepositories = GetInternalRepository(_tmpSolutionPath);
         }
 
         [TearDown]
         public void Cleanup()
         {
-            Directory.Delete(tmpSolutionPath, true);
+            Directory.Delete(_tmpSolutionPath, true);
         }
 
         [Test]
-        public void TestCompatible()
+        public void CheckCompatibilityOfCompatiblePackageReturnsTrue()
         {
-            var resultTask1 = checker.CheckCompatibilityAsync("Newtonsoft.Json", "12.0.3", "netcoreapp3.1", sourceRepositories);
-            var resultTask2 = checker.CheckCompatibilityAsync("Newtonsoft.Json", "12.0.3", "netstandard2.0", sourceRepositories);
+            var resultTask1 = _internalNuGetCompatibilityHandler.CheckCompatibilityAsync("Newtonsoft.Json", "12.0.3", "netcoreapp3.1", _sourceRepositories);
+            var resultTask2 = _internalNuGetCompatibilityHandler.CheckCompatibilityAsync("Newtonsoft.Json", "12.0.3", "netstandard2.0", _sourceRepositories);
             resultTask1.Wait();
             resultTask2.Wait();
             Assert.True(resultTask1.Result.IsCompatible);
             Assert.True(resultTask2.Result.IsCompatible);
         }
 
-
         [Test]
-        public void TestNotCompatible()
+        public void CheckCompatibilityOfIncompatiblePackageReturnsFalse()
         {
-            var resultTask1 = checker.CheckCompatibilityAsync("Newtonsoft.Json", "6.0.1", "netcoreapp3.1", sourceRepositories);
-            var resultTask2 = checker.CheckCompatibilityAsync("Newtonsoft.Json", "6.0.1", "netstandard2.0", sourceRepositories);
+            var resultTask1 = _internalNuGetCompatibilityHandler.CheckCompatibilityAsync("Newtonsoft.Json", "6.0.1", "netcoreapp3.1", _sourceRepositories);
+            var resultTask2 = _internalNuGetCompatibilityHandler.CheckCompatibilityAsync("Newtonsoft.Json", "6.0.1", "netstandard2.0", _sourceRepositories);
             resultTask1.Wait();
             resultTask2.Wait();
             Assert.False(resultTask1.Result.IsCompatible);
@@ -72,29 +70,42 @@ namespace Tests
         }
 
         [Test]
-        public void TestNotExists()
+        public void CheckCompatibilityOfNonexistentPackageThrowsException()
         {
             Assert.ThrowsAsync<PortingAssistantClientException>(async () =>
-                 await checker.CheckCompatibilityAsync("Newtonsoft.Json", "12.0.5", "netcoreapp3.1", sourceRepositories));
+                 await _internalNuGetCompatibilityHandler.CheckCompatibilityAsync("ThisPackageDoesNotExist", "1.0.0", "netcoreapp3.1", _sourceRepositories));
         }
 
         [Test]
-        public void TestInvalidPath()
+        public void CheckCompatibilityWithEmptyInternalRepositoriesThrowsException()
         {
-            Assert.ThrowsAsync<ArgumentException>(async () =>
-                 await checker.CheckCompatibilityAsync("Newtonsoft.Json", "12.0.3", "netcoreapp3.1", null));
+            Assert.ThrowsAsync<PortingAssistantClientException>(async () =>
+                 await _internalNuGetCompatibilityHandler.CheckCompatibilityAsync("Newtonsoft.Json", "12.0.3", "netcoreapp3.1", new List<SourceRepository>()));
         }
 
         [Test]
-        public void TestInvalidPackage()
-        {
+        public void CheckCompatibilityWithNullInternalRepositoriesThrowsArgumentException()
+        { 
             Assert.ThrowsAsync<ArgumentException>(async () =>
-                 await checker.CheckCompatibilityAsync(null, "12.0.3", "netcoreapp3.1", sourceRepositories));
+                await _internalNuGetCompatibilityHandler.CheckCompatibilityAsync("Newtonsoft.Json", "12.0.3", "netcoreapp3.1", null));
         }
 
-        private string CreateFakeSolutionPath()
+        [Test]
+        public void CheckCompatibilityWithNullPackageNameThrowsArgumentException()
         {
-            var tmpDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            Assert.ThrowsAsync<ArgumentException>(async () =>
+                await _internalNuGetCompatibilityHandler.CheckCompatibilityAsync(null, "12.0.3", "netcoreapp3.1", _sourceRepositories));
+        }
+
+        [Test]
+        public void CheckCompatibilityWithNullTargetFrameworkThrowsArgumentException()
+        {
+            Assert.ThrowsAsync<ArgumentException>(async () =>
+                await _internalNuGetCompatibilityHandler.CheckCompatibilityAsync("Newtonsoft.Json", "12.0.3", null, _sourceRepositories));
+        }
+
+        private string CreateFakeSolutionFile(string tmpDir)
+        {
             Directory.CreateDirectory(tmpDir);
             var configFilePath = Path.Combine(tmpDir, "nuget.config");
 

@@ -38,7 +38,7 @@ namespace Tests.ApiAnalysis
         {
             Name = "Newtonsoft.Json",
             Versions = new SortedSet<string> { "12.0.3", "12.0.4" },
-            Api = new ApiDetails[]
+            ApiDetails = new ApiDetails[]
             {
                 new ApiDetails
                 {
@@ -65,7 +65,7 @@ namespace Tests.ApiAnalysis
                     { "MIT", new SortedSet<string> { "12.0.3", "12.0.4" } }
                 }
             },
-            Deprecated = false
+            IsDeprecated = false
         };
 
         [Test]
@@ -97,8 +97,8 @@ namespace Tests.ApiAnalysis
 
             Assert.AreEqual(1, result[0].ApiAnalysisResults.Count);
             Assert.AreEqual("11.2.0", result[0].ApiAnalysisResults[0].CodeEntityDetails.Package.Version);
-            Assert.AreEqual(Compatibility.COMPATIBLE, result[0].ApiAnalysisResults[0].CompatibilityResult.GetValueOrDefault(ApiCompatiblity.DEFAULT_TARGET));
-            Assert.AreEqual("12.0.4", result[0].ApiAnalysisResults[0].Recommendations.RecommendedActions.First().desciption); ;
+            Assert.AreEqual(Compatibility.COMPATIBLE, result[0].ApiAnalysisResults[0].CompatibilityResults.GetValueOrDefault(ApiCompatiblity.DEFAULT_TARGET));
+            Assert.AreEqual("12.0.4", result[0].ApiAnalysisResults[0].Recommendations.RecommendedActions.First().Description); ;
         }
 
         [Test]
@@ -134,8 +134,8 @@ namespace Tests.ApiAnalysis
 
             Assert.AreEqual(1, result[0].ApiAnalysisResults.Count);
             Assert.AreEqual("11.2.0", result[0].ApiAnalysisResults[0].CodeEntityDetails.Package.Version);
-            Assert.AreEqual(Compatibility.COMPATIBLE, result[0].ApiAnalysisResults[0].CompatibilityResult.GetValueOrDefault(ApiCompatiblity.DEFAULT_TARGET));
-            Assert.AreEqual("12.0.4", result[0].ApiAnalysisResults[0].Recommendations.RecommendedActions.First().desciption);
+            Assert.AreEqual(Compatibility.COMPATIBLE, result[0].ApiAnalysisResults[0].CompatibilityResults.GetValueOrDefault(ApiCompatiblity.DEFAULT_TARGET));
+            Assert.AreEqual("12.0.4", result[0].ApiAnalysisResults[0].Recommendations.RecommendedActions.First().Description);
         }
 
         [Test]
@@ -172,8 +172,8 @@ namespace Tests.ApiAnalysis
             Assert.AreEqual(1, result[0].ApiAnalysisResults.Count);
             Assert.AreEqual("namespace.namespace2", result[0].ApiAnalysisResults[0].CodeEntityDetails.Package.PackageId);
             Assert.IsNull(result[0].ApiAnalysisResults[0].CodeEntityDetails.Package.Version);
-            Assert.AreEqual(Compatibility.INCOMPATIBLE, result[0].ApiAnalysisResults[0].CompatibilityResult.GetValueOrDefault(ApiCompatiblity.DEFAULT_TARGET));
-            Assert.IsNull(result[0].ApiAnalysisResults[0].Recommendations.RecommendedActions.First().desciption);
+            Assert.AreEqual(Compatibility.INCOMPATIBLE, result[0].ApiAnalysisResults[0].CompatibilityResults.GetValueOrDefault(ApiCompatiblity.DEFAULT_TARGET));
+            Assert.IsNull(result[0].ApiAnalysisResults[0].Recommendations.RecommendedActions.First().Description);
         }
     }
 }

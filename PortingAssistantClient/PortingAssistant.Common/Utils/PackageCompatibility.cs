@@ -18,13 +18,13 @@ namespace PortingAssistant.Utils
             return new PackageAnalysisResult
             {
                 PackageVersionPair = packageVersionPair,
-                CompatibilityResult = new Dictionary<string, CompatibilityResult>
+                CompatibilityResults = new Dictionary<string, CompatibilityResult>
                     {
                         {
                             DEFAULT_TARGET, new CompatibilityResult
                             {
                                 Compatibility = result.Compatibility,
-                                CompatibleVersion = result.CompatibleVersion
+                                CompatibleVersions = result.CompatibleVersions
                             }
                         }
                     },
@@ -36,7 +36,7 @@ namespace PortingAssistant.Utils
                         {
                             PackageId = packageVersionPair.PackageId,
                             RecommendedActionType = RecommendedActionType.UpgradePackage,
-                            TargetVersions = result.CompatibleVersion
+                            TargetVersions = result.CompatibleVersions
                         }
                     }
                 }
@@ -53,7 +53,7 @@ namespace PortingAssistant.Utils
                     return new CompatibilityResult
                     {
                         Compatibility = Compatibility.UNKNOWN,
-                        CompatibleVersion = new List<string>()
+                        CompatibleVersions = new List<string>()
                     };
                 }
 
@@ -63,7 +63,7 @@ namespace PortingAssistant.Utils
                     return new CompatibilityResult
                     {
                         Compatibility = Compatibility.INCOMPATIBLE,
-                        CompatibleVersion = new List<string>()
+                        CompatibleVersions = new List<string>()
                     };
                 }
                 if (!SemVersion.TryParse(packageVersionPair.Version, out var version))
@@ -71,13 +71,13 @@ namespace PortingAssistant.Utils
                     return new CompatibilityResult
                     {
                         Compatibility = Compatibility.UNKNOWN,
-                        CompatibleVersion = new List<string>()
+                        CompatibleVersions = new List<string>()
                     };
                 }
                 return new CompatibilityResult
                 {
                     Compatibility = foundTarget.Any(v => SemVersion.Compare(version, SemVersion.Parse(v)) >= 0) ? Compatibility.COMPATIBLE : Compatibility.INCOMPATIBLE,
-                    CompatibleVersion = foundTarget.Where(v => SemVersion.Compare(SemVersion.Parse(v), version) > 0).ToList()
+                    CompatibleVersions = foundTarget.Where(v => SemVersion.Compare(SemVersion.Parse(v), version) > 0).ToList()
                 };
             }
             catch (Exception e)
@@ -86,7 +86,7 @@ namespace PortingAssistant.Utils
                 return new CompatibilityResult
                 {
                     Compatibility = Compatibility.UNKNOWN,
-                    CompatibleVersion = new List<string>()
+                    CompatibleVersions = new List<string>()
                 };
             }
 

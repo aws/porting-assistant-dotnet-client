@@ -23,18 +23,18 @@ namespace Tests
     public class PortingAssistantNuGetHandlerTest
     {
         private Mock<ITransferUtility> _transferUtilityMock;
-        private Mock<IPortingAssistantInternalNuGetCompatibilityHandler> _checkComptHanderMock;
-        private Mock<InternalPackagesCompatibilityChecker> _internalChecker;
-        private ExternalPackagesCompatibilityChecker _externalChecker;
-        private Mock<ILogger<PortingAssistantNuGetHandler>> _logger;
-        private readonly string _testSolutionFolderPath = Path.Combine(TestContext.CurrentContext.TestDirectory,
+        private Mock<IPortingAssistantInternalNuGetCompatibilityHandler> _internalNuGetCompatibilityHandlerMock;
+        private Mock<InternalPackagesCompatibilityChecker> _internalPackagesCompatibilityChecker;
+        private ExternalPackagesCompatibilityChecker _externalPackagesCompatibilityChecker;
+        private Mock<ILogger<PortingAssistantNuGetHandler>> _loggerMock;
+        private readonly string _testSolutionDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory,
                 "TestXml", "SolutionWithNugetConfigFile");
 
         private readonly PackageDetails _packageDetails = new PackageDetails
         {
             Name = "Newtonsoft.Json",
             Versions = new SortedSet<string> { "12.0.3", "12.0.4" },
-            Api = new ApiDetails[]
+            ApiDetails = new ApiDetails[]
             {
                 new ApiDetails
                 {
@@ -63,29 +63,29 @@ namespace Tests
             }
         };
 
-        private async Task<InternalNuGetCompatibilityResult> getCompatibilityResult(
-            int timeout, bool compatility)
+        private async Task<InternalNuGetCompatibilityResult> GetCompatibilityResult(
+            int timeout, bool compatibility)
         {
             await Task.Delay(timeout);
 
             return new InternalNuGetCompatibilityResult
             {
                 CompatibleDlls = null,
-                IsCompatible = compatility,
+                IsCompatible = compatibility,
                 IncompatibleDlls = null,
-                source = "nuget.woot.com",
-                DepedencyPackages = null
+                Source = "nuget.woot.com",
+                DependencyPackages = null
             };
         }
 
-        private IEnumerable<SourceRepository> getInternalRepository()
+        private IEnumerable<SourceRepository> GetInternalRepository()
         {
-            var mockRepostiories = new List<SourceRepository>();
-            var mockSourceRepository = new Mock<SourceRepository>();
-            var mockSource = new Mock<FindPackageByIdResource>();
+            var mockResourceRepositories = new List<SourceRepository>();
+            var mockResourceRepository = new Mock<SourceRepository>();
+            var mockResource = new Mock<FindPackageByIdResource>();
 
-            mockSource.Reset();
-            mockSource.Setup(source => source.DoesPackageExistAsync(
+            mockResource.Reset();
+            mockResource.Setup(source => source.DoesPackageExistAsync(
                 It.IsAny<string>(),
                 It.IsAny<NuGetVersion>(),
                 It.IsAny<SourceCacheContext>(),
@@ -97,27 +97,27 @@ namespace Tests
                     return true;
                 });
 
-            mockSourceRepository.Reset();
-            mockSourceRepository.Setup(source => source.GetResourceAsync<
+            mockResourceRepository.Reset();
+            mockResourceRepository.Setup(source => source.GetResourceAsync<
                 FindPackageByIdResource>())
                 .Returns(async () =>
                {
                    await Task.Delay(5);
-                   return mockSource.Object;
+                   return mockResource.Object;
                });
 
-            mockRepostiories.Add(mockSourceRepository.Object);
-            return mockRepostiories.AsEnumerable();
+            mockResourceRepositories.Add(mockResourceRepository.Object);
+            return mockResourceRepositories.AsEnumerable();
         }
 
-        private IEnumerable<SourceRepository> getInternalRepositoryNotExist()
+        private IEnumerable<SourceRepository> GetInternalRepositoryNotExist()
         {
-            var mockRepostiories = new List<SourceRepository>();
-            var mockSourceRepository = new Mock<SourceRepository>();
-            var mockSource = new Mock<FindPackageByIdResource>();
+            var mockRepositories = new List<SourceRepository>();
+            var mockResourceRepository = new Mock<SourceRepository>();
+            var mockResource = new Mock<FindPackageByIdResource>();
 
-            mockSource.Reset();
-            mockSource.Setup(source => source.DoesPackageExistAsync(
+            mockResource.Reset();
+            mockResource.Setup(source => source.DoesPackageExistAsync(
                 It.IsAny<string>(),
                 It.IsAny<NuGetVersion>(),
                 It.IsAny<SourceCacheContext>(),
@@ -129,27 +129,27 @@ namespace Tests
                     return false;
                 });
 
-            mockSourceRepository.Reset();
-            mockSourceRepository.Setup(source => source.GetResourceAsync<
+            mockResourceRepository.Reset();
+            mockResourceRepository.Setup(source => source.GetResourceAsync<
                 FindPackageByIdResource>())
                 .Returns(async () =>
                 {
                     await Task.Delay(5);
-                    return mockSource.Object;
+                    return mockResource.Object;
                 });
 
-            mockRepostiories.Add(mockSourceRepository.Object);
-            return mockRepostiories.AsEnumerable();
+            mockRepositories.Add(mockResourceRepository.Object);
+            return mockRepositories.AsEnumerable();
         }
 
-        private IEnumerable<SourceRepository> getInternalRepositoryThrowException(Exception exception)
+        private IEnumerable<SourceRepository> GetInternalRepositoryThrowsException(Exception exception)
         {
-            var mockRepostiories = new List<SourceRepository>();
-            var mockSourceRepository = new Mock<SourceRepository>();
-            var mockSource = new Mock<FindPackageByIdResource>();
+            var mockRepositories = new List<SourceRepository>();
+            var mockResourceRepository = new Mock<SourceRepository>();
+            var mockResource = new Mock<FindPackageByIdResource>();
 
-            mockSource.Reset();
-            mockSource.Setup(source => source.DoesPackageExistAsync(
+            mockResource.Reset();
+            mockResource.Setup(source => source.DoesPackageExistAsync(
                 It.IsAny<string>(),
                 It.IsAny<NuGetVersion>(),
                 It.IsAny<SourceCacheContext>(),
@@ -157,24 +157,24 @@ namespace Tests
                 It.IsAny<CancellationToken>()))
                 .Throws(exception);
 
-            mockSourceRepository.Reset();
-            mockSourceRepository.Setup(source => source.GetResourceAsync<
+            mockResourceRepository.Reset();
+            mockResourceRepository.Setup(source => source.GetResourceAsync<
                 FindPackageByIdResource>())
                 .Returns(async () =>
                 {
                     await Task.Delay(5);
-                    return mockSource.Object;
+                    return mockResource.Object;
                 });
 
-            mockRepostiories.Add(mockSourceRepository.Object);
-            return mockRepostiories.AsEnumerable();
+            mockRepositories.Add(mockResourceRepository.Object);
+            return mockRepositories.AsEnumerable();
         }
 
         [OneTimeSetUp]
         public void OneTimeSetup()
         {
             _transferUtilityMock = new Mock<ITransferUtility>();
-            _checkComptHanderMock = new Mock<IPortingAssistantInternalNuGetCompatibilityHandler>();
+            _internalNuGetCompatibilityHandlerMock = new Mock<IPortingAssistantInternalNuGetCompatibilityHandler>();
         }
 
         [SetUp]
@@ -201,9 +201,9 @@ namespace Tests
                     return outputStream;
                 });
 
-            _checkComptHanderMock.Reset();
+            _internalNuGetCompatibilityHandlerMock.Reset();
 
-            _checkComptHanderMock
+            _internalNuGetCompatibilityHandlerMock
                 .Setup(checker => checker.CheckCompatibilityAsync(
                 It.IsAny<string>(),
                 It.IsAny<string>(),
@@ -211,11 +211,11 @@ namespace Tests
                 It.IsAny<IEnumerable<SourceRepository>>()))
                 .Returns((string packageName, string version, string targetFramework, IEnumerable<SourceRepository> sourceRepositories) =>
                 {
-                    return getCompatibilityResult(200, true);
+                    return GetCompatibilityResult(200, true);
                 });
 
 
-            _externalChecker = new ExternalPackagesCompatibilityChecker(
+            _externalPackagesCompatibilityChecker = new ExternalPackagesCompatibilityChecker(
                 _transferUtilityMock.Object,
                 NullLogger<ExternalPackagesCompatibilityChecker>.Instance,
                 Options.Create(new AnalyzerConfiguration {
@@ -226,23 +226,22 @@ namespace Tests
                 })
                 );
 
-            _internalChecker = new Mock<InternalPackagesCompatibilityChecker>(
-                _checkComptHanderMock.Object,
-                NullLogger<InternalPackagesCompatibilityChecker>.Instance
-                );
+            _internalPackagesCompatibilityChecker = new Mock<InternalPackagesCompatibilityChecker>(
+                _internalNuGetCompatibilityHandlerMock.Object,
+                NullLogger<InternalPackagesCompatibilityChecker>.Instance);
 
 
-            _internalChecker.Reset();
-            _internalChecker.Setup(checker => checker.GetInternalRepository(
+            _internalPackagesCompatibilityChecker.Reset();
+            _internalPackagesCompatibilityChecker.Setup(checker => checker.GetInternalRepository(
                 It.IsAny<string>())).Returns(() =>
                 {
-                    return getInternalRepository();
+                    return GetInternalRepository();
                 });
         }
 
         private IPortingAssistantNuGetHandler GetExternalNuGetHandler()
         {
-            var checkers = new List<ICompatibilityChecker>() { _externalChecker };
+            var checkers = new List<ICompatibilityChecker>() { _externalPackagesCompatibilityChecker };
             return new PortingAssistantNuGetHandler(
                     NullLogger<PortingAssistantNuGetHandler>.Instance,
                     checkers.AsEnumerable()
@@ -251,7 +250,7 @@ namespace Tests
 
         private IPortingAssistantNuGetHandler GetInternalNuGetHandler()
         {
-            var checkers = new List<ICompatibilityChecker>() { _internalChecker.Object };
+            var checkers = new List<ICompatibilityChecker>() { _internalPackagesCompatibilityChecker.Object };
             return new PortingAssistantNuGetHandler(
                     NullLogger<PortingAssistantNuGetHandler>.Instance,
                     checkers.AsEnumerable()
@@ -260,7 +259,7 @@ namespace Tests
 
         private IPortingAssistantNuGetHandler GetBothNuGetHandler()
         {
-            var checkers = new List<ICompatibilityChecker>() { _externalChecker, _internalChecker.Object };
+            var checkers = new List<ICompatibilityChecker>() { _externalPackagesCompatibilityChecker, _internalPackagesCompatibilityChecker.Object };
             return new PortingAssistantNuGetHandler(
                     NullLogger<PortingAssistantNuGetHandler>.Instance,
                     checkers.AsEnumerable()
@@ -275,11 +274,11 @@ namespace Tests
                 It.IsAny<string>()))
                 .Throws(new Exception("test"));
 
-            _logger = new Mock<ILogger<PortingAssistantNuGetHandler>>();
+            _loggerMock = new Mock<ILogger<PortingAssistantNuGetHandler>>();
 
-            _logger.Reset();
+            _loggerMock.Reset();
 
-            _logger.Setup(_ => _.Log(
+            _loggerMock.Setup(_ => _.Log(
                 It.IsAny<LogLevel>(),
                 It.IsAny<EventId>(),
                 It.IsAny<It.IsValueType>(),
@@ -288,14 +287,14 @@ namespace Tests
 
             var checkers = new List<ICompatibilityChecker>() { checker.Object };
             return new PortingAssistantNuGetHandler(
-                    _logger.Object,
+                    _loggerMock.Object,
                     checkers.AsEnumerable()
                     );
         }
 
         private ExternalPackagesCompatibilityChecker GetExternalPackagesCompatibilityChecker()
         {
-            var externalchecker = new ExternalPackagesCompatibilityChecker(
+            var externalChecker = new ExternalPackagesCompatibilityChecker(
                 _transferUtilityMock.Object,
                 NullLogger<ExternalPackagesCompatibilityChecker>.Instance,
                 Options.Create(new AnalyzerConfiguration
@@ -307,10 +306,10 @@ namespace Tests
                 })
             );
 
-            return externalchecker;
+            return externalChecker;
         }
 
-        private void setMockTransferUtility(PackageDetails packageDetails)
+        private void SetMockTransferUtility(PackageDetails packageDetails)
         {
             _transferUtilityMock.Reset();
             _transferUtilityMock
@@ -335,29 +334,30 @@ namespace Tests
         }
 
         [Test]
-        public void TestCompatibleExternalSource()
+        public void GetNugetPackagesWithExternalNugetRepositorySucceeds()
         {
             var handler = GetExternalNuGetHandler();
             var packages = new List<PackageVersionPair>()
             {
               new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.3" }
             };
-            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionFolderPath, "TestSolution.sln"));
+            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
             Task.WaitAll(resultTasks.Values.ToArray());
+
             Assert.AreEqual(_packageDetails.Name, resultTasks.Values.First().Result.Name);
-            Assert.AreEqual(_packageDetails.Api.Count(), resultTasks.Values.First().Result.Api.Count());
+            Assert.AreEqual(_packageDetails.ApiDetails.Count(), resultTasks.Values.First().Result.ApiDetails.Count());
             Assert.AreEqual(_packageDetails.Targets.Count(), resultTasks.Values.First().Result.Targets.Count());
             Assert.AreEqual(_packageDetails.Versions.Count(), resultTasks.Values.First().Result.Versions.Count());
         }
 
         [Test]
-        public void TestCompatibleInternalSource()
+        public void GetNugetPackagesFromInternalNugetRepositorySucceeds()
         {
             var handler = GetInternalNuGetHandler();
 
-            _checkComptHanderMock.Reset();
+            _internalNuGetCompatibilityHandlerMock.Reset();
 
-            _checkComptHanderMock
+            _internalNuGetCompatibilityHandlerMock
                 .Setup(checker => checker.CheckCompatibilityAsync(
                 It.IsAny<string>(),
                 It.IsAny<string>(),
@@ -365,45 +365,44 @@ namespace Tests
                 It.IsAny<IEnumerable<SourceRepository>>()))
                 .Returns((string packageName, string version, string targetFramework, IEnumerable<SourceRepository> sourceRepositories) =>
                 {
-                    return getCompatibilityResult(1, true);
+                    return GetCompatibilityResult(1, true);
                 });
 
             var packages = new List<PackageVersionPair>()
             {
               new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.3" }
             };
-            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionFolderPath, "TestSolution.sln"));
+            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
             Task.WaitAll(resultTasks.Values.ToArray());
+
             Assert.AreEqual(packages.First().PackageId, resultTasks.Values.First().Result.Name);
             Assert.AreEqual(packages.First().Version, resultTasks.Values.First().Result.Targets["netcoreapp3.1"].First());
         }
 
-
         [Test]
-        public void TestNotCompatibleExternalSource()
+        public void GetNugetPackagesWithIncompatibleExternalNugetRepositorySucceeds()
         {
             var handler = GetExternalNuGetHandler();
-
             var packages = new List<PackageVersionPair>()
             {
               new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.2" }
             };
-            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionFolderPath, "TestSolution.sln"));
+            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
             Task.WaitAll(resultTasks.Values.ToArray());
+
             Assert.AreEqual(_packageDetails.Name, resultTasks.Values.First().Result.Name);
-            Assert.AreEqual(_packageDetails.Api.Count(), resultTasks.Values.First().Result.Api.Count());
+            Assert.AreEqual(_packageDetails.ApiDetails.Count(), resultTasks.Values.First().Result.ApiDetails.Count());
             Assert.AreEqual(_packageDetails.Targets.Count(), resultTasks.Values.First().Result.Targets.Count());
             Assert.AreEqual(_packageDetails.Versions.Count(), resultTasks.Values.First().Result.Versions.Count());
         }
 
         [Test]
-        public void TestNotCompatibleInternalSource()
+        public void GetNugetPackagesWithIncompatibleInternalNugetRepositorySucceeds()
         {
             var handler = GetInternalNuGetHandler();
+            _internalNuGetCompatibilityHandlerMock.Reset();
 
-            _checkComptHanderMock.Reset();
-
-            _checkComptHanderMock
+            _internalNuGetCompatibilityHandlerMock
                 .Setup(checker => checker.CheckCompatibilityAsync(
                 It.IsAny<string>(),
                 It.IsAny<string>(),
@@ -411,14 +410,14 @@ namespace Tests
                 It.IsAny<IEnumerable<SourceRepository>>()))
                 .Returns((string packageName, string version, string targetFramework, IEnumerable<SourceRepository> sourceRepositories) =>
                 {
-                    return getCompatibilityResult(1, false);
+                    return GetCompatibilityResult(1, false);
                 });
 
             var packages = new List<PackageVersionPair>()
             {
               new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.2" }
             };
-            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionFolderPath, "TestSolution.sln"));
+            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
             Task.WaitAll(resultTasks.Values.ToArray());
 
             Assert.AreEqual(packages.First().PackageId, resultTasks.Values.First().Result.Name);
@@ -427,14 +426,13 @@ namespace Tests
         }
 
         [Test]
-        public void TestNotExists()
+        public void GetNugetPackagesWithNonexistentPackageInInternalNugetRepositoryThrowsException()
         {
-
-            _internalChecker.Reset();
-            _internalChecker.Setup(checker => checker.GetInternalRepository(
+            _internalPackagesCompatibilityChecker.Reset();
+            _internalPackagesCompatibilityChecker.Setup(checker => checker.GetInternalRepository(
                 It.IsAny<string>())).Returns(() =>
                 {
-                    return getInternalRepositoryNotExist();
+                    return GetInternalRepositoryNotExist();
                 });
 
             _transferUtilityMock.Reset();
@@ -451,19 +449,19 @@ namespace Tests
 
             Assert.Throws<AggregateException>(() =>
             {
-                var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionFolderPath, "TestSolution.sln"));
+                var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
                 Task.WaitAll(resultTasks.Values.ToArray());
             });
         }
 
         [Test]
-        public void TestNotExistsNuGet()
+        public void TransferUtilityOpenStreamTriesNextPackageVersionOnException()
         {
-            _internalChecker.Reset();
-            _internalChecker.Setup(checker => checker.GetInternalRepository(
+            _internalPackagesCompatibilityChecker.Reset();
+            _internalPackagesCompatibilityChecker.Setup(checker => checker.GetInternalRepository(
                 It.IsAny<string>())).Returns(() =>
                 {
-                    return getInternalRepositoryNotExist();
+                    return GetInternalRepositoryNotExist();
                 });
 
             _transferUtilityMock.Reset();
@@ -481,7 +479,7 @@ namespace Tests
 
             try
             {
-                var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionFolderPath, "TestSolution.sln"));
+                var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
                 Task.WaitAll(resultTasks.Values.ToArray());
             }
             catch (Exception)
@@ -489,7 +487,7 @@ namespace Tests
 
             try
             {
-                var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionFolderPath, "TestSolution.sln"));
+                var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
                 Task.WaitAll(resultTasks.Values.ToArray());
             }
             catch (Exception)
@@ -499,7 +497,7 @@ namespace Tests
         }
 
         [Test]
-        public void TestMultiple()
+        public void TransferUtilityOpenStreamCalledOncePerPackage()
         {
             var handler = GetExternalNuGetHandler();
 
@@ -507,13 +505,13 @@ namespace Tests
               new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.3" },
               new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.4" }
             };
-            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionFolderPath, "TestSolution.sln"));
+            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
             Task.WaitAll(resultTasks.Values.ToArray());
             _transferUtilityMock.Verify(transfer => transfer.OpenStream(It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(1));
         }
 
         [Test]
-        public void TestNuGet()
+        public void TransferUtilityOpenStreamResultsAreCached()
         {
             var handler = GetExternalNuGetHandler();
 
@@ -522,12 +520,12 @@ namespace Tests
               new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.4" }
             };
 
-            var resultTasks1 = handler.GetNugetPackages(packages, Path.Combine(_testSolutionFolderPath, "TestSolution.sln"));
-            var resultTasks2 = handler.GetNugetPackages(packages, Path.Combine(_testSolutionFolderPath, "TestSolution.sln"));
+            var resultTasks1 = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
+            var resultTasks2 = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
             Task.WaitAll(resultTasks1.Values.ToArray());
             Task.WaitAll(resultTasks2.Values.ToArray());
 
-            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionFolderPath, "TestSolution.sln"));
+            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
             Task.WaitAll(resultTasks.Values.ToArray());
 
             // Doesn't fire another request when requesting for same package.
@@ -535,7 +533,7 @@ namespace Tests
         }
 
         [Test]
-        public void TestInvalidJsonResponse()
+        public void PackageDownloadRequestWithInvalidJsonResponseThrowsException()
         {
             _transferUtilityMock.Reset();
             _transferUtilityMock
@@ -550,7 +548,7 @@ namespace Tests
                     return writer.BaseStream;
                 });
 
-            var externalchecker = GetExternalPackagesCompatibilityChecker();
+            var externalChecker = GetExternalPackagesCompatibilityChecker();
 
             var packageVersionPair = new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.5" };
             var packages = new List<PackageVersionPair>()
@@ -559,17 +557,17 @@ namespace Tests
             };
             Assert.Throws<AggregateException>(() =>
             {
-                var resultTasks = externalchecker.CheckAsync(packages, null);
+                var resultTasks = externalChecker.CheckAsync(packages, null);
                 Task.WaitAll(resultTasks.Values.ToArray());
             });
         }
 
         [Test]
-        public void TestNotExistInExternalCheck()
+        public void CompatibilityCheckOfMissingExternalPackageThrowsException()
         {
-            setMockTransferUtility(new PackageDetails());
+            SetMockTransferUtility(new PackageDetails());
 
-            var externalchecker = GetExternalPackagesCompatibilityChecker();
+            var externalPackagesCompatibilityChecker = GetExternalPackagesCompatibilityChecker();
 
             var packageVersionPair = new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.5" };
             var packages = new List<PackageVersionPair>()
@@ -577,9 +575,9 @@ namespace Tests
                 packageVersionPair
             };
 
-            var resultTasks = externalchecker.CheckAsync(packages, null);
+            var resultTasks = externalPackagesCompatibilityChecker.CheckAsync(packages, null);
 
-            _logger.Verify(_ => _.Log(
+            _loggerMock.Verify(_ => _.Log(
                 LogLevel.Error,
                 It.IsAny<EventId>(),
                 It.IsAny<It.IsValueType>(),
@@ -593,16 +591,15 @@ namespace Tests
         }
 
         [Test]
-        public void TestCheckerException()
+        public void CompatibilityCheckerLoggerLogsErrorsInGetNugetPackages()
         {
-
             var handler = GetCheckerWithException();
             var packages = new List<PackageVersionPair>()
             {
               new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.3" }
             };
-            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionFolderPath, "TestSolution.sln"));
-            _logger.Verify(_ => _.Log(
+            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
+            _loggerMock.Verify(_ => _.Log(
                 LogLevel.Error,
                 It.IsAny<EventId>(),
                 It.IsAny<It.IsValueType>(),
@@ -611,54 +608,52 @@ namespace Tests
         }
 
         [Test]
-        public void TestGetInternalRepository()
+        public void GetInternalRepositoryReturnsCorrectInternalRepositories()
         {
-            var checker = new InternalPackagesCompatibilityChecker(
-                _checkComptHanderMock.Object,
-                NullLogger<InternalPackagesCompatibilityChecker>.Instance
-                );
+            var compatibilityChecker = new InternalPackagesCompatibilityChecker(
+                _internalNuGetCompatibilityHandlerMock.Object,
+                NullLogger<InternalPackagesCompatibilityChecker>.Instance);
 
-            var result = checker.GetInternalRepository(Path.Combine(_testSolutionFolderPath, "TestSolution.sln")).ToList();
+            var result = compatibilityChecker.GetInternalRepository(Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln")).ToList();
 
             Assert.AreEqual("nuget.woot.com", result.First().PackageSource.Name.ToLower());
-
         }
 
         [Test]
-        public void TestInternalPackagesThrowException()
+        public void InternalPackagesLoggerLogsExceptions()
         {
-            var checker = _internalChecker.Object;
-            var repositories = getInternalRepositoryThrowException(new OperationCanceledException());
+            var checker = _internalPackagesCompatibilityChecker.Object;
+            var repositories = GetInternalRepositoryThrowsException(new OperationCanceledException());
 
             var packageVersionPair = new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.5" };
             var packages = new List<PackageVersionPair>()
             {
                 packageVersionPair
             };
-            var result = checker.getInternalPackagesAsync(Path.Combine(_testSolutionFolderPath, "TestSolution.sln"), packages, repositories);
-            _logger.Verify(_ => _.Log(
+            var result = checker.getInternalPackagesAsync(Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"), packages, repositories);
+            _loggerMock.Verify(_ => _.Log(
                 LogLevel.Information,
                 It.IsAny<EventId>(),
                 It.IsAny<It.IsValueType>(),
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception, string>)It.IsAny<object>()), Times.Once);
 
-            repositories = getInternalRepositoryThrowException(new AggregateException());
-            result = checker.getInternalPackagesAsync(Path.Combine(_testSolutionFolderPath, "TestSolution.sln"), packages, repositories);
-            _logger.Verify(_ => _.Log(
+            repositories = GetInternalRepositoryThrowsException(new AggregateException());
+            result = checker.getInternalPackagesAsync(Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"), packages, repositories);
+            
+            _loggerMock.Verify(_ => _.Log(
                 LogLevel.Error,
                 It.IsAny<EventId>(),
                 It.IsAny<It.IsValueType>(),
                 It.IsAny<Exception>(),
                 (Func<It.IsValueType, Exception, string>)It.IsAny<object>()), Times.Once);
-
         }
 
         [Test]
-        public void TestInternalCheckCompatibilityThrowException()
+        public void CompatibilityCheckOfInternalPackageThrowsExceptionDoesNotRecordTargets()
         {
-            _checkComptHanderMock.Reset();
-            _checkComptHanderMock
+            _internalNuGetCompatibilityHandlerMock.Reset();
+            _internalNuGetCompatibilityHandlerMock
                 .Setup(checker => checker.CheckCompatibilityAsync(
                 It.IsAny<string>(),
                 It.IsAny<string>(),
@@ -666,20 +661,18 @@ namespace Tests
                 It.IsAny<IEnumerable<SourceRepository>>()))
                 .Throws(new OperationCanceledException());
 
-            var repositories = getInternalRepositoryThrowException(new OperationCanceledException());
-
             var packageVersionPair = new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.5" };
             var packages = new List<PackageVersionPair>()
             {
                 packageVersionPair
             };
-            var result = _internalChecker.Object.CheckAsync(packages, Path.Combine(_testSolutionFolderPath, "TestSolution.sln"));
+            var result = _internalPackagesCompatibilityChecker.Object.CheckAsync(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
 
             Task.WaitAll(result.Values.ToArray());
             Assert.AreEqual(0, result.Values.ToList().First().Result.Targets.GetValueOrDefault("netcoreapp3.1").Count);
 
-            _checkComptHanderMock.Reset();
-            _checkComptHanderMock
+            _internalNuGetCompatibilityHandlerMock.Reset();
+            _internalNuGetCompatibilityHandlerMock
                 .Setup(checker => checker.CheckCompatibilityAsync(
                 It.IsAny<string>(),
                 It.IsAny<string>(),
@@ -687,10 +680,10 @@ namespace Tests
                 It.IsAny<IEnumerable<SourceRepository>>()))
                 .Throws(new AggregateException());
 
-            result = _internalChecker.Object.CheckAsync(packages, Path.Combine(_testSolutionFolderPath, "TestSolution.sln"));
+            result = _internalPackagesCompatibilityChecker.Object.CheckAsync(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
 
             Task.WaitAll(result.Values.ToArray());
-            Assert.AreEqual(0, result.Values.ToList().First().Result.Targets.GetValueOrDefault("netcoreapp3.1").Count);
+            Assert.AreEqual(0, result.Values.First().Result.Targets.GetValueOrDefault("netcoreapp3.1").Count);
         }
     }
 }

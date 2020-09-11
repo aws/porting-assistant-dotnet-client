@@ -25,9 +25,9 @@ namespace PortingAssistant.ApiAnalysis.Utils
                 return Compatibility.UNKNOWN;
             }
 
-            if (package.Result.Deprecated)
+            if (package.Result.IsDeprecated)
             {
-                return Compatibility.DEPRACATED;
+                return Compatibility.DEPRECATED;
             }
 
             var foundApi = GetApiDetails(package.Result, apiMethodSignature);
@@ -111,7 +111,7 @@ namespace PortingAssistant.ApiAnalysis.Utils
                                         // First recommendation is the preferred one.
                                         return new ApiRecommendation{
                                             RecommendedActionType = RecommendedActionType.ReplaceApi,
-                                            desciption = eachRecommendationAPI.Recommendation.First().Description
+                                            Description = eachRecommendationAPI.Recommendation.First().Description
                                         };
                                     }
                                 }
@@ -127,7 +127,7 @@ namespace PortingAssistant.ApiAnalysis.Utils
                 return new ApiRecommendation
                     {
                         RecommendedActionType = RecommendedActionType.UpgradePackage,
-                        desciption = upgradeVersion
+                        Description = upgradeVersion
                     };
  
             }
@@ -142,10 +142,10 @@ namespace PortingAssistant.ApiAnalysis.Utils
 
         private static ApiDetails GetApiDetails(PackageDetails nugetPackage, string apiMethodSignature)
         {
-            var foundApi = nugetPackage.Api.FirstOrDefault(api => api.MethodSignature == apiMethodSignature);
+            var foundApi = nugetPackage.ApiDetails.FirstOrDefault(api => api.MethodSignature == apiMethodSignature);
             if (foundApi == null)
             {
-                foundApi = nugetPackage.Api.FirstOrDefault(api =>
+                foundApi = nugetPackage.ApiDetails.FirstOrDefault(api =>
                 {
                     if (
                     api.MethodParameters == null ||

@@ -5,7 +5,7 @@ namespace PortingAssistant.Model
     public class PackageAnalysisResult
     {
         public PackageVersionPair PackageVersionPair { get; set; }
-        public Dictionary<string, CompatibilityResult> CompatibilityResult { get; set; } // Target Framework CompatibilityResult pair
+        public Dictionary<string, CompatibilityResult> CompatibilityResults { get; set; } // Target Framework CompatibilityResults pair
         public Recommendations Recommendations { get; set; }
     }
 }

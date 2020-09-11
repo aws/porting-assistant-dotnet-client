@@ -9,11 +9,12 @@ namespace Tests
     public class ProjectFileParserTest
     {
         [Test]
-        public void TestProjectWithPackageConfig()
+        public void ParseProjectWithPackageConfigSucceeds()
         {
             var path = Path.Combine(TestContext.CurrentContext.TestDirectory,
-                "TestXml", "ProjectWithPackagesConfig", "project.csproj");
+                "TestXml", "ProjectWithPackagesConfig", "ProjectWithPackagesConfig.csproj");
             var handler = new ProjectFileParser(path);
+
             Assert.AreEqual(8, handler.GetPackageReferences().Count);
             Assert.AreEqual(4, handler.GetProjectReferences().Count);
             Assert.AreEqual(1, handler.GetTargetFrameworks().Count);
@@ -21,11 +22,12 @@ namespace Tests
         }
 
         [Test]
-        public void TestProjectWtihProjectReferences()
+        public void ParseProjectWithProjectReferencesSucceeds()
         {
             var path = Path.Combine(TestContext.CurrentContext.TestDirectory,
-                "TestXml", "ProjectWithReference", "project.csproj");
+                "TestXml", "ProjectWithReference", "ProjectWithReference.csproj");
             var handler = new ProjectFileParser(path);
+
             Assert.AreEqual(4, handler.GetPackageReferences().Count);
             Assert.AreEqual(1, handler.GetProjectReferences().Count);
             Assert.AreEqual(1, handler.GetTargetFrameworks().Count);
@@ -33,25 +35,33 @@ namespace Tests
         }
 
         [Test]
-        public void TestProjectWithCorruptedFile()
+        public void ParseProjectInWrongDirectoryThrowsException()
         {
             var path = Path.Combine(TestContext.CurrentContext.TestDirectory,
-                "TestXml", "SolutionWithFailedContent", "Nop.Core.csproj");
+                "TestXml", "SolutionWithFailedContent", "ProjectInWrongDirectory.csproj");
             Assert.Throws<PortingAssistantClientException>(() =>
             {
-                var handler = new ProjectFileParser(path);
-                handler.GetPackageReferences();
+                var projectFileParser = new ProjectFileParser(path);
+                projectFileParser.GetPackageReferences();
             });
+        }
 
+        [Test]
+        public void ParseProjectWithCorruptPackageVersionThrowsException()
+        {
             var projectReferencePath = Path.Combine(TestContext.CurrentContext.TestDirectory,
-                "TestXml", "SolutionWithFailedContent", "test", "project.csproj");
+                "TestXml", "SolutionWithFailedContent", "test", "ProjectWithCorruptPackageVersion.csproj");
 
-            var mockhandler = new ProjectFileParser(projectReferencePath);
-            Assert.AreEqual(1, mockhandler.GetPackageReferences().Count);
+            var projectFileParser = new ProjectFileParser(projectReferencePath);
+            Assert.AreEqual(1, projectFileParser.GetPackageReferences().Count);
+        }
 
-            var handler = new ProjectFileParser(Path.Combine(TestContext.CurrentContext.TestDirectory,
-                "TestXml", "SolutionWithFailedContent", "test", "corrupt.csproj"));
-            Assert.AreEqual(0, handler.GetPackageReferences().Count);
+        [Test]
+        public void ParseProjectWithCorruptContentThrowsException()
+        {
+            var corruptProjectFileParser = new ProjectFileParser(Path.Combine(TestContext.CurrentContext.TestDirectory,
+                "TestXml", "SolutionWithFailedContent", "test", "ProjectWithCorruptContent.csproj"));
+            Assert.AreEqual(0, corruptProjectFileParser.GetPackageReferences().Count);
         }
     }
 }

@@ -6,6 +6,6 @@ namespace PortingAssistant.Model
         UNKNOWN,
         COMPATIBLE,
         INCOMPATIBLE,
-        DEPRACATED
+        DEPRECATED
     };
 }
