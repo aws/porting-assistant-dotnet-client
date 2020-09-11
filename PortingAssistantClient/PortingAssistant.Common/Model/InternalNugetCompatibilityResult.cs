@@ -5,9 +5,9 @@ namespace PortingAssistant.Model
     public class InternalNuGetCompatibilityResult
     {
         public bool IsCompatible { get; set; }
-        public string source { get; set; }
+        public string Source { get; set; }
         public List<string> IncompatibleDlls;
         public List<string> CompatibleDlls;
-        public List<string> DepedencyPackages;
+        public List<string> DependencyPackages;
     }
 }

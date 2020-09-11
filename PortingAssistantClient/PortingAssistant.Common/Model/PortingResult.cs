@@ -7,6 +7,6 @@ namespace PortingAssistant.Model
         public string ProjectFile { get; set; }
         public string ProjectName { get; set; }
         public string Message { get; set; }
-        public Exception Execption { get; set; }
+        public Exception Exception { get; set; }
     }
 }

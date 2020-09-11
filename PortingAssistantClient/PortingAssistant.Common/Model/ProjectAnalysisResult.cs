@@ -7,8 +7,8 @@ namespace PortingAssistant.Model
     {
         public string ProjectName { get; set; }
         public string ProjectFile { get; set; }
-        public Task<ProjectApiAnalysisResult> ProjectApiAnalysisResult;
-        public Dictionary<PackageVersionPair, Task<PackageAnalysisResult>> PackageAnalysisResults;
+        public Task<ProjectApiAnalysisResult> ProjectApiAnalysisResult { get; set; }
+        public Dictionary<PackageVersionPair, Task<PackageAnalysisResult>> PackageAnalysisResults { get; set; }
     }
 
     public class ProjectApiAnalysisResult

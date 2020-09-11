@@ -30,7 +30,7 @@ namespace Tests
         {
             Name = "Newtonsoft.Json",
             Versions = new SortedSet<string> { "12.0.3", "12.0.4" },
-            Api = new ApiDetails[]
+            ApiDetails = new ApiDetails[]
             {
                 new ApiDetails
                 {
@@ -67,7 +67,7 @@ namespace Tests
             {
                 new ApiAnalysisResult
                 {
-                    CompatibilityResult = new Dictionary<string, Compatibility>
+                    CompatibilityResults = new Dictionary<string, Compatibility>
                     {
                         { ApiCompatiblity.DEFAULT_TARGET, Compatibility.COMPATIBLE}
                     }
@@ -179,9 +179,9 @@ namespace Tests
             Task.WaitAll(packageAnalysisResult.Values.ToArray());
             var packageResult = packageAnalysisResult.First(p => p.Value.Result.PackageVersionPair.PackageId == _packageDetails.Name);
             Assert.AreEqual(RecommendedActionType.UpgradePackage, packageResult.Value.Result.Recommendations.RecommendedActions.First().RecommendedActionType); ;
-            var compatibilityResult = packageResult.Value.Result.CompatibilityResult.GetValueOrDefault(PackageCompatibility.DEFAULT_TARGET);
+            var compatibilityResult = packageResult.Value.Result.CompatibilityResults.GetValueOrDefault(PackageCompatibility.DEFAULT_TARGET);
             Assert.AreEqual(Compatibility.COMPATIBLE, compatibilityResult.Compatibility);
-            Assert.AreEqual("12.0.4", compatibilityResult.CompatibleVersion.First());
+            Assert.AreEqual("12.0.4", compatibilityResult.CompatibleVersions.First());
         }
         
         [Test]

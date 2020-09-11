@@ -34,7 +34,7 @@ namespace Tests
         {
             Name = "Newtonsoft.Json",
             Versions = new SortedSet<string> { "12.0.3", "12.0.4" },
-            Api = new ApiDetails[]
+            ApiDetails = new ApiDetails[]
             {
                 new ApiDetails
                 {
@@ -73,8 +73,8 @@ namespace Tests
                 CompatibleDlls = null,
                 IsCompatible = compatibility,
                 IncompatibleDlls = null,
-                source = "nuget.woot.com",
-                DepedencyPackages = null
+                Source = "nuget.woot.com",
+                DependencyPackages = null
             };
         }
 
@@ -345,7 +345,7 @@ namespace Tests
             Task.WaitAll(resultTasks.Values.ToArray());
 
             Assert.AreEqual(_packageDetails.Name, resultTasks.Values.First().Result.Name);
-            Assert.AreEqual(_packageDetails.Api.Count(), resultTasks.Values.First().Result.Api.Count());
+            Assert.AreEqual(_packageDetails.ApiDetails.Count(), resultTasks.Values.First().Result.ApiDetails.Count());
             Assert.AreEqual(_packageDetails.Targets.Count(), resultTasks.Values.First().Result.Targets.Count());
             Assert.AreEqual(_packageDetails.Versions.Count(), resultTasks.Values.First().Result.Versions.Count());
         }
@@ -391,7 +391,7 @@ namespace Tests
             Task.WaitAll(resultTasks.Values.ToArray());
 
             Assert.AreEqual(_packageDetails.Name, resultTasks.Values.First().Result.Name);
-            Assert.AreEqual(_packageDetails.Api.Count(), resultTasks.Values.First().Result.Api.Count());
+            Assert.AreEqual(_packageDetails.ApiDetails.Count(), resultTasks.Values.First().Result.ApiDetails.Count());
             Assert.AreEqual(_packageDetails.Targets.Count(), resultTasks.Values.First().Result.Targets.Count());
             Assert.AreEqual(_packageDetails.Versions.Count(), resultTasks.Values.First().Result.Versions.Count());
         }

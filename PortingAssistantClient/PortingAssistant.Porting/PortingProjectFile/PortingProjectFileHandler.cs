@@ -100,7 +100,7 @@ namespace PortingAssistant.PortingProjectFile
                         Success = false,
                         ProjectFile = project.FilePath.FullName,
                         ProjectName = project.ProjectName,
-                        Execption = ex
+                        Exception = ex
                     });
                 }
             }

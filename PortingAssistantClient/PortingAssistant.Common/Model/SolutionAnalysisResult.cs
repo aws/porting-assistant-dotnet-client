@@ -16,6 +16,4 @@ namespace PortingAssistant.Model
     {
         public Dictionary<string, Task<ProjectApiAnalysisResult>> ProjectApiAnalysisResults { get; set; }
     }
-
-
 }
