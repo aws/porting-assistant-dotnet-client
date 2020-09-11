@@ -113,6 +113,8 @@ namespace PortingAssistant.ApiAnalysis
 
                 return new ProjectApiAnalysisResult
                 {
+                    SolutionFile = solutionFilename,
+                    ProjectFile = project.ProjectFilePath,
                     Errors = analyzer.ProjectResult.BuildErrors,
                     SourceFileAnalysisResults = SourceFileAnalysisResults,
                 };
