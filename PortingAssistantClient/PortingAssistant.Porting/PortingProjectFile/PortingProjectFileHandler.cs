@@ -13,6 +13,9 @@ using Project2015To2017.Writing;
 
 namespace PortingAssistant.PortingProjectFile
 {
+    /// <summary>
+    /// Creates a handler to port projects
+    /// </summary>
     public class PortingProjectFileHandler : IPortingProjectFileHandler
     {
         private readonly ILogger _logger;
@@ -23,13 +26,24 @@ namespace PortingAssistant.PortingProjectFile
             MakeBackups = false
         };
 
-
+        /// <summary>
+        /// Creates an instance of a PortingProjectFileHandler
+        /// </summary>
+        /// <param name="logger">An ILogger object</param>
         public PortingProjectFileHandler(ILogger<PortingProjectFileHandler> logger)
         {
             _logger = logger;
             _facility = new MigrationFacility(_logger);
         }
 
+        /// <summary>
+        /// Ports a list of projects
+        /// </summary>
+        /// <param name="projectPaths">List of projects paths</param>
+        /// <param name="solutionPath">Path to solution file</param>
+        /// <param name="targetFramework">Target framework to be used when porting</param>
+        /// <param name="upgradeVersions">List of key/value pairs where key is package and value is version number</param>
+        /// <returns>A PortingProjectFileResult object, representing the result of the porting operation</returns>
         public List<PortingResult> ApplyProjectChanges(
             List<string> projectPaths, string solutionPath, string targetFramework,
             Dictionary<string, string> upgradeVersions)

@@ -13,6 +13,9 @@ using PortingAssistant.Model;
 
 namespace PortingAssistant.NuGet
 {
+    /// <summary>
+    /// Compatiblity checker for Portability Analyzer results
+    /// </summary>
     public class PortabilityAnalyzerCompatibilityChecker : ICompatibilityChecker
     {
         private readonly ILogger _logger;
@@ -21,6 +24,12 @@ namespace PortingAssistant.NuGet
         private static readonly int _maxProcessConcurrency = 3;
         private static readonly SemaphoreSlim _processConcurrency = new SemaphoreSlim(_maxProcessConcurrency);
 
+        /// <summary>
+        /// Creates a new instance of Portability Analyzer compatiblity checker
+        /// </summary>
+        /// <param name="transferUtility">The transferUtility object to read data from S3</param>
+        /// <param name="logger">Logger object</param>
+        /// <param name="options">Options used for accessing the Portability Analyzer results</param>
         public PortabilityAnalyzerCompatibilityChecker(
             ITransferUtility transferUtility,
             ILogger<ExternalPackagesCompatibilityChecker> logger,
@@ -32,6 +41,12 @@ namespace PortingAssistant.NuGet
             _transferUtility = transferUtility;
         }
 
+        /// <summary>
+        /// Checks the packages in Portability Analyzer
+        /// </summary>
+        /// <param name="packageVersions">The package versions to check</param>
+        /// <param name="pathToSolution">Path to the solution to check</param>
+        /// <returns>The results of the compatibility check</returns>
         public Dictionary<PackageVersionPair, Task<PackageDetails>> CheckAsync(
             List<PackageVersionPair> packageVersions,
             string pathToSolution
@@ -96,6 +111,12 @@ namespace PortingAssistant.NuGet
             }
         }
 
+        /// <summary>
+        /// Processes the package compatibility
+        /// </summary>
+        /// <param name="packageVersions">List of package versions to check</param>
+        /// <param name="foundPackages">List of packages found</param>
+        /// <param name="resultsDict">The results of the compatibility check to process</param>
         private void ProcessCompatibility(List<PackageVersionPair> packageVersions,
             Dictionary<string, List<PackageVersionPair>> foundPackages,
             Dictionary<PackageVersionPair, TaskCompletionSource<PackageDetails>> resultsDict)
@@ -153,6 +174,10 @@ namespace PortingAssistant.NuGet
             }
         }
 
+        /// <summary>
+        /// Returns the type of this compatiblity checker
+        /// </summary>
+        /// <returns>Type of checker (Portability Analyzer)</returns>
         public PackageSourceType GetCompatibilityCheckerType()
         {
             return PackageSourceType.PORTABILITY_ANALYZER;
