@@ -1,8 +1,12 @@
 ﻿using System;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+
 namespace PortingAssistant.Model
 {
     public class CodeEntityDetails
     {
+        [JsonConverter(typeof(StringEnumConverter))]
         public CodeEntityType CodeEntityType { get; set; }
         public string Name { get; set; }
         public string Namespace { get; set; }

@@ -119,10 +119,6 @@ namespace PortingAssistant.ApiAnalysis
                     SourceFileAnalysisResults = SourceFileAnalysisResults,
                 };
             }
-            catch (PortingAssistantClientException)
-            {
-                return null;
-            }
             catch (Exception ex)
             {
                 _logger.LogError("Error while analyzing {0}, {1}", project.ProjectName, ex);
