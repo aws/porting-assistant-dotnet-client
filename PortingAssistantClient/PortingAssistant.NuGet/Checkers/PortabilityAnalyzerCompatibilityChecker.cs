@@ -14,7 +14,7 @@ using PortingAssistant.Model;
 namespace PortingAssistant.NuGet
 {
     /// <summary>
-    /// Compatiblity checker for Portability Analyzer results
+    /// Compatibility checker for Portability Analyzer results
     /// </summary>
     public class PortabilityAnalyzerCompatibilityChecker : ICompatibilityChecker
     {
@@ -28,7 +28,7 @@ namespace PortingAssistant.NuGet
         public PackageSourceType CompatibilityCheckerType => PackageSourceType.PORTABILITY_ANALYZER;
 
         /// <summary>
-        /// Creates a new instance of Portability Analyzer compatiblity checker
+        /// Creates a new instance of Portability Analyzer compatibility checker
         /// </summary>
         /// <param name="transferUtility">The transferUtility object to read data from S3</param>
         /// <param name="logger">Logger object</param>

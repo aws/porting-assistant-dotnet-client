@@ -10,7 +10,7 @@ namespace PortingAssistant.NuGet
     public interface ICompatibilityChecker
     {
         /// <summary>
-        /// Gets the type of the compatiblity checker
+        /// Gets the type of the compatibility checker
         /// </summary>
         /// <returns>The type of the compatibility checker</returns>
         public PackageSourceType CompatibilityCheckerType { get; }
@@ -18,9 +18,9 @@ namespace PortingAssistant.NuGet
         /// <summary>
         /// Runs the compatibility check
         /// </summary>
-        /// <param name="packageVersions">A List of packages and their versions</param>
+        /// <param name="packageVersions">A collection of packages and their versions</param>
         /// <param name="pathToSolution">The solution to check</param>
         /// <returns></returns>
-        public Dictionary<PackageVersionPair, Task<PackageDetails>> CheckAsync(List<PackageVersionPair> packageVersions, string pathToSolution);
+        public Dictionary<PackageVersionPair, Task<PackageDetails>> CheckAsync(IEnumerable<PackageVersionPair> packageVersions, string pathToSolution);
     }
 }
