@@ -18,11 +18,14 @@ namespace PortingAssistant.NuGet
     /// </summary>
     public class PortabilityAnalyzerCompatibilityChecker : ICompatibilityChecker
     {
+        private const string NamespaceLookupFile = "microsoftlibs.namespace.lookup.json";
         private readonly ILogger _logger;
         private readonly IOptions<AnalyzerConfiguration> _options;
         private readonly ITransferUtility _transferUtility;
         private static readonly int _maxProcessConcurrency = 3;
-        private static readonly SemaphoreSlim _processConcurrency = new SemaphoreSlim(_maxProcessConcurrency);
+        private static readonly SemaphoreSlim _semaphore = new SemaphoreSlim(_maxProcessConcurrency);
+
+        public PackageSourceType CompatibilityCheckerType => PackageSourceType.PORTABILITY_ANALYZER;
 
         /// <summary>
         /// Creates a new instance of Portability Analyzer compatiblity checker
@@ -33,8 +36,7 @@ namespace PortingAssistant.NuGet
         public PortabilityAnalyzerCompatibilityChecker(
             ITransferUtility transferUtility,
             ILogger<ExternalPackagesCompatibilityChecker> logger,
-            IOptions<AnalyzerConfiguration> options
-            )
+            IOptions<AnalyzerConfiguration> options)
         {
             _logger = logger;
             _options = options;
@@ -48,81 +50,79 @@ namespace PortingAssistant.NuGet
         /// <param name="pathToSolution">Path to the solution to check</param>
         /// <returns>The results of the compatibility check</returns>
         public Dictionary<PackageVersionPair, Task<PackageDetails>> CheckAsync(
-            List<PackageVersionPair> packageVersions,
-            string pathToSolution
-            )
+            IEnumerable<PackageVersionPair> packageVersions,
+            string pathToSolution)
         {
-            var resultsDict = new Dictionary<PackageVersionPair, TaskCompletionSource<PackageDetails>>();
+            var compatibilityTaskCompletionSources = new Dictionary<PackageVersionPair, TaskCompletionSource<PackageDetails>>();
 
             try
             {
                 using var stream = _transferUtility.OpenStream(
-                    _options.Value.DataStoreSettings.S3Endpoint, "microsoftlibs.namespace.lookup.json");
+                    _options.Value.DataStoreSettings.S3Endpoint, NamespaceLookupFile);
                 using var streamReader = new StreamReader(stream);
                 var manifest = JsonConvert.DeserializeObject<Dictionary<string, string>>(streamReader.ReadToEnd())
                     .ToDictionary(k => k.Key.ToLower(), v => v.Value);
 
                 var foundPackages = new Dictionary<string, List<PackageVersionPair>>();
-                packageVersions
-                    .ForEach(p =>
+                packageVersions.ToList().ForEach(p => 
+                {
+                    var value = manifest.GetValueOrDefault(p.PackageId.ToLower(), null);
+                    if (value != null)
                     {
-                        var value = manifest.GetValueOrDefault(p.PackageId.ToLower(), null);
-                        if (value != null)
+                        compatibilityTaskCompletionSources.Add(p, new TaskCompletionSource<PackageDetails>());
+                        if (!foundPackages.ContainsKey(value))
                         {
-                            resultsDict.Add(p, new TaskCompletionSource<PackageDetails>());
-                            if (!foundPackages.ContainsKey(value))
-                            {
-                                foundPackages.Add(value, new List<PackageVersionPair>());
-                            }
-                            foundPackages.GetValueOrDefault(value).Add(p);
+                            foundPackages.Add(value, new List<PackageVersionPair>());
                         }
-                    });
+                        foundPackages[value].Add(p);
+                    }
+                });
 
-                _logger.LogInformation("Checking Portability Analyzer source for {0} packages Compatiblity", foundPackages.Count);
-                if (foundPackages.Count > 0)
+                _logger.LogInformation("Checking Portability Analyzer source for compatibility of {0} package(s)", foundPackages.Count);
+                if (foundPackages.Any())
                 {
                     Task.Run(() =>
                     {
-                        _processConcurrency.Wait();
+                        _semaphore.Wait();
                         try
                         {
-                            ProcessCompatibility(packageVersions, foundPackages, resultsDict);
+                            ProcessCompatibility(packageVersions, foundPackages, compatibilityTaskCompletionSources);
                         }
                         finally
                         {
-                            _processConcurrency.Release();
+                            _semaphore.Release();
                         }
                     });
                 }
 
-                return resultsDict.ToDictionary(t => t.Key, t => t.Value.Task);
+                return compatibilityTaskCompletionSources.ToDictionary(t => t.Key, t => t.Value.Task);
             }
             catch (Exception ex)
             {
                 foreach (var packageVersion in packageVersions)
                 {
-                    if (resultsDict.TryGetValue(packageVersion, out var taskCompletionSource))
+                    if (compatibilityTaskCompletionSources.TryGetValue(packageVersion, out var taskCompletionSource))
                     {
                         taskCompletionSource.TrySetException(
-                            new PortingAssistantClientException($"Cannot found package {packageVersion.PackageId} {packageVersion.Version}", ex));
+                            new PortingAssistantClientException($"Could not find package {packageVersion}.", ex));
                     }
                 }
-                return resultsDict.ToDictionary(t => t.Key, t => t.Value.Task);
+                return compatibilityTaskCompletionSources.ToDictionary(t => t.Key, t => t.Value.Task);
             }
         }
 
         /// <summary>
         /// Processes the package compatibility
         /// </summary>
-        /// <param name="packageVersions">List of package versions to check</param>
-        /// <param name="foundPackages">List of packages found</param>
-        /// <param name="resultsDict">The results of the compatibility check to process</param>
-        private void ProcessCompatibility(List<PackageVersionPair> packageVersions,
+        /// <param name="packageVersions">Collection of package versions to check</param>
+        /// <param name="foundPackages">Collection of packages found</param>
+        /// <param name="compatibilityTaskCompletionSources">The results of the compatibility check to process</param>
+        private void ProcessCompatibility(IEnumerable<PackageVersionPair> packageVersions,
             Dictionary<string, List<PackageVersionPair>> foundPackages,
-            Dictionary<PackageVersionPair, TaskCompletionSource<PackageDetails>> resultsDict)
+            Dictionary<PackageVersionPair, TaskCompletionSource<PackageDetails>> compatibilityTaskCompletionSources)
         {
-            var foundSet = new HashSet<PackageVersionPair>();
-            var errorSet = new HashSet<PackageVersionPair>();
+            var packageVersionsFound = new HashSet<PackageVersionPair>();
+            var packageVersionsWithErrors = new HashSet<PackageVersionPair>();
 
             foreach (var url in foundPackages)
             {
@@ -133,26 +133,26 @@ namespace PortingAssistant.NuGet
                         _options.Value.DataStoreSettings.S3Endpoint, url.Key.Substring(_options.Value.DataStoreSettings.S3Endpoint.Length + 6));
                     using var gzipStream = new GZipStream(stream, CompressionMode.Decompress);
                     using var streamReader = new StreamReader(gzipStream);
-                    var result = JsonConvert.DeserializeObject<PackageFromS3>(streamReader.ReadToEnd());
-                    result.Package.Name = url.Value.First().PackageId;
+                    var packageFromS3 = JsonConvert.DeserializeObject<PackageFromS3>(streamReader.ReadToEnd());
+                    packageFromS3.Package.Name = url.Value.First().PackageId;
                     foreach (var packageVersion in url.Value)
                     {
-                        if (resultsDict.TryGetValue(packageVersion, out var taskCompletionSource))
+                        if (compatibilityTaskCompletionSources.TryGetValue(packageVersion, out var taskCompletionSource))
                         {
-                            taskCompletionSource.SetResult(result.Package);
-                            foundSet.Add(packageVersion);
+                            taskCompletionSource.SetResult(packageFromS3.Package);
+                            packageVersionsFound.Add(packageVersion);
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError("Failed when download and parsing {0} from {1}, {2}", url.Key, _options.Value.DataStoreSettings.S3Endpoint.Length, ex);
+                    _logger.LogError("Failed when downloading and parsing {0} from {1}, {2}", url.Key, _options.Value.DataStoreSettings.S3Endpoint.Length, ex);
                     foreach (var packageVersion in url.Value)
                     {
-                        if (resultsDict.TryGetValue(packageVersion, out var taskCompletionSource))
+                        if (compatibilityTaskCompletionSources.TryGetValue(packageVersion, out var taskCompletionSource))
                         {
-                            taskCompletionSource.SetException(new PortingAssistantClientException($"Cannot found package {packageVersion.PackageId} {packageVersion.Version}", ex));
-                            errorSet.Add(packageVersion);
+                            taskCompletionSource.SetException(new PortingAssistantClientException($"Could not find package {packageVersion}", ex));
+                            packageVersionsWithErrors.Add(packageVersion);
                         }
                     }
                 }
@@ -160,27 +160,20 @@ namespace PortingAssistant.NuGet
 
             foreach (var packageVersion in packageVersions)
             {
-                if (!foundSet.Contains(packageVersion) && !errorSet.Contains(packageVersion))
+                if (packageVersionsFound.Contains(packageVersion) || packageVersionsWithErrors.Contains(packageVersion))
                 {
-                    if (resultsDict.TryGetValue(packageVersion, out var taskCompletionSource))
-                    {
-                        _logger.LogInformation(
-                            $"Can Not Find package {packageVersion.PackageId} " +
-                            $"{packageVersion.Version} in external source, check internal source");
-                        taskCompletionSource.TrySetException(
-                            new PortingAssistantClientException($"Cannot found package {packageVersion.PackageId} {packageVersion.Version}", null));
-                    }
+                    continue;
+                }
+
+                if (compatibilityTaskCompletionSources.TryGetValue(packageVersion, out var taskCompletionSource))
+                {
+                    var errorMessage = $"Could not find package {packageVersion} in external source; try checking an internal source.";
+                    _logger.LogInformation(errorMessage);
+
+                    var innerException = new PackageNotFoundException(errorMessage);
+                    taskCompletionSource.TrySetException(new PortingAssistantClientException(errorMessage, innerException));
                 }
             }
-        }
-
-        /// <summary>
-        /// Returns the type of this compatiblity checker
-        /// </summary>
-        /// <returns>Type of checker (Portability Analyzer)</returns>
-        public PackageSourceType GetCompatibilityCheckerType()
-        {
-            return PackageSourceType.PORTABILITY_ANALYZER;
         }
 
         private class PackageFromS3
@@ -188,5 +181,4 @@ namespace PortingAssistant.NuGet
             public PackageDetails Package { get; set; }
         }
     }
-
 }

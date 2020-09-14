@@ -9,7 +9,6 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Amazon.S3.Transfer;
 using System.IO;
-using System.IO.Compression;
 
 namespace PortingAssistant.NuGet
 {
@@ -19,146 +18,148 @@ namespace PortingAssistant.NuGet
         private readonly IOptions<AnalyzerConfiguration> _options;
         private readonly ITransferUtility _transferUtility;
         private static readonly int _maxProcessConcurrency = 3;
-        private static readonly SemaphoreSlim _processConcurrency = new SemaphoreSlim(_maxProcessConcurrency);
+        private static readonly SemaphoreSlim _semaphore = new SemaphoreSlim(_maxProcessConcurrency);
+        private const string RecommendationLookupFile = "namespaces.recommendation.lookup.json";
 
         public RecommendationChecker(
             ITransferUtility transferUtility,
             ILogger<ExternalPackagesCompatibilityChecker> logger,
-            IOptions<AnalyzerConfiguration> options
-            )
+            IOptions<AnalyzerConfiguration> options)
         {
             _logger = logger;
             _options = options;
             _transferUtility = transferUtility;
         }
 
-        public Dictionary<string, Task<RecommendationDetails>> GetApiRecommendation(List<string> NameSpaces)
+        public Dictionary<string, Task<RecommendationDetails>> GetApiRecommendation(IEnumerable<string> namespaces)
         {
-            var resultsDict = new Dictionary<string, TaskCompletionSource<RecommendationDetails>>();
+            var recommendationTaskCompletionSources = new Dictionary<string, TaskCompletionSource<RecommendationDetails>>();
             try
             {
                 using var stream = _transferUtility.OpenStream(
-                    _options.Value.DataStoreSettings.S3Endpoint, "namespaces.recommendation.lookup.json");
+                    _options.Value.DataStoreSettings.S3Endpoint, RecommendationLookupFile);
                 using var streamReader = new StreamReader(stream);
                 var manifest = JsonConvert.DeserializeObject<Dictionary<string, string>>(streamReader.ReadToEnd())
                     .ToDictionary(k => k.Key.ToLower(), v => v.Value);
  
                 var foundPackages = new Dictionary<string, List<string>>();
-                NameSpaces
-                    .ForEach(p =>
+                namespaces.ToList().ForEach(p =>
+                {
+                    var value = manifest.GetValueOrDefault(p.ToLower(), null);
+                    if (value != null)
                     {
-                        var value = manifest.GetValueOrDefault(p.ToLower(), null);
-                        if (value != null)
+                        recommendationTaskCompletionSources.Add(p, new TaskCompletionSource<RecommendationDetails>());
+                        if (!foundPackages.ContainsKey(value))
                         {
-                            resultsDict.Add(p, new TaskCompletionSource<RecommendationDetails>());
-                            if (!foundPackages.ContainsKey(value))
-                            {
-                                foundPackages.Add(value, new List<string>());
-                            }
-                            foundPackages.GetValueOrDefault(value).Add(p);
+                            foundPackages.Add(value, new List<string>());
                         }
-                    });
+                        foundPackages[value].Add(p);
+                    }
+                });
  
                 _logger.LogInformation("Checking Github files {0} for recommendations", foundPackages.Count);
-                if (foundPackages.Count > 0)
+                if (foundPackages.Any())
                 {
                     Task.Run(() =>
                     {
-                        _processConcurrency.Wait();
+                        _semaphore.Wait();
                         try
                         {
-                            ProcessCompatibility(NameSpaces, foundPackages, resultsDict);
+                            ProcessCompatibility(namespaces, foundPackages, recommendationTaskCompletionSources);
                         }
                         finally
                         {
-                            _processConcurrency.Release();
+                            _semaphore.Release();
                         }
                     });
                 }
  
-                return resultsDict.ToDictionary(t => t.Key, t => t.Value.Task);
-            } catch (Exception ex)
+                return recommendationTaskCompletionSources.ToDictionary(t => t.Key, t => t.Value.Task);
+            } 
+            catch (Exception ex)
             {
-                foreach (var NameSpace in NameSpaces)
+                foreach (var @namespace in namespaces)
                 {
-                    if (resultsDict.TryGetValue(NameSpace, out var taskCompletionSource))
+                    if (recommendationTaskCompletionSources.TryGetValue(@namespace, out var taskCompletionSource))
                     {
                         taskCompletionSource.TrySetException(
-                            new PortingAssistantClientException($"Cannot found namespace for recommendation {NameSpace}", ex));
+                            new PortingAssistantClientException($"Could not find namespace for recommendation {@namespace}", ex));
                     }
                 }
-                return resultsDict.ToDictionary(t => t.Key, t => t.Value.Task);
+                return recommendationTaskCompletionSources.ToDictionary(t => t.Key, t => t.Value.Task);
             }
         }
  
-        private void ProcessCompatibility(List<string> NameSpaces,
+        private void ProcessCompatibility(IEnumerable<string> namespaces,
             Dictionary<string, List<string>> foundPackages,
-            Dictionary<string, TaskCompletionSource<RecommendationDetails>> resultsDict)
+            Dictionary<string, TaskCompletionSource<RecommendationDetails>> recommendationTaskCompletionSources)
         {
-            var foundSet = new HashSet<string>();
-            var errorSet = new HashSet<string>();
+            var namespacesFound = new HashSet<string>();
+            var namespacesWithErrors = new HashSet<string>();
             try
             {
                 foreach (var url in foundPackages)
                 {
                     try
                     {
-                        // no testing possible using GitHub (Its in provate repo). Using s3 to proceed with testing
                         _logger.LogInformation("Downloading {0} from {1}", url.Key, _options.Value.DataStoreSettings.S3Endpoint);
                         using var stream = _transferUtility.OpenStream(
                             _options.Value.DataStoreSettings.S3Endpoint, url.Key.Substring(_options.Value.DataStoreSettings.S3Endpoint.Length + 6));
                         using var streamReader = new StreamReader(stream);
-                        var result = JsonConvert.DeserializeObject<PackageFromGitHub>(streamReader.ReadToEnd());
+                        var packageFromGithub = JsonConvert.DeserializeObject<PackageFromGitHub>(streamReader.ReadToEnd());
  
-                        foreach (var NameSpace in url.Value)
+                        foreach (var @namespace in url.Value)
                         {
-                            if (resultsDict.TryGetValue(NameSpace, out var taskCompletionSource))
+                            if (recommendationTaskCompletionSources.TryGetValue(@namespace, out var taskCompletionSource))
                             {
-                                taskCompletionSource.SetResult(result.RecommendationObject);
-                                foundSet.Add(NameSpace);
+                                taskCompletionSource.SetResult(packageFromGithub.RecommendationObject);
+                                namespacesFound.Add(@namespace);
                             }
                         }
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError("Failed when download recommendation and parsing {0} from {1}, {2}", url.Key, _options.Value.DataStoreSettings.S3Endpoint, ex);
-                        foreach (var NameSpace in url.Value)
+                        _logger.LogError("Failed when downloading recommendation and parsing {0} from {1}, {2}", url.Key, _options.Value.DataStoreSettings.S3Endpoint, ex);
+                        foreach (var @namespace in url.Value)
                         {
-                            if (resultsDict.TryGetValue(NameSpace, out var taskCompletionSource))
+                            if (recommendationTaskCompletionSources.TryGetValue(@namespace, out var taskCompletionSource))
                             {
-                                taskCompletionSource.SetException(new PortingAssistantClientException($"Failed process {NameSpace} Namespace", ex));
-                                errorSet.Add(NameSpace);
+                                taskCompletionSource.SetException(new PortingAssistantClientException($"Failed to process {@namespace} namespace", ex));
+                                namespacesWithErrors.Add(@namespace);
                             }
                         }
                     }
                 }
  
-                foreach (var NameSpace in NameSpaces)
+                foreach (var @namespace in namespaces)
                 {
-                    if (!foundSet.Contains(NameSpace) && !errorSet.Contains(NameSpace))
+                    if (namespacesFound.Contains(@namespace) || namespacesWithErrors.Contains(@namespace))
                     {
-                        if (resultsDict.TryGetValue(NameSpace, out var taskCompletionSource))
-                        {
-                            _logger.LogInformation(
-                                $"Can Not Find {NameSpace} Recommendation in external source, Discarding this namespace");
-                            taskCompletionSource.TrySetException(
-                               new PortingAssistantClientException($"Cannot find {NameSpace} Namespace", null));
-                        }
+                        continue;
+                    }
+
+                    if (recommendationTaskCompletionSources.TryGetValue(@namespace, out var taskCompletionSource))
+                    {
+                        var errorMessage = $"Could not find {@namespace} recommendation in external source; discarding this namespace.";
+                        _logger.LogInformation(errorMessage);
+
+                        var innerException = new NamespaceNotFoundException(errorMessage);
+                        taskCompletionSource.TrySetException(new PortingAssistantClientException(errorMessage, innerException));
                     }
                 }
             }
             catch (Exception ex)
             {
-                foreach (var NameSpace in NameSpaces)
+                foreach (var @namespace in namespaces)
                 {
-                    if (resultsDict.TryGetValue(NameSpace, out var taskCompletionSource))
+                    if (recommendationTaskCompletionSources.TryGetValue(@namespace, out var taskCompletionSource))
                     {
                         taskCompletionSource.TrySetException(
-                            new PortingAssistantClientException($"Failed Processing {NameSpace} Namespace", null));
+                            new PortingAssistantClientException($"Unexpected error encountered. Failed to process {@namespace} namespace.", ex));
                     }
                 }
  
-                _logger.LogError("Process Recommendations with Error: {0}", ex);
+                _logger.LogError("Error encountered while processing recommendations: {0}", ex);
             }
         }
  
@@ -172,5 +173,4 @@ namespace PortingAssistant.NuGet
             public RecommendationDetails RecommendationObject { get; set; }
         }
     }
- 
 }

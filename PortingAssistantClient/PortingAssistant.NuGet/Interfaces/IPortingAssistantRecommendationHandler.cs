@@ -6,6 +6,6 @@ namespace PortingAssistant.NuGet
 {
     public interface IPortingAssistantRecommendationHandler
     {
-        public Dictionary<string, Task<RecommendationDetails>> GetApiRecommendation(List<string> Namespace);
+        public Dictionary<string, Task<RecommendationDetails>> GetApiRecommendation(IEnumerable<string> namespaces);
     }
 }

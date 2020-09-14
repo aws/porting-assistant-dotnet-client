@@ -19,13 +19,14 @@ namespace PortingAssistant.NuGet
         private readonly IOptions<AnalyzerConfiguration> _options;
         private readonly ITransferUtility _transferUtility;
         private static readonly int _maxProcessConcurrency = 3;
-        private static readonly SemaphoreSlim _processConcurrency = new SemaphoreSlim(_maxProcessConcurrency);
+        private static readonly SemaphoreSlim _semaphore = new SemaphoreSlim(_maxProcessConcurrency);
+
+        public virtual PackageSourceType CompatibilityCheckerType => PackageSourceType.NUGET;
 
         public ExternalCompatibilityChecker(
             ITransferUtility transferUtility,
             ILogger<ExternalCompatibilityChecker> logger,
-            IOptions<AnalyzerConfiguration> options
-            )
+            IOptions<AnalyzerConfiguration> options)
         {
             _logger = logger;
             _options = options;
@@ -33,95 +34,97 @@ namespace PortingAssistant.NuGet
         }
 
         public Dictionary<PackageVersionPair, Task<PackageDetails>> CheckAsync(
-            List<PackageVersionPair> packageVersions,
-            string pathToSolution
-            )
+            IEnumerable<PackageVersionPair> packageVersions,
+            string pathToSolution)
         {
-            var resultsDict = packageVersions.Select(packageVersion =>
-            {
-                return new Tuple<PackageVersionPair, TaskCompletionSource<PackageDetails>>(packageVersion, new TaskCompletionSource<PackageDetails>());
-            }).ToDictionary(t => t.Item1, t => t.Item2);
+            var compatibilityTaskCompletionSources = packageVersions
+                .Select(packageVersion =>
+                {
+                    return new Tuple<PackageVersionPair, TaskCompletionSource<PackageDetails>>(packageVersion, new TaskCompletionSource<PackageDetails>());
+                })
+                .ToDictionary(t => t.Item1, t => t.Item2);
 
-            _logger.LogInformation("Checking external source for {0} packages Compatiblity", packageVersions.Count);
-            if (packageVersions.Count > 0)
+            _logger.LogInformation("Checking external source for compatibility of {0} package(s)", packageVersions.Count());
+            if (packageVersions.Any())
             {
                 Task.Run(() =>
                 {
-                    _processConcurrency.Wait();
+                    _semaphore.Wait();
                     try
                     {
-                        ProcessCompatibility(packageVersions, resultsDict);
+                        ProcessCompatibility(packageVersions, compatibilityTaskCompletionSources);
                     }
                     finally
                     {
-                        _processConcurrency.Release();
+                        _semaphore.Release();
                     }
                 });
             }
 
-            return resultsDict.ToDictionary(t => t.Key, t => t.Value.Task);
+            return compatibilityTaskCompletionSources.ToDictionary(t => t.Key, t => t.Value.Task);
         }
 
-        private void ProcessCompatibility(List<PackageVersionPair> packageVersions,
-            Dictionary<PackageVersionPair, TaskCompletionSource<PackageDetails>> resultsDict)
+        private void ProcessCompatibility(IEnumerable<PackageVersionPair> packageVersions,
+            Dictionary<PackageVersionPair, TaskCompletionSource<PackageDetails>> compatibilityTaskCompletionSources)
         {
-            var foundSet = new HashSet<PackageVersionPair>();
-            var errorSet = new HashSet<PackageVersionPair>();
+            var packageVersionsFound = new HashSet<PackageVersionPair>();
+            var packageVersionsWithErrors = new HashSet<PackageVersionPair>();
 
-            var packageVersionsAgg = packageVersions.Aggregate(new Dictionary<string, List<PackageVersionPair>>(), (agg, packageVersion) =>
+            var packageVersionsGroupedByPackageId = packageVersions
+                .GroupBy(pv => pv.PackageId)
+                .ToDictionary(pvGroup => pvGroup.Key, pvGroup => pvGroup.ToList());
+
+            foreach (var groupedPackageVersions in packageVersionsGroupedByPackageId)
             {
-                if (!agg.ContainsKey(packageVersion.PackageId))
-                {
-                    agg.Add(packageVersion.PackageId, new List<PackageVersionPair>());
-                }
-                agg[packageVersion.PackageId].Add(packageVersion);
-                return agg;
-            });
-            foreach (var package in packageVersionsAgg)
-            {
+                var packageToDownload = groupedPackageVersions.Key.ToLower();
+                var fileToDownload = $"{packageToDownload}.json.gz";
+
                 try
                 {
-                    _logger.LogInformation("Downloading {0} from {1}", package.Key.ToLower() + ".json.gz", _options.Value.DataStoreSettings.S3Endpoint);
+                    _logger.LogInformation("Downloading {0} from {1}", fileToDownload, _options.Value.DataStoreSettings.S3Endpoint);
                     using var stream = _transferUtility.OpenStream(
-                        _options.Value.DataStoreSettings.S3Endpoint, package.Key.ToLower() + ".json.gz");
+                        _options.Value.DataStoreSettings.S3Endpoint, fileToDownload);
                     using var gzipStream = new GZipStream(stream, CompressionMode.Decompress);
                     using var streamReader = new StreamReader(gzipStream);
                     var data = JsonConvert.DeserializeObject<PackageFromS3>(streamReader.ReadToEnd());
-                    var result = data.Package == null ? data.Namespaces : data.Package;
-                    // Validate result
-                    if (result.Name == null || result.Name.Trim().ToLower() != package.Key.Trim().ToLower())
+                    var packageDetails = data.Package ?? data.Namespaces;
+
+                    if (packageDetails.Name == null || !string.Equals(packageDetails.Name.Trim(), packageToDownload.Trim(), StringComparison.CurrentCultureIgnoreCase))
                     {
-                        throw new PortingAssistantClientException($"package/namespace download did not match {package.Key}", null);
+                        throw new PackageDownloadMismatchException(
+                            actualPackage: packageDetails.Name,
+                            expectedPackage: packageToDownload);
                     }
-                    foreach (var packageVersion in package.Value)
+
+                    foreach (var packageVersion in groupedPackageVersions.Value)
                     {
-                        if (resultsDict.TryGetValue(packageVersion, out var taskCompletionSource))
+                        if (compatibilityTaskCompletionSources.TryGetValue(packageVersion, out var taskCompletionSource))
                         {
-                            taskCompletionSource.SetResult(result);
-                            foundSet.Add(packageVersion);
+                            taskCompletionSource.SetResult(packageDetails);
+                            packageVersionsFound.Add(packageVersion);
                         }
                     }
                 }
                 catch (Amazon.S3.AmazonS3Exception ex) when (ex.ErrorCode.Contains("NoSuchKey"))
                 {
-                    foreach (var packageVersion in package.Value)
+                    foreach (var packageVersion in groupedPackageVersions.Value)
                     {
-                        if (resultsDict.TryGetValue(packageVersion, out var taskCompletionSource))
+                        if (compatibilityTaskCompletionSources.TryGetValue(packageVersion, out var taskCompletionSource))
                         {
-                            taskCompletionSource.SetException(new PortingAssistantClientException($"Cannot found package {packageVersion.PackageId} {packageVersion.Version}", ex));
-                            errorSet.Add(packageVersion);
+                            taskCompletionSource.SetException(new PortingAssistantClientException($"Cannot find package {packageVersion}", ex));
+                            packageVersionsWithErrors.Add(packageVersion);
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError("Failed when download and parsing {0} from {1}, {2}", package.Key.ToLower() + ".json.gz", _options.Value.DataStoreSettings.S3Endpoint, ex);
-                    foreach (var packageVersion in package.Value)
+                    _logger.LogError("Failed when downloading and parsing {0} from {1}, {2}", fileToDownload, _options.Value.DataStoreSettings.S3Endpoint, ex);
+                    foreach (var packageVersion in groupedPackageVersions.Value)
                     {
-                        if (resultsDict.TryGetValue(packageVersion, out var taskCompletionSource))
+                        if (compatibilityTaskCompletionSources.TryGetValue(packageVersion, out var taskCompletionSource))
                         {
-                            taskCompletionSource.SetException(new PortingAssistantClientException($"Cannot found package {packageVersion.PackageId} {packageVersion.Version}", ex));
-                            errorSet.Add(packageVersion);
+                            taskCompletionSource.SetException(new PortingAssistantClientException($"Cannot find package {packageVersion}", ex));
+                            packageVersionsWithErrors.Add(packageVersion);
                         }
                     }
                 }
@@ -129,23 +132,20 @@ namespace PortingAssistant.NuGet
 
             foreach (var packageVersion in packageVersions)
             {
-                if (!foundSet.Contains(packageVersion) && !errorSet.Contains(packageVersion))
+                if (packageVersionsFound.Contains(packageVersion) || packageVersionsWithErrors.Contains(packageVersion))
                 {
-                    if (resultsDict.TryGetValue(packageVersion, out var taskCompletionSource))
-                    {
-                        _logger.LogInformation(
-                            $"Can Not Find package {packageVersion.PackageId} " +
-                            $"{packageVersion.Version} in external source, check internal source");
-                        taskCompletionSource.TrySetException(
-                            new PortingAssistantClientException($"Cannot found package {packageVersion.PackageId} {packageVersion.Version}", null));
-                    }
+                    continue;
+                }
+
+                if (compatibilityTaskCompletionSources.TryGetValue(packageVersion, out var taskCompletionSource))
+                {
+                    var errorMessage = $"Could not find package {packageVersion} in external source; try checking an internal source.";
+                    _logger.LogInformation(errorMessage);
+
+                    var innerException = new PackageNotFoundException(errorMessage);
+                    taskCompletionSource.TrySetException(new PortingAssistantClientException(errorMessage, innerException));
                 }
             }
-        }
-
-        public virtual PackageSourceType GetCompatibilityCheckerType()
-        {
-            return PackageSourceType.NUGET;
         }
 
         private class PackageFromS3
@@ -154,5 +154,4 @@ namespace PortingAssistant.NuGet
             public PackageDetails Namespaces { get; set; }
         }
     }
-
 }

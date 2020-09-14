@@ -18,5 +18,10 @@ namespace PortingAssistant.Model
         {
             return HashCode.Combine(PackageId, Version);
         }
+
+        public override string ToString()
+        {
+            return $"{PackageId} {Version}";
+        }
     }
 }

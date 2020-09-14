@@ -10,7 +10,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using PortingAssistant.NuGet.InternalNuGetChecker;
+using PortingAssistant.NuGet.InternalNuGet;
 using NuGet.Protocol.Core.Types;
 using NuGet.Versioning;
 using System.IO;
@@ -232,7 +232,7 @@ namespace Tests
 
 
             _internalPackagesCompatibilityChecker.Reset();
-            _internalPackagesCompatibilityChecker.Setup(checker => checker.GetInternalRepository(
+            _internalPackagesCompatibilityChecker.Setup(checker => checker.GetInternalRepositories(
                 It.IsAny<string>())).Returns(() =>
                 {
                     return GetInternalRepository();
@@ -429,7 +429,7 @@ namespace Tests
         public void GetNugetPackagesWithNonexistentPackageInInternalNugetRepositoryThrowsException()
         {
             _internalPackagesCompatibilityChecker.Reset();
-            _internalPackagesCompatibilityChecker.Setup(checker => checker.GetInternalRepository(
+            _internalPackagesCompatibilityChecker.Setup(checker => checker.GetInternalRepositories(
                 It.IsAny<string>())).Returns(() =>
                 {
                     return GetInternalRepositoryNotExist();
@@ -458,7 +458,7 @@ namespace Tests
         public void TransferUtilityOpenStreamTriesNextPackageVersionOnException()
         {
             _internalPackagesCompatibilityChecker.Reset();
-            _internalPackagesCompatibilityChecker.Setup(checker => checker.GetInternalRepository(
+            _internalPackagesCompatibilityChecker.Setup(checker => checker.GetInternalRepositories(
                 It.IsAny<string>())).Returns(() =>
                 {
                     return GetInternalRepositoryNotExist();
@@ -515,7 +515,7 @@ namespace Tests
         {
             var handler = GetExternalNuGetHandler();
 
-            var packages = new List<PackageVersionPair>() {
+            var packages = new List<PackageVersionPair> {
               new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.3" },
               new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.4" }
             };
@@ -614,7 +614,7 @@ namespace Tests
                 _internalNuGetCompatibilityHandlerMock.Object,
                 NullLogger<InternalPackagesCompatibilityChecker>.Instance);
 
-            var result = compatibilityChecker.GetInternalRepository(Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln")).ToList();
+            var result = compatibilityChecker.GetInternalRepositories(Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln")).ToList();
 
             Assert.AreEqual("nuget.woot.com", result.First().PackageSource.Name.ToLower());
         }
@@ -630,7 +630,7 @@ namespace Tests
             {
                 packageVersionPair
             };
-            var result = checker.getInternalPackagesAsync(Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"), packages, repositories);
+            var result = checker.GetInternalPackagesAsync(packages, repositories);
             _loggerMock.Verify(_ => _.Log(
                 LogLevel.Information,
                 It.IsAny<EventId>(),
@@ -639,7 +639,7 @@ namespace Tests
                 (Func<It.IsValueType, Exception, string>)It.IsAny<object>()), Times.Once);
 
             repositories = GetInternalRepositoryThrowsException(new AggregateException());
-            result = checker.getInternalPackagesAsync(Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"), packages, repositories);
+            result = checker.GetInternalPackagesAsync(packages, repositories);
             
             _loggerMock.Verify(_ => _.Log(
                 LogLevel.Error,

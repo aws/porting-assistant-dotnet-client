@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using PortingAssistant.Model;
 
@@ -14,7 +13,7 @@ namespace PortingAssistant.NuGet
         /// Gets the type of the compatiblity checker
         /// </summary>
         /// <returns>The type of the compatibility checker</returns>
-        public PackageSourceType GetCompatibilityCheckerType();
+        public PackageSourceType CompatibilityCheckerType { get; }
 
         /// <summary>
         /// Runs the compatibility check

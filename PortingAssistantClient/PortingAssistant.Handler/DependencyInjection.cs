@@ -2,7 +2,7 @@
 using PortingAssistant.ApiAnalysis;
 using PortingAssistant.NuGet;
 using PortingAssistant.Model;
-using PortingAssistant.NuGet.InternalNuGetChecker;
+using PortingAssistant.NuGet.InternalNuGet;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PortingAssistant.Porting;

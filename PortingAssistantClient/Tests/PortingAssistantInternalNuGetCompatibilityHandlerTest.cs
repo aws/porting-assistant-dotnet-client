@@ -1,7 +1,7 @@
 using NUnit.Framework;
 using System.IO;
 using System.Xml;
-using PortingAssistant.NuGet.InternalNuGetChecker;
+using PortingAssistant.NuGet.InternalNuGet;
 using Microsoft.Extensions.Logging.Abstractions;
 using System.Collections.Generic;
 using NuGet.Protocol.Core.Types;

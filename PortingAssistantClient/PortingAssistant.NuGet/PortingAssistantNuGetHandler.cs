@@ -11,112 +11,115 @@ namespace PortingAssistant.NuGet
     public class PortingAssistantNuGetHandler : IPortingAssistantNuGetHandler
     {
         private readonly ILogger<IPortingAssistantNuGetHandler> _logger;
-        private readonly IEnumerable<ICompatibilityChecker> _checkers;
-        private readonly ConcurrentDictionary<PackageVersionPair, PackageVersionPairResult> _resultsDict;
+        private readonly IEnumerable<ICompatibilityChecker> _compatibilityCheckers;
+        private readonly ConcurrentDictionary<PackageVersionPair, TaskCompletionSource<PackageDetails>> _compatibilityTaskCompletionSources;
 
         public PortingAssistantNuGetHandler(
             ILogger<PortingAssistantNuGetHandler> logger,
-            IEnumerable<ICompatibilityChecker> checkers
-            )
+            IEnumerable<ICompatibilityChecker> compatibilityCheckers)
         {
             _logger = logger;
-            _checkers = checkers.OrderBy((c) => c.GetCompatibilityCheckerType());
-            _resultsDict = new ConcurrentDictionary<PackageVersionPair, PackageVersionPairResult>();
+            _compatibilityCheckers = compatibilityCheckers.OrderBy((c) => c.CompatibilityCheckerType);
+            _compatibilityTaskCompletionSources = new ConcurrentDictionary<PackageVersionPair, TaskCompletionSource<PackageDetails>>();
+        }
+
+        public Task<PackageDetails> GetPackageDetails(PackageVersionPair packageVersion)
+        {
+            if (_compatibilityTaskCompletionSources.TryGetValue(packageVersion, out var packageVersionPairResult))
+            {
+                return packageVersionPairResult.Task;
+            }
+
+            var errorMessage = $"Package not found in compatibility task results: {packageVersion}";
+            var innerException = new PackageNotFoundException(errorMessage);
+            throw new PortingAssistantClientException(errorMessage, innerException);
         }
 
         public Dictionary<PackageVersionPair, Task<PackageDetails>> GetNugetPackages(List<PackageVersionPair> packageVersions, string pathToSolution)
         {
-
             var packageVersionsToQuery = new List<PackageVersionPair>();
-
             var tasks = packageVersions.Select(packageVersion =>
             {
-                var isNotRunning = _resultsDict.TryAdd(
-                    packageVersion,
-                    new PackageVersionPairResult
-                    {
-                        taskCompletionSource = new TaskCompletionSource<PackageDetails>()
-                    }
-                    );
-                if (isNotRunning)
+                var isNewCompatibilityTask = _compatibilityTaskCompletionSources.TryAdd(packageVersion, new TaskCompletionSource<PackageDetails>());
+                if (isNewCompatibilityTask)
                 {
                     packageVersionsToQuery.Add(packageVersion);
                 }
-                _resultsDict.TryGetValue(packageVersion, out var packageVersionPairResult);
 
-                return new Tuple<PackageVersionPair, Task<PackageDetails>>(packageVersion, packageVersionPairResult.taskCompletionSource.Task);
+                var packageVersionPairResult = _compatibilityTaskCompletionSources[packageVersion];
+
+                return new Tuple<PackageVersionPair, Task<PackageDetails>>(packageVersion, packageVersionPairResult.Task);
             }).ToDictionary(t => t.Item1, t => t.Item2);
 
             _logger.LogInformation("Checking compatibility for {0} packages", packageVersionsToQuery.Count);
-            if (packageVersionsToQuery.Count > 0)
-            {
-                Process(packageVersionsToQuery, pathToSolution);
-            }
+            Process(packageVersionsToQuery, pathToSolution);
 
             return tasks;
         }
 
         private async void Process(List<PackageVersionPair> packageVersions, string pathToSolution)
         {
-            var checkResult = new Dictionary<PackageSourceType, Dictionary<PackageVersionPair, Task<PackageDetails>>>();
-            var nextPackageVersions = packageVersions.Aggregate(new Dictionary<string, List<PackageVersionPair>>(), (agg, cur) =>
+            if (!packageVersions.Any())
             {
-                if (!agg.ContainsKey(cur.PackageId))
-                {
-                    agg.Add(cur.PackageId, new List<PackageVersionPair>());
-                }
-                agg[cur.PackageId].Add(cur);
-                return agg;
-            });
+                _logger.LogInformation("No package version compatibilities to process.");
+                return;
+            }
+
+            var packageVersionsGroupedByPackageId = packageVersions
+                .GroupBy(pv => pv.PackageId)
+                .ToDictionary(pvGroup => pvGroup.Key, pvGroup => pvGroup.ToList());
+
+            var distinctPackageVersions = packageVersions.Distinct().ToList();
             var exceptions = new Dictionary<PackageVersionPair, Exception>();
-            foreach (var checker in _checkers)
+            foreach (var compatibilityChecker in _compatibilityCheckers)
             {
                 try
                 {
-                    var results = checker.CheckAsync(
-                        nextPackageVersions.SelectMany(p => p.Value).Distinct().ToList(), pathToSolution);
-                    await Task.WhenAll(results.Select(result =>
+                    var compatibilityResults = compatibilityChecker.CheckAsync(distinctPackageVersions, pathToSolution);
+                    await Task.WhenAll(compatibilityResults.Select(result =>
                     {
                         return result.Value.ContinueWith(task =>
                         {
                             if (task.IsCompletedSuccessfully)
                             {
-                                _resultsDict.TryGetValue(result.Key, out var packageVersionPairResult);
-                                nextPackageVersions.Remove(result.Key.PackageId);
-                                packageVersionPairResult.taskCompletionSource.TrySetResult(task.Result);
+                                packageVersionsGroupedByPackageId.Remove(result.Key.PackageId);
+                                if (_compatibilityTaskCompletionSources.TryGetValue(result.Key, out var packageVersionPairResult))
+                                {
+                                    packageVersionPairResult.TrySetResult(task.Result);
+                                }
+                                else
+                                {
+                                    throw new ArgumentNullException($"Package version {result.Key} not found in compatibility tasks.");
+                                }
                             }
                             else
                             {
                                 exceptions.TryAdd(result.Key, task.Exception);
                             }
                         });
-                    }).Where(r => r != null).ToList());
+                    }).ToList());
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError("Process Package Compatibility Failed with error: {0}", ex);
+                    _logger.LogError("Package compatibility processing failed with error: {0}", ex);
                 }
             }
 
-            foreach (var packageVersion in nextPackageVersions.SelectMany(n => n.Value))
+            foreach (var packageVersion in packageVersionsGroupedByPackageId.SelectMany(packageVersionGroup => packageVersionGroup.Value))
             {
-                if (_resultsDict.TryRemove(packageVersion, out var packageVersionPairResult))
+                if (_compatibilityTaskCompletionSources.TryRemove(packageVersion, out var packageVersionPairResult))
                 {
-                    packageVersionPairResult.taskCompletionSource.TrySetException(
-                    exceptions.GetValueOrDefault(
-                        packageVersion,
-                        new PortingAssistantClientException($"Cannot found package {packageVersion.PackageId} {packageVersion.Version}", null)));
-                    packageVersionPairResult.taskCompletionSource.TrySetException(
-                    exceptions.GetValueOrDefault(
-                        packageVersion,
-                        new PortingAssistantClientException($"Cannot found package {packageVersion.PackageId} {packageVersion.Version}", null)));
+                    var defaultErrorMessage = $"Could not find package {packageVersion}. Compatibility task status: {packageVersionPairResult.Task.Status}.";
+                    var defaultException = new PortingAssistantException(defaultErrorMessage, new PackageNotFoundException(defaultErrorMessage));
+                    var exception = exceptions.GetValueOrDefault(packageVersion, defaultException);
+
+                    packageVersionPairResult.TrySetException(exception);
+                }
+                else
+                {
+                    _logger.LogInformation($"Attempted to remove package {packageVersion} from compatibility tasks but it was not found.");
                 }
             }
-        }
-
-        private class PackageVersionPairResult
-        {
-            public TaskCompletionSource<PackageDetails> taskCompletionSource { get; set; }
         }
     }
 }

@@ -7,18 +7,14 @@ namespace PortingAssistant.NuGet
 {
     public class ExternalPackagesCompatibilityChecker : ExternalCompatibilityChecker
     {
+        public override PackageSourceType CompatibilityCheckerType => PackageSourceType.NUGET;
+
         public ExternalPackagesCompatibilityChecker(
             ITransferUtility transferUtility,
             ILogger<ExternalCompatibilityChecker> logger,
-            IOptions<AnalyzerConfiguration> options
-            ) : base(transferUtility, logger, options)
+            IOptions<AnalyzerConfiguration> options) 
+            : base(transferUtility, logger, options)
         {
-        }
-
-        public override PackageSourceType GetCompatibilityCheckerType()
-        {
-            return PackageSourceType.NUGET;
         }
     }
-
 }

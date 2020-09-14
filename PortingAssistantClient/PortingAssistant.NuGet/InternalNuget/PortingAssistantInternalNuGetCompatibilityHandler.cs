@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using NuGet.Configuration;
 using NuGet.Protocol.Core.Types;
 using NuGet.Versioning;
 using NuGet.Frameworks;
@@ -14,28 +13,42 @@ using PortingAssistant.Model;
 using NuGet.Common;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
-namespace PortingAssistant.NuGet.InternalNuGetChecker
+namespace PortingAssistant.NuGet.InternalNuGet
 {
     public class PortingAssistantInternalNuGetCompatibilityHandler : IPortingAssistantInternalNuGetCompatibilityHandler
     {
         private readonly ILogger _logger;
-        private readonly SourceCacheContext cacheContext;
+        private readonly SourceCacheContext _cacheContext;
 
         public PortingAssistantInternalNuGetCompatibilityHandler(ILogger<PortingAssistantInternalNuGetCompatibilityHandler> logger)
         {
             _logger = logger;
-            cacheContext = new SourceCacheContext();
+            _cacheContext = new SourceCacheContext();
         }
 
         public async Task<InternalNuGetCompatibilityResult> CheckCompatibilityAsync(string packageName, string version, string targetFramework, IEnumerable<SourceRepository> internalRepositories)
         {
-            if (internalRepositories == null || packageName == null || targetFramework == null)
+            if (packageName == null || targetFramework == null || internalRepositories == null)
             {
-                throw new ArgumentException("Invalid Parameter");
+                var invalidParamNames = new List<string>();
+                if (packageName == null)
+                {
+                    invalidParamNames.Add(nameof(packageName));
+                }
+                if (targetFramework == null)
+                {
+                    invalidParamNames.Add(nameof(targetFramework));
+                }
+                if (internalRepositories == null)
+                {
+                    invalidParamNames.Add(nameof(internalRepositories));
+                }
+
+                throw new ArgumentException($"Invalid parameter(s) found. The following parameters " +
+                                            $"cannot be null: {string.Join(", ", invalidParamNames)}");
             }
 
             string tmpPath = Path.GetTempPath();
-
             var framework = NuGetFramework.Parse(targetFramework);
             var package = new PackageIdentity(packageName, NuGetVersion.Parse(version));
 
@@ -45,52 +58,60 @@ namespace PortingAssistant.NuGet.InternalNuGetChecker
             {
                 var dependencyInfoResource = await sourceRepository.GetResourceAsync<DependencyInfoResource>();
                 packageSource = await dependencyInfoResource.ResolvePackage(
-                    package, framework, cacheContext, NullLogger.Instance, CancellationToken.None);
+                    package, framework, _cacheContext, NullLogger.Instance, CancellationToken.None);
+
                 if (packageSource != null)
                 {
                     break;
                 }
             }
-
-            // Download package
             if (packageSource == null)
             {
-                _logger.LogError("Error: No Package Source Found !!!");
-                throw new PortingAssistantClientException("Error: No Package Source Found!" , null);
+                var errorMessage = $"Error: No package source found for {package}.";
+                _logger.LogError(errorMessage);
+
+                var innerException = new PackageSourceNotFoundException(errorMessage);
+                throw new PortingAssistantClientException(errorMessage, innerException);
             }
 
+            // Download package
             var downloadResource = await packageSource.Source.GetResourceAsync<DownloadResource>();
             var downloadResult = await downloadResource.GetDownloadResourceResultAsync(
                 packageSource,
-                new PackageDownloadContext(cacheContext),
+                new PackageDownloadContext(_cacheContext),
                 Path.Combine(tmpPath),
                 NullLogger.Instance, CancellationToken.None);
             var packageReader = downloadResult.PackageReader;
             var nuspecReader = packageReader.NuspecReader;
-            var dependencies = nuspecReader.GetDependencyGroups();
 
-            List<string> dependecyPackages = new List<string>();
-            dependecyPackages.AddRange(dependencies.SelectMany(x => x.Packages).Select(p => p.Id));
+            var dependencies = nuspecReader.GetDependencyGroups();
+            var dependencyPackages = dependencies
+                .SelectMany(d => d.Packages)
+                .Select(p => p.Id)
+                .ToList();
 
             // Gather dlls
             var frameworkReducer = new FrameworkReducer();
             var libItems = packageReader.GetLibItems();
-            var nearest = libItems.Select(x => frameworkReducer.GetNearest(
-                framework, new List<NuGetFramework> { x.TargetFramework })).ToList();
-            var isCompatible = libItems.Count() > 0 ?
-                nearest.Find(x => x != null) != null :
-                frameworkReducer.GetNearest(framework, packageReader.GetSupportedFrameworks()) != null;
+            var nearestTargetFrameworks = libItems
+                .Select(li => 
+                    frameworkReducer.GetNearest(
+                        framework, 
+                        new List<NuGetFramework> { li.TargetFramework }))
+                .ToList();
 
-            var compatibleDlls = new List<string>();
-            compatibleDlls.AddRange(libItems.Where(
-                x => nearest.Contains(x.TargetFramework))
-                .SelectMany(x => x.Items)
-                .Where(x => x.EndsWith("dll", System.StringComparison.OrdinalIgnoreCase))
-                .ToList());
+            var isCompatible = libItems.Any() ? nearestTargetFrameworks.Any(nugetFramework => nugetFramework != null) 
+                : frameworkReducer.GetNearest(framework, packageReader.GetSupportedFrameworks()) != null;
+
+            var compatibleDlls = libItems
+                .Where(li => nearestTargetFrameworks.Contains(li.TargetFramework))
+                .SelectMany(li => li.Items)
+                .Where(s => s.EndsWith("dll", StringComparison.OrdinalIgnoreCase))
+                .ToList();
             var incompatibleDlls = libItems
-                .SelectMany((x) => x.Items)
-                .Where((x) => !compatibleDlls.Contains(x))
-                .Where(x => x.EndsWith("dll", System.StringComparison.OrdinalIgnoreCase))
+                .SelectMany(li => li.Items)
+                .Where(s => !compatibleDlls.Contains(s) 
+                            && s.EndsWith("dll", StringComparison.OrdinalIgnoreCase))
                 .ToList();
 
             return new InternalNuGetCompatibilityResult
@@ -98,7 +119,7 @@ namespace PortingAssistant.NuGet.InternalNuGetChecker
                 IncompatibleDlls = incompatibleDlls,
                 CompatibleDlls = compatibleDlls,
                 IsCompatible = isCompatible,
-                DependencyPackages = dependecyPackages,
+                DependencyPackages = dependencyPackages,
                 Source = packageSource.Source.PackageSource.Name
             };
         }

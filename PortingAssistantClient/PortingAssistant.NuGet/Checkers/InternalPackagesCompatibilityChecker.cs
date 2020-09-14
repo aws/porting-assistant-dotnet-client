@@ -2,7 +2,7 @@
 using System.IO;
 using System.Linq;
 using NuGet.Protocol.Core.Types;
-using PortingAssistant.NuGet.InternalNuGetChecker;
+using PortingAssistant.NuGet.InternalNuGet;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Threading;
@@ -17,77 +17,91 @@ namespace PortingAssistant.NuGet
 {
     public class InternalPackagesCompatibilityChecker : ICompatibilityChecker
     {
-        private readonly IPortingAssistantInternalNuGetCompatibilityHandler _checker;
+        private readonly IPortingAssistantInternalNuGetCompatibilityHandler _internalNuGetCompatibilityHandler;
         private readonly ILogger<InternalPackagesCompatibilityChecker> _logger;
 
-        public InternalPackagesCompatibilityChecker(IPortingAssistantInternalNuGetCompatibilityHandler checker,
-            ILogger<InternalPackagesCompatibilityChecker> logger
-            )
+        public PackageSourceType CompatibilityCheckerType => PackageSourceType.PRIVATE;
+
+        public InternalPackagesCompatibilityChecker(
+            IPortingAssistantInternalNuGetCompatibilityHandler internalNuGetCompatibilityHandler,
+            ILogger<InternalPackagesCompatibilityChecker> logger)
         {
-            _checker = checker;
+            _internalNuGetCompatibilityHandler = internalNuGetCompatibilityHandler;
             _logger = logger;
         }
 
         public Dictionary<PackageVersionPair, Task<PackageDetails>> CheckAsync(
-                   List<PackageVersionPair> packageVersions,
-                   string pathToSolution
-                   )
+            IEnumerable<PackageVersionPair> packageVersions,
+            string pathToSolution)
         {
-            var internalRepositories = GetInternalRepository(pathToSolution);
-            var internalPackages = getInternalPackagesAsync(pathToSolution, packageVersions, internalRepositories).Result;
+            var internalRepositories = GetInternalRepositories(pathToSolution);
+            var internalPackages = GetInternalPackagesAsync(packageVersions.ToList(), internalRepositories).Result;
 
-            _logger.LogInformation("check internal source for {0} packages Compatiblity ", internalPackages.Count);
-            var tasks = internalPackages.Aggregate(new Dictionary<string, List<PackageVersionPair>>(), (agg, packageVersion) =>
+            _logger.LogInformation("Checking internal source for compatibility of {0} package(s)", internalPackages.Count());
+            var packageVersionsGroupedByPackageId = internalPackages
+                .GroupBy(pv => pv.PackageId)
+                .ToDictionary(pvGroup => pvGroup.Key, pvGroup => pvGroup.ToList());
+
+            var processPackageVersionCompatibilityTasks = StartPackageVersionCompatibilityTasks(packageVersionsGroupedByPackageId, internalRepositories);
+
+            var compatibilityResults = new Dictionary<PackageVersionPair, Task<PackageDetails>>();
+            processPackageVersionCompatibilityTasks.ForEach(packageVersionCompatibilityTaskPair =>
             {
-                if (!agg.ContainsKey(packageVersion.PackageId))
+                var compatibilityTask = packageVersionCompatibilityTaskPair.Key;
+                var packageVersionList = packageVersionCompatibilityTaskPair.Value;
+
+                packageVersionList.ForEach(packageVersion =>
                 {
-                    agg.Add(packageVersion.PackageId, new List<PackageVersionPair>());
-                }
-                agg[packageVersion.PackageId].Add(packageVersion);
-                return agg;
-            })
-            .Select(packageVersionAgg =>
-            {
-                var compatibleNameValueSet = new SortedSet<string>();
-                var versionSet = new SortedSet<string>();
-                var taskcompletionSource = new TaskCompletionSource<PackageDetails>();
-
-                var tasks = packageVersionAgg.Value.Select(async packageVersion =>
-                {
-                    versionSet.Add(packageVersion.Version);
-                    var compatibility = await processCompatibility(packageVersion, internalRepositories);
-                    if (compatibility != null && compatibility.IsCompatible)
-                    {
-                        compatibleNameValueSet.Add(packageVersion.Version);
-                    }
-                }).Where(task => task != null).ToList();
-
-                getPackageDetailsAsync(tasks, packageVersionAgg.Key, compatibleNameValueSet, versionSet, taskcompletionSource);
-
-                return new KeyValuePair<Task<PackageDetails>, List<PackageVersionPair>>(taskcompletionSource.Task, packageVersionAgg.Value);
-            })
-            .ToList();
-
-            var results = new Dictionary<PackageVersionPair, Task<PackageDetails>>();
-            tasks.ForEach(taskPair =>
-            {
-                taskPair.Value.ForEach(packageVersion =>
-                {
-                    results.Add(packageVersion, taskPair.Key);
+                    compatibilityResults.Add(packageVersion, compatibilityTask);
                 });
             });
 
-            return results;
+            return compatibilityResults;
         }
 
-        private async void getPackageDetailsAsync(List<Task> tasks, string packageId,
-            SortedSet<string> compatible, SortedSet<string> versions,
+        private List<KeyValuePair<Task<PackageDetails>, List<PackageVersionPair>>> StartPackageVersionCompatibilityTasks(
+            Dictionary<string, List<PackageVersionPair>> packageVersionsGroupedByPackageId,
+            IEnumerable<SourceRepository> internalRepositories)
+        {
+            var processPackageVersionCompatibilityTasks = packageVersionsGroupedByPackageId
+                .Select(groupedPackageVersions =>
+                {
+                    var packageId = groupedPackageVersions.Key;
+                    var packageVersions = groupedPackageVersions.Value;
+
+                    var compatibleVersionSet = new SortedSet<string>();
+                    var versionSet = new SortedSet<string>();
+                    var taskCompletionSource = new TaskCompletionSource<PackageDetails>();
+
+                    var processCompatibilityTasks = packageVersions.Select(async packageVersionPair =>
+                    {
+                        var version = packageVersionPair.Version;
+
+                        versionSet.Add(version);
+                        var compatibility = await ProcessCompatibility(packageVersionPair, internalRepositories);
+                        if (compatibility != null && compatibility.IsCompatible)
+                        {
+                            compatibleVersionSet.Add(version);
+                        }
+                    }).Where(task => task != null).ToList();
+
+                    GetPackageDetailsAsync(processCompatibilityTasks, packageId, compatibleVersionSet, versionSet, taskCompletionSource);
+
+                    return new KeyValuePair<Task<PackageDetails>, List<PackageVersionPair>>(taskCompletionSource.Task, packageVersions);
+                })
+                .ToList();
+
+            return processPackageVersionCompatibilityTasks;
+        }
+
+        private async void GetPackageDetailsAsync(List<Task> processCompatibilityTasks, string packageId,
+            SortedSet<string> compatibleVersions, SortedSet<string> versions,
             TaskCompletionSource<PackageDetails> taskCompletionSource)
         {
-            await Task.WhenAll(tasks.ToArray());
+            await Task.WhenAll(processCompatibilityTasks.ToArray());
             if (versions.Count == 0)
             {
-                taskCompletionSource.SetException(new PortingAssistantClientException($"Cannot found package {packageId}", null));
+                taskCompletionSource.SetException(new PortingAssistantClientException($"Cannot find package {packageId}", null));
             }
             var packageDetails = new PackageDetails()
             {
@@ -95,92 +109,89 @@ namespace PortingAssistant.NuGet
                 Versions = versions,
                 Targets = new Dictionary<string, SortedSet<string>>
                 {
-                    { "netcoreapp3.1", compatible }
+                    { "netcoreapp3.1", compatibleVersions }
                 },
                 Api = new List<ApiDetails>().ToArray()
             };
             taskCompletionSource.SetResult(packageDetails);
         }
 
-        private async Task<InternalNuGetCompatibilityResult> processCompatibility(
+        private async Task<InternalNuGetCompatibilityResult> ProcessCompatibility(
             PackageVersionPair packageVersion,
             IEnumerable<SourceRepository> internalRepositories)
         {
             try
             {
-                return await _checker.CheckCompatibilityAsync(
+                return await _internalNuGetCompatibilityHandler.CheckCompatibilityAsync(
                     packageVersion.PackageId,
                     packageVersion.Version,
                     "netcoreapp3.1",
-                    internalRepositories
-                    );
+                    internalRepositories);
             }
             catch (Exception error) when (error is PortingAssistantClientException)
             {
-                _logger.LogInformation($"Can Not Check for package {packageVersion.PackageId} {packageVersion.Version} with error: {error.Message}");
+                _logger.LogInformation($"Could not check compatibility for package {packageVersion} " +
+                                       $"using internal resources. Error: {error.Message}");
             }
             catch (Exception error)
             {
-                _logger.LogError($"Internal Package Compatibility for " +
-                    $"{packageVersion.PackageId} {packageVersion.Version} with error : {error}");
+                _logger.LogError($"Unexpected error encountered when checking compatibility of package {packageVersion} " +
+                                 $"using internal source(s): {error}");
             }
             return null;
         }
 
-        public virtual IEnumerable<SourceRepository> GetInternalRepository(string pathToSolution)
+        public virtual IEnumerable<SourceRepository> GetInternalRepositories(string pathToSolution)
         {
-            string solutionFolderPath = Path.GetDirectoryName(pathToSolution);
-            var setting = Settings.LoadDefaultSettings(solutionFolderPath);
+            string solutionDirectory = Path.GetDirectoryName(pathToSolution);
+            var settings = Settings.LoadDefaultSettings(solutionDirectory);
             var sourceRepositoryProvider = new SourceRepositoryProvider(
-                new PackageSourceProvider(setting),
+                new PackageSourceProvider(settings),
                 Repository.Provider.GetCoreV3());
 
             var repositories = sourceRepositoryProvider
                 .GetRepositories()
-                .Where(r => r.PackageSource.Name.ToLower() != "nuget.org" && r.PackageSource.IsEnabled && r.PackageSource.Name.ToLower() != "microsoft visual studio offline packages");
+                .Where(r =>
+                    r.PackageSource.Name.ToLower() != "nuget.org"
+                    && r.PackageSource.IsEnabled
+                    && r.PackageSource.Name.ToLower() != "microsoft visual studio offline packages")
+                .ToList();
 
             return repositories;
         }
 
-        public async Task<List<PackageVersionPair>> getInternalPackagesAsync(
-            string pathToSolution,
+        public async Task<IEnumerable<PackageVersionPair>> GetInternalPackagesAsync(
             IReadOnlyList<PackageVersionPair> packageVersions,
             IEnumerable<SourceRepository> internalRepositories)
         {
             var internalPackages = new List<PackageVersionPair>();
-
             foreach (var repository in internalRepositories)
             {
                 var source = await repository.GetResourceAsync<FindPackageByIdResource>();
-                SearchFilter searchFilter = new SearchFilter(includePrerelease: true);
                 var cacheContext = new SourceCacheContext();
 
                 foreach (var package in packageVersions)
                 {
                     try
                     {
-                        var result = await source.DoesPackageExistAsync(
+                        var packageExists = await source.DoesPackageExistAsync(
                             package.PackageId,
                             new NuGetVersion(package.Version),
                             cacheContext,
                             NullLogger.Instance, CancellationToken.None);
-                        if (result)
+                        if (packageExists)
                         {
                             internalPackages.Add(package);
                         }
                     }
                     catch (Exception error)
                     {
-                        _logger.LogError($"Access internal source repository {repository.PackageSource.Source} with error: {error.Message} {error.GetType()} {error.StackTrace}");
+                        _logger.LogError($"Error encountered while accessing internal source repository {repository.PackageSource.Source}: " +
+                                         $"Error type: {error.GetType()}\t Error Message: {error.Message}\t Stack trace: {error.StackTrace}");
                     }
                 }
             }
             return internalPackages;
-        }
-
-        public PackageSourceType GetCompatibilityCheckerType()
-        {
-            return PackageSourceType.PRIVATE;
         }
     }
 }
