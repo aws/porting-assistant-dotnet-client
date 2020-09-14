@@ -141,7 +141,7 @@ namespace Tests
             Assert.AreEqual("11.0.1", values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().CodeEntityDetails.Package.Version);
             Assert.AreEqual("Newtonsoft.Json.JsonConvert.SerializeObject(object)",
                 values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().CodeEntityDetails.OriginalDefinition);
-            Assert.AreEqual(Compatibility.COMPATIBLE, values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().CompatibilityResults.GetValueOrDefault(ApiCompatiblity.DEFAULT_TARGET));
+            Assert.AreEqual(Compatibility.COMPATIBLE, values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().CompatibilityResults.GetValueOrDefault(ApiCompatiblity.DEFAULT_TARGET).Compatibility);
             Assert.AreEqual("12.0.4", values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().Recommendations.RecommendedActions.First().Description);
         }
 

@@ -67,9 +67,12 @@ namespace Tests
             {
                 new ApiAnalysisResult
                 {
-                    CompatibilityResults = new Dictionary<string, Compatibility>
+                    CompatibilityResults = new Dictionary<string, CompatibilityResult>
                     {
-                        { ApiCompatiblity.DEFAULT_TARGET, Compatibility.COMPATIBLE}
+                        { ApiCompatiblity.DEFAULT_TARGET, new CompatibilityResult{
+                            Compatibility = Compatibility.COMPATIBLE,
+                            CompatibleVersions = new List<string>{ "12.0.3", "12.0.4" }
+                        } }
                     }
                 }
             }

@@ -97,7 +97,7 @@ namespace Tests.ApiAnalysis
 
             Assert.AreEqual(1, result[0].ApiAnalysisResults.Count);
             Assert.AreEqual("11.2.0", result[0].ApiAnalysisResults[0].CodeEntityDetails.Package.Version);
-            Assert.AreEqual(Compatibility.COMPATIBLE, result[0].ApiAnalysisResults[0].CompatibilityResults.GetValueOrDefault(ApiCompatiblity.DEFAULT_TARGET));
+            Assert.AreEqual(Compatibility.COMPATIBLE, result[0].ApiAnalysisResults[0].CompatibilityResults.GetValueOrDefault(ApiCompatiblity.DEFAULT_TARGET).Compatibility);
             Assert.AreEqual("12.0.4", result[0].ApiAnalysisResults[0].Recommendations.RecommendedActions.First().Description); ;
         }
 
@@ -134,7 +134,7 @@ namespace Tests.ApiAnalysis
 
             Assert.AreEqual(1, result[0].ApiAnalysisResults.Count);
             Assert.AreEqual("11.2.0", result[0].ApiAnalysisResults[0].CodeEntityDetails.Package.Version);
-            Assert.AreEqual(Compatibility.COMPATIBLE, result[0].ApiAnalysisResults[0].CompatibilityResults.GetValueOrDefault(ApiCompatiblity.DEFAULT_TARGET));
+            Assert.AreEqual(Compatibility.COMPATIBLE, result[0].ApiAnalysisResults[0].CompatibilityResults.GetValueOrDefault(ApiCompatiblity.DEFAULT_TARGET).Compatibility);
             Assert.AreEqual("12.0.4", result[0].ApiAnalysisResults[0].Recommendations.RecommendedActions.First().Description);
         }
 
@@ -172,7 +172,7 @@ namespace Tests.ApiAnalysis
             Assert.AreEqual(1, result[0].ApiAnalysisResults.Count);
             Assert.AreEqual("namespace.namespace2", result[0].ApiAnalysisResults[0].CodeEntityDetails.Package.PackageId);
             Assert.IsNull(result[0].ApiAnalysisResults[0].CodeEntityDetails.Package.Version);
-            Assert.AreEqual(Compatibility.INCOMPATIBLE, result[0].ApiAnalysisResults[0].CompatibilityResults.GetValueOrDefault(ApiCompatiblity.DEFAULT_TARGET));
+            Assert.AreEqual(Compatibility.INCOMPATIBLE, result[0].ApiAnalysisResults[0].CompatibilityResults.GetValueOrDefault(ApiCompatiblity.DEFAULT_TARGET).Compatibility);
             Assert.IsNull(result[0].ApiAnalysisResults[0].Recommendations.RecommendedActions.First().Description);
         }
     }

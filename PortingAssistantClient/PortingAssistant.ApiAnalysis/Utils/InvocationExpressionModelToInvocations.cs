@@ -69,13 +69,19 @@ namespace PortingAssistantApiAnalysis.Utils
                                     Version = nugetVersion?.ToNormalizedString()
                                 }
                             },
-                            CompatibilityResults = new Dictionary<string, Compatibility>
+                            CompatibilityResults = new Dictionary<string, CompatibilityResult>
                             {
                                 { ApiCompatiblity.DEFAULT_TARGET,
-                                    ApiCompatiblity.apiInPackageVersion(
-                                    packageDetails,
-                                    invocation.SemanticOriginalDefinition,
-                                    nugetVersion?.ToNormalizedString())}
+                                    new CompatibilityResult
+                                    {
+                                        Compatibility = ApiCompatiblity.apiInPackageVersion(
+                                        packageDetails,
+                                        invocation.SemanticOriginalDefinition,
+                                        nugetVersion?.ToNormalizedString()),
+                                        //CompatibleVersions = TBD
+                                    }
+                                }
+                                    
                             },
                             Recommendations = new Recommendations
                             {
