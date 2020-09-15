@@ -9,7 +9,7 @@ namespace PortingAssistant.Model
         public SortedSet<string> Versions { get; set; }
         public Dictionary<string, SortedSet<string>> Targets { get; set; }
         public LicenseDetails License { get; set; }
-        public ApiDetails[] ApiDetails { get; set; }
+        public ApiDetails[] Api { get; set; }
         public bool IsDeprecated { get; set; }
         // only for namespace
         public string[] Namespaces { get; set; }
@@ -22,12 +22,12 @@ namespace PortingAssistant.Model
                    EqualityComparer<SortedSet<string>>.Default.Equals(Versions, details.Versions) &&
                    EqualityComparer<Dictionary<string, SortedSet<string>>>.Default.Equals(Targets, details.Targets) &&
                    EqualityComparer<LicenseDetails>.Default.Equals(License, details.License) &&
-                   EqualityComparer<ApiDetails[]>.Default.Equals(ApiDetails, details.ApiDetails);
+                   EqualityComparer<ApiDetails[]>.Default.Equals(Api, details.Api);
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Name, Versions, Targets, License, ApiDetails);
+            return HashCode.Combine(Name, Versions, Targets, License, Api);
         }
     }
 

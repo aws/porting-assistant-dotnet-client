@@ -155,10 +155,15 @@ namespace PortingAssistant.ApiAnalysis.Utils
 
         private static ApiDetails GetApiDetails(PackageDetails nugetPackage, string apiMethodSignature)
         {
-            var foundApi = nugetPackage.ApiDetails.FirstOrDefault(api => api.MethodSignature == apiMethodSignature);
+            if(nugetPackage == null || apiMethodSignature == null)
+            {
+                return null;
+            }
+
+            var foundApi = nugetPackage.Api.FirstOrDefault(api => api.MethodSignature == apiMethodSignature);
             if (foundApi == null)
             {
-                foundApi = nugetPackage.ApiDetails.FirstOrDefault(api =>
+                foundApi = nugetPackage.Api.FirstOrDefault(api =>
                 {
                     if (
                     api.MethodParameters == null ||

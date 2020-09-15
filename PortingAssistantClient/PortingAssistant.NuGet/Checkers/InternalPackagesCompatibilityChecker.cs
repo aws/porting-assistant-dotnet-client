@@ -97,7 +97,7 @@ namespace PortingAssistant.NuGet
                 {
                     { "netcoreapp3.1", compatible }
                 },
-                ApiDetails = new List<ApiDetails>().ToArray()
+                Api = new List<ApiDetails>().ToArray()
             };
             taskCompletionSource.SetResult(packageDetails);
         }

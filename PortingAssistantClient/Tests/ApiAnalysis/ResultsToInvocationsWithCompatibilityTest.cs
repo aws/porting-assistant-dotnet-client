@@ -40,7 +40,7 @@ namespace Tests.ApiAnalysis
         {
             Name = "Newtonsoft.Json",
             Versions = new SortedSet<string> { "12.0.3", "12.0.4" },
-            ApiDetails = new ApiDetails[]
+            Api = new ApiDetails[]
             {
                 new ApiDetails
                 {
