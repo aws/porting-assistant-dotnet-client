@@ -104,13 +104,12 @@ namespace PortingAssistant.ApiAnalysis
                         Version = "0.0.0"
                     };
                 }).ToList();
-                var resultsDict = new Dictionary<string, Task<RecommendationDetails>>();
 
-                var nameSpaceresults = _handler.GetNugetPackages(namespacePackages, null);
-                resultsDict = _recommendationHandler.GetApiRecommendation(SemanticNamespaces.ToList());
+                var namespaceResults = _handler.GetNugetPackages(namespacePackages, null);
+                var recommendationResults = _recommendationHandler.GetApiRecommendation(SemanticNamespaces.ToList());
 
                 var SourceFileAnalysisResults = InvocationExpressionModelToInvocations.Convert(
-                    sourceFileToInvocations, project, _handler, nameSpaceresults, resultsDict);
+                    sourceFileToInvocations, project, _handler, namespaceResults, recommendationResults);
 
                 return new ProjectApiAnalysisResult
                 {
