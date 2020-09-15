@@ -12,7 +12,7 @@ using System.IO;
 
 namespace PortingAssistant.NuGet
 {
-    public class RecommendationChecker : IPortingAssistantRecommendationHandler
+    public class PortingAssistantRecommendationHandler : IPortingAssistantRecommendationHandler
     {
         private readonly ILogger _logger;
         private readonly IOptions<AnalyzerConfiguration> _options;
@@ -21,7 +21,7 @@ namespace PortingAssistant.NuGet
         private static readonly SemaphoreSlim _semaphore = new SemaphoreSlim(_maxProcessConcurrency);
         private const string RecommendationLookupFile = "namespaces.recommendation.lookup.json";
 
-        public RecommendationChecker(
+        public PortingAssistantRecommendationHandler(
             ITransferUtility transferUtility,
             ILogger<ExternalPackagesCompatibilityChecker> logger,
             IOptions<AnalyzerConfiguration> options)

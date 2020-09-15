@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using Amazon.S3.Transfer;
 using System.IO;
 using System.IO.Compression;
+using Amazon.S3;
 using PortingAssistant.Model;
 
 namespace PortingAssistant.NuGet
@@ -81,7 +82,8 @@ namespace PortingAssistant.NuGet
 
                 try
                 {
-                    _logger.LogInformation("Downloading {0} from {1}", fileToDownload, _options.Value.DataStoreSettings.S3Endpoint);
+                    _logger.LogInformation("Downloading {0} from {1}", fileToDownload,
+                        _options.Value.DataStoreSettings.S3Endpoint);
                     using var stream = _transferUtility.OpenStream(
                         _options.Value.DataStoreSettings.S3Endpoint, fileToDownload);
                     using var gzipStream = new GZipStream(stream, CompressionMode.Decompress);
@@ -89,7 +91,8 @@ namespace PortingAssistant.NuGet
                     var data = JsonConvert.DeserializeObject<PackageFromS3>(streamReader.ReadToEnd());
                     var packageDetails = data.Package ?? data.Namespaces;
 
-                    if (packageDetails.Name == null || !string.Equals(packageDetails.Name.Trim(), packageToDownload.Trim(), StringComparison.CurrentCultureIgnoreCase))
+                    if (packageDetails.Name == null || !string.Equals(packageDetails.Name.Trim(),
+                        packageToDownload.Trim(), StringComparison.CurrentCultureIgnoreCase))
                     {
                         throw new PackageDownloadMismatchException(
                             actualPackage: packageDetails.Name,
@@ -98,33 +101,33 @@ namespace PortingAssistant.NuGet
 
                     foreach (var packageVersion in groupedPackageVersions.Value)
                     {
-                        if (compatibilityTaskCompletionSources.TryGetValue(packageVersion, out var taskCompletionSource))
+                        if (compatibilityTaskCompletionSources.TryGetValue(packageVersion, out var taskCompletionSource)
+                        )
                         {
                             taskCompletionSource.SetResult(packageDetails);
                             packageVersionsFound.Add(packageVersion);
                         }
                     }
                 }
-                catch (Amazon.S3.AmazonS3Exception ex) when (ex.ErrorCode.Contains("NoSuchKey"))
-                {
-                    foreach (var packageVersion in groupedPackageVersions.Value)
-                    {
-                        if (compatibilityTaskCompletionSources.TryGetValue(packageVersion, out var taskCompletionSource))
-                        {
-                            taskCompletionSource.SetException(new PortingAssistantClientException($"Cannot find package {packageVersion}", ex));
-                            packageVersionsWithErrors.Add(packageVersion);
-                        }
-                    }
-                }
                 catch (Exception ex)
                 {
-                    _logger.LogError("Failed when downloading and parsing {0} from {1}, {2}", fileToDownload, _options.Value.DataStoreSettings.S3Endpoint, ex);
-                    foreach (var packageVersion in groupedPackageVersions.Value)
+                    if (ex is AmazonS3Exception && !(ex as AmazonS3Exception).ErrorCode.Contains("404"))
                     {
-                        if (compatibilityTaskCompletionSources.TryGetValue(packageVersion, out var taskCompletionSource))
+                        var s3Exception = ex as AmazonS3Exception;
+                        _logger.LogInformation($"Encountered {s3Exception.GetType()} while downloading and parsing {fileToDownload} " +
+                                               $"from {_options.Value.DataStoreSettings.S3Endpoint}, but it was ignored. " +
+                                               $"ErrorCode: {s3Exception.ErrorCode}. ErrorMessage: {s3Exception.Message}.");
+                    }
+                    else
+                    {
+                        _logger.LogError("Failed when downloading and parsing {0} from {1}, {2}", fileToDownload, _options.Value.DataStoreSettings.S3Endpoint, ex);
+                        foreach (var packageVersion in groupedPackageVersions.Value)
                         {
-                            taskCompletionSource.SetException(new PortingAssistantClientException($"Cannot find package {packageVersion}", ex));
-                            packageVersionsWithErrors.Add(packageVersion);
+                            if (compatibilityTaskCompletionSources.TryGetValue(packageVersion, out var taskCompletionSource))
+                            {
+                                taskCompletionSource.SetException(new PortingAssistantClientException($"Cannot find package {packageVersion}", ex));
+                                packageVersionsWithErrors.Add(packageVersion);
+                            }
                         }
                     }
                 }
