@@ -39,7 +39,8 @@ namespace PortingAssistantApiAnalysis.Utils
                         if (nugetPackage != null)
                         {
                             NuGetVersion.TryParse(nugetPackage.Version, out nugetVersion);
-                            packageDetails = handler.GetPackageDetails(nugetPackage);
+                            packageDetails = handler.GetNugetPackages(new List<PackageVersionPair> { nugetPackage}, "")
+                                            .GetValueOrDefault(nugetPackage);
                         }
                         else
                         {

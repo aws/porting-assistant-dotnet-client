@@ -25,12 +25,14 @@ namespace Tests.ApiAnalysis
         public void SetUp()
         {
             _handler.Reset();
-            _handler.Setup(handler => handler.GetPackageDetails(It.IsAny<PackageVersionPair>()))
-                .Returns((PackageVersionPair package) =>
+            _handler.Setup(handler => handler.GetNugetPackages(It.IsAny<List<PackageVersionPair>>(), ""))
+                .Returns((List<PackageVersionPair> packages, string path) =>
                 {
                     var task = new TaskCompletionSource<PackageDetails>();
                     task.SetResult(_packageDetails);
-                    return task.Task;
+                    return new Dictionary<PackageVersionPair, Task<PackageDetails>> {
+                        {packages.First(), task.Task }
+                    };
                 });
         }
 

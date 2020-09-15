@@ -55,7 +55,8 @@ namespace Tests
                 {
                     { "MIT", new SortedSet<string> { "12.0.3", "12.0.4" } }
                 }
-            }
+            },
+            Namespaces = new string[] { "TestNamespace" }
         };
 
         [OneTimeSetUp]
@@ -74,25 +75,18 @@ namespace Tests
             _projects = GetProjects(_solutionFile);
 
             _nuGetHandlerMock.Reset();
-            _nuGetHandlerMock.Setup(handler => handler.GetPackageDetails(It.IsAny<PackageVersionPair>()))
-                .Returns((PackageVersionPair package) =>
-                {
-                    var task = new TaskCompletionSource<PackageDetails>();
-                    task.SetResult(_packageDetails);
-                    return task.Task;
-                });
 
             _nuGetHandlerMock.Setup(handler => handler.GetNugetPackages(It.IsAny<List<PackageVersionPair>>(), It.IsAny<string>()))
                 .Returns((List<PackageVersionPair> packageVersionPairs, string path) =>
                 {
                     var task = new TaskCompletionSource<PackageDetails>();
-                    task.SetResult(new PackageDetails
-                    {
-                        Namespaces = new string[]{ "TestNamespace"},
-                    });
+                    task.SetResult(_packageDetails);
                     return new Dictionary<PackageVersionPair, Task<PackageDetails>>
                     {
-                        {new PackageVersionPair(), task.Task }
+                        {new PackageVersionPair{
+                            PackageId = "Newtonsoft.Json",
+                            Version = "11.0.1"
+                        }, task.Task }
                     };
                 });
         }

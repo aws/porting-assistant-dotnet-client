@@ -24,15 +24,6 @@ namespace PortingAssistant.NuGet
             _resultsDict = new ConcurrentDictionary<PackageVersionPair, PackageVersionPairResult>();
         }
 
-        public Task<PackageDetails> GetPackageDetails(PackageVersionPair package)
-        {
-            if (_resultsDict.TryGetValue(package, out var packageVersionPairResult))
-            {
-                return packageVersionPairResult.taskCompletionSource.Task;
-            }
-            throw new PortingAssistantClientException($"Cannot found package {package.PackageId} {package.Version}", null);
-        }
-
         public Dictionary<PackageVersionPair, Task<PackageDetails>> GetNugetPackages(List<PackageVersionPair> packageVersions, string pathToSolution)
         {
 
