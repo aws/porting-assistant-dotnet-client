@@ -155,7 +155,7 @@ namespace PortingAssistant.ApiAnalysis.Utils
 
         private static ApiDetails GetApiDetails(PackageDetails nugetPackage, string apiMethodSignature)
         {
-            if(nugetPackage == null || apiMethodSignature == null)
+            if(nugetPackage == null || nugetPackage.Api == null || apiMethodSignature == null)
             {
                 return null;
             }
@@ -175,11 +175,20 @@ namespace PortingAssistant.ApiAnalysis.Utils
                         return false;
                     }
 
-                    var possibleExtension = api.MethodParameters[0];
-                    var sliceMethodSignature = api.MethodSignature.Substring(0, api.MethodSignature.IndexOf("("));
-                    var methodName = sliceMethodSignature.Substring(sliceMethodSignature.LastIndexOf(api.MethodName));
-                    var methodSignature = $"${possibleExtension}.${methodName}(${String.Join(",", api.MethodParameters.Take(1))}";
-                    return methodSignature == apiMethodSignature.Replace("?", "");
+                    try {
+                        var possibleExtension = api.MethodParameters[0];
+                        var methodSignatureIndex = api.MethodSignature.IndexOf("(") >= 0 ? api.MethodSignature.IndexOf("(") : api.MethodSignature.Length;
+                        var sliceMethodSignature = api.MethodSignature.Substring(0, methodSignatureIndex);
+                        var methondNameIndex = sliceMethodSignature.IndexOf(api.MethodName);
+                        var methodName = sliceMethodSignature.Substring(methondNameIndex >= 0 ? methondNameIndex : sliceMethodSignature.Length);
+                        var methodSignature = $"{possibleExtension}.{methodName}({String.Join(",", api.MethodParameters.Skip(1))})";
+                        return methodSignature == apiMethodSignature.Replace("?", "");
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+
                 });
             }
 

@@ -102,7 +102,7 @@ namespace PortingAssistant.NuGet
                         }
                     }
                 }
-                catch (Amazon.S3.AmazonS3Exception ex) when (ex.ErrorCode.Contains("404"))
+                catch (Amazon.S3.AmazonS3Exception ex) when (ex.ErrorCode.Contains("NoSuchKey"))
                 {
                     foreach (var packageVersion in package.Value)
                     {
