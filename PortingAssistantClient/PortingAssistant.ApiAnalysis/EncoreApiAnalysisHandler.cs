@@ -97,15 +97,16 @@ namespace PortingAssistant.ApiAnalysis
 
                 _logger.LogInformation("API: Project {0} has {1} invocations", project.ProjectName, invocationsMethodSignatures.Count());
 
-                var fakePackages = SemanticNamespaces.Select(Namespace => {
+                var namespacePackages = SemanticNamespaces.Select(Namespace => {
                     return new PackageVersionPair
                     {
-                        PackageId = Namespace
+                        PackageId = Namespace,
+                        Version = "0.0.0"
                     };
                 }).ToList();
                 var resultsDict = new Dictionary<string, Task<RecommendationDetails>>();
 
-                var nameSpaceresults = _handler.GetNugetPackages(fakePackages, null);
+                var nameSpaceresults = _handler.GetNugetPackages(namespacePackages, null);
                 resultsDict = _recommendationHandler.GetApiRecommendation(SemanticNamespaces.ToList());
 
                 var SourceFileAnalysisResults = InvocationExpressionModelToInvocations.Convert(

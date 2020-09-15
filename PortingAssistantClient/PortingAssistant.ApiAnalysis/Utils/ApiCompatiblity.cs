@@ -11,23 +11,29 @@ namespace PortingAssistant.ApiAnalysis.Utils
     {
         public const string DEFAULT_TARGET = "netcoreapp3.1";
 
-        public static Compatibility apiInPackageVersion(Task<PackageDetails> package, string apiMethodSignature, string version, string target = DEFAULT_TARGET, bool checkLesserPackage = true)
+        public static CompatibilityResult GetCompatibilityResult(Task<PackageDetails> package, string apiMethodSignature, string version, string target = DEFAULT_TARGET, bool checkLesserPackage = true)
         {
-
-            if (package == null || apiMethodSignature == null)
+            var compatiblityResult = new CompatibilityResult
             {
-                return Compatibility.UNKNOWN;
+                Compatibility = Compatibility.UNKNOWN,
+                CompatibleVersions = new List<string>()
+            };
+
+            if (package == null || apiMethodSignature == null ||!SemVersion.TryParse(version, out var targetversion))
+            {
+                return compatiblityResult;
             }
 
             package.Wait();
             if (!package.IsCompletedSuccessfully)
             {
-                return Compatibility.UNKNOWN;
+                return compatiblityResult;
             }
 
             if (package.Result.IsDeprecated)
             {
-                return Compatibility.DEPRECATED;
+                compatiblityResult.Compatibility = Compatibility.DEPRECATED;
+                return compatiblityResult;
             }
 
             var foundApi = GetApiDetails(package.Result, apiMethodSignature);
@@ -36,19 +42,24 @@ namespace PortingAssistant.ApiAnalysis.Utils
             {
                 if (!checkLesserPackage || package.Result.Targets == null || !package.Result.Targets.TryGetValue(target, out var targetFramework))
                 {
-                    return Compatibility.INCOMPATIBLE;
+                    compatiblityResult.Compatibility = Compatibility.INCOMPATIBLE;
+                    return compatiblityResult;
                 }
 
-                return hasLesserTarget(version, targetFramework.ToArray()) ? Compatibility.COMPATIBLE : Compatibility.INCOMPATIBLE;
+                compatiblityResult.Compatibility = hasLesserTarget(version, targetFramework.ToArray()) ? Compatibility.COMPATIBLE : Compatibility.INCOMPATIBLE;
+                compatiblityResult.CompatibleVersions = targetFramework.ToArray().Where(v => SemVersion.Compare(SemVersion.Parse(v), targetversion) > 0).ToList();
+                return compatiblityResult;
             }
 
             if (!foundApi.Targets.TryGetValue(target, out var framework))
             {
-                return Compatibility.INCOMPATIBLE;
+                compatiblityResult.Compatibility = Compatibility.INCOMPATIBLE;
+                return compatiblityResult;
             }
 
-            return hasLesserTarget(version, framework.ToArray()) ? Compatibility.COMPATIBLE: Compatibility.INCOMPATIBLE;
-
+            compatiblityResult.Compatibility = hasLesserTarget(version, framework.ToArray()) ? Compatibility.COMPATIBLE: Compatibility.INCOMPATIBLE;
+            compatiblityResult.CompatibleVersions = framework.ToArray().ToArray().Where(v => SemVersion.Compare(SemVersion.Parse(v), targetversion) > 0).ToList();
+            return compatiblityResult;
         }
 
         private static bool hasLesserTarget(string version, string[] targetVersions)
@@ -61,7 +72,7 @@ namespace PortingAssistant.ApiAnalysis.Utils
             return targetVersions.Any(v => SemVersion.Compare(target, SemVersion.Parse(v)) > 0);
         }
 
-        public static ApiRecommendation upgradeStrategy(Task<PackageDetails> nugetPackage, string apiMethodSignature, string version, string nameSpaceToQuery, Dictionary<string, Task<RecommendationDetails>> _recommendationDetails)
+        public static ApiRecommendation UpgradeStrategy(Task<PackageDetails> nugetPackage, string apiMethodSignature, string version, string nameSpaceToQuery, Dictionary<string, Task<RecommendationDetails>> _recommendationDetails)
         {
             if (nugetPackage == null || apiMethodSignature == null || version == null)
             {
@@ -85,10 +96,11 @@ namespace PortingAssistant.ApiAnalysis.Utils
                 };
             }
 
-            var upgradeVersion = versions.Last();
+            //var upgradeVersion = versions.Last();
+
             try
             {
-                if (SemVersion.Compare(SemVersion.Parse(version), SemVersion.Parse(upgradeVersion)) > 0)
+                if (!hasLesserTarget(version, versions.ToArray()))
                 {
                     // No Package upgrade. Check for API recommendation
                     if (_recommendationDetails.TryGetValue(nameSpaceToQuery, out var taskCompletionSource))
@@ -124,6 +136,7 @@ namespace PortingAssistant.ApiAnalysis.Utils
                                 };
                         }
                 }
+                var upgradeVersion = versions.ToList().Find(v => SemVersion.Compare(SemVersion.Parse(v), SemVersion.Parse(version)) > 0);
                 return new ApiRecommendation
                     {
                         RecommendedActionType = RecommendedActionType.UpgradePackage,

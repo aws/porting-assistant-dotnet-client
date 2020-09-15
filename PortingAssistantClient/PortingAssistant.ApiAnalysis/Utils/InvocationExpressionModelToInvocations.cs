@@ -45,10 +45,23 @@ namespace PortingAssistantApiAnalysis.Utils
                         {
                             packageDetails = namespaceresults.GetValueOrDefault(new PackageVersionPair
                             {
-                                PackageId = invocation.SemanticNamespace
+                                PackageId = invocation.SemanticNamespace,
+                                Version = "0.0.0"
                             });
                         }
-                        
+
+                        var compatibilityResult = ApiCompatiblity.GetCompatibilityResult(packageDetails,
+                                                 invocation.SemanticOriginalDefinition,
+                                                 nugetVersion?.ToNormalizedString());
+
+                        var apiRecommendation = ApiCompatiblity.UpgradeStrategy(
+                                                packageDetails,
+                                                invocation.SemanticOriginalDefinition,
+                                                nugetVersion?.ToNormalizedString(),
+                                                invocation.SemanticNamespace,
+                                                recommendationDetails);
+
+
                         return new ApiAnalysisResult {
                             CodeEntityDetails = new CodeEntityDetails
                             {
@@ -71,28 +84,14 @@ namespace PortingAssistantApiAnalysis.Utils
                             },
                             CompatibilityResults = new Dictionary<string, CompatibilityResult>
                             {
-                                { ApiCompatiblity.DEFAULT_TARGET,
-                                    new CompatibilityResult
-                                    {
-                                        Compatibility = ApiCompatiblity.apiInPackageVersion(
-                                        packageDetails,
-                                        invocation.SemanticOriginalDefinition,
-                                        nugetVersion?.ToNormalizedString()),
-                                        //CompatibleVersions = TBD
-                                    }
-                                }
+                                { ApiCompatiblity.DEFAULT_TARGET, compatibilityResult}
                                     
                             },
                             Recommendations = new Recommendations
                             {
                                 RecommendedActions = new List<RecommendedAction>
                                 {
-                                    ApiCompatiblity.upgradeStrategy(
-                                                packageDetails,
-                                                invocation.SemanticOriginalDefinition,
-                                                nugetVersion?.ToNormalizedString(),
-                                                invocation.SemanticNamespace,
-                                                recommendationDetails)
+                                    apiRecommendation
                                 }
                             }
                         };
