@@ -7,6 +7,7 @@ using NuGet.Versioning;
 using System.Threading.Tasks;
 using PortingAssistant.ApiAnalysis.Utils;
 using TextSpan = PortingAssistant.Model.TextSpan;
+using System.IO;
 
 namespace PortingAssistantApiAnalysis.Utils
 {
@@ -24,6 +25,7 @@ namespace PortingAssistantApiAnalysis.Utils
             {
                 return new SourceFileAnalysisResult
                 {
+                    SourceFileName = Path.GetFileName(sourceFile.Key),
                     SourceFilePath = sourceFile.Key,
                     ApiAnalysisResults = sourceFile.Value.Select(invocation =>
                     {
