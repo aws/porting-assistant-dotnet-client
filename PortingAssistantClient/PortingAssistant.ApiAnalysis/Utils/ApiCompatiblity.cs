@@ -47,7 +47,15 @@ namespace PortingAssistant.ApiAnalysis.Utils
                 }
 
                 compatiblityResult.Compatibility = hasLesserTarget(version, targetFramework.ToArray()) ? Compatibility.COMPATIBLE : Compatibility.INCOMPATIBLE;
-                compatiblityResult.CompatibleVersions = targetFramework.ToArray().Where(v => SemVersion.Compare(SemVersion.Parse(v), targetversion) > 0).ToList();
+                compatiblityResult.CompatibleVersions = targetFramework.ToArray()
+                    .Where(v =>
+                    {
+                        if (!SemVersion.TryParse(v, out var semversion))
+                        {
+                            return false;
+                        }
+                        return SemVersion.Compare(semversion, targetversion) > 0;
+                    }).ToList();
                 return compatiblityResult;
             }
 
@@ -58,7 +66,15 @@ namespace PortingAssistant.ApiAnalysis.Utils
             }
 
             compatiblityResult.Compatibility = hasLesserTarget(version, framework.ToArray()) ? Compatibility.COMPATIBLE: Compatibility.INCOMPATIBLE;
-            compatiblityResult.CompatibleVersions = framework.ToArray().ToArray().Where(v => SemVersion.Compare(SemVersion.Parse(v), targetversion) > 0).ToList();
+            compatiblityResult.CompatibleVersions = framework.ToArray()
+                .Where(v =>
+                {
+                    if (!SemVersion.TryParse(v, out var semversion))
+                    {
+                        return false;
+                    }
+                    return SemVersion.Compare(semversion, targetversion) > 0;
+                }).ToList();
             return compatiblityResult;
         }
 
@@ -69,7 +85,13 @@ namespace PortingAssistant.ApiAnalysis.Utils
                 return false;
             }
 
-            return targetVersions.Any(v => SemVersion.Compare(target, SemVersion.Parse(v)) > 0);
+            return targetVersions.Any(v => {
+                if(!SemVersion.TryParse(v, out var semversion))
+                    {
+                        return false;
+                    }
+                return SemVersion.Compare(target, semversion) > 0;
+            });
         }
 
         public static ApiRecommendation UpgradeStrategy(Task<PackageDetails> nugetPackage, string apiMethodSignature, string version, string nameSpaceToQuery, Dictionary<string, Task<RecommendationDetails>> _recommendationDetails)
@@ -136,7 +158,14 @@ namespace PortingAssistant.ApiAnalysis.Utils
                                 };
                         }
                 }
-                var upgradeVersion = versions.ToList().Find(v => SemVersion.Compare(SemVersion.Parse(v), SemVersion.Parse(version)) > 0);
+                var upgradeVersion = versions.ToList().Find(v => {
+                    if (!SemVersion.TryParse(v, out var semversion) || !SemVersion.TryParse(version, out var target))
+                    {
+                        return false;
+                    }
+
+                    return SemVersion.Compare(semversion, target) > 0;
+                });
                 return new ApiRecommendation
                     {
                         RecommendedActionType = RecommendedActionType.UpgradePackage,

@@ -76,13 +76,26 @@ namespace PortingAssistant.Utils
                 }
                 return new CompatibilityResult
                 {
-                    Compatibility = foundTarget.Any(v => SemVersion.Compare(version, SemVersion.Parse(v)) >= 0) ? Compatibility.COMPATIBLE : Compatibility.INCOMPATIBLE,
-                    CompatibleVersions = foundTarget.Where(v => SemVersion.Compare(SemVersion.Parse(v), version) > 0).ToList()
+                    Compatibility = foundTarget.Any(v => {
+                        if(!SemVersion.TryParse(v, out var semversion))
+                        {
+                            return false;
+                        }
+
+                        return SemVersion.Compare(version, semversion) >= 0;
+                    }) ? Compatibility.COMPATIBLE : Compatibility.INCOMPATIBLE,
+                    CompatibleVersions = foundTarget.Where(v => {
+                         if(!SemVersion.TryParse(v, out var semversion))
+                        {
+                            return false;
+                        }
+                        return SemVersion.Compare(semversion, version) >= 0;
+                     }).ToList()
                 };
             }
             catch (Exception e)
             {
-                _logger.LogError("parse package version {0} {1}with error {2}", packageVersionPair.PackageId, packageVersionPair.Version, e);
+                _logger.LogError("parse package version {0} {1} with error {2}", packageVersionPair.PackageId, packageVersionPair.Version, e);
                 return new CompatibilityResult
                 {
                     Compatibility = Compatibility.UNKNOWN,

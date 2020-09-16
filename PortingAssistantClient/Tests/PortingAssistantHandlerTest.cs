@@ -184,7 +184,7 @@ namespace Tests
             Assert.AreEqual(RecommendedActionType.UpgradePackage, packageResult.Value.Result.Recommendations.RecommendedActions.First().RecommendedActionType); ;
             var compatibilityResult = packageResult.Value.Result.CompatibilityResults.GetValueOrDefault(PackageCompatibility.DEFAULT_TARGET);
             Assert.AreEqual(Compatibility.COMPATIBLE, compatibilityResult.Compatibility);
-            Assert.AreEqual("12.0.4", compatibilityResult.CompatibleVersions.First());
+            Assert.AreEqual("12.0.3", compatibilityResult.CompatibleVersions.First());
         }
         
         [Test]
