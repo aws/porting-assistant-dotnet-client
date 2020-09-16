@@ -174,7 +174,7 @@ namespace PortingAssistant.ApiAnalysis.Utils
                     {
                         return false;
                     }
-
+                    
                     try {
                         var possibleExtension = api.MethodParameters[0];
                         var methodSignatureIndex = api.MethodSignature.IndexOf("(") >= 0 ? api.MethodSignature.IndexOf("(") : api.MethodSignature.Length;
@@ -188,7 +188,6 @@ namespace PortingAssistant.ApiAnalysis.Utils
                     {
                         return false;
                     }
-
                 });
             }
 
