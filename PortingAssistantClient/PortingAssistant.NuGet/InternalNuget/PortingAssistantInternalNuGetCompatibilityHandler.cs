@@ -71,7 +71,7 @@ namespace PortingAssistant.NuGet.InternalNuGet
                 _logger.LogError(errorMessage);
 
                 var innerException = new PackageSourceNotFoundException(errorMessage);
-                throw new PortingAssistantClientException(errorMessage, innerException);
+                throw new PortingAssistantClientException(ExceptionMessage.PackageSourceNotFound(package), innerException);
             }
 
             // Download package

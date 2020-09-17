@@ -4,7 +4,7 @@ namespace PortingAssistant.Model
 {
     public class NamespaceNotFoundException : Exception
     {
-        public NamespaceNotFoundException(string message):
+        public NamespaceNotFoundException(string message) :
             base(message)
         {
         }

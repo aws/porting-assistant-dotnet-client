@@ -32,7 +32,7 @@ namespace PortingAssistant.NuGet
 
             var errorMessage = $"Package not found in compatibility task results: {packageVersion}";
             var innerException = new PackageNotFoundException(errorMessage);
-            throw new PortingAssistantClientException(errorMessage, innerException);
+            throw new PortingAssistantClientException(ExceptionMessage.PackageNotFound(packageVersion), innerException);
         }
 
         public Dictionary<PackageVersionPair, Task<PackageDetails>> GetNugetPackages(List<PackageVersionPair> packageVersions, string pathToSolution)
@@ -110,7 +110,7 @@ namespace PortingAssistant.NuGet
                 if (_compatibilityTaskCompletionSources.TryRemove(packageVersion, out var packageVersionPairResult))
                 {
                     var defaultErrorMessage = $"Could not find package {packageVersion}. Compatibility task status: {packageVersionPairResult.Task.Status}.";
-                    var defaultException = new PortingAssistantException(defaultErrorMessage, new PackageNotFoundException(defaultErrorMessage));
+                    var defaultException = new PortingAssistantClientException(ExceptionMessage.PackageNotFound(packageVersion), new PackageNotFoundException(defaultErrorMessage));
                     var exception = exceptions.GetValueOrDefault(packageVersion, defaultException);
 
                     packageVersionPairResult.TrySetException(exception);

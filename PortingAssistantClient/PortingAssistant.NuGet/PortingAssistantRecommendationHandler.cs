@@ -83,7 +83,7 @@ namespace PortingAssistant.NuGet
                     if (recommendationTaskCompletionSources.TryGetValue(@namespace, out var taskCompletionSource))
                     {
                         taskCompletionSource.TrySetException(
-                            new PortingAssistantClientException($"Could not find namespace for recommendation {@namespace}", ex));
+                            new PortingAssistantClientException(ExceptionMessage.NamespaceNotFound(@namespace), ex));
                     }
                 }
                 return recommendationTaskCompletionSources.ToDictionary(t => t.Key, t => t.Value.Task);
@@ -124,7 +124,7 @@ namespace PortingAssistant.NuGet
                         {
                             if (recommendationTaskCompletionSources.TryGetValue(@namespace, out var taskCompletionSource))
                             {
-                                taskCompletionSource.SetException(new PortingAssistantClientException($"Failed to process {@namespace} namespace", ex));
+                                taskCompletionSource.SetException(new PortingAssistantClientException(ExceptionMessage.NamespaceFailedToProcess(@namespace), ex));
                                 namespacesWithErrors.Add(@namespace);
                             }
                         }
@@ -144,7 +144,7 @@ namespace PortingAssistant.NuGet
                         _logger.LogInformation(errorMessage);
 
                         var innerException = new NamespaceNotFoundException(errorMessage);
-                        taskCompletionSource.TrySetException(new PortingAssistantClientException(errorMessage, innerException));
+                        taskCompletionSource.TrySetException(new PortingAssistantClientException(ExceptionMessage.NamespaceNotFound(@namespace), innerException));
                     }
                 }
             }
@@ -155,7 +155,7 @@ namespace PortingAssistant.NuGet
                     if (recommendationTaskCompletionSources.TryGetValue(@namespace, out var taskCompletionSource))
                     {
                         taskCompletionSource.TrySetException(
-                            new PortingAssistantClientException($"Unexpected error encountered. Failed to process {@namespace} namespace.", ex));
+                            new PortingAssistantClientException(ExceptionMessage.NamespaceFailedToProcess(@namespace), ex));
                     }
                 }
  

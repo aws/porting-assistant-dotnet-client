@@ -101,7 +101,7 @@ namespace PortingAssistant.NuGet
             await Task.WhenAll(processCompatibilityTasks.ToArray());
             if (versions.Count == 0)
             {
-                taskCompletionSource.SetException(new PortingAssistantClientException($"Cannot find package {packageId}", null));
+                taskCompletionSource.SetException(new PortingAssistantClientException(ExceptionMessage.PackageNotFound(packageId), null));
             }
             var packageDetails = new PackageDetails()
             {
@@ -128,15 +128,15 @@ namespace PortingAssistant.NuGet
                     "netcoreapp3.1",
                     internalRepositories);
             }
-            catch (Exception error) when (error is PortingAssistantClientException)
+            catch (Exception ex) when (ex is PortingAssistantClientException)
             {
                 _logger.LogInformation($"Could not check compatibility for package {packageVersion} " +
-                                       $"using internal resources. Error: {error.Message}");
+                                       $"using internal resources. Error: {ex.Message}");
             }
-            catch (Exception error)
+            catch (Exception ex)
             {
                 _logger.LogError($"Unexpected error encountered when checking compatibility of package {packageVersion} " +
-                                 $"using internal source(s): {error}");
+                                 $"using internal source(s): {ex}");
             }
             return null;
         }

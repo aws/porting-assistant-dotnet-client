@@ -101,8 +101,7 @@ namespace PortingAssistant.NuGet
 
                     foreach (var packageVersion in groupedPackageVersions.Value)
                     {
-                        if (compatibilityTaskCompletionSources.TryGetValue(packageVersion, out var taskCompletionSource)
-                        )
+                        if (compatibilityTaskCompletionSources.TryGetValue(packageVersion, out var taskCompletionSource))
                         {
                             taskCompletionSource.SetResult(packageDetails);
                             packageVersionsFound.Add(packageVersion);
@@ -111,7 +110,7 @@ namespace PortingAssistant.NuGet
                 }
                 catch (Exception ex)
                 {
-                    if (ex is AmazonS3Exception && !(ex as AmazonS3Exception).ErrorCode.Contains("404"))
+                    if (ex is AmazonS3Exception && !(ex as AmazonS3Exception).ErrorCode.Contains("NoSuchKey"))
                     {
                         var s3Exception = ex as AmazonS3Exception;
                         _logger.LogInformation($"Encountered {s3Exception.GetType()} while downloading and parsing {fileToDownload} " +
@@ -125,7 +124,7 @@ namespace PortingAssistant.NuGet
                         {
                             if (compatibilityTaskCompletionSources.TryGetValue(packageVersion, out var taskCompletionSource))
                             {
-                                taskCompletionSource.SetException(new PortingAssistantClientException($"Cannot find package {packageVersion}", ex));
+                                taskCompletionSource.SetException(new PortingAssistantClientException(ExceptionMessage.PackageNotFound(packageVersion), ex));
                                 packageVersionsWithErrors.Add(packageVersion);
                             }
                         }
@@ -146,7 +145,7 @@ namespace PortingAssistant.NuGet
                     _logger.LogInformation(errorMessage);
 
                     var innerException = new PackageNotFoundException(errorMessage);
-                    taskCompletionSource.TrySetException(new PortingAssistantClientException(errorMessage, innerException));
+                    taskCompletionSource.TrySetException(new PortingAssistantClientException(ExceptionMessage.PackageNotFound(packageVersion), innerException));
                 }
             }
         }

@@ -104,7 +104,7 @@ namespace PortingAssistant.NuGet
                     if (compatibilityTaskCompletionSources.TryGetValue(packageVersion, out var taskCompletionSource))
                     {
                         taskCompletionSource.TrySetException(
-                            new PortingAssistantClientException($"Could not find package {packageVersion}.", ex));
+                            new PortingAssistantClientException(ExceptionMessage.PackageNotFound(packageVersion), ex));
                     }
                 }
                 return compatibilityTaskCompletionSources.ToDictionary(t => t.Key, t => t.Value.Task);
@@ -151,7 +151,7 @@ namespace PortingAssistant.NuGet
                     {
                         if (compatibilityTaskCompletionSources.TryGetValue(packageVersion, out var taskCompletionSource))
                         {
-                            taskCompletionSource.SetException(new PortingAssistantClientException($"Could not find package {packageVersion}", ex));
+                            taskCompletionSource.SetException(new PortingAssistantClientException(ExceptionMessage.PackageNotFound(packageVersion), ex));
                             packageVersionsWithErrors.Add(packageVersion);
                         }
                     }
@@ -171,7 +171,7 @@ namespace PortingAssistant.NuGet
                     _logger.LogInformation(errorMessage);
 
                     var innerException = new PackageNotFoundException(errorMessage);
-                    taskCompletionSource.TrySetException(new PortingAssistantClientException(errorMessage, innerException));
+                    taskCompletionSource.TrySetException(new PortingAssistantClientException(ExceptionMessage.PackageNotFound(packageVersion), innerException));
                 }
             }
         }

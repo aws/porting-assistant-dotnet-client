@@ -5,12 +5,12 @@ namespace PortingAssistant.Model
     public class PackageDownloadMismatchException : Exception
     {
 
-        public PackageDownloadMismatchException(string message):
+        public PackageDownloadMismatchException(string message) :
             base(message)
         {
         }
 
-        public PackageDownloadMismatchException(string expectedPackage, string actualPackage):
+        public PackageDownloadMismatchException(string expectedPackage, string actualPackage) :
             base(DefaultMessage(expectedPackage, actualPackage))
         {
         }
