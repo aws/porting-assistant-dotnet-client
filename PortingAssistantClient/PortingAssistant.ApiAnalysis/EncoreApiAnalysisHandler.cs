@@ -66,7 +66,7 @@ namespace PortingAssistant.ApiAnalysis
         {
             try
             {
-                var startTime = DateTime.Now.Ticks;
+                _buildConcurrency.Wait();
                 var analyzers = await analyzersTask;
                 var invocationsMethodSignatures = new HashSet<string>();
                 var SemanticNamespaces = new HashSet<string>();
@@ -123,6 +123,10 @@ namespace PortingAssistant.ApiAnalysis
             {
                 _logger.LogError("Error while analyzing {0}, {1}", project.ProjectName, ex);
                 throw new PortingAssistantException($"Error while analyzing {project.ProjectName}", ex);
+            }
+            finally
+            {
+                _buildConcurrency.Release();
             }
         }
     }
