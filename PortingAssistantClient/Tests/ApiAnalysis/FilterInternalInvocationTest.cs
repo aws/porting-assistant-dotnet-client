@@ -14,7 +14,7 @@ namespace Tests.Analysis
         {
             var allInvocations = new List<InvocationExpression>
             {
-                new MockInvocationExpressionModel("definition1", "namespace1")
+                new MockInvocationExpressionModel("definition1", "namespace1", "test")
             };
 
             var project = new ProjectDetails
@@ -37,10 +37,10 @@ namespace Tests.Analysis
         {
             var allInvocations = new List<InvocationExpression>
             {
-                new MockInvocationExpressionModel("definition1", "namespace1"),
-                new MockInvocationExpressionModel("definition1", "namespace1.anothernamespace"),
-                new MockInvocationExpressionModel("definition2", "namespace2"),
-                new MockInvocationExpressionModel("definition2", "namespace2.anothernamespace")
+                new MockInvocationExpressionModel("definition1", "namespace1", "test"),
+                new MockInvocationExpressionModel("definition1", "namespace1.anothernamespace", "test1"),
+                new MockInvocationExpressionModel("definition2", "namespace2", "test2"),
+                new MockInvocationExpressionModel("definition2", "namespace2.anothernamespace", "test2")
             };
 
             var project = new ProjectDetails
@@ -63,7 +63,7 @@ namespace Tests.Analysis
         {
             var allInvocations = new List<InvocationExpression>
             {
-                new MockInvocationExpressionModel("definition1", "namespace1"),
+                new MockInvocationExpressionModel("definition1", "namespace1", "test"),
             };
 
             var project = new ProjectDetails
