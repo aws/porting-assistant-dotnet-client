@@ -2,21 +2,19 @@
 using System.Linq;
 using AwsCodeAnalyzer.Model;
 using PortingAssistant.Model;
-using PortingAssistant.NuGet;
 using NuGet.Versioning;
 using System.Threading.Tasks;
-using PortingAssistant.ApiAnalysis.Utils;
 using TextSpan = PortingAssistant.Model.TextSpan;
 using System.IO;
+using AwsCodeAnalyzer;
 
-namespace PortingAssistantApiAnalysis.Utils
+namespace PortingAssistant.Analysis.Utils
 {
     public static class InvocationExpressionModelToInvocations
     {
-        public static List<SourceFileAnalysisResult> Convert(
-            Dictionary<string, List<InvocationExpression>> sourceFileToInvocations,
-            ProjectDetails project, IPortingAssistantNuGetHandler handler,
-            Dictionary<PackageVersionPair, Task<PackageDetails>> namespaceresults,
+        public static List<SourceFileAnalysisResult> AnalyzeResults(
+            Dictionary<string, List<CodeEntityDetails>> sourceFileToInvocations,
+            Dictionary<PackageVersionPair, Task<PackageDetails>> packageResults,
             Dictionary<string, Task<RecommendationDetails>> recommendationDetails
         )
         {
@@ -29,62 +27,22 @@ namespace PortingAssistantApiAnalysis.Utils
                     SourceFilePath = sourceFile.Key,
                     ApiAnalysisResults = sourceFile.Value.Select(invocation =>
                     {
-                        var potentialNugetPackages = project.PackageReferences.FindAll((n) => invocation.SemanticNamespace.ToLower().Contains(n.PackageId.ToLower()));
-                        PackageVersionPair nugetPackage = null;
-                        if (potentialNugetPackages.Count() > 0)
-                        {
-                            nugetPackage = potentialNugetPackages.Aggregate((max, cur) => cur.PackageId.Length > max.PackageId.Length ? cur : max);
-                        }
-                        NuGetVersion nugetVersion = null;
-
-                        Task<PackageDetails> packageDetails = null;
-                        if (nugetPackage != null)
-                        {
-                            NuGetVersion.TryParse(nugetPackage.Version, out nugetVersion);
-                            packageDetails = handler.GetNugetPackages(new List<PackageVersionPair> { nugetPackage}, "")
-                                            .GetValueOrDefault(nugetPackage);
-                        }
-                        else
-                        {
-                            packageDetails = namespaceresults.GetValueOrDefault(new PackageVersionPair
-                            {
-                                PackageId = invocation.SemanticNamespace,
-                                Version = "0.0.0"
-                            });
-                        }
+                        var packageDetails = packageResults.GetValueOrDefault(invocation.Package);
 
                         var compatibilityResult = ApiCompatiblity.GetCompatibilityResult(packageDetails,
-                                                 invocation.SemanticOriginalDefinition,
-                                                 nugetVersion?.ToNormalizedString());
+                                                 invocation.OriginalDefinition,
+                                                 invocation.Package.Version);
 
                         var apiRecommendation = ApiCompatiblity.UpgradeStrategy(
                                                 packageDetails,
-                                                invocation.SemanticOriginalDefinition,
-                                                nugetVersion?.ToNormalizedString(),
-                                                invocation.SemanticNamespace,
+                                                invocation.OriginalDefinition,
+                                                invocation.Package.Version,
+                                                invocation.Namespace,
                                                 recommendationDetails);
 
 
                         return new ApiAnalysisResult {
-                            CodeEntityDetails = new CodeEntityDetails
-                            {
-                                Name = invocation.MethodName,
-                                Namespace = invocation.SemanticNamespace,
-                                Signature = invocation.SemanticMethodSignature,
-                                OriginalDefinition = invocation.SemanticOriginalDefinition,
-                                TextSpan = new TextSpan
-                                {
-                                    StartCharPosition = invocation.TextSpan.StartCharPosition,
-                                    EndCharPosition = invocation.TextSpan.EndCharPosition,
-                                    StartLinePosition = invocation.TextSpan.StartLinePosition,
-                                    EndLinePosition = invocation.TextSpan.EndLinePosition
-                                },
-                                Package = new PackageVersionPair
-                                {
-                                    PackageId = nugetPackage?.PackageId,
-                                    Version = nugetVersion?.ToNormalizedString()
-                                }
-                            },
+                            CodeEntityDetails = invocation,
                             CompatibilityResults = new Dictionary<string, CompatibilityResult>
                             {
                                 { ApiCompatiblity.DEFAULT_TARGET, compatibilityResult}
@@ -103,6 +61,81 @@ namespace PortingAssistantApiAnalysis.Utils
                 };
             }
             ).ToList();
+        }
+
+        public static Dictionary<string, List<CodeEntityDetails>> Convert(
+             Dictionary<string, UstList<InvocationExpression>> sourceFileToInvocations,
+             AnalyzerResult analyzer)
+         {
+  
+             return sourceFileToInvocations.Select(sourceFile =>
+                 KeyValuePair.Create(
+                     sourceFile.Key,
+                     sourceFile.Value.Select(invocation =>
+                     {
+                         var assemblyLength = invocation.Reference?.Assembly?.Length;
+                         if (assemblyLength == null || assemblyLength == 0)
+                         {
+                             return null;
+                         }
+
+                         // Check if invocation is from Nuget
+                         var potentialNugetPackage = analyzer.ProjectResult.ExternalReferences.NugetReferences.Find((n) =>
+                             n.AssemblyLocation.EndsWith(invocation.Reference.Assembly + ".dll"));
+                         if (potentialNugetPackage == null)
+                         {
+                             potentialNugetPackage = analyzer.ProjectResult.ExternalReferences.NugetDependencies.Find((n) =>
+                            n.AssemblyLocation.EndsWith(invocation.Reference.Assembly + ".dll"));
+                         }
+                        PackageVersionPair nugetPackage = ReferenceToPackageVersionPair(potentialNugetPackage);
+                        // Check if invocation is from SDK
+                        var potentialSdk = analyzer.ProjectResult.ExternalReferences.SdkReferences.Find((s) =>
+                            s.AssemblyLocation.EndsWith(invocation.Reference.Assembly + ".dll"));
+                        PackageVersionPair sdk = ReferenceToPackageVersionPair(potentialSdk);
+
+                        // If both nuget package and sdk are null, this invocation is from an internal project. Skip it.
+                        if (nugetPackage == null && sdk == null)
+                        {
+                            return null;
+                        }
+
+                        // Otherwise return the invocation
+                        return new CodeEntityDetails
+                        {
+                            Name = invocation.MethodName,
+                            Namespace = invocation.SemanticNamespace,
+                            Signature = invocation.SemanticMethodSignature,
+                            OriginalDefinition = invocation.SemanticOriginalDefinition,
+                            TextSpan = new TextSpan
+                            {
+                                StartCharPosition = invocation.TextSpan.StartCharPosition,
+                                EndCharPosition = invocation.TextSpan.EndCharPosition,
+                                StartLinePosition = invocation.TextSpan.StartLinePosition,
+                                EndLinePosition = invocation.TextSpan.EndLinePosition
+                            },
+                            // If we found an matching sdk assembly, assume the code is using the sdk.
+                            Package = sdk ?? nugetPackage,
+                        };
+                     })
+                     .Where(invocation => invocation != null)
+                     .ToList()
+                 )
+             ).ToDictionary(p => p.Key, p => p.Value);
+  
+         }
+
+        public static PackageVersionPair ReferenceToPackageVersionPair(ExternalReference reference)
+        {
+            if (reference != null)
+            {
+                string version = reference.Version;
+                if (NuGetVersion.TryParse(reference.Version, out var parsedVersion))
+                {
+                    version = parsedVersion.ToNormalizedString();
+                }
+                return new PackageVersionPair { PackageId = reference.Identity, Version = version };
+            }
+            return null;
         }
     }
 }

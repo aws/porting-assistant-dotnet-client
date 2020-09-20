@@ -5,25 +5,26 @@ using System.Threading;
 using System.Threading.Tasks;
 using AwsCodeAnalyzer;
 using AwsCodeAnalyzer.Model;
-using PortingAssistantApiAnalysis.Utils;
+using PortingAssistant.Analysis.Utils;
 using PortingAssistant.Model;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using PortingAssistant.NuGet;
-using PortingAssistant.ApiAnalysis.Utils;
+using PortingAssistant.Utils;
 using AnalyzerConfiguration = AwsCodeAnalyzer.AnalyzerConfiguration;
+using System.IO;
 
-namespace PortingAssistant.ApiAnalysis
+namespace PortingAssistant.Analysis
 {
-    public class PortingAssistantApiAnalysisHandler : IPortingAssistantApiAnalysisHandler
+    public class PortingAssistantAnalysisHandler : IPortingAssistantAnalysisHandler
     {
-        private readonly ILogger<PortingAssistantApiAnalysisHandler> _logger;
+        private readonly ILogger<PortingAssistantAnalysisHandler> _logger;
         private readonly IPortingAssistantNuGetHandler _handler;
         private readonly IPortingAssistantRecommendationHandler _recommendationHandler;
         private static readonly int _maxBuildConcurrency = 1;
         private static readonly SemaphoreSlim _buildConcurrency = new SemaphoreSlim(_maxBuildConcurrency);
 
-        public PortingAssistantApiAnalysisHandler(ILogger<PortingAssistantApiAnalysisHandler> logger,
+        public PortingAssistantAnalysisHandler(ILogger<PortingAssistantAnalysisHandler> logger,
             IPortingAssistantNuGetHandler handler, IPortingAssistantRecommendationHandler recommendationHandler)
         {
             _logger = logger;
@@ -31,37 +32,35 @@ namespace PortingAssistant.ApiAnalysis
             _recommendationHandler = recommendationHandler;
         }
 
-        public SolutionApiAnalysisResult AnalyzeSolution(
-            string solutionFilename, List<ProjectDetails> projects)
+        public Dictionary<string, Task<ProjectAnalysisResult>> AnalyzeSolution(
+            string solutionFilename, List<ProjectDetails> project)
         {
-            var options = new AnalyzerConfiguration(LanguageOptions.CSharp)
+            var configuration = new AnalyzerConfiguration(LanguageOptions.CSharp)
             {
                 MetaDataSettings =
                 {
                     LiteralExpressions = true,
-                    MethodInvocations = true
+                    MethodInvocations = true,
+                    ReferenceData = true
                 }
             };
-            var analyzer = CodeAnalyzerFactory.GetAnalyzer(options, Log.Logger);
+            var analyzer = CodeAnalyzerFactory.GetAnalyzer(configuration, Log.Logger);
             var analyzersTask = analyzer.AnalyzeSolution(solutionFilename);
 
-            return new SolutionApiAnalysisResult
-            {
-                ProjectApiAnalysisResults = projects
+            return project
                     .Select((project) => AnalyzeProject(solutionFilename, project, analyzersTask))
                     .Where(p => p.Value != null)
-                    .ToDictionary(p => p.Key, p => p.Value)
-            };
+                    .ToDictionary(p => p.Key, p => p.Value);
         }
 
-        private KeyValuePair<string, Task<ProjectApiAnalysisResult>> AnalyzeProject(
+        private KeyValuePair<string, Task<ProjectAnalysisResult>> AnalyzeProject(
             string solutionFilename, ProjectDetails project, Task<List<AnalyzerResult>> analyzersTask)
         {
             var task = AnalyzeProjectAsync(solutionFilename, project, analyzersTask);
             return KeyValuePair.Create(project.ProjectFilePath, task);
         }
 
-        private async Task<ProjectApiAnalysisResult> AnalyzeProjectAsync(
+        private async Task<ProjectAnalysisResult> AnalyzeProjectAsync(
             string solutionFilename, ProjectDetails project, Task<List<AnalyzerResult>> analyzersTask)
         {
             try
@@ -69,7 +68,6 @@ namespace PortingAssistant.ApiAnalysis
                 _buildConcurrency.Wait();
                 var analyzers = await analyzersTask;
                 var invocationsMethodSignatures = new HashSet<string>();
-                var SemanticNamespaces = new HashSet<string>();
 
                 var analyzer = analyzers.Find((a) => a.ProjectResult.ProjectFilePath.Equals(project.ProjectFilePath));
 
@@ -89,34 +87,46 @@ namespace PortingAssistant.ApiAnalysis
                 {
                     var invocationsInSourceFile = sourceFile.AllInvocationExpressions();
                     _logger.LogInformation("API: SourceFile {0} has {1} invocations pre-filter", sourceFile.FileFullPath, invocationsInSourceFile.Count());
-                    var invocations = FilterInternalInvocations.Filter(invocationsInSourceFile, project);
-                    invocationsMethodSignatures.UnionWith(invocations.Select(invocation => invocation.SemanticOriginalDefinition));
-                    SemanticNamespaces.UnionWith(invocations.Select(invocation => invocation.SemanticNamespace));
-                    return KeyValuePair.Create(sourceFile.FileFullPath, invocations);
+                    return KeyValuePair.Create(sourceFile.FileFullPath, invocationsInSourceFile);
                 }).ToDictionary(p => p.Key, p => p.Value);
 
-                _logger.LogInformation("API: Project {0} has {1} invocations", project.ProjectName, invocationsMethodSignatures.Count());
+                var sourceFileToCodeEntityDetails = InvocationExpressionModelToInvocations.Convert(sourceFileToInvocations, analyzer);
 
-                var namespacePackages = SemanticNamespaces.Select(Namespace => {
-                    return new PackageVersionPair
-                    {
-                        PackageId = Namespace,
-                        Version = "0.0.0"
-                    };
-                }).ToList();
-
-                var namespaceResults = _handler.GetNugetPackages(namespacePackages, null);
-                var recommendationResults = _recommendationHandler.GetApiRecommendation(SemanticNamespaces.ToList());
-
-                var SourceFileAnalysisResults = InvocationExpressionModelToInvocations.Convert(
-                    sourceFileToInvocations, project, _handler, namespaceResults, recommendationResults);
-
-                return new ProjectApiAnalysisResult
+                var namespaces = sourceFileToCodeEntityDetails.Aggregate(new HashSet<string>(), (agg, cur) =>
                 {
-                    SolutionFile = solutionFilename,
+                    return agg.Concat(cur.Value.Select(i => i.Namespace)).ToHashSet();
+                });
+
+                var nugetPackages = analyzer.ProjectResult.ExternalReferences.NugetReferences
+                    .Select(InvocationExpressionModelToInvocations.ReferenceToPackageVersionPair)
+                    .ToList();
+
+                var subDependencies = analyzer.ProjectResult.ExternalReferences.NugetDependencies
+                    .Select(InvocationExpressionModelToInvocations.ReferenceToPackageVersionPair)
+                    .ToList();
+
+                var allPackages = nugetPackages.Concat(subDependencies).ToHashSet().ToList();
+
+                var packageResults = _handler.GetNugetPackages(allPackages, null);
+                var recommendationResults = _recommendationHandler.GetApiRecommendation(namespaces.ToList());
+
+                var SourceFileAnalysisResults = InvocationExpressionModelToInvocations.AnalyzeResults(
+                    sourceFileToCodeEntityDetails, packageResults, recommendationResults);
+
+                var packageAnalysisResults = nugetPackages.Select(package =>
+                {
+                    var result = PackageCompatibility.isCompatibleAsync(packageResults.GetValueOrDefault(package, null), package, _logger);
+                    var packageAnalysisResult = PackageCompatibility.GetPackageAnalysisResult(result, package);
+                    return new Tuple<PackageVersionPair, Task<PackageAnalysisResult>>(package, packageAnalysisResult);
+                }).ToDictionary(t => t.Item1, t => t.Item2);
+
+                return new ProjectAnalysisResult
+                {
+                    ProjectName = project.ProjectName,
                     ProjectFile = project.ProjectFilePath,
-                    Errors = analyzer.ProjectResult.BuildErrors,
-                    SourceFileAnalysisResults = SourceFileAnalysisResults,
+                    PackageAnalysisResults = packageAnalysisResults,
+                    Errors = analyzer.ProjectBuildResult.BuildErrors,
+                    SourceFileAnalysisResults = SourceFileAnalysisResults
                 };
             }
             catch (Exception ex)

@@ -1,6 +1,6 @@
 ﻿using AwsCodeAnalyzer.Model;
 
-namespace Tests.ApiAnalysis
+namespace Tests.Analysis
 {
     public class MockInvocationExpressionModel : InvocationExpression
     {

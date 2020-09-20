@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using PortingAssistant.ApiAnalysis;
+using PortingAssistant.Analysis;
 using PortingAssistant.Handler;
 using PortingAssistant.Utils;
 using PortingAssistant.NuGet;
 using PortingAssistant.Model;
 using PortingAssistant.Porting;
-using PortingAssistant.ApiAnalysis.Utils;
+using PortingAssistant.Analysis.Utils;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using NUnit.Framework;
@@ -18,9 +18,7 @@ namespace Tests
 {
     public class PortingAssistantHandlerTest
     {
-
-        private Mock<IPortingAssistantNuGetHandler> _nuGetHandlerMock;
-        private Mock<IPortingAssistantApiAnalysisHandler> _apiAnalysisHandlerMock;
+        private Mock<IPortingAssistantAnalysisHandler> _apiAnalysisHandlerMock;
         private Mock<IPortingHandler> _portingHandlerMock;
         private PortingAssistantHandler _portingAssistantHandler;
         private readonly string _solutionFolder = Path.Combine(TestContext.CurrentContext.TestDirectory,
@@ -81,12 +79,10 @@ namespace Tests
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            _nuGetHandlerMock = new Mock<IPortingAssistantNuGetHandler>();
-            _apiAnalysisHandlerMock = new Mock<IPortingAssistantApiAnalysisHandler>();
+            _apiAnalysisHandlerMock = new Mock<IPortingAssistantAnalysisHandler>();
             _portingHandlerMock = new Mock<IPortingHandler>();
             _portingAssistantHandler = new PortingAssistantHandler(
                 NullLogger<PortingAssistantHandler>.Instance,
-                _nuGetHandlerMock.Object,
                 _apiAnalysisHandlerMock.Object,
                 _portingHandlerMock.Object);
         }
@@ -94,43 +90,62 @@ namespace Tests
         [SetUp]
         public void SetUp()
         {
-            _nuGetHandlerMock.Reset();
-
-            // Setup Nuget Dependencies
-            _nuGetHandlerMock
-                .Setup(nuGet => nuGet.GetNugetPackages(It.IsAny<List<PackageVersionPair>>(), It.IsAny<string>()))
-                .Returns((List<PackageVersionPair> list, string pathToSolution) =>
-                {
-                    return list.Distinct().Select(packageVersion =>
-                    {
-                        var taskCompletionSource = new TaskCompletionSource<PackageDetails>();
-                        taskCompletionSource.SetResult(
-                            _packageDetails
-                            );
-                        return new Tuple<PackageVersionPair, Task<PackageDetails>>(
-                            packageVersion, taskCompletionSource.Task
-                        );
-                    }).ToDictionary(t => t.Item1, t => t.Item2);
-                });
 
             _apiAnalysisHandlerMock.Reset();
             _apiAnalysisHandlerMock.Setup(analyzer => analyzer.AnalyzeSolution(It.IsAny<string>(), It.IsAny<List<ProjectDetails>>()))
                 .Returns((string solutionFilePath, List<ProjectDetails> projects) =>
                 {
-                    var taskCompletionSource = new TaskCompletionSource<ProjectApiAnalysisResult>();
-                    taskCompletionSource.SetResult(new ProjectApiAnalysisResult {
-                        SourceFileAnalysisResults = new List<SourceFileAnalysisResult>
-                        {
-                            _sourceFileAnalysisResult
-                        }
-                    });
-
-                    return new SolutionApiAnalysisResult
+                    return projects.Select(project =>
                     {
-                        ProjectApiAnalysisResults = projects.Select(p => {
-                            return new Tuple<string, Task<ProjectApiAnalysisResult>>(p.ProjectFilePath, taskCompletionSource.Task);
-                        }).ToDictionary(t => t.Item1, t => t.Item2)
-                    };
+                        var package = new PackageVersionPair
+                        {
+                            PackageId = "Newtonsoft.Json",
+                            Version = "11.0.1"
+                        };
+                        var taskCompletionSource = new TaskCompletionSource<ProjectAnalysisResult>();
+                        var taskPackageCompletionSource = new TaskCompletionSource<PackageAnalysisResult>();
+                        taskPackageCompletionSource.SetResult(new PackageAnalysisResult
+                        {
+                            PackageVersionPair = package,
+                            CompatibilityResults = new Dictionary<string, CompatibilityResult>
+                            {
+                                {"netcoreapp3.1", new CompatibilityResult{
+                                    Compatibility = Compatibility.COMPATIBLE,
+                                    CompatibleVersions = new List<string>
+                                    {
+                                        "12.0.3", "12.0.4"
+                                    }
+                                }}
+                            },
+                            Recommendations = new Recommendations
+                            {
+                                RecommendedActions = new List<RecommendedAction>
+                                {
+                                    new RecommendedAction
+                                    {
+                                        RecommendedActionType = RecommendedActionType.UpgradePackage,
+                                        Description = "12.0.3"
+                                    }
+                                }
+                            } 
+                        });
+
+                        taskCompletionSource.SetResult(new ProjectAnalysisResult
+                        {
+                            ProjectName = project.ProjectName,
+                            ProjectFile = project.ProjectFilePath,
+                            PackageAnalysisResults = new Dictionary<PackageVersionPair, Task<PackageAnalysisResult>>
+                            {
+                                {package, taskPackageCompletionSource.Task }
+                            },
+                            SourceFileAnalysisResults = new List<SourceFileAnalysisResult>
+                            {
+                                _sourceFileAnalysisResult
+                            }
+                        });
+
+                        return new Tuple<string, Task<ProjectAnalysisResult>>(project.ProjectFilePath, taskCompletionSource.Task);
+                    }).ToDictionary(t => t.Item1, t => t.Item2);
                 });
         }
         
@@ -172,12 +187,12 @@ namespace Tests
         public void AnalyzeSolutionWithProjectsSucceeds()
         {
             var results = _portingAssistantHandler.AnalyzeSolution(Path.Combine(_solutionFolder, "SolutionWithProjects.sln"), new Settings());
-            var projectAnalysisResult = results.ProjectAnalysisResult.Find(p => p.ProjectName == "Nop.Core");
-            var projectApiAnalysisResult = projectAnalysisResult.ProjectApiAnalysisResult;
-            var packageAnalysisResult = projectAnalysisResult.PackageAnalysisResults;
+            Task.WaitAll(results.ProjectAnalysisResult.ToArray());
+            var projectAnalysisResult = results.ProjectAnalysisResult.Find(p => p.Result.ProjectName == "Nop.Core");
+            var sourceFileAnalysisResults = projectAnalysisResult.Result.SourceFileAnalysisResults;
+            var packageAnalysisResult = projectAnalysisResult.Result.PackageAnalysisResults;
 
-            projectApiAnalysisResult.Wait();
-            Assert.AreEqual(_sourceFileAnalysisResult, projectApiAnalysisResult.Result.SourceFileAnalysisResults.First());
+            Assert.AreEqual(_sourceFileAnalysisResult, sourceFileAnalysisResults.First());
 
             Task.WaitAll(packageAnalysisResult.Values.ToArray());
             var packageResult = packageAnalysisResult.First(p => p.Value.Result.PackageVersionPair.PackageId == _packageDetails.Name);

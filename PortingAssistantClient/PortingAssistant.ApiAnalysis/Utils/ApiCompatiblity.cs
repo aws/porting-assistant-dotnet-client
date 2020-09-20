@@ -5,7 +5,7 @@ using PortingAssistant.Model;
 using Semver;
 using System.Collections.Generic;
 
-namespace PortingAssistant.ApiAnalysis.Utils
+namespace PortingAssistant.Analysis.Utils
 {
     public static class ApiCompatiblity
     {

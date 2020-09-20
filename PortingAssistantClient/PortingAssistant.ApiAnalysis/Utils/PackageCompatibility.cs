@@ -6,7 +6,7 @@ using Semver;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
-namespace PortingAssistant.Utils
+namespace PortingAssistant.Analysis.Utils
 {
     public static class PackageCompatibility
     {
@@ -45,6 +45,15 @@ namespace PortingAssistant.Utils
 
         public static async Task<CompatibilityResult> isCompatibleAsync(Task<PackageDetails> packageDetails, PackageVersionPair packageVersionPair, ILogger _logger, string target = DEFAULT_TARGET)
         {
+            if(packageDetails == null || packageVersionPair == null)
+            {
+                return new CompatibilityResult
+                {
+                    Compatibility = Compatibility.UNKNOWN,
+                    CompatibleVersions = new List<string>()
+                };
+            }
+
             try
             {
                 await packageDetails;

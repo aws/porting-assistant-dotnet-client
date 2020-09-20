@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using AwsCodeAnalyzer.Model;
-using PortingAssistant.ApiAnalysis.Utils;
+using PortingAssistant.Analysis.Utils;
 using PortingAssistant.Model;
 using NUnit.Framework;
 
-namespace Tests.ApiAnalysis
+namespace Tests.Analysis
 {
     public class FilterInternalInvocationTest
     {

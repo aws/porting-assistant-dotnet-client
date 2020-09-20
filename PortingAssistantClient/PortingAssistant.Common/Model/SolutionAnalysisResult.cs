@@ -7,7 +7,7 @@ namespace PortingAssistant.Model
     {
         public string Version { get; set; }
         public SolutionDetails SolutionDetails { get; set; }
-        public List<ProjectAnalysisResult> ProjectAnalysisResult { get; set; }
+        public List<Task<ProjectAnalysisResult>> ProjectAnalysisResult { get; set; }
         public List<string> FailedProjects { get; set; }
         public List<string> Errors { get; set; } //Solution errors; solution file errors etc.
     }

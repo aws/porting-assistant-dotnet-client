@@ -4,7 +4,7 @@ using System.Linq;
 using AwsCodeAnalyzer.Model;
 using PortingAssistant.Model;
 
-namespace PortingAssistant.ApiAnalysis.Utils
+namespace PortingAssistant.Analysis.Utils
 {
     public static class FilterInternalInvocations
     {
