@@ -105,7 +105,11 @@ namespace PortingAssistant.Analysis
                     .Select(InvocationExpressionModelToInvocations.ReferenceToPackageVersionPair)
                     .ToList();
 
-                var allPackages = nugetPackages.Concat(subDependencies).ToHashSet().ToList();
+                var sdkPackages = analyzer.ProjectResult.ExternalReferences.SdkReferences
+                    .Select(InvocationExpressionModelToInvocations.ReferenceToPackageVersionPair)
+                    .ToList();
+
+                var allPackages = nugetPackages.Concat(subDependencies).Concat(sdkPackages).ToHashSet().ToList();
 
                 var packageResults = _handler.GetNugetPackages(allPackages, null);
                 var recommendationResults = _recommendationHandler.GetApiRecommendation(namespaces.ToList());

@@ -13,7 +13,6 @@ using Microsoft.Build.Construction;
 using PortingAssistant.Handler.FileParser;
 using NuGet.Frameworks;
 using NuGet.Versioning;
-using PortingAssistant.ApiAnalysis;
 
 namespace Tests
 {

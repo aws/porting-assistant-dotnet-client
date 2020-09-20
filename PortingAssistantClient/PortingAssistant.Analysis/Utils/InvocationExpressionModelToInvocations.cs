@@ -27,7 +27,7 @@ namespace PortingAssistant.Analysis.Utils
                     SourceFilePath = sourceFile.Key,
                     ApiAnalysisResults = sourceFile.Value.Select(invocation =>
                     {
-                        var packageDetails = packageResults.GetValueOrDefault(invocation.Package);
+                        var packageDetails = packageResults.GetValueOrDefault(invocation.Package, null);
 
                         var compatibilityResult = ApiCompatiblity.GetCompatibilityResult(packageDetails,
                                                  invocation.OriginalDefinition,

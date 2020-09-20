@@ -14,7 +14,6 @@
     <ProjectReference Include="..\PortingAssistant.NuGet\PortingAssistant.NuGet.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Model\" />
     <Folder Include="Utils\" />
   </ItemGroup>
   <ItemGroup>

@@ -18,6 +18,6 @@
     <ProjectReference Include="..\PortingAssistant.Common\PortingAssistant.Common.csproj" />
     <ProjectReference Include="..\PortingAssistant.NuGet\PortingAssistant.NuGet.csproj" />
     <ProjectReference Include="..\PortingAssistant.Porting\PortingAssistant.Porting.csproj" />
-    <ProjectReference Include="..\PortingAssistant.ApiAnalysis\PortingAssistant.Analysis.csproj" />
+    <ProjectReference Include="..\PortingAssistant.Analysis\PortingAssistant.Analysis.csproj" />
   </ItemGroup>
 </Project>
