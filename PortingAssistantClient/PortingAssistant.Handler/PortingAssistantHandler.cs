@@ -101,7 +101,7 @@ namespace PortingAssistant.Handler
                 {
                     FailedProjects = solutionDetails.FailedProjects,
                     SolutionDetails = solutionDetails,
-                    ProjectAnalysisResult = projectAnalysisResults.Select(dic => dic.Value).ToList()
+                    ProjectAnalysisResults = projectAnalysisResults
                 };
 
             }

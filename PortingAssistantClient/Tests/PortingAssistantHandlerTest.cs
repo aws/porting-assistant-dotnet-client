@@ -187,8 +187,8 @@ namespace Tests
         public void AnalyzeSolutionWithProjectsSucceeds()
         {
             var results = _portingAssistantHandler.AnalyzeSolution(Path.Combine(_solutionFolder, "SolutionWithProjects.sln"), new Settings());
-            Task.WaitAll(results.ProjectAnalysisResult.ToArray());
-            var projectAnalysisResult = results.ProjectAnalysisResult.Find(p => p.Result.ProjectName == "Nop.Core");
+            Task.WaitAll(results.ProjectAnalysisResults.Values.ToArray());
+            var projectAnalysisResult = results.ProjectAnalysisResults.Values.ToList().Find(p => p.Result.ProjectName == "Nop.Core");
             var sourceFileAnalysisResults = projectAnalysisResult.Result.SourceFileAnalysisResults;
             var packageAnalysisResult = projectAnalysisResult.Result.PackageAnalysisResults;
 
