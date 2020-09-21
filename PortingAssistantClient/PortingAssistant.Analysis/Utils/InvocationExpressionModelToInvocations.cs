@@ -73,6 +73,11 @@ namespace PortingAssistant.Analysis.Utils
                      sourceFile.Key,
                      sourceFile.Value.Select(invocation =>
                      {
+                         if(invocation == null)
+                         {
+                             return null;
+                         }
+
                          var assemblyLength = invocation.Reference?.Assembly?.Length;
                          if (assemblyLength == null || assemblyLength == 0)
                          {
@@ -80,16 +85,16 @@ namespace PortingAssistant.Analysis.Utils
                          }
 
                          // Check if invocation is from Nuget
-                         var potentialNugetPackage = analyzer.ProjectResult.ExternalReferences.NugetReferences.Find((n) =>
+                         var potentialNugetPackage = analyzer?.ProjectResult?.ExternalReferences?.NugetReferences?.Find((n) =>
                              n.AssemblyLocation.EndsWith(invocation.Reference.Assembly + ".dll"));
                          if (potentialNugetPackage == null)
                          {
-                             potentialNugetPackage = analyzer.ProjectResult.ExternalReferences.NugetDependencies.Find((n) =>
+                             potentialNugetPackage = analyzer?.ProjectResult?.ExternalReferences?.NugetDependencies?.Find((n) =>
                             n.AssemblyLocation.EndsWith(invocation.Reference.Assembly + ".dll"));
                          }
                         PackageVersionPair nugetPackage = ReferenceToPackageVersionPair(potentialNugetPackage);
                         // Check if invocation is from SDK
-                        var potentialSdk = analyzer.ProjectResult.ExternalReferences.SdkReferences.Find((s) =>
+                        var potentialSdk = analyzer?.ProjectResult?.ExternalReferences?.SdkReferences?.Find((s) =>
                             s.AssemblyLocation.EndsWith(invocation.Reference.Assembly + ".dll"));
                         PackageVersionPair sdk = ReferenceToPackageVersionPair(potentialSdk);
 
@@ -108,10 +113,10 @@ namespace PortingAssistant.Analysis.Utils
                             OriginalDefinition = invocation.SemanticOriginalDefinition,
                             TextSpan = new TextSpan
                             {
-                                StartCharPosition = invocation.TextSpan.StartCharPosition,
-                                EndCharPosition = invocation.TextSpan.EndCharPosition,
-                                StartLinePosition = invocation.TextSpan.StartLinePosition,
-                                EndLinePosition = invocation.TextSpan.EndLinePosition
+                                StartCharPosition = invocation.TextSpan?.StartCharPosition,
+                                EndCharPosition = invocation.TextSpan?.EndCharPosition,
+                                StartLinePosition = invocation.TextSpan?.StartLinePosition,
+                                EndLinePosition = invocation.TextSpan?.EndLinePosition
                             },
                             // If we found an matching sdk assembly, assume the code is using the sdk.
                             Package = sdk ?? nugetPackage,
@@ -120,7 +125,9 @@ namespace PortingAssistant.Analysis.Utils
                      .Where(invocation => invocation != null)
                      .ToList()
                  )
-             ).ToDictionary(p => p.Key, p => p.Value);
+             )
+             .Where(p => p.Value.Count != 0)
+             .ToDictionary(p => p.Key, p => p.Value);
   
          }
 

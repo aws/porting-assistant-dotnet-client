@@ -69,7 +69,8 @@ namespace PortingAssistant.Analysis
                 var analyzers = await analyzersTask;
                 var invocationsMethodSignatures = new HashSet<string>();
 
-                var analyzer = analyzers.Find((a) => a.ProjectResult.ProjectFilePath.Equals(project.ProjectFilePath));
+                var analyzer = analyzers.Find((a) => a.ProjectResult?.ProjectFilePath != null &&
+                    a.ProjectResult.ProjectFilePath.Equals(project.ProjectFilePath));
 
                 if (analyzer == null || analyzer.ProjectResult == null)
                 {
@@ -94,7 +95,8 @@ namespace PortingAssistant.Analysis
 
                 var namespaces = sourceFileToCodeEntityDetails.Aggregate(new HashSet<string>(), (agg, cur) =>
                 {
-                    return agg.Concat(cur.Value.Select(i => i.Namespace)).ToHashSet();
+                    agg.UnionWith(cur.Value.Select(i => i.Namespace).Where(i => i != null));
+                    return agg;
                 });
 
                 var nugetPackages = analyzer.ProjectResult.ExternalReferences.NugetReferences

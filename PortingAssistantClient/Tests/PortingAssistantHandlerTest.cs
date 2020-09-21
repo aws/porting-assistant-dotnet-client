@@ -205,7 +205,6 @@ namespace Tests
         [Test]
         public void GetProjectWithCorruptedSolutionFileThrowsException()
         {
-            // TODO: this unit test fails
             var testSolutionPath = Path.Combine(TestContext.CurrentContext.TestDirectory,
                 "TestXml", "SolutionWithFailedContent", "NopCommerce.sln");
 

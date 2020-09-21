@@ -13,15 +13,16 @@ using Microsoft.Build.Construction;
 using PortingAssistant.Handler.FileParser;
 using NuGet.Frameworks;
 using NuGet.Versioning;
+using PortingAssistant.Analysis;
 
 namespace Tests
 {
-    /*
+    
     public class PortingAssistantApiAnalysisHandlerTest
     {
         private Mock<IPortingAssistantNuGetHandler> _nuGetHandlerMock;
         private Mock<IPortingAssistantRecommendationHandler> _recommendationHandlerMock;
-        private PortingAssistantApiAnalysisHandler _apiAnalysisHandler;
+        private PortingAssistantAnalysisHandler _analysisHandler;
         private string _solutionFile;
         private List<ProjectDetails> _projects;
 
@@ -64,7 +65,7 @@ namespace Tests
         {
             _nuGetHandlerMock = new Mock<IPortingAssistantNuGetHandler>();
             _recommendationHandlerMock = new Mock<IPortingAssistantRecommendationHandler>();
-            _apiAnalysisHandler = new PortingAssistantApiAnalysisHandler(NullLogger<PortingAssistantApiAnalysisHandler>.Instance, _nuGetHandlerMock.Object, _recommendationHandlerMock.Object);
+            _analysisHandler = new PortingAssistantAnalysisHandler(NullLogger<PortingAssistantAnalysisHandler>.Instance, _nuGetHandlerMock.Object, _recommendationHandlerMock.Object);
         }
 
         [SetUp]
@@ -126,17 +127,30 @@ namespace Tests
         [Test]
         public void AnalyzeWellDefinedSolutionSucceeds()
         {
-            var result = _apiAnalysisHandler.AnalyzeSolution(_solutionFile, _projects);
-            Task.WaitAll(result.ProjectApiAnalysisResults.Values.ToArray());
+            var package = new PackageVersionPair
+            {
+                PackageId = "Newtonsoft.Json",
+                Version = "11.0.1"
+            };
+            var result = _analysisHandler.AnalyzeSolution(_solutionFile, _projects);
+            Task.WaitAll(result.Values.ToArray());
 
-            var values = result.ProjectApiAnalysisResults.Values.First().Result;
+            var projectAnalysisResult = result.Values.First().Result;
+            Task.WaitAll(projectAnalysisResult.PackageAnalysisResults.Values.ToArray());
+            var packageAnalysisResult = projectAnalysisResult.PackageAnalysisResults.First().Value.Result;
 
-            Assert.AreEqual("Newtonsoft.Json", values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().CodeEntityDetails.Package.PackageId);
-            Assert.AreEqual("11.0.1", values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().CodeEntityDetails.Package.Version);
+            Assert.AreEqual(package, packageAnalysisResult.PackageVersionPair);
+            Assert.AreEqual(Compatibility.INCOMPATIBLE, packageAnalysisResult.CompatibilityResults.GetValueOrDefault(PackageCompatibility.DEFAULT_TARGET).Compatibility);
+            Assert.AreEqual("12.0.3", packageAnalysisResult.CompatibilityResults.GetValueOrDefault(PackageCompatibility.DEFAULT_TARGET).CompatibleVersions.First());
+            Assert.AreEqual("12.0.3", packageAnalysisResult.Recommendations.RecommendedActions.First().Description);
+            Assert.AreEqual(RecommendedActionType.UpgradePackage, packageAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
+
+            Assert.AreEqual("Newtonsoft.Json", projectAnalysisResult.SourceFileAnalysisResults.First().ApiAnalysisResults.First().CodeEntityDetails.Package.PackageId);
+            Assert.AreEqual("11.0.1", projectAnalysisResult.SourceFileAnalysisResults.First().ApiAnalysisResults.First().CodeEntityDetails.Package.Version);
             Assert.AreEqual("Newtonsoft.Json.JsonConvert.SerializeObject(object)",
-                values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().CodeEntityDetails.OriginalDefinition);
-            Assert.AreEqual(Compatibility.COMPATIBLE, values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().CompatibilityResults.GetValueOrDefault(ApiCompatiblity.DEFAULT_TARGET).Compatibility);
-            Assert.AreEqual("12.0.3", values.SourceFileAnalysisResults.First().ApiAnalysisResults.First().Recommendations.RecommendedActions.First().Description);
+                projectAnalysisResult.SourceFileAnalysisResults.First().ApiAnalysisResults.First().CodeEntityDetails.OriginalDefinition);
+            Assert.AreEqual(Compatibility.COMPATIBLE, projectAnalysisResult.SourceFileAnalysisResults.First().ApiAnalysisResults.First().CompatibilityResults.GetValueOrDefault(ApiCompatiblity.DEFAULT_TARGET).Compatibility);
+            Assert.AreEqual("12.0.3", projectAnalysisResult.SourceFileAnalysisResults.First().ApiAnalysisResults.First().Recommendations.RecommendedActions.First().Description);
         }
 
         [Test]
@@ -144,8 +158,8 @@ namespace Tests
         {
             Assert.Throws<AggregateException>(() =>
             {
-                var result = _apiAnalysisHandler.AnalyzeSolution(Path.Combine(_solutionFile, "Rand.sln"), _projects);
-                Task.WaitAll(result.ProjectApiAnalysisResults.Values.ToArray());
+                var result = _analysisHandler.AnalyzeSolution(Path.Combine(_solutionFile, "Rand.sln"), _projects);
+                Task.WaitAll(result.Values.ToArray());
             });
         }
 
@@ -154,9 +168,9 @@ namespace Tests
         {
             Assert.Throws<AggregateException>(() =>
             {
-                var result = _apiAnalysisHandler.AnalyzeSolution(Path.Combine(_solutionFile, "Rand.sln"), _projects);
-                Task.WaitAll(result.ProjectApiAnalysisResults.Values.ToArray());
+                var result = _analysisHandler.AnalyzeSolution(Path.Combine(_solutionFile, "Rand.sln"), _projects);
+                Task.WaitAll(result.Values.ToArray());
             });
         }
-    }*/
+    }
 }

@@ -19,15 +19,15 @@ namespace PortingAssistant.Analysis.Utils
             {
                 PackageVersionPair = packageVersionPair,
                 CompatibilityResults = new Dictionary<string, CompatibilityResult>
+                {
                     {
+                        DEFAULT_TARGET, new CompatibilityResult
                         {
-                            DEFAULT_TARGET, new CompatibilityResult
-                            {
-                                Compatibility = result.Compatibility,
-                                CompatibleVersions = result.CompatibleVersions
-                            }
+                            Compatibility = result.Compatibility,
+                            CompatibleVersions = result.CompatibleVersions
                         }
-                    },
+                    }
+                },
                 Recommendations = new Recommendations
                 {
                     RecommendedActions = new List<RecommendedAction>
@@ -36,7 +36,7 @@ namespace PortingAssistant.Analysis.Utils
                         {
                             PackageId = packageVersionPair.PackageId,
                             RecommendedActionType = RecommendedActionType.UpgradePackage,
-                            TargetVersions = result.CompatibleVersions
+                            Description = result.CompatibleVersions.First()
                         }
                     }
                 }
@@ -98,7 +98,7 @@ namespace PortingAssistant.Analysis.Utils
                         {
                             return false;
                         }
-                        return SemVersion.Compare(semversion, version) >= 0;
+                        return SemVersion.Compare(semversion, version) > 0;
                      }).ToList()
                 };
             }
