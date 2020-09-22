@@ -11,6 +11,7 @@ using System.IO;
 using System.IO.Compression;
 using PortingAssistant.Model;
 using Newtonsoft.Json.Linq;
+using Amazon.S3;
 
 namespace PortingAssistant.NuGet
 {
@@ -155,13 +156,23 @@ namespace PortingAssistant.NuGet
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError("Failed when downloading and parsing {0} from {1}, {2}", url.Key, _options.Value.DataStoreSettings.S3Endpoint.Length, ex);
-                    foreach (var packageVersion in url.Value)
+                    if (ex is AmazonS3Exception && (ex as AmazonS3Exception).StatusCode == System.Net.HttpStatusCode.NotFound)
                     {
-                        if (compatibilityTaskCompletionSources.TryGetValue(packageVersion, out var taskCompletionSource))
+                        var s3Exception = ex as AmazonS3Exception;
+                        _logger.LogInformation($"Encountered {s3Exception.GetType()} while downloading and parsing {url.Key} " +
+                                               $"from {_options.Value.DataStoreSettings.S3Endpoint}, but it was ignored. " +
+                                               $"ErrorCode: {s3Exception.ErrorCode}. ErrorMessage: {s3Exception.Message}.");
+                    }
+                    else
+                    {
+                        _logger.LogError("Failed when downloading and parsing {0} from {1}, {2}", url.Key, _options.Value.DataStoreSettings.S3Endpoint.Length, ex);
+                        foreach (var packageVersion in url.Value)
                         {
-                            taskCompletionSource.SetException(new PortingAssistantClientException(ExceptionMessage.PackageNotFound(packageVersion), ex));
-                            packageVersionsWithErrors.Add(packageVersion);
+                            if (compatibilityTaskCompletionSources.TryGetValue(packageVersion, out var taskCompletionSource))
+                            {
+                                taskCompletionSource.SetException(new PortingAssistantClientException(ExceptionMessage.PackageNotFound(packageVersion), ex));
+                                packageVersionsWithErrors.Add(packageVersion);
+                            }
                         }
                     }
                 }
