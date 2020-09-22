@@ -96,13 +96,15 @@ namespace PortingAssistant.Analysis.Utils
                         // Check if invocation is from SDK
                         var potentialSdk = analyzer?.ProjectResult?.ExternalReferences?.SdkReferences?.Find((s) =>
                             s.AssemblyLocation != null && s.AssemblyLocation.EndsWith(invocation.Reference.Assembly + ".dll"));
-                        PackageVersionPair sdk = ReferenceToPackageVersionPair(potentialSdk);
+                        PackageVersionPair sdk = ReferenceToPackageVersionPair(potentialSdk, PackageSourceType.SDK);
 
                         // If both nuget package and sdk are null, this invocation is from an internal project. Skip it.
                         if (nugetPackage == null && sdk == null)
                         {
                             return null;
                         }
+
+                         var package = sdk ?? nugetPackage;
 
                         // Otherwise return the invocation
                         return new CodeEntityDetails
@@ -131,7 +133,7 @@ namespace PortingAssistant.Analysis.Utils
   
          }
 
-        public static PackageVersionPair ReferenceToPackageVersionPair(ExternalReference reference)
+        public static PackageVersionPair ReferenceToPackageVersionPair(ExternalReference reference, PackageSourceType sourceType = PackageSourceType.NUGET)
         {
             if (reference != null)
             {
@@ -140,7 +142,7 @@ namespace PortingAssistant.Analysis.Utils
                 {
                     version = parsedVersion.ToNormalizedString();
                 }
-                return new PackageVersionPair { PackageId = reference.Identity, Version = version };
+                return new PackageVersionPair { PackageId = reference.Identity, Version = version, PackageSourceType = sourceType };
             }
             return null;
         }

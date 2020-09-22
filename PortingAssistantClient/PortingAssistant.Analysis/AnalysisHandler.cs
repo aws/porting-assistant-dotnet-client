@@ -76,11 +76,7 @@ namespace PortingAssistant.Analysis
                     throw new PortingAssistantClientException($"Build {project.ProjectName} failed", null);
                 }
 
-                if (analyzer.ProjectResult.BuildErrorsCount > 0 && analyzer.ProjectResult.SourceFileResults.Count() == 0)
-                {
-                    _logger.LogError("Encountered errors during compilation in {0}.", project.ProjectName);
-                    throw new PortingAssistantClientException($"Errors during compilation in {project.ProjectName}.", null);
-                }
+                var IsBuildFailed = analyzer.ProjectResult.BuildErrorsCount > 0 && analyzer.ProjectResult.SourceFileResults.Count() == 0;
 
                 var sourceFileToInvocations = analyzer.ProjectResult.SourceFileResults.Select((sourceFile) =>
                 {
@@ -99,16 +95,15 @@ namespace PortingAssistant.Analysis
                 });
 
                 var nugetPackages = analyzer.ProjectResult.ExternalReferences.NugetReferences
-                    .Select(InvocationExpressionModelToInvocations.ReferenceToPackageVersionPair)
-                    .Concat(project.PackageReferences)
+                    .Select(r => InvocationExpressionModelToInvocations.ReferenceToPackageVersionPair(r))
                     .ToHashSet();
 
                 var subDependencies = analyzer.ProjectResult.ExternalReferences.NugetDependencies
-                    .Select(InvocationExpressionModelToInvocations.ReferenceToPackageVersionPair)
+                    .Select(r => InvocationExpressionModelToInvocations.ReferenceToPackageVersionPair(r))
                     .ToHashSet();
 
                 var sdkPackages = analyzer.ProjectResult.ExternalReferences.SdkReferences
-                    .Select(InvocationExpressionModelToInvocations.ReferenceToPackageVersionPair)
+                    .Select(r => InvocationExpressionModelToInvocations.ReferenceToPackageVersionPair(r, PackageSourceType.SDK))
                     .ToHashSet();
 
                 var allPackages = nugetPackages
@@ -134,6 +129,7 @@ namespace PortingAssistant.Analysis
                     ProjectName = project.ProjectName,
                     ProjectFile = project.ProjectFilePath,
                     PackageAnalysisResults = packageAnalysisResults,
+                    IsBuildFailed = IsBuildFailed,
                     Errors = analyzer.ProjectBuildResult.BuildErrors,
                     SourceFileAnalysisResults = SourceFileAnalysisResults
                 };

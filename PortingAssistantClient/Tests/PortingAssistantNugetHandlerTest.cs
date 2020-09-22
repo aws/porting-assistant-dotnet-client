@@ -26,6 +26,7 @@ namespace Tests
         private Mock<IPortingAssistantInternalNuGetCompatibilityHandler> _internalNuGetCompatibilityHandlerMock;
         private Mock<InternalPackagesCompatibilityChecker> _internalPackagesCompatibilityChecker;
         private ExternalPackagesCompatibilityChecker _externalPackagesCompatibilityChecker;
+        private NamespacesCompatibilityChecker _namespacesCompatibilityChecker;
         private Mock<ILogger<PortingAssistantNuGetHandler>> _loggerMock;
         private readonly string _testSolutionDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory,
                 "TestXml", "SolutionWithNugetConfigFile");
@@ -226,6 +227,18 @@ namespace Tests
                 })
                 );
 
+            _namespacesCompatibilityChecker = new NamespacesCompatibilityChecker(
+                _transferUtilityMock.Object,
+                NullLogger<NamespacesCompatibilityChecker>.Instance,
+                Options.Create(new AnalyzerConfiguration
+                {
+                    DataStoreSettings = new DataStoreSettings
+                    {
+                        S3Endpoint = "Bucket"
+                    }
+                })
+                );
+
             _internalPackagesCompatibilityChecker = new Mock<InternalPackagesCompatibilityChecker>(
                 _internalNuGetCompatibilityHandlerMock.Object,
                 NullLogger<InternalPackagesCompatibilityChecker>.Instance);
@@ -251,6 +264,15 @@ namespace Tests
         private IPortingAssistantNuGetHandler GetInternalNuGetHandler()
         {
             var checkers = new List<ICompatibilityChecker>() { _internalPackagesCompatibilityChecker.Object };
+            return new PortingAssistantNuGetHandler(
+                    NullLogger<PortingAssistantNuGetHandler>.Instance,
+                    checkers.AsEnumerable()
+                    );
+        }
+
+        private IPortingAssistantNuGetHandler GetNamespaceNugetHandler()
+        {
+            var checkers = new List<ICompatibilityChecker>() { _namespacesCompatibilityChecker };
             return new PortingAssistantNuGetHandler(
                     NullLogger<PortingAssistantNuGetHandler>.Instance,
                     checkers.AsEnumerable()
@@ -337,6 +359,23 @@ namespace Tests
         public void GetNugetPackagesWithExternalNugetRepositorySucceeds()
         {
             var handler = GetExternalNuGetHandler();
+            var packages = new List<PackageVersionPair>()
+            {
+              new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.3" }
+            };
+            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
+            Task.WaitAll(resultTasks.Values.ToArray());
+
+            Assert.AreEqual(_packageDetails.Name, resultTasks.Values.First().Result.Name);
+            Assert.AreEqual(_packageDetails.Api.Count(), resultTasks.Values.First().Result.Api.Count());
+            Assert.AreEqual(_packageDetails.Targets.Count(), resultTasks.Values.First().Result.Targets.Count());
+            Assert.AreEqual(_packageDetails.Versions.Count(), resultTasks.Values.First().Result.Versions.Count());
+        }
+
+        [Test]
+        public void GetPackageWithNamesapcestRepositorySucceeds()
+        {
+            var handler = GetNamespaceNugetHandler();
             var packages = new List<PackageVersionPair>()
             {
               new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.3" }

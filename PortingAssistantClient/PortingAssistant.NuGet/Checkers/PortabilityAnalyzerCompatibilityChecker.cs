@@ -10,6 +10,7 @@ using Amazon.S3.Transfer;
 using System.IO;
 using System.IO.Compression;
 using PortingAssistant.Model;
+using Newtonsoft.Json.Linq;
 
 namespace PortingAssistant.NuGet
 {
@@ -22,6 +23,7 @@ namespace PortingAssistant.NuGet
         private readonly ILogger _logger;
         private readonly IOptions<AnalyzerConfiguration> _options;
         private readonly ITransferUtility _transferUtility;
+        private Task<Dictionary<string, string>> _manifest;
         private static readonly int _maxProcessConcurrency = 3;
         private static readonly SemaphoreSlim _semaphore = new SemaphoreSlim(_maxProcessConcurrency);
 
@@ -41,6 +43,7 @@ namespace PortingAssistant.NuGet
             _logger = logger;
             _options = options;
             _transferUtility = transferUtility;
+            _manifest = null;
         }
 
         /// <summary>
@@ -57,15 +60,21 @@ namespace PortingAssistant.NuGet
 
             try
             {
-                using var stream = _transferUtility.OpenStream(
-                    _options.Value.DataStoreSettings.S3Endpoint, NamespaceLookupFile);
-                using var streamReader = new StreamReader(stream);
-                var manifest = JsonConvert.DeserializeObject<Dictionary<string, string>>(streamReader.ReadToEnd())
-                    .ToDictionary(k => k.Key.ToLower(), v => v.Value);
+                if (_manifest == null)
+                {
+                    _manifest = GetManifestAsync();
+                }
+                Task.WaitAll(_manifest);
+                var manifest = _manifest.Result;
 
                 var foundPackages = new Dictionary<string, List<PackageVersionPair>>();
                 packageVersions.ToList().ForEach(p => 
                 {
+                    if(p.PackageSourceType != PackageSourceType.SDK)
+                    {
+                        return;
+                    }
+
                     var value = manifest.GetValueOrDefault(p.PackageId.ToLower(), null);
                     if (value != null)
                     {
@@ -174,6 +183,14 @@ namespace PortingAssistant.NuGet
                     taskCompletionSource.TrySetException(new PortingAssistantClientException(ExceptionMessage.PackageNotFound(packageVersion), innerException));
                 }
             }
+        }
+
+        private async Task<Dictionary<string, string>> GetManifestAsync()
+        {
+            using var stream = await _transferUtility.OpenStreamAsync(
+                    _options.Value.DataStoreSettings.S3Endpoint, "microsoftlibs.namespace.lookup.json");
+            using var streamReader = new StreamReader(stream);
+            return JsonConvert.DeserializeObject<JObject>(streamReader.ReadToEnd()).ToObject<Dictionary<string, string>>();
         }
 
         private class PackageFromS3
