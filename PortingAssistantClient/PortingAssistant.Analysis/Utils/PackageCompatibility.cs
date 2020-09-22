@@ -36,7 +36,7 @@ namespace PortingAssistant.Analysis.Utils
                         {
                             PackageId = packageVersionPair.PackageId,
                             RecommendedActionType = RecommendedActionType.UpgradePackage,
-                            Description = result.CompatibleVersions.First()
+                            Description = result.CompatibleVersions.Count != 0 ? result.CompatibleVersions.First() : null
                         }
                     }
                 }

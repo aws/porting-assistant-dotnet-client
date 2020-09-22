@@ -10,9 +10,7 @@ using PortingAssistant.Model;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using PortingAssistant.NuGet;
-using PortingAssistant.Utils;
 using AnalyzerConfiguration = AwsCodeAnalyzer.AnalyzerConfiguration;
-using System.IO;
 
 namespace PortingAssistant.Analysis
 {
@@ -87,8 +85,9 @@ namespace PortingAssistant.Analysis
                 var sourceFileToInvocations = analyzer.ProjectResult.SourceFileResults.Select((sourceFile) =>
                 {
                     var invocationsInSourceFile = sourceFile.AllInvocationExpressions();
+                    var invocations = FilterInternalInvocations.Filter(invocationsInSourceFile, project);
                     _logger.LogInformation("API: SourceFile {0} has {1} invocations pre-filter", sourceFile.FileFullPath, invocationsInSourceFile.Count());
-                    return KeyValuePair.Create(sourceFile.FileFullPath, invocationsInSourceFile);
+                    return KeyValuePair.Create(sourceFile.FileFullPath, invocations);
                 }).ToDictionary(p => p.Key, p => p.Value);
 
                 var sourceFileToCodeEntityDetails = InvocationExpressionModelToInvocations.Convert(sourceFileToInvocations, analyzer);
@@ -101,17 +100,21 @@ namespace PortingAssistant.Analysis
 
                 var nugetPackages = analyzer.ProjectResult.ExternalReferences.NugetReferences
                     .Select(InvocationExpressionModelToInvocations.ReferenceToPackageVersionPair)
-                    .ToList();
+                    .Concat(project.PackageReferences)
+                    .ToHashSet();
 
                 var subDependencies = analyzer.ProjectResult.ExternalReferences.NugetDependencies
                     .Select(InvocationExpressionModelToInvocations.ReferenceToPackageVersionPair)
-                    .ToList();
+                    .ToHashSet();
 
                 var sdkPackages = analyzer.ProjectResult.ExternalReferences.SdkReferences
                     .Select(InvocationExpressionModelToInvocations.ReferenceToPackageVersionPair)
-                    .ToList();
+                    .ToHashSet();
 
-                var allPackages = nugetPackages.Concat(subDependencies).Concat(sdkPackages).ToHashSet().ToList();
+                var allPackages = nugetPackages
+                    .Union(subDependencies)
+                    .Union(sdkPackages)
+                    .ToList();
 
                 var packageResults = _handler.GetNugetPackages(allPackages, null);
                 var recommendationResults = _recommendationHandler.GetApiRecommendation(namespaces.ToList());

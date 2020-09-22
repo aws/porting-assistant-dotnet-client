@@ -19,7 +19,7 @@ namespace PortingAssistant.Handler
             serviceCollection.Configure<AnalyzerConfiguration>(cacheConfig);
             serviceCollection.AddSingleton<IPortingAssistantNuGetHandler, PortingAssistantNuGetHandler>();
             serviceCollection.AddSingleton<IPortingAssistantAnalysisHandler, PortingAssistantAnalysisHandler>();
-            serviceCollection.AddSingleton<IPortingAssistantRecommendationHandler, RecommendationChecker>();
+            serviceCollection.AddSingleton<IPortingAssistantRecommendationHandler, PortingAssistantRecommendationHandler>();
             serviceCollection.AddSingleton<ICompatibilityChecker, InternalPackagesCompatibilityChecker>();
             serviceCollection.AddSingleton<ICompatibilityChecker, ExternalPackagesCompatibilityChecker>();
             serviceCollection.AddSingleton<ICompatibilityChecker, NamespacesCompatibilityChecker>();

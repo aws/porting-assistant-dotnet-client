@@ -64,7 +64,7 @@ namespace PortingAssistant.Analysis.Utils
         }
 
         public static Dictionary<string, List<CodeEntityDetails>> Convert(
-             Dictionary<string, UstList<InvocationExpression>> sourceFileToInvocations,
+             Dictionary<string, List<InvocationExpression>> sourceFileToInvocations,
              AnalyzerResult analyzer)
          {
   
@@ -86,16 +86,16 @@ namespace PortingAssistant.Analysis.Utils
 
                          // Check if invocation is from Nuget
                          var potentialNugetPackage = analyzer?.ProjectResult?.ExternalReferences?.NugetReferences?.Find((n) =>
-                             n.AssemblyLocation.EndsWith(invocation.Reference.Assembly + ".dll"));
+                             n.AssemblyLocation != null && n.AssemblyLocation.EndsWith(invocation.Reference.Assembly + ".dll"));
                          if (potentialNugetPackage == null)
                          {
                              potentialNugetPackage = analyzer?.ProjectResult?.ExternalReferences?.NugetDependencies?.Find((n) =>
-                            n.AssemblyLocation.EndsWith(invocation.Reference.Assembly + ".dll"));
+                            n.AssemblyLocation != null && n.AssemblyLocation.EndsWith(invocation.Reference.Assembly + ".dll"));
                          }
                         PackageVersionPair nugetPackage = ReferenceToPackageVersionPair(potentialNugetPackage);
                         // Check if invocation is from SDK
                         var potentialSdk = analyzer?.ProjectResult?.ExternalReferences?.SdkReferences?.Find((s) =>
-                            s.AssemblyLocation.EndsWith(invocation.Reference.Assembly + ".dll"));
+                            s.AssemblyLocation != null && s.AssemblyLocation.EndsWith(invocation.Reference.Assembly + ".dll"));
                         PackageVersionPair sdk = ReferenceToPackageVersionPair(potentialSdk);
 
                         // If both nuget package and sdk are null, this invocation is from an internal project. Skip it.
