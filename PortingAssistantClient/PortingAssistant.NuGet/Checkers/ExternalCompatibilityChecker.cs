@@ -142,7 +142,7 @@ namespace PortingAssistant.NuGet
                 case PackageSourceType.NUGET:
                     break;
                 case PackageSourceType.SDK:
-                    downloadFilePath = "namespaces/" + packageToDownload;
+                    downloadFilePath = "namespaces/" + fileToDownload;
                     break;
                 default:
                     break;
