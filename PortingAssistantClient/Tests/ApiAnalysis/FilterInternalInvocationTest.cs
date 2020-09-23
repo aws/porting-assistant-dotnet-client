@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using AwsCodeAnalyzer.Model;
-using PortingAssistant.ApiAnalysis.Utils;
+using PortingAssistant.Analysis.Utils;
 using PortingAssistant.Model;
 using NUnit.Framework;
 
-namespace Tests.ApiAnalysis
+namespace Tests.Analysis
 {
     public class FilterInternalInvocationTest
     {
@@ -13,19 +13,19 @@ namespace Tests.ApiAnalysis
         public void TestNoMatch()
         {
             var allInvocations = new List<InvocationExpression>
-            {
-                new MockInvocationExpressionModel("definition1", "namespace1")
-            };
+             {
+                 new MockInvocationExpressionModel("definition1", "namespace1", "test")
+             };
 
             var project = new ProjectDetails
             {
                 ProjectName = "namespace3.csproj",
                 ProjectReferences = new List<ProjectReference>
-                {
-                    new ProjectReference {
-                        ReferencePath = Path.Join("some", "path", "namespace2.csproj")
-                    }
-                }
+                 {
+                     new ProjectReference {
+                         ReferencePath = Path.Join("some", "path", "namespace2.csproj")
+                     }
+                 }
             };
 
             var invocations = FilterInternalInvocations.Filter(allInvocations, project);
@@ -36,22 +36,22 @@ namespace Tests.ApiAnalysis
         public void TestFilterProject()
         {
             var allInvocations = new List<InvocationExpression>
-            {
-                new MockInvocationExpressionModel("definition1", "namespace1"),
-                new MockInvocationExpressionModel("definition1", "namespace1.anothernamespace"),
-                new MockInvocationExpressionModel("definition2", "namespace2"),
-                new MockInvocationExpressionModel("definition2", "namespace2.anothernamespace")
-            };
+             {
+                 new MockInvocationExpressionModel("definition1", "namespace1", "test"),
+                 new MockInvocationExpressionModel("definition1", "namespace1.anothernamespace", "test1"),
+                 new MockInvocationExpressionModel("definition2", "namespace2", "test2"),
+                 new MockInvocationExpressionModel("definition2", "namespace2.anothernamespace", "test2")
+             };
 
             var project = new ProjectDetails
             {
                 ProjectName = "namespace1.csproj",
                 ProjectReferences = new List<ProjectReference>
-                {
-                    new ProjectReference {
-                        ReferencePath = Path.Join("some", "path", "namespace2.csproj")
-                    }
-                }
+                 {
+                     new ProjectReference {
+                         ReferencePath = Path.Join("some", "path", "namespace2.csproj")
+                     }
+                 }
             };
 
             var invocations = FilterInternalInvocations.Filter(allInvocations, project);
@@ -62,9 +62,9 @@ namespace Tests.ApiAnalysis
         public void TestFilterSelfProject()
         {
             var allInvocations = new List<InvocationExpression>
-            {
-                new MockInvocationExpressionModel("definition1", "namespace1"),
-            };
+             {
+                 new MockInvocationExpressionModel("definition1", "namespace1", "test"),
+             };
 
             var project = new ProjectDetails
             {

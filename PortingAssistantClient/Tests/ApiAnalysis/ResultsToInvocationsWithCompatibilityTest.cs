@@ -1,19 +1,23 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using AwsCodeAnalyzer.Model;
-using PortingAssistantApiAnalysis.Utils;
 using PortingAssistant.NuGet;
 using PortingAssistant.Model;
-using PortingAssistant.ApiAnalysis.Utils;
+using PortingAssistant.Analysis.Utils;
 using Moq;
 using NUnit.Framework;
 using System.Linq;
+using TextSpan = PortingAssistant.Model.TextSpan;
+using AwsCodeAnalyzer;
 
-namespace Tests.ApiAnalysis
+namespace Tests.Analysis
 {
+    
     public class ResultsToInvocationsWithCompatibilityTest
     {
         private Mock<IPortingAssistantNuGetHandler> _handler;
+        private Dictionary<PackageVersionPair, Task<PackageDetails>> packageResults;
+        private Dictionary<string, Task<RecommendationDetails>> recommendationResults;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
@@ -34,6 +38,27 @@ namespace Tests.ApiAnalysis
                         {packages.First(), task.Task }
                     };
                 });
+            var package = new PackageVersionPair
+            {
+                PackageId = "Newtonsoft.Json",
+                Version = "11.0.1"
+            };
+
+            var packageTask = new TaskCompletionSource<PackageDetails>();
+            var recommendationTask = new TaskCompletionSource<RecommendationDetails>();
+
+            packageTask.SetResult(_packageDetails);
+            recommendationTask.SetResult(new RecommendationDetails());
+
+            packageResults = new Dictionary<PackageVersionPair, Task<PackageDetails>>
+            {
+                {package, packageTask.Task }
+            };
+
+            recommendationResults = new Dictionary<string, Task<RecommendationDetails>>
+            {
+                {"Newtonsoft.Json", recommendationTask.Task }
+            };
         }
 
         private readonly PackageDetails _packageDetails = new PackageDetails
@@ -70,15 +95,28 @@ namespace Tests.ApiAnalysis
             IsDeprecated = false
         };
 
-        [Test]
-        public void NormalCaseTest()
+        private readonly CodeEntityDetails _codeEntityDetails = new CodeEntityDetails
         {
-            var sourceFileToInvocations = new Dictionary<string, List<InvocationExpression>>
+            Name = "JsonConvert.SerializeObject",
+            OriginalDefinition = "Newtonsoft.Json.JsonConvert.SerializeObject(object)",
+            Namespace = "Newtonsoft.Json",
+            Package = new PackageVersionPair
+            {
+                PackageId = "Newtonsoft.Json",
+                Version = "11.0.1"
+            },
+            TextSpan = new TextSpan(),
+        };
+
+        [Test]
+        public void NormalAnalyzeCaseTest()
+        {
+            var sourceFileToInvocations = new Dictionary<string, List<CodeEntityDetails>>
             {
                 {
-                    "file1", new List<InvocationExpression>
+                    "file1", new List<CodeEntityDetails>
                     {
-                        new MockInvocationExpressionModel("Newtonsoft.Json.JsonConvert.SerializeObject(object)", "namespace")
+                       _codeEntityDetails
                     }
                 }
             };
@@ -94,14 +132,90 @@ namespace Tests.ApiAnalysis
                 }
             };
 
-            var result = InvocationExpressionModelToInvocations.Convert(
-                sourceFileToInvocations, project, _handler.Object, new Dictionary<PackageVersionPair, Task<PackageDetails>>(), new Dictionary<string, Task<RecommendationDetails>>());
+            var result = InvocationExpressionModelToInvocations.AnalyzeResults(
+                sourceFileToInvocations, packageResults, recommendationResults);
 
-            Assert.AreEqual(1, result[0].ApiAnalysisResults.Count);
-            Assert.AreEqual("11.2.0", result[0].ApiAnalysisResults[0].CodeEntityDetails.Package.Version);
-            Assert.AreEqual(Compatibility.COMPATIBLE, result[0].ApiAnalysisResults[0].CompatibilityResults.GetValueOrDefault(ApiCompatiblity.DEFAULT_TARGET).Compatibility);
+            Assert.AreEqual(1, result.First().ApiAnalysisResults.Count);
+            Assert.AreEqual("11.0.1", result.First().ApiAnalysisResults.First().CodeEntityDetails.Package.Version);
+            Assert.AreEqual(Compatibility.COMPATIBLE, result.First().ApiAnalysisResults.First().CompatibilityResults.GetValueOrDefault(ApiCompatiblity.DEFAULT_TARGET).Compatibility);
             Assert.AreEqual("12.0.3", result[0].ApiAnalysisResults[0].Recommendations.RecommendedActions.First().Description); ;
         }
+
+        [Test]
+        public void NoPackageResultsTest()
+        {
+            var sourceFileToInvocations = new Dictionary<string, List<CodeEntityDetails>>
+            {
+                {
+                    "file1", new List<CodeEntityDetails>
+                    {
+                       _codeEntityDetails
+                    }
+                }
+            };
+
+            var project = new ProjectDetails
+            {
+                PackageReferences = new List<PackageVersionPair>
+                {
+                    new PackageVersionPair {
+                        PackageId = "namespace",
+                        Version = "11.2"
+                    }
+                }
+            };
+
+            var result = InvocationExpressionModelToInvocations.AnalyzeResults(
+                sourceFileToInvocations, new Dictionary<PackageVersionPair, Task<PackageDetails>>(), recommendationResults);
+
+            Assert.AreEqual(1, result.First().ApiAnalysisResults.Count);
+            Assert.AreEqual("11.0.1", result.First().ApiAnalysisResults.First().CodeEntityDetails.Package.Version);
+            Assert.AreEqual(Compatibility.UNKNOWN, result.First().ApiAnalysisResults.First().CompatibilityResults.GetValueOrDefault(ApiCompatiblity.DEFAULT_TARGET).Compatibility);
+            Assert.IsNull(result[0].ApiAnalysisResults[0].Recommendations.RecommendedActions.First().Description); ;
+        }
+
+
+        [Test]
+        public void NormalCaseTest()
+        {
+             var sourceFileToInvocations = new Dictionary<string, List<InvocationExpression>>
+             {
+                 {
+                     "file1", new List<InvocationExpression>
+                     {
+                         new MockInvocationExpressionModel("definition", "namespace", "test")
+                     }
+                 }
+             };
+
+             var project = new AnalyzerResult
+             {
+                 ProjectResult = new ProjectWorkspace("")
+                 {
+                     ExternalReferences = new ExternalReferences
+                     {
+                         NugetReferences = new List<ExternalReference>
+                         {
+                             new ExternalReference
+                             {
+                                 AssemblyLocation = "test.dll",
+                                 Identity = "namespace",
+                                 Version = "1.2"
+                             }
+                         }
+                     }
+                 },
+                 OutputJsonFilePath = null,
+                 ProjectBuildResult = null
+             };
+
+            var result = InvocationExpressionModelToInvocations.Convert(
+                sourceFileToInvocations, project);
+
+            Assert.AreEqual(1, result["file1"].Count);
+            Assert.AreEqual("1.2.0", result["file1"][0].Package.Version);
+        }
+
 
         [Test]
         public void MultipleNuget()
@@ -111,71 +225,140 @@ namespace Tests.ApiAnalysis
                 {
                     "file1", new List<InvocationExpression>
                     {
-                        new MockInvocationExpressionModel("Newtonsoft.Json.JsonConvert.SerializeObject(object)", "namespace.namespace2.namespace3")
+                        new MockInvocationExpressionModel("Newtonsoft.Json.JsonConvert.SerializeObject(object)", "namespace.namespace2.namespace3", "test")
                     }
                 }
             };
 
-            var project = new ProjectDetails
+            var project = new AnalyzerResult
             {
-                PackageReferences = new List<PackageVersionPair>
+                ProjectResult = new ProjectWorkspace("")
                 {
-                    new PackageVersionPair {
-                        PackageId = "namespace",
-                        Version = "11.2"
-                    },
-                    new PackageVersionPair {
-                        PackageId = "namespace.namespace2",
-                        Version = "11.2"
+                    ExternalReferences = new ExternalReferences
+                    {
+                        NugetReferences = new List<ExternalReference>
+                         {
+                             new ExternalReference
+                             {
+                                 AssemblyLocation = "test.dll",
+                                 Identity = "namespace",
+                                 Version = "1.2"
+                             },
+                             new ExternalReference
+                             {
+                                 AssemblyLocation = "test2.dll",
+                                 Identity = "namespace.namespace2",
+                                 Version = "1.2"
+                             }
+                         }
                     }
-                }
+                },
+                OutputJsonFilePath = null,
+                ProjectBuildResult = null
             };
 
             var result = InvocationExpressionModelToInvocations.Convert(
-                sourceFileToInvocations, project, _handler.Object, new Dictionary<PackageVersionPair, Task<PackageDetails>>(), new Dictionary<string, Task<RecommendationDetails>>());
+                sourceFileToInvocations, project);
 
-            Assert.AreEqual(1, result[0].ApiAnalysisResults.Count);
-            Assert.AreEqual("11.2.0", result[0].ApiAnalysisResults[0].CodeEntityDetails.Package.Version);
-            Assert.AreEqual(Compatibility.COMPATIBLE, result[0].ApiAnalysisResults[0].CompatibilityResults.GetValueOrDefault(ApiCompatiblity.DEFAULT_TARGET).Compatibility);
-            Assert.AreEqual("12.0.3", result[0].ApiAnalysisResults[0].Recommendations.RecommendedActions.First().Description);
+            Assert.AreEqual(1, result["file1"].Count);
+            Assert.AreEqual("1.2.0", result["file1"][0].Package.Version);
+
+        }
+
+        [Test]
+        public void NugetDependencies()
+        {
+            var sourceFileToInvocations = new Dictionary<string, List<InvocationExpression>>
+             {
+                 {
+                     "file1", new List<InvocationExpression>
+                     {
+                         new MockInvocationExpressionModel("definition", "namespace.namespace2.namespace3", "test")
+                     }
+                 }
+             };
+
+            var project = new AnalyzerResult
+            {
+                ProjectResult = new ProjectWorkspace("")
+                {
+                    ExternalReferences = new ExternalReferences
+                    {
+                        NugetDependencies = new List<ExternalReference>
+                         {
+                             new ExternalReference
+                             {
+                                 AssemblyLocation = "test.dll",
+                                 Identity = "namespace",
+                                 Version = "1.2"
+                             },
+                             new ExternalReference
+                             {
+                                 AssemblyLocation = "test2.dll",
+                                 Identity = "namespace.namespace2",
+                                 Version = "1.2"
+                             }
+                         }
+                    }
+                },
+                OutputJsonFilePath = null,
+                ProjectBuildResult = null
+            };
+
+            var result = InvocationExpressionModelToInvocations.Convert(
+                sourceFileToInvocations, project);
+
+            Assert.AreEqual(1, result["file1"].Count);
+            Assert.AreEqual("1.2.0", result["file1"][0].Package.Version);
         }
 
         [Test]
         public void BadVersion()
         {
             var sourceFileToInvocations = new Dictionary<string, List<InvocationExpression>>
-            {
-                {
-                    "file1", new List<InvocationExpression>
-                    {
-                        new MockInvocationExpressionModel("Newtonsoft.Json.JsonConvert.SerializeObject(object)", "namespace.namespace2.namespace3")
-                    }
-                }
-            };
+             {
+                 {
+                     "file1", new List<InvocationExpression>
+                     {
+                         new MockInvocationExpressionModel("definition", "namespace.namespace2.namespace3", "namespace2")
+                     }
+                 }
+             };
 
-            var project = new ProjectDetails
+            var project = new AnalyzerResult
             {
-                PackageReferences = new List<PackageVersionPair>
+                ProjectResult = new ProjectWorkspace("")
                 {
-                    new PackageVersionPair {
-                        PackageId = "namespace",
-                        Version = "*"
-                    },
-                    new PackageVersionPair {
-                        PackageId = "namespace.namespace2",
-                        Version = "NOT_SEMVER"
+                    ExternalReferences = new ExternalReferences
+                    {
+                        NugetReferences = new List<ExternalReference>
+                         {
+                             new ExternalReference
+                             {
+                                 AssemblyLocation = "namespace.dll",
+                                 Identity = "namespace",
+                                 Version = "*"
+                             },
+                             new ExternalReference
+                             {
+                                 AssemblyLocation = "namespace2.dll",
+                                 Identity = "namespace.namespace2",
+                                 Version = "NOT_SEMVER"
+                             }
+                         }
                     }
-                }
+                },
+                OutputJsonFilePath = null,
+                ProjectBuildResult = null
             };
 
             var result = InvocationExpressionModelToInvocations.Convert(
-                sourceFileToInvocations, project, _handler.Object, new Dictionary<PackageVersionPair, Task<PackageDetails>>(), new Dictionary<string, Task<RecommendationDetails>>());
+                sourceFileToInvocations, project);
 
-            Assert.AreEqual(1, result[0].ApiAnalysisResults.Count);
-            Assert.AreEqual("namespace.namespace2", result[0].ApiAnalysisResults[0].CodeEntityDetails.Package.PackageId);
-            Assert.IsNull(result[0].ApiAnalysisResults[0].CodeEntityDetails.Package.Version);
-            Assert.AreEqual(Compatibility.UNKNOWN, result[0].ApiAnalysisResults[0].CompatibilityResults.GetValueOrDefault(ApiCompatiblity.DEFAULT_TARGET).Compatibility);
-            Assert.IsNull(result[0].ApiAnalysisResults[0].Recommendations.RecommendedActions.First().Description);
+            Assert.AreEqual(1, result["file1"].Count);
+            Assert.AreEqual("namespace.namespace2", result["file1"][0].Package.PackageId);
+            Assert.AreEqual("NOT_SEMVER", result["file1"][0].Package.Version);
+
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace PortingAssistant.ApiAnalysis
+namespace PortingAssistant.Analysis.Utils
 {
     public class InvocationFilterData
     {

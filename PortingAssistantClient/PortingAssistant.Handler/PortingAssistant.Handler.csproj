@@ -15,9 +15,9 @@
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="3.1.7" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PortingAssistant.ApiAnalysis\PortingAssistant.ApiAnalysis.csproj" />
     <ProjectReference Include="..\PortingAssistant.Common\PortingAssistant.Common.csproj" />
     <ProjectReference Include="..\PortingAssistant.NuGet\PortingAssistant.NuGet.csproj" />
     <ProjectReference Include="..\PortingAssistant.Porting\PortingAssistant.Porting.csproj" />
+    <ProjectReference Include="..\PortingAssistant.Analysis\PortingAssistant.Analysis.csproj" />
   </ItemGroup>
 </Project>

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using PortingAssistant.ApiAnalysis;
+using PortingAssistant.Analysis;
 using PortingAssistant.Handler.FileParser;
 using PortingAssistant.NuGet;
 using PortingAssistant.Model;
@@ -19,19 +19,16 @@ namespace PortingAssistant.Handler
     public class PortingAssistantHandler : IPortingAssistantHandler
     {
         private readonly ILogger _logger;
-        private readonly IPortingAssistantNuGetHandler _nuGetHandler;
-        private readonly IPortingAssistantApiAnalysisHandler _apiAnalysisHandler;
+        private readonly IPortingAssistantAnalysisHandler _AnalysisHandler;
         private readonly IPortingHandler _portingHandler;
 
         public PortingAssistantHandler(ILogger<PortingAssistantHandler> logger,
-            IPortingAssistantNuGetHandler nuGetHandler,
-            IPortingAssistantApiAnalysisHandler apiAnalysisHandler,
+            IPortingAssistantAnalysisHandler AnalysisHandler,
             IPortingHandler portingHandler
             )
         {
             _logger = logger;
-            _nuGetHandler = nuGetHandler;
-            _apiAnalysisHandler = apiAnalysisHandler;
+            _AnalysisHandler = AnalysisHandler;
             _portingHandler = portingHandler;
         }
 
@@ -95,37 +92,17 @@ namespace PortingAssistant.Handler
             try
             {
                 var solutionDetails = GetSolutionDetails(solutionFilePath);
-                var solutionApiAnalysisResult = _apiAnalysisHandler.AnalyzeSolution(solutionFilePath, solutionDetails.Projects);
+                var projects = solutionDetails.Projects
+                    .Where(p => settings.IgnoreProjects == null || !settings.IgnoreProjects.Contains(p.ProjectFilePath))
+                    .ToList();
+                var projectAnalysisResults = _AnalysisHandler.AnalyzeSolution(solutionFilePath, projects);
 
-                var solutionAnalysisResult = new SolutionAnalysisResult
+                return new SolutionAnalysisResult
                 {
                     FailedProjects = solutionDetails.FailedProjects,
                     SolutionDetails = solutionDetails,
-                    ProjectAnalysisResult = solutionDetails.Projects
-                    .Where(p => settings.IgnoreProjects == null || !settings.IgnoreProjects.Contains(p.ProjectFilePath))
-                    .Select(p =>
-                    {
-                        var projectApiAnalysisResult = solutionApiAnalysisResult.ProjectApiAnalysisResults.GetValueOrDefault(p.ProjectFilePath);
-                        var packageAnalysisResults = _nuGetHandler.GetNugetPackages(p.PackageReferences, solutionFilePath)
-                            .Select(package =>
-                            {
-                                var result = PackageCompatibility.isCompatibleAsync(package.Value, package.Key, _logger);
-                                var packageAnalysisResult = PackageCompatibility.GetPackageAnalysisResult(result, package.Key);
-                                return new Tuple<PackageVersionPair, Task<PackageAnalysisResult>>(package.Key, packageAnalysisResult);
-                            }).ToDictionary(t => t.Item1, t => t.Item2);
-
-                        return new ProjectAnalysisResult
-                        {
-                            ProjectFile = p.ProjectFilePath,
-                            ProjectName = p.ProjectName,
-                            ProjectApiAnalysisResult = projectApiAnalysisResult,
-                            PackageAnalysisResults = packageAnalysisResults
-                        };
-                    }).ToList()
-
+                    ProjectAnalysisResults = projectAnalysisResults
                 };
-
-                return solutionAnalysisResult;
 
             }
             catch (Exception ex)

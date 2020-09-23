@@ -78,7 +78,7 @@ namespace PortingAssistant.NuGet
             foreach (var groupedPackageVersions in packageVersionsGroupedByPackageId)
             {
                 var packageToDownload = groupedPackageVersions.Key.ToLower();
-                var fileToDownload = $"{packageToDownload}.json.gz";
+                var fileToDownload = GetDownloadFilePath(CompatibilityCheckerType, packageToDownload);
 
                 try
                 {
@@ -110,7 +110,7 @@ namespace PortingAssistant.NuGet
                 }
                 catch (Exception ex)
                 {
-                    if (ex is AmazonS3Exception && !(ex as AmazonS3Exception).ErrorCode.Contains("NoSuchKey"))
+                    if (ex is AmazonS3Exception && (ex as AmazonS3Exception).StatusCode == System.Net.HttpStatusCode.NotFound )
                     {
                         var s3Exception = ex as AmazonS3Exception;
                         _logger.LogInformation($"Encountered {s3Exception.GetType()} while downloading and parsing {fileToDownload} " +
@@ -131,23 +131,24 @@ namespace PortingAssistant.NuGet
                     }
                 }
             }
+        }
 
-            foreach (var packageVersion in packageVersions)
+        private string GetDownloadFilePath(PackageSourceType CompatibilityCheckerType, string packageToDownload)
+        {
+            var fileToDownload = $"{packageToDownload}.json.gz";
+            var downloadFilePath = fileToDownload;
+            switch (CompatibilityCheckerType)
             {
-                if (packageVersionsFound.Contains(packageVersion) || packageVersionsWithErrors.Contains(packageVersion))
-                {
-                    continue;
-                }
-
-                if (compatibilityTaskCompletionSources.TryGetValue(packageVersion, out var taskCompletionSource))
-                {
-                    var errorMessage = $"Could not find package {packageVersion} in external source; try checking an internal source.";
-                    _logger.LogInformation(errorMessage);
-
-                    var innerException = new PackageNotFoundException(errorMessage);
-                    taskCompletionSource.TrySetException(new PortingAssistantClientException(ExceptionMessage.PackageNotFound(packageVersion), innerException));
-                }
+                case PackageSourceType.NUGET:
+                    break;
+                case PackageSourceType.SDK:
+                    downloadFilePath = "namespaces/" + fileToDownload;
+                    break;
+                default:
+                    break;
             }
+
+            return downloadFilePath;
         }
 
         private class PackageFromS3

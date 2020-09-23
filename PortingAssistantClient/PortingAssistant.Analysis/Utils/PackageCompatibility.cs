@@ -6,7 +6,7 @@ using Semver;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
-namespace PortingAssistant.Utils
+namespace PortingAssistant.Analysis.Utils
 {
     public static class PackageCompatibility
     {
@@ -19,15 +19,15 @@ namespace PortingAssistant.Utils
             {
                 PackageVersionPair = packageVersionPair,
                 CompatibilityResults = new Dictionary<string, CompatibilityResult>
+                {
                     {
+                        DEFAULT_TARGET, new CompatibilityResult
                         {
-                            DEFAULT_TARGET, new CompatibilityResult
-                            {
-                                Compatibility = result.Compatibility,
-                                CompatibleVersions = result.CompatibleVersions
-                            }
+                            Compatibility = result.Compatibility,
+                            CompatibleVersions = result.CompatibleVersions
                         }
-                    },
+                    }
+                },
                 Recommendations = new Recommendations
                 {
                     RecommendedActions = new List<RecommendedAction>
@@ -36,7 +36,7 @@ namespace PortingAssistant.Utils
                         {
                             PackageId = packageVersionPair.PackageId,
                             RecommendedActionType = RecommendedActionType.UpgradePackage,
-                            TargetVersions = result.CompatibleVersions
+                            Description = result.CompatibleVersions.Count != 0 ? result.CompatibleVersions.First() : null
                         }
                     }
                 }
@@ -45,6 +45,15 @@ namespace PortingAssistant.Utils
 
         public static async Task<CompatibilityResult> isCompatibleAsync(Task<PackageDetails> packageDetails, PackageVersionPair packageVersionPair, ILogger _logger, string target = DEFAULT_TARGET)
         {
+            if(packageDetails == null || packageVersionPair == null)
+            {
+                return new CompatibilityResult
+                {
+                    Compatibility = Compatibility.UNKNOWN,
+                    CompatibleVersions = new List<string>()
+                };
+            }
+
             try
             {
                 await packageDetails;
@@ -89,7 +98,7 @@ namespace PortingAssistant.Utils
                         {
                             return false;
                         }
-                        return SemVersion.Compare(semversion, version) >= 0;
+                        return SemVersion.Compare(semversion, version) > 0;
                      }).ToList()
                 };
             }
