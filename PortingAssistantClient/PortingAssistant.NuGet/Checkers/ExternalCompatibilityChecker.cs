@@ -110,7 +110,7 @@ namespace PortingAssistant.NuGet
                 }
                 catch (Exception ex)
                 {
-                    if (ex is AmazonS3Exception && (ex as AmazonS3Exception).StatusCode == System.Net.HttpStatusCode.NotFound )
+                    if (ex is AmazonS3Exception && (ex as AmazonS3Exception).StatusCode == System.Net.HttpStatusCode.NotFound)
                     {
                         var s3Exception = ex as AmazonS3Exception;
                         _logger.LogInformation($"Encountered {s3Exception.GetType()} while downloading and parsing {fileToDownload} " +

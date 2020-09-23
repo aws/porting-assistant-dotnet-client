@@ -219,7 +219,8 @@ namespace Tests
             _externalPackagesCompatibilityChecker = new ExternalPackagesCompatibilityChecker(
                 _transferUtilityMock.Object,
                 NullLogger<ExternalPackagesCompatibilityChecker>.Instance,
-                Options.Create(new AnalyzerConfiguration {
+                Options.Create(new AnalyzerConfiguration
+                {
                     DataStoreSettings = new DataStoreSettings
                     {
                         S3Endpoint = "Bucket"
@@ -679,7 +680,7 @@ namespace Tests
 
             repositories = GetInternalRepositoryThrowsException(new AggregateException());
             result = checker.GetInternalPackagesAsync(packages, repositories);
-            
+
             _loggerMock.Verify(_ => _.Log(
                 LogLevel.Error,
                 It.IsAny<EventId>(),

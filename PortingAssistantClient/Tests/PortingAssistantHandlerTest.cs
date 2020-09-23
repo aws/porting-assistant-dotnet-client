@@ -127,7 +127,7 @@ namespace Tests
                                         Description = "12.0.3"
                                     }
                                 }
-                            } 
+                            }
                         });
 
                         taskCompletionSource.SetResult(new ProjectAnalysisResult
@@ -148,7 +148,7 @@ namespace Tests
                     }).ToDictionary(t => t.Item1, t => t.Item2);
                 });
         }
-        
+
         [Test]
         public void TestGetSolutionDetails()
         {
@@ -173,7 +173,7 @@ namespace Tests
             Assert.Contains(".NETFramework 4.5.1", project.TargetFrameworks);
         }
 
-        
+
         [Test]
         public void GetSolutionDetailsForNonexistentSolutionThrowsException()
         {
@@ -201,7 +201,7 @@ namespace Tests
             Assert.AreEqual(Compatibility.COMPATIBLE, compatibilityResult.Compatibility);
             Assert.AreEqual("12.0.3", compatibilityResult.CompatibleVersions.First());
         }
-        
+
         [Test]
         public void GetProjectWithCorruptedSolutionFileThrowsException()
         {

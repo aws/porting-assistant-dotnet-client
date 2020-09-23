@@ -19,7 +19,7 @@ namespace PortingAssistant.Analysis.Utils
                 CompatibleVersions = new List<string>()
             };
 
-            if (package == null || apiMethodSignature == null ||!SemVersion.TryParse(version, out var targetversion))
+            if (package == null || apiMethodSignature == null || !SemVersion.TryParse(version, out var targetversion))
             {
                 return compatiblityResult;
             }
@@ -65,7 +65,7 @@ namespace PortingAssistant.Analysis.Utils
                 return compatiblityResult;
             }
 
-            compatiblityResult.Compatibility = hasLesserTarget(version, framework.ToArray()) ? Compatibility.COMPATIBLE: Compatibility.INCOMPATIBLE;
+            compatiblityResult.Compatibility = hasLesserTarget(version, framework.ToArray()) ? Compatibility.COMPATIBLE : Compatibility.INCOMPATIBLE;
             compatiblityResult.CompatibleVersions = framework.ToArray()
                 .Where(v =>
                 {
@@ -85,11 +85,12 @@ namespace PortingAssistant.Analysis.Utils
                 return false;
             }
 
-            return targetVersions.Any(v => {
-                if(!SemVersion.TryParse(v, out var semversion))
-                    {
-                        return false;
-                    }
+            return targetVersions.Any(v =>
+            {
+                if (!SemVersion.TryParse(v, out var semversion))
+                {
+                    return false;
+                }
                 return SemVersion.Compare(target, semversion) > 0;
             });
         }
@@ -98,7 +99,8 @@ namespace PortingAssistant.Analysis.Utils
         {
             if (nugetPackage == null || apiMethodSignature == null || version == null)
             {
-                return new ApiRecommendation{
+                return new ApiRecommendation
+                {
                     RecommendedActionType = RecommendedActionType.NoRecommendation
                 };
             }
@@ -106,14 +108,16 @@ namespace PortingAssistant.Analysis.Utils
             nugetPackage.Wait();
             if (!nugetPackage.IsCompletedSuccessfully)
             {
-                return new ApiRecommendation{
+                return new ApiRecommendation
+                {
                     RecommendedActionType = RecommendedActionType.NoRecommendation
                 };
             }
             var targetApi = GetApiDetails(nugetPackage.Result, apiMethodSignature);
             if (targetApi == null || targetApi.Targets == null || !targetApi.Targets.TryGetValue(DEFAULT_TARGET, out var versions))
             {
-                return new ApiRecommendation{
+                return new ApiRecommendation
+                {
                     RecommendedActionType = RecommendedActionType.NoRecommendation
                 };
             }
@@ -126,39 +130,44 @@ namespace PortingAssistant.Analysis.Utils
                 {
                     // No Package upgrade. Check for API recommendation
                     if (_recommendationDetails.TryGetValue(nameSpaceToQuery, out var taskCompletionSource))
-                        { 
-                            var apiList = _recommendationDetails[nameSpaceToQuery];
-                            apiList.Wait();
-                            if (!apiList.IsCompletedSuccessfully)
+                    {
+                        var apiList = _recommendationDetails[nameSpaceToQuery];
+                        apiList.Wait();
+                        if (!apiList.IsCompletedSuccessfully)
+                        {
+                            return new ApiRecommendation
                             {
-                                return new ApiRecommendation{
-                                    RecommendedActionType = RecommendedActionType.NoRecommendation
-                                };
-                            }
+                                RecommendedActionType = RecommendedActionType.NoRecommendation
+                            };
+                        }
 
-                            var recommendationActions = apiList.Result.RecommendedActions;
-                            foreach (var eachRecommendationAPI in recommendationActions)
+                        var recommendationActions = apiList.Result.RecommendedActions;
+                        foreach (var eachRecommendationAPI in recommendationActions)
+                        {
+                            if (eachRecommendationAPI.Value == apiMethodSignature)
                             {
-                                if (eachRecommendationAPI.Value == apiMethodSignature) 
+                                if (eachRecommendationAPI.Recommendation != null || eachRecommendationAPI.Recommendation.Length != 0)
                                 {
-                                    if (eachRecommendationAPI.Recommendation != null || eachRecommendationAPI.Recommendation.Length != 0){
-                                        // First recommendation is the preferred one.
-                                        return new ApiRecommendation{
-                                            RecommendedActionType = RecommendedActionType.ReplaceApi,
-                                            Description = eachRecommendationAPI.Recommendation.First().Description
-                                        };
-                                    }
+                                    // First recommendation is the preferred one.
+                                    return new ApiRecommendation
+                                    {
+                                        RecommendedActionType = RecommendedActionType.ReplaceApi,
+                                        Description = eachRecommendationAPI.Recommendation.First().Description
+                                    };
                                 }
                             }
                         }
-                    else {
-                            return new ApiRecommendation
-                                {
-                                    RecommendedActionType = RecommendedActionType.NoRecommendation
-                                };
-                        }
+                    }
+                    else
+                    {
+                        return new ApiRecommendation
+                        {
+                            RecommendedActionType = RecommendedActionType.NoRecommendation
+                        };
+                    }
                 }
-                var upgradeVersion = versions.ToList().Find(v => {
+                var upgradeVersion = versions.ToList().Find(v =>
+                {
                     if (!SemVersion.TryParse(v, out var semversion) || !SemVersion.TryParse(version, out var target))
                     {
                         return false;
@@ -167,24 +176,24 @@ namespace PortingAssistant.Analysis.Utils
                     return SemVersion.Compare(semversion, target) > 0;
                 });
                 return new ApiRecommendation
-                    {
-                        RecommendedActionType = RecommendedActionType.UpgradePackage,
-                        Description = upgradeVersion
-                    };
- 
+                {
+                    RecommendedActionType = RecommendedActionType.UpgradePackage,
+                    Description = upgradeVersion
+                };
+
             }
             catch
             {
                 return new ApiRecommendation
-                    {
-                        RecommendedActionType = RecommendedActionType.NoRecommendation
-                    };
+                {
+                    RecommendedActionType = RecommendedActionType.NoRecommendation
+                };
             }
         }
 
         private static ApiDetails GetApiDetails(PackageDetails nugetPackage, string apiMethodSignature)
         {
-            if(nugetPackage == null || nugetPackage.Api == null || apiMethodSignature == null)
+            if (nugetPackage == null || nugetPackage.Api == null || apiMethodSignature == null)
             {
                 return null;
             }
@@ -203,8 +212,9 @@ namespace PortingAssistant.Analysis.Utils
                     {
                         return false;
                     }
-                    
-                    try {
+
+                    try
+                    {
                         var possibleExtension = api.MethodParameters[0];
                         var methodSignatureIndex = api.MethodSignature.IndexOf("(") >= 0 ? api.MethodSignature.IndexOf("(") : api.MethodSignature.Length;
                         var sliceMethodSignature = api.MethodSignature.Substring(0, methodSignatureIndex);

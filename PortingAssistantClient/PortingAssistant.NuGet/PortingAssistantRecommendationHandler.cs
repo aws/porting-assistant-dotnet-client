@@ -41,7 +41,7 @@ namespace PortingAssistant.NuGet
                 using var streamReader = new StreamReader(stream);
                 var manifest = JsonConvert.DeserializeObject<Dictionary<string, string>>(streamReader.ReadToEnd())
                     .ToDictionary(k => k.Key.ToLower(), v => v.Value);
- 
+
                 var foundPackages = new Dictionary<string, List<string>>();
                 namespaces.ToList().ForEach(p =>
                 {
@@ -56,7 +56,7 @@ namespace PortingAssistant.NuGet
                         foundPackages[value].Add(p);
                     }
                 });
- 
+
                 _logger.LogInformation("Checking Github files {0} for recommendations", foundPackages.Count);
                 if (foundPackages.Any())
                 {
@@ -73,9 +73,9 @@ namespace PortingAssistant.NuGet
                         }
                     });
                 }
- 
+
                 return recommendationTaskCompletionSources.ToDictionary(t => t.Key, t => t.Value.Task);
-            } 
+            }
             catch (Exception ex)
             {
                 foreach (var @namespace in namespaces)
@@ -89,7 +89,7 @@ namespace PortingAssistant.NuGet
                 return recommendationTaskCompletionSources.ToDictionary(t => t.Key, t => t.Value.Task);
             }
         }
- 
+
         private void ProcessCompatibility(IEnumerable<string> namespaces,
             Dictionary<string, List<string>> foundPackages,
             Dictionary<string, TaskCompletionSource<RecommendationDetails>> recommendationTaskCompletionSources)
@@ -107,7 +107,7 @@ namespace PortingAssistant.NuGet
                             _options.Value.DataStoreSettings.S3Endpoint, url.Key.Substring(_options.Value.DataStoreSettings.S3Endpoint.Length + 6));
                         using var streamReader = new StreamReader(stream);
                         var packageFromGithub = JsonConvert.DeserializeObject<PackageFromGitHub>(streamReader.ReadToEnd());
- 
+
                         foreach (var @namespace in url.Value)
                         {
                             if (recommendationTaskCompletionSources.TryGetValue(@namespace, out var taskCompletionSource))
@@ -130,7 +130,7 @@ namespace PortingAssistant.NuGet
                         }
                     }
                 }
- 
+
                 foreach (var @namespace in namespaces)
                 {
                     if (namespacesFound.Contains(@namespace) || namespacesWithErrors.Contains(@namespace))
@@ -158,16 +158,16 @@ namespace PortingAssistant.NuGet
                             new PortingAssistantClientException(ExceptionMessage.NamespaceFailedToProcess(@namespace), ex));
                     }
                 }
- 
+
                 _logger.LogError("Error encountered while processing recommendations: {0}", ex);
             }
         }
- 
+
         public PackageSourceType GetCompatibilityCheckerType()
         {
             return PackageSourceType.RECOMMENDATION;
         }
- 
+
         private class PackageFromGitHub
         {
             public RecommendationDetails RecommendationObject { get; set; }

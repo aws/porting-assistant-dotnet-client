@@ -1,17 +1,17 @@
 using System;
 using System.Collections.Generic;
- 
+
 namespace PortingAssistant.Model
 {
     public class RecommendationDetails
     {
-        public string Name { get; set; } 
-        public string EncoreVersion { get; set; } 
+        public string Name { get; set; }
+        public string EncoreVersion { get; set; }
         public string Assembly { get; set; }
         public string Reference { get; set; }
         public string RecommendationSource { get; set; }
         public RecommendedActions[] RecommendedActions { get; set; }
- 
+
         public override bool Equals(object obj)
         {
             return obj is RecommendationDetails details &&
@@ -22,19 +22,19 @@ namespace PortingAssistant.Model
                    RecommendationSource == details.RecommendationSource &&
                    EqualityComparer<RecommendedActions[]>.Default.Equals(RecommendedActions, details.RecommendedActions);
         }
- 
+
         public override int GetHashCode()
         {
             return HashCode.Combine(Name, EncoreVersion, Assembly, Reference, RecommendationSource, RecommendedActions);
         }
     }
- 
+
     public class RecommendedActions
     {
         public string Type { get; set; }
         public string Value { get; set; }
         public Recommendation[] Recommendation { get; set; }
- 
+
         public override bool Equals(object obj)
         {
             return obj is RecommendedActions details &&
@@ -42,13 +42,13 @@ namespace PortingAssistant.Model
                    Value == details.Value &&
                    EqualityComparer<Recommendation[]>.Default.Equals(Recommendation, details.Recommendation);
         }
- 
+
         public override int GetHashCode()
         {
             return HashCode.Combine(Type, Value, Recommendation);
         }
     }
- 
+
     public class Recommendation
     {
         public string Source { get; set; }
@@ -56,7 +56,7 @@ namespace PortingAssistant.Model
         public SortedSet<string> Versions { get; set; }
         public string Description { get; set; }
         public Actions[] Actions { get; set; }
-        
+
         public override bool Equals(object obj)
         {
             return obj is Recommendation details &&
@@ -66,19 +66,19 @@ namespace PortingAssistant.Model
                    Description == details.Description &&
                    EqualityComparer<Actions[]>.Default.Equals(Actions, details.Actions);
         }
- 
+
         public override int GetHashCode()
         {
             return HashCode.Combine(Source, Preferred, Versions, Description, Actions);
         }
     }
- 
+
     public class Actions
     {
         public string Type { get; set; }
         public string Value { get; set; }
         public string Description { get; set; }
- 
+
         public override bool Equals(object obj)
         {
             return obj is Actions details &&

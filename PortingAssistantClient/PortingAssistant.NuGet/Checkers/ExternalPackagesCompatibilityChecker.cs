@@ -12,7 +12,7 @@ namespace PortingAssistant.NuGet
         public ExternalPackagesCompatibilityChecker(
             ITransferUtility transferUtility,
             ILogger<ExternalCompatibilityChecker> logger,
-            IOptions<AnalyzerConfiguration> options) 
+            IOptions<AnalyzerConfiguration> options)
             : base(transferUtility, logger, options)
         {
         }

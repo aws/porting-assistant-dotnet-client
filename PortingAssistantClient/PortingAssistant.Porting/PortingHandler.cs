@@ -10,7 +10,7 @@ namespace PortingAssistant.Porting
     {
         private readonly ILogger _logger;
         private readonly IPortingProjectFileHandler _portingProjectFileHandler;
-           
+
         /// <summary>
         /// Create an Instance of a PortingHandler
         /// </summary>

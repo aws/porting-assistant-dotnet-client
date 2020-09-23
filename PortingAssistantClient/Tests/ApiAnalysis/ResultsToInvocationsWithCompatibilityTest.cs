@@ -12,7 +12,7 @@ using AwsCodeAnalyzer;
 
 namespace Tests.Analysis
 {
-    
+
     public class ResultsToInvocationsWithCompatibilityTest
     {
         private Mock<IPortingAssistantNuGetHandler> _handler;
@@ -178,7 +178,7 @@ namespace Tests.Analysis
         [Test]
         public void NormalCaseTest()
         {
-             var sourceFileToInvocations = new Dictionary<string, List<InvocationExpression>>
+            var sourceFileToInvocations = new Dictionary<string, List<InvocationExpression>>
              {
                  {
                      "file1", new List<InvocationExpression>
@@ -188,13 +188,13 @@ namespace Tests.Analysis
                  }
              };
 
-             var project = new AnalyzerResult
-             {
-                 ProjectResult = new ProjectWorkspace("")
-                 {
-                     ExternalReferences = new ExternalReferences
-                     {
-                         NugetReferences = new List<ExternalReference>
+            var project = new AnalyzerResult
+            {
+                ProjectResult = new ProjectWorkspace("")
+                {
+                    ExternalReferences = new ExternalReferences
+                    {
+                        NugetReferences = new List<ExternalReference>
                          {
                              new ExternalReference
                              {
@@ -203,11 +203,11 @@ namespace Tests.Analysis
                                  Version = "1.2"
                              }
                          }
-                     }
-                 },
-                 OutputJsonFilePath = null,
-                 ProjectBuildResult = null
-             };
+                    }
+                },
+                OutputJsonFilePath = null,
+                ProjectBuildResult = null
+            };
 
             var result = InvocationExpressionModelToInvocations.Convert(
                 sourceFileToInvocations, project);

@@ -85,7 +85,7 @@ namespace Tests
 
         [Test]
         public void CheckCompatibilityWithNullInternalRepositoriesThrowsArgumentException()
-        { 
+        {
             Assert.ThrowsAsync<ArgumentException>(async () =>
                 await _internalNuGetCompatibilityHandler.CheckCompatibilityAsync("Newtonsoft.Json", "12.0.3", "netcoreapp3.1", null));
         }

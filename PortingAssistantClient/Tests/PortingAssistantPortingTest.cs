@@ -117,7 +117,7 @@ namespace Tests
             Assert.AreEqual(_tmpProjectPath, portResult.ProjectFilePath);
             Assert.AreEqual(".NETCoreApp 3.1.0", portResult.TargetFrameworks[0]);
             Assert.AreEqual(
-                new PackageVersionPair 
+                new PackageVersionPair
                 {
                     PackageId = "Newtonsoft.Json",
                     Version = "12.0.3"

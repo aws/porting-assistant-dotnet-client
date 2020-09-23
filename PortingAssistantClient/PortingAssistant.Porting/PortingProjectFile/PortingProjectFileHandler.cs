@@ -94,7 +94,8 @@ namespace PortingAssistant.PortingProjectFile
                             ProjectFile = project.FilePath.FullName,
                             ProjectName = project.ProjectName
                         });
-                    } else
+                    }
+                    else
                     {
                         results.Add(new PortingResult
                         {

@@ -2,7 +2,7 @@
 using PortingAssistant.Model;
 
 namespace PortingAssistant.PortingProjectFile
-{        
+{
     /// <summary>
     /// Represents a handler to port projects
     /// </summary>

@@ -17,7 +17,7 @@ using PortingAssistant.Analysis;
 
 namespace Tests
 {
-    
+
     public class PortingAssistantApiAnalysisHandlerTest
     {
         private Mock<IPortingAssistantNuGetHandler> _nuGetHandlerMock;

@@ -41,12 +41,13 @@ namespace PortingAssistant.Analysis.Utils
                                                 recommendationDetails);
 
 
-                        return new ApiAnalysisResult {
+                        return new ApiAnalysisResult
+                        {
                             CodeEntityDetails = invocation,
                             CompatibilityResults = new Dictionary<string, CompatibilityResult>
                             {
                                 { ApiCompatiblity.DEFAULT_TARGET, compatibilityResult}
-                                    
+
                             },
                             Recommendations = new Recommendations
                             {
@@ -66,32 +67,32 @@ namespace PortingAssistant.Analysis.Utils
         public static Dictionary<string, List<CodeEntityDetails>> Convert(
              Dictionary<string, List<InvocationExpression>> sourceFileToInvocations,
              AnalyzerResult analyzer)
-         {
-  
-             return sourceFileToInvocations.Select(sourceFile =>
-                 KeyValuePair.Create(
-                     sourceFile.Key,
-                     sourceFile.Value.Select(invocation =>
-                     {
-                         if(invocation == null)
-                         {
-                             return null;
-                         }
+        {
 
-                         var assemblyLength = invocation.Reference?.Assembly?.Length;
-                         if (assemblyLength == null || assemblyLength == 0)
-                         {
-                             return null;
-                         }
+            return sourceFileToInvocations.Select(sourceFile =>
+                KeyValuePair.Create(
+                    sourceFile.Key,
+                    sourceFile.Value.Select(invocation =>
+                    {
+                        if (invocation == null)
+                        {
+                            return null;
+                        }
 
-                         // Check if invocation is from Nuget
-                         var potentialNugetPackage = analyzer?.ProjectResult?.ExternalReferences?.NugetReferences?.Find((n) =>
-                             n.AssemblyLocation != null && n.AssemblyLocation.EndsWith(invocation.Reference.Assembly + ".dll"));
-                         if (potentialNugetPackage == null)
-                         {
-                             potentialNugetPackage = analyzer?.ProjectResult?.ExternalReferences?.NugetDependencies?.Find((n) =>
-                            n.AssemblyLocation != null && n.AssemblyLocation.EndsWith(invocation.Reference.Assembly + ".dll"));
-                         }
+                        var assemblyLength = invocation.Reference?.Assembly?.Length;
+                        if (assemblyLength == null || assemblyLength == 0)
+                        {
+                            return null;
+                        }
+
+                        // Check if invocation is from Nuget
+                        var potentialNugetPackage = analyzer?.ProjectResult?.ExternalReferences?.NugetReferences?.Find((n) =>
+                           n.AssemblyLocation != null && n.AssemblyLocation.EndsWith(invocation.Reference.Assembly + ".dll"));
+                        if (potentialNugetPackage == null)
+                        {
+                            potentialNugetPackage = analyzer?.ProjectResult?.ExternalReferences?.NugetDependencies?.Find((n) =>
+                           n.AssemblyLocation != null && n.AssemblyLocation.EndsWith(invocation.Reference.Assembly + ".dll"));
+                        }
                         PackageVersionPair nugetPackage = ReferenceToPackageVersionPair(potentialNugetPackage);
                         // Check if invocation is from SDK
                         var potentialSdk = analyzer?.ProjectResult?.ExternalReferences?.SdkReferences?.Find((s) =>
@@ -104,7 +105,7 @@ namespace PortingAssistant.Analysis.Utils
                             return null;
                         }
 
-                         var package = sdk ?? nugetPackage;
+                        var package = sdk ?? nugetPackage;
 
                         // Otherwise return the invocation
                         return new CodeEntityDetails
@@ -123,15 +124,15 @@ namespace PortingAssistant.Analysis.Utils
                             // If we found an matching sdk assembly, assume the code is using the sdk.
                             Package = sdk ?? nugetPackage,
                         };
-                     })
-                     .Where(invocation => invocation != null)
-                     .ToList()
-                 )
-             )
-             .Where(p => p.Value.Count != 0)
-             .ToDictionary(p => p.Key, p => p.Value);
-  
-         }
+                    })
+                    .Where(invocation => invocation != null)
+                    .ToList()
+                )
+            )
+            .Where(p => p.Value.Count != 0)
+            .ToDictionary(p => p.Key, p => p.Value);
+
+        }
 
         public static PackageVersionPair ReferenceToPackageVersionPair(ExternalReference reference, PackageSourceType sourceType = PackageSourceType.NUGET)
         {

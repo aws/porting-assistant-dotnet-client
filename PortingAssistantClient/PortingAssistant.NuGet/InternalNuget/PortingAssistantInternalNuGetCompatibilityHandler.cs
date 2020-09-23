@@ -94,13 +94,13 @@ namespace PortingAssistant.NuGet.InternalNuGet
             var frameworkReducer = new FrameworkReducer();
             var libItems = packageReader.GetLibItems();
             var nearestTargetFrameworks = libItems
-                .Select(li => 
+                .Select(li =>
                     frameworkReducer.GetNearest(
-                        framework, 
+                        framework,
                         new List<NuGetFramework> { li.TargetFramework }))
                 .ToList();
 
-            var isCompatible = libItems.Any() ? nearestTargetFrameworks.Any(nugetFramework => nugetFramework != null) 
+            var isCompatible = libItems.Any() ? nearestTargetFrameworks.Any(nugetFramework => nugetFramework != null)
                 : frameworkReducer.GetNearest(framework, packageReader.GetSupportedFrameworks()) != null;
 
             var compatibleDlls = libItems
@@ -110,7 +110,7 @@ namespace PortingAssistant.NuGet.InternalNuGet
                 .ToList();
             var incompatibleDlls = libItems
                 .SelectMany(li => li.Items)
-                .Where(s => !compatibleDlls.Contains(s) 
+                .Where(s => !compatibleDlls.Contains(s)
                             && s.EndsWith("dll", StringComparison.OrdinalIgnoreCase))
                 .ToList();
 

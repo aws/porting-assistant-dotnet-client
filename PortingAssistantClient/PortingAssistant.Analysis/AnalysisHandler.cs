@@ -76,8 +76,6 @@ namespace PortingAssistant.Analysis
                     throw new PortingAssistantClientException($"Build {project.ProjectName} failed", null);
                 }
 
-                var IsBuildFailed = analyzer.ProjectResult.BuildErrorsCount > 0 && analyzer.ProjectResult.SourceFileResults.Count() == 0;
-
                 var sourceFileToInvocations = analyzer.ProjectResult.SourceFileResults.Select((sourceFile) =>
                 {
                     var invocationsInSourceFile = sourceFile.AllInvocationExpressions();
@@ -129,7 +127,7 @@ namespace PortingAssistant.Analysis
                     ProjectName = project.ProjectName,
                     ProjectFile = project.ProjectFilePath,
                     PackageAnalysisResults = packageAnalysisResults,
-                    IsBuildFailed = IsBuildFailed,
+                    IsBuildFailed = analyzer.ProjectResult.IsBuildFailed(),
                     Errors = analyzer.ProjectBuildResult.BuildErrors,
                     SourceFileAnalysisResults = SourceFileAnalysisResults
                 };

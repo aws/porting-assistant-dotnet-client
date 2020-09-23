@@ -45,7 +45,7 @@ namespace PortingAssistant.Analysis.Utils
 
         public static async Task<CompatibilityResult> isCompatibleAsync(Task<PackageDetails> packageDetails, PackageVersionPair packageVersionPair, ILogger _logger, string target = DEFAULT_TARGET)
         {
-            if(packageDetails == null || packageVersionPair == null)
+            if (packageDetails == null || packageVersionPair == null)
             {
                 return new CompatibilityResult
                 {
@@ -85,21 +85,23 @@ namespace PortingAssistant.Analysis.Utils
                 }
                 return new CompatibilityResult
                 {
-                    Compatibility = foundTarget.Any(v => {
-                        if(!SemVersion.TryParse(v, out var semversion))
+                    Compatibility = foundTarget.Any(v =>
+                    {
+                        if (!SemVersion.TryParse(v, out var semversion))
                         {
                             return false;
                         }
 
                         return SemVersion.Compare(version, semversion) >= 0;
                     }) ? Compatibility.COMPATIBLE : Compatibility.INCOMPATIBLE,
-                    CompatibleVersions = foundTarget.Where(v => {
-                         if(!SemVersion.TryParse(v, out var semversion))
+                    CompatibleVersions = foundTarget.Where(v =>
+                    {
+                        if (!SemVersion.TryParse(v, out var semversion))
                         {
                             return false;
                         }
                         return SemVersion.Compare(semversion, version) > 0;
-                     }).ToList()
+                    }).ToList()
                 };
             }
             catch (Exception e)

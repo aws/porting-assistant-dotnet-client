@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using PortingAssistant.Model;
 
 namespace PortingAssistant.Porting
-{    
+{
     /// <summary>     
     /// Represents a handler to port projects     
     /// </summary>
