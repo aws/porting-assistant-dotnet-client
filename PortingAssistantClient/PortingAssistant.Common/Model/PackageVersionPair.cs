@@ -1,10 +1,14 @@
 ﻿using System;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+
 namespace PortingAssistant.Model
 {
     public class PackageVersionPair
     {
         public string PackageId { get; set; }
         public string Version { get; set; }
+        [JsonConverter(typeof(StringEnumConverter))]
         public PackageSourceType PackageSourceType { get; set; }
 
         public override bool Equals(object obj)

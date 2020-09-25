@@ -105,8 +105,6 @@ namespace PortingAssistant.Analysis.Utils
                             return null;
                         }
 
-                        var package = sdk ?? nugetPackage;
-
                         // Otherwise return the invocation
                         return new CodeEntityDetails
                         {
@@ -138,7 +136,7 @@ namespace PortingAssistant.Analysis.Utils
         {
             if (reference != null)
             {
-                string version = reference.Version;
+                string version = "0.0.0.0"; // If no package verison, mark as 0.0.0.0
                 if (NuGetVersion.TryParse(reference.Version, out var parsedVersion))
                 {
                     version = parsedVersion.ToNormalizedString();

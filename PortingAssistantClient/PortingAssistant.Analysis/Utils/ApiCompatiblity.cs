@@ -198,7 +198,7 @@ namespace PortingAssistant.Analysis.Utils
                 return null;
             }
 
-            var foundApi = nugetPackage.Api.FirstOrDefault(api => api.MethodSignature == apiMethodSignature);
+            var foundApi = nugetPackage.Api.FirstOrDefault(api => api.MethodSignature == apiMethodSignature.Replace("?", ""));
             if (foundApi == null)
             {
                 foundApi = nugetPackage.Api.FirstOrDefault(api =>
@@ -218,7 +218,7 @@ namespace PortingAssistant.Analysis.Utils
                         var possibleExtension = api.MethodParameters[0];
                         var methodSignatureIndex = api.MethodSignature.IndexOf("(") >= 0 ? api.MethodSignature.IndexOf("(") : api.MethodSignature.Length;
                         var sliceMethodSignature = api.MethodSignature.Substring(0, methodSignatureIndex);
-                        var methondNameIndex = sliceMethodSignature.IndexOf(api.MethodName);
+                        var methondNameIndex = sliceMethodSignature.LastIndexOf(api.MethodName);
                         var methodName = sliceMethodSignature.Substring(methondNameIndex >= 0 ? methondNameIndex : sliceMethodSignature.Length);
                         var methodSignature = $"{possibleExtension}.{methodName}({String.Join(",", api.MethodParameters.Skip(1))})";
                         return methodSignature == apiMethodSignature.Replace("?", "");
