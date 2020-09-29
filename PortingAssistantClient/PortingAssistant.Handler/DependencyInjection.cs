@@ -7,6 +7,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PortingAssistant.Porting;
 using PortingAssistant.PortingProjectFile;
+using PortingAssistant.NuGet.Interfaces;
+using PortingAssistant.NuGet.Utils;
+using System;
+using Microsoft.Extensions.Options;
 
 namespace PortingAssistant.Handler
 {
@@ -22,11 +26,16 @@ namespace PortingAssistant.Handler
             serviceCollection.AddSingleton<IPortingAssistantRecommendationHandler, PortingAssistantRecommendationHandler>();
             serviceCollection.AddSingleton<ICompatibilityChecker, InternalPackagesCompatibilityChecker>();
             serviceCollection.AddSingleton<ICompatibilityChecker, ExternalPackagesCompatibilityChecker>();
-            serviceCollection.AddSingleton<ICompatibilityChecker, NamespacesCompatibilityChecker>();
+            serviceCollection.AddSingleton<ICompatibilityChecker, SdkCompatibilityChecker>();
             serviceCollection.AddSingleton<ICompatibilityChecker, PortabilityAnalyzerCompatibilityChecker>();
             serviceCollection.AddSingleton<IPortingHandler, PortingHandler>();
             serviceCollection.AddSingleton<IPortingProjectFileHandler, PortingProjectFileHandler>();
             serviceCollection.AddSingleton<ITransferUtility, TransferUtility>();
+            serviceCollection.AddHttpClient<IHttpService, HttpService>(client =>
+            {
+                var services = serviceCollection.BuildServiceProvider();
+                client.BaseAddress = new Uri(services.GetService<IOptions<AnalyzerConfiguration>>().Value.DataStoreSettings.HttpsEndpoint);
+            });
         }
     }
 }

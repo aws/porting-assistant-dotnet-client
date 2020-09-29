@@ -14,19 +14,19 @@ using PortingAssistant.NuGet.InternalNuGet;
 using NuGet.Protocol.Core.Types;
 using NuGet.Versioning;
 using System.IO;
-using Amazon.S3.Transfer;
 using Newtonsoft.Json;
 using System.IO.Compression;
+using PortingAssistant.NuGet.Interfaces;
 
 namespace Tests
 {
     public class PortingAssistantNuGetHandlerTest
     {
-        private Mock<ITransferUtility> _transferUtilityMock;
+        private Mock<IHttpService> _httpService;
         private Mock<IPortingAssistantInternalNuGetCompatibilityHandler> _internalNuGetCompatibilityHandlerMock;
         private Mock<InternalPackagesCompatibilityChecker> _internalPackagesCompatibilityChecker;
         private ExternalPackagesCompatibilityChecker _externalPackagesCompatibilityChecker;
-        private NamespacesCompatibilityChecker _namespacesCompatibilityChecker;
+        private SdkCompatibilityChecker _sdkCompatibilityChecker;
         private Mock<ILogger<PortingAssistantNuGetHandler>> _loggerMock;
         private readonly string _testSolutionDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory,
                 "TestXml", "SolutionWithNugetConfigFile");
@@ -174,18 +174,21 @@ namespace Tests
         [OneTimeSetUp]
         public void OneTimeSetup()
         {
-            _transferUtilityMock = new Mock<ITransferUtility>();
+            //httpMessageHandler = new Mock<HttpMessageHandler>
+            _httpService = new Mock<IHttpService>();
             _internalNuGetCompatibilityHandlerMock = new Mock<IPortingAssistantInternalNuGetCompatibilityHandler>();
         }
 
         [SetUp]
         public void Setup()
         {
-            _transferUtilityMock.Reset();
-            _transferUtilityMock
-                .Setup(transfer => transfer.OpenStream(It.IsAny<string>(), It.IsAny<string>()))
-                .Returns((string bucket, string key) =>
+            _httpService.Reset();
+
+            _httpService
+                .Setup(transfer => transfer.DownloadS3FileAsync(It.IsAny<string>()))
+                .Returns(async (string key) =>
                 {
+                    await Task.Delay(1);
                     var stream = new MemoryStream();
                     var writer = new StreamWriter(stream);
                     var test = JsonConvert.SerializeObject(new Dictionary<string, PackageDetails> { { "Package", _packageDetails } });
@@ -217,27 +220,13 @@ namespace Tests
 
 
             _externalPackagesCompatibilityChecker = new ExternalPackagesCompatibilityChecker(
-                _transferUtilityMock.Object,
-                NullLogger<ExternalPackagesCompatibilityChecker>.Instance,
-                Options.Create(new AnalyzerConfiguration
-                {
-                    DataStoreSettings = new DataStoreSettings
-                    {
-                        S3Endpoint = "Bucket"
-                    }
-                })
+                _httpService.Object,
+                NullLogger<ExternalPackagesCompatibilityChecker>.Instance
                 );
 
-            _namespacesCompatibilityChecker = new NamespacesCompatibilityChecker(
-                _transferUtilityMock.Object,
-                NullLogger<NamespacesCompatibilityChecker>.Instance,
-                Options.Create(new AnalyzerConfiguration
-                {
-                    DataStoreSettings = new DataStoreSettings
-                    {
-                        S3Endpoint = "Bucket"
-                    }
-                })
+            _sdkCompatibilityChecker = new SdkCompatibilityChecker(
+                _httpService.Object,
+                NullLogger<SdkCompatibilityChecker>.Instance
                 );
 
             _internalPackagesCompatibilityChecker = new Mock<InternalPackagesCompatibilityChecker>(
@@ -273,7 +262,7 @@ namespace Tests
 
         private IPortingAssistantNuGetHandler GetNamespaceNugetHandler()
         {
-            var checkers = new List<ICompatibilityChecker>() { _namespacesCompatibilityChecker };
+            var checkers = new List<ICompatibilityChecker>() { _sdkCompatibilityChecker };
             return new PortingAssistantNuGetHandler(
                     NullLogger<PortingAssistantNuGetHandler>.Instance,
                     checkers.AsEnumerable()
@@ -318,15 +307,8 @@ namespace Tests
         private ExternalPackagesCompatibilityChecker GetExternalPackagesCompatibilityChecker()
         {
             var externalChecker = new ExternalPackagesCompatibilityChecker(
-                _transferUtilityMock.Object,
-                NullLogger<ExternalPackagesCompatibilityChecker>.Instance,
-                Options.Create(new AnalyzerConfiguration
-                {
-                    DataStoreSettings = new DataStoreSettings
-                    {
-                        S3Endpoint = "Bucket"
-                    }
-                })
+                _httpService.Object,
+                NullLogger<ExternalPackagesCompatibilityChecker>.Instance
             );
 
             return externalChecker;
@@ -334,11 +316,12 @@ namespace Tests
 
         private void SetMockTransferUtility(PackageDetails packageDetails)
         {
-            _transferUtilityMock.Reset();
-            _transferUtilityMock
-                .Setup(transfer => transfer.OpenStream(It.IsAny<string>(), It.IsAny<string>()))
-                .Returns((string bucket, string key) =>
+            _httpService.Reset();
+            _httpService
+                .Setup(transfer => transfer.DownloadS3FileAsync(It.IsAny<string>()))
+                .Returns(async (string key) =>
                 {
+                    await Task.Delay(1);
                     var stream = new MemoryStream();
                     var writer = new StreamWriter(stream);
                     var test = JsonConvert.SerializeObject(new Dictionary<string, PackageDetails> { { "Package", packageDetails } });
@@ -362,7 +345,7 @@ namespace Tests
             var handler = GetExternalNuGetHandler();
             var packages = new List<PackageVersionPair>()
             {
-              new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.3" }
+              new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.3", PackageSourceType = PackageSourceType.NUGET }
             };
             var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
             Task.WaitAll(resultTasks.Values.ToArray());
@@ -374,12 +357,12 @@ namespace Tests
         }
 
         [Test]
-        public void GetPackageWithNamesapcestRepositorySucceeds()
+        public void GetPackageWithSdkRepositorySucceeds()
         {
             var handler = GetNamespaceNugetHandler();
             var packages = new List<PackageVersionPair>()
             {
-              new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.3" }
+              new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.3", PackageSourceType = PackageSourceType.SDK }
             };
             var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
             Task.WaitAll(resultTasks.Values.ToArray());
@@ -425,7 +408,7 @@ namespace Tests
             var handler = GetExternalNuGetHandler();
             var packages = new List<PackageVersionPair>()
             {
-              new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.2" }
+              new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.2", PackageSourceType = PackageSourceType.NUGET }
             };
             var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
             Task.WaitAll(resultTasks.Values.ToArray());
@@ -475,16 +458,16 @@ namespace Tests
                     return GetInternalRepositoryNotExist();
                 });
 
-            _transferUtilityMock.Reset();
-            _transferUtilityMock
-                .Setup(transfer => transfer.OpenStream(It.IsAny<string>(), It.IsAny<string>()))
+            _httpService.Reset();
+            _httpService
+                .Setup(transfer => transfer.DownloadS3FileAsync(It.IsAny<string>()))
                 .Throws(new Exception());
 
             var handler = GetBothNuGetHandler();
 
             var packages = new List<PackageVersionPair>()
             {
-              new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.5" }
+              new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.5", PackageSourceType = PackageSourceType.NUGET }
             };
 
             Assert.Throws<AggregateException>(() =>
@@ -504,17 +487,17 @@ namespace Tests
                     return GetInternalRepositoryNotExist();
                 });
 
-            _transferUtilityMock.Reset();
-            _transferUtilityMock
-                .Setup(transfer => transfer.OpenStream(It.IsAny<string>(), It.IsAny<string>()))
+            _httpService.Reset();
+            _httpService
+                .Setup(transfer => transfer.DownloadS3FileAsync(It.IsAny<string>()))
                 .Throws(new Exception());
 
             var handler = GetBothNuGetHandler();
 
             var packages = new List<PackageVersionPair>()
             {
-              new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.5" },
-              new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.6" }
+              new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.5", PackageSourceType = PackageSourceType.NUGET },
+              new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.6", PackageSourceType = PackageSourceType.NUGET }
             };
 
             try
@@ -533,7 +516,7 @@ namespace Tests
             catch (Exception)
             { }
 
-            _transferUtilityMock.Verify(transfer => transfer.OpenStream(It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(2));
+            _httpService.Verify(transfer => transfer.DownloadS3FileAsync(It.IsAny<string>()), Times.Exactly(2));
         }
 
         [Test]
@@ -542,12 +525,12 @@ namespace Tests
             var handler = GetExternalNuGetHandler();
 
             var packages = new List<PackageVersionPair>() {
-              new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.3" },
-              new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.4" }
+              new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.3", PackageSourceType = PackageSourceType.NUGET },
+              new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.4" , PackageSourceType = PackageSourceType.NUGET}
             };
             var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
             Task.WaitAll(resultTasks.Values.ToArray());
-            _transferUtilityMock.Verify(transfer => transfer.OpenStream(It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(1));
+            _httpService.Verify(transfer => transfer.DownloadS3FileAsync(It.IsAny<string>()), Times.Exactly(1));
         }
 
         [Test]
@@ -556,8 +539,8 @@ namespace Tests
             var handler = GetExternalNuGetHandler();
 
             var packages = new List<PackageVersionPair> {
-              new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.3" },
-              new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.4" }
+              new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.3", PackageSourceType = PackageSourceType.NUGET },
+              new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.4", PackageSourceType = PackageSourceType.NUGET }
             };
 
             var resultTasks1 = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
@@ -569,17 +552,18 @@ namespace Tests
             Task.WaitAll(resultTasks.Values.ToArray());
 
             // Doesn't fire another request when requesting for same package.
-            _transferUtilityMock.Verify(transfer => transfer.OpenStream(It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(1));
+            _httpService.Verify(transfer => transfer.DownloadS3FileAsync(It.IsAny<string>()), Times.Exactly(1));
         }
 
         [Test]
         public void PackageDownloadRequestWithInvalidJsonResponseThrowsException()
         {
-            _transferUtilityMock.Reset();
-            _transferUtilityMock
-                .Setup(transfer => transfer.OpenStream(It.IsAny<string>(), It.IsAny<string>()))
-                .Returns((string bucket, string key) =>
+            _httpService.Reset();
+            _httpService
+                .Setup(transfer => transfer.DownloadS3FileAsync(It.IsAny<string>()))
+                .Returns(async (string key) =>
                 {
+                    await Task.Delay(1);
                     MemoryStream stream = new MemoryStream();
                     StreamWriter writer = new StreamWriter(stream);
                     writer.Write("INVALID");

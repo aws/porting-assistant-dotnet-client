@@ -11,49 +11,50 @@ using System.IO;
 using System.IO.Compression;
 using Amazon.S3;
 using PortingAssistant.Model;
+using PortingAssistant.NuGet.Interfaces;
 
 namespace PortingAssistant.NuGet
 {
     public class ExternalCompatibilityChecker : ICompatibilityChecker
     {
         private readonly ILogger _logger;
-        private readonly IOptions<AnalyzerConfiguration> _options;
-        private readonly ITransferUtility _transferUtility;
+        private readonly IHttpService _httpService;
         private static readonly int _maxProcessConcurrency = 3;
         private static readonly SemaphoreSlim _semaphore = new SemaphoreSlim(_maxProcessConcurrency);
 
         public virtual PackageSourceType CompatibilityCheckerType => PackageSourceType.NUGET;
 
         public ExternalCompatibilityChecker(
-            ITransferUtility transferUtility,
-            ILogger<ExternalCompatibilityChecker> logger,
-            IOptions<AnalyzerConfiguration> options)
+            IHttpService httpService,
+            ILogger<ExternalCompatibilityChecker> logger)
         {
             _logger = logger;
-            _options = options;
-            _transferUtility = transferUtility;
+            _httpService = httpService;
         }
 
         public Dictionary<PackageVersionPair, Task<PackageDetails>> CheckAsync(
             IEnumerable<PackageVersionPair> packageVersions,
             string pathToSolution)
         {
-            var compatibilityTaskCompletionSources = packageVersions
+            var packagesToCheck = packageVersions
+                .Where(package => package.PackageSourceType == CompatibilityCheckerType);
+
+            var compatibilityTaskCompletionSources = packagesToCheck
                 .Select(packageVersion =>
                 {
                     return new Tuple<PackageVersionPair, TaskCompletionSource<PackageDetails>>(packageVersion, new TaskCompletionSource<PackageDetails>());
                 })
                 .ToDictionary(t => t.Item1, t => t.Item2);
 
-            _logger.LogInformation("Checking external source for compatibility of {0} package(s)", packageVersions.Count());
-            if (packageVersions.Any())
+            _logger.LogInformation("Checking external source for compatibility of {0} package(s)", packagesToCheck.Count());
+            if (packagesToCheck.Any())
             {
                 Task.Run(() =>
                 {
                     _semaphore.Wait();
                     try
                     {
-                        ProcessCompatibility(packageVersions, compatibilityTaskCompletionSources);
+                        ProcessCompatibility(packagesToCheck, compatibilityTaskCompletionSources);
                     }
                     finally
                     {
@@ -65,7 +66,7 @@ namespace PortingAssistant.NuGet
             return compatibilityTaskCompletionSources.ToDictionary(t => t.Key, t => t.Value.Task);
         }
 
-        private void ProcessCompatibility(IEnumerable<PackageVersionPair> packageVersions,
+        private async void ProcessCompatibility(IEnumerable<PackageVersionPair> packageVersions,
             Dictionary<PackageVersionPair, TaskCompletionSource<PackageDetails>> compatibilityTaskCompletionSources)
         {
             var packageVersionsFound = new HashSet<PackageVersionPair>();
@@ -82,10 +83,9 @@ namespace PortingAssistant.NuGet
 
                 try
                 {
-                    _logger.LogInformation("Downloading {0} from {1} {2}", fileToDownload,
-                        _options.Value.DataStoreSettings.S3Endpoint, CompatibilityCheckerType);
-                    using var stream = _transferUtility.OpenStream(
-                        _options.Value.DataStoreSettings.S3Endpoint, fileToDownload);
+                    _logger.LogInformation("Downloading {0} from {1}", fileToDownload,
+                        CompatibilityCheckerType);
+                    using var stream = await _httpService.DownloadS3FileAsync(fileToDownload);
                     using var gzipStream = new GZipStream(stream, CompressionMode.Decompress);
                     using var streamReader = new StreamReader(gzipStream);
                     var data = JsonConvert.DeserializeObject<PackageFromS3>(streamReader.ReadToEnd());
@@ -110,16 +110,15 @@ namespace PortingAssistant.NuGet
                 }
                 catch (Exception ex)
                 {
-                    if (ex is AmazonS3Exception && (ex as AmazonS3Exception).StatusCode == System.Net.HttpStatusCode.NotFound)
+                    if (ex.Message.Contains("404"))
                     {
-                        var s3Exception = ex as AmazonS3Exception;
-                        _logger.LogInformation($"Encountered {s3Exception.GetType()} while downloading and parsing {fileToDownload} " +
-                                               $"from {_options.Value.DataStoreSettings.S3Endpoint}, but it was ignored. " +
-                                               $"ErrorCode: {s3Exception.ErrorCode}. ErrorMessage: {s3Exception.Message}.");
+                        _logger.LogInformation($"Encountered {ex.GetType()} while downloading and parsing {fileToDownload} " +
+                                               $"from {CompatibilityCheckerType}, but it was ignored. " +
+                                               $"ErrorMessage: {ex.Message}.");
                     }
                     else
                     {
-                        _logger.LogError("Failed when downloading and parsing {0} from {1}, {2}", fileToDownload, _options.Value.DataStoreSettings.S3Endpoint, ex);
+                        _logger.LogError("Failed when downloading and parsing {0} from {1}, {2}", fileToDownload, CompatibilityCheckerType, ex);
                     }
 
                     foreach (var packageVersion in groupedPackageVersions.Value)

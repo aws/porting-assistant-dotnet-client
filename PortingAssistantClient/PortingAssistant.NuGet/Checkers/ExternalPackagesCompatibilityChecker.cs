@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Amazon.S3.Transfer;
 using PortingAssistant.Model;
+using PortingAssistant.NuGet.Interfaces;
 
 namespace PortingAssistant.NuGet
 {
@@ -10,10 +9,10 @@ namespace PortingAssistant.NuGet
         public override PackageSourceType CompatibilityCheckerType => PackageSourceType.NUGET;
 
         public ExternalPackagesCompatibilityChecker(
-            ITransferUtility transferUtility,
-            ILogger<ExternalCompatibilityChecker> logger,
-            IOptions<AnalyzerConfiguration> options)
-            : base(transferUtility, logger, options)
+            IHttpService httpService,
+            ILogger<ExternalCompatibilityChecker> logger
+            )
+            : base(httpService, logger)
         {
         }
     }

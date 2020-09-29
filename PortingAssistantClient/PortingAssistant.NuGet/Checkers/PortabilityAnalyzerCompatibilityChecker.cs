@@ -12,6 +12,7 @@ using System.IO.Compression;
 using PortingAssistant.Model;
 using Newtonsoft.Json.Linq;
 using Amazon.S3;
+using PortingAssistant.NuGet.Interfaces;
 
 namespace PortingAssistant.NuGet
 {
@@ -23,7 +24,7 @@ namespace PortingAssistant.NuGet
         private const string NamespaceLookupFile = "microsoftlibs.namespace.lookup.json";
         private readonly ILogger _logger;
         private readonly IOptions<AnalyzerConfiguration> _options;
-        private readonly ITransferUtility _transferUtility;
+        private readonly IHttpService _httpService;
         private Task<Dictionary<string, string>> _manifest;
         private static readonly int _maxProcessConcurrency = 3;
         private static readonly SemaphoreSlim _semaphore = new SemaphoreSlim(_maxProcessConcurrency);
@@ -33,17 +34,15 @@ namespace PortingAssistant.NuGet
         /// <summary>
         /// Creates a new instance of Portability Analyzer compatibility checker
         /// </summary>
-        /// <param name="transferUtility">The transferUtility object to read data from S3</param>
+        /// <param name="httpService">The transferUtility object to read data from S3</param>
         /// <param name="logger">Logger object</param>
-        /// <param name="options">Options used for accessing the Portability Analyzer results</param>
         public PortabilityAnalyzerCompatibilityChecker(
-            ITransferUtility transferUtility,
-            ILogger<ExternalPackagesCompatibilityChecker> logger,
-            IOptions<AnalyzerConfiguration> options)
+            IHttpService httpService,
+            ILogger<ExternalPackagesCompatibilityChecker> logger
+            )
         {
             _logger = logger;
-            _options = options;
-            _transferUtility = transferUtility;
+            _httpService = httpService;
             _manifest = null;
         }
 
@@ -127,7 +126,7 @@ namespace PortingAssistant.NuGet
         /// <param name="packageVersions">Collection of package versions to check</param>
         /// <param name="foundPackages">Collection of packages found</param>
         /// <param name="compatibilityTaskCompletionSources">The results of the compatibility check to process</param>
-        private void ProcessCompatibility(IEnumerable<PackageVersionPair> packageVersions,
+        private async void ProcessCompatibility(IEnumerable<PackageVersionPair> packageVersions,
             Dictionary<string, List<PackageVersionPair>> foundPackages,
             Dictionary<PackageVersionPair, TaskCompletionSource<PackageDetails>> compatibilityTaskCompletionSources)
         {
@@ -138,9 +137,8 @@ namespace PortingAssistant.NuGet
             {
                 try
                 {
-                    _logger.LogInformation("Downloading {0} from {1} {2}", url.Key, _options.Value.DataStoreSettings.S3Endpoint, CompatibilityCheckerType);
-                    using var stream = _transferUtility.OpenStream(
-                        _options.Value.DataStoreSettings.S3Endpoint, url.Key.Substring(_options.Value.DataStoreSettings.S3Endpoint.Length + 6));
+                    _logger.LogInformation("Downloading {0} from {1}", url.Key, CompatibilityCheckerType);
+                    using var stream = await _httpService.DownloadS3FileAsync(url.Key.Substring(43));
                     using var gzipStream = new GZipStream(stream, CompressionMode.Decompress);
                     using var streamReader = new StreamReader(gzipStream);
                     var packageFromS3 = JsonConvert.DeserializeObject<PackageFromS3>(streamReader.ReadToEnd());
@@ -156,16 +154,16 @@ namespace PortingAssistant.NuGet
                 }
                 catch (Exception ex)
                 {
-                    if (ex is AmazonS3Exception && (ex as AmazonS3Exception).StatusCode == System.Net.HttpStatusCode.NotFound)
+                    if (ex.Message.Contains("404"))
                     {
                         var s3Exception = ex as AmazonS3Exception;
-                        _logger.LogInformation($"Encountered {s3Exception.GetType()} while downloading and parsing {url.Key} " +
-                                               $"from {_options.Value.DataStoreSettings.S3Endpoint}, but it was ignored. " +
-                                               $"ErrorCode: {s3Exception.ErrorCode}. ErrorMessage: {s3Exception.Message}.");
+                        _logger.LogInformation($"Encountered {ex.GetType()} while downloading and parsing {url.Key} " +
+                                              $"from {CompatibilityCheckerType}, but it was ignored. " +
+                                              $"ErrorMessage: {ex.Message}.");
                     }
                     else
                     {
-                        _logger.LogError("Failed when downloading and parsing {0} from {1}, {2}", url.Key, _options.Value.DataStoreSettings.S3Endpoint.Length, ex);
+                        _logger.LogError("Failed when downloading and parsing {0} from {1}, {2}", url.Key, CompatibilityCheckerType, ex);
                     }
 
                     foreach (var packageVersion in url.Value)
@@ -199,8 +197,7 @@ namespace PortingAssistant.NuGet
 
         private async Task<Dictionary<string, string>> GetManifestAsync()
         {
-            using var stream = await _transferUtility.OpenStreamAsync(
-                    _options.Value.DataStoreSettings.S3Endpoint, "microsoftlibs.namespace.lookup.json");
+            using var stream = await _httpService.DownloadS3FileAsync("microsoftlibs.namespace.lookup.json");
             using var streamReader = new StreamReader(stream);
             return JsonConvert.DeserializeObject<JObject>(streamReader.ReadToEnd()).ToObject<Dictionary<string, string>>();
         }

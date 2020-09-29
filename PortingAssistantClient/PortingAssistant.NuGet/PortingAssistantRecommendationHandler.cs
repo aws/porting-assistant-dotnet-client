@@ -9,26 +9,30 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Amazon.S3.Transfer;
 using System.IO;
+using PortingAssistant.NuGet.Interfaces;
+using Newtonsoft.Json.Linq;
 
 namespace PortingAssistant.NuGet
 {
     public class PortingAssistantRecommendationHandler : IPortingAssistantRecommendationHandler
     {
         private readonly ILogger _logger;
-        private readonly IOptions<AnalyzerConfiguration> _options;
-        private readonly ITransferUtility _transferUtility;
+        private readonly IHttpService _httpService;
         private static readonly int _maxProcessConcurrency = 3;
         private static readonly SemaphoreSlim _semaphore = new SemaphoreSlim(_maxProcessConcurrency);
         private const string RecommendationLookupFile = "namespaces.recommendation.lookup.json";
+        private Task<Dictionary<string, string>> _manifest;
+
+        public PackageSourceType CompatibilityCheckerType => PackageSourceType.RECOMMENDATION;
+
 
         public PortingAssistantRecommendationHandler(
-            ITransferUtility transferUtility,
-            ILogger<ExternalPackagesCompatibilityChecker> logger,
-            IOptions<AnalyzerConfiguration> options)
+            IHttpService httpService,
+            ILogger<ExternalPackagesCompatibilityChecker> logger)
         {
             _logger = logger;
-            _options = options;
-            _transferUtility = transferUtility;
+            _httpService = httpService;
+            _manifest = null;
         }
 
         public Dictionary<string, Task<RecommendationDetails>> GetApiRecommendation(IEnumerable<string> namespaces)
@@ -36,11 +40,12 @@ namespace PortingAssistant.NuGet
             var recommendationTaskCompletionSources = new Dictionary<string, TaskCompletionSource<RecommendationDetails>>();
             try
             {
-                using var stream = _transferUtility.OpenStream(
-                    _options.Value.DataStoreSettings.S3Endpoint, RecommendationLookupFile);
-                using var streamReader = new StreamReader(stream);
-                var manifest = JsonConvert.DeserializeObject<Dictionary<string, string>>(streamReader.ReadToEnd())
-                    .ToDictionary(k => k.Key.ToLower(), v => v.Value);
+                if (_manifest == null)
+                {
+                    _manifest = GetManifestAsync();
+                }
+                Task.WaitAll(_manifest);
+                var manifest = _manifest.Result;
 
                 var foundPackages = new Dictionary<string, List<string>>();
                 namespaces.ToList().ForEach(p =>
@@ -90,7 +95,7 @@ namespace PortingAssistant.NuGet
             }
         }
 
-        private void ProcessCompatibility(IEnumerable<string> namespaces,
+        private async void ProcessCompatibility(IEnumerable<string> namespaces,
             Dictionary<string, List<string>> foundPackages,
             Dictionary<string, TaskCompletionSource<RecommendationDetails>> recommendationTaskCompletionSources)
         {
@@ -102,9 +107,8 @@ namespace PortingAssistant.NuGet
                 {
                     try
                     {
-                        _logger.LogInformation("Downloading {0} from {1}", url.Key, _options.Value.DataStoreSettings.S3Endpoint);
-                        using var stream = _transferUtility.OpenStream(
-                            _options.Value.DataStoreSettings.S3Endpoint, "recommendation/" + url.Key);
+                        _logger.LogInformation("Downloading {0} from {1}", url.Key, CompatibilityCheckerType);
+                        using var stream = await _httpService.DownloadS3FileAsync("recommendation/" + url.Key);
 
                         using var streamReader = new StreamReader(stream);
                         var packageFromGithub = JsonConvert.DeserializeObject<RecommendationDetails>(streamReader.ReadToEnd());
@@ -120,7 +124,7 @@ namespace PortingAssistant.NuGet
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError("Failed when downloading recommendation and parsing {0} from {1}, {2}", url.Key, _options.Value.DataStoreSettings.S3Endpoint, ex);
+                        _logger.LogError("Failed when downloading recommendation and parsing {0} from {1}, {2}", url.Key, CompatibilityCheckerType, ex);
                         foreach (var @namespace in url.Value)
                         {
                             if (recommendationTaskCompletionSources.TryGetValue(@namespace, out var taskCompletionSource))
@@ -169,5 +173,11 @@ namespace PortingAssistant.NuGet
             return PackageSourceType.RECOMMENDATION;
         }
 
+        private async Task<Dictionary<string, string>> GetManifestAsync()
+        {
+            using var stream = await _httpService.DownloadS3FileAsync(RecommendationLookupFile);
+            using var streamReader = new StreamReader(stream);
+            return JsonConvert.DeserializeObject<JObject>(streamReader.ReadToEnd()).ToObject<Dictionary<string, string>>();
+        }
     }
 }
