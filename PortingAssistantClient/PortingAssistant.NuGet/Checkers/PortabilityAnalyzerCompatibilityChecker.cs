@@ -4,9 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using Amazon.S3.Transfer;
 using System.IO;
 using System.IO.Compression;
 using PortingAssistant.Model;
@@ -23,7 +21,6 @@ namespace PortingAssistant.NuGet
     {
         private const string NamespaceLookupFile = "microsoftlibs.namespace.lookup.json";
         private readonly ILogger _logger;
-        private readonly IOptions<AnalyzerConfiguration> _options;
         private readonly IHttpService _httpService;
         private Task<Dictionary<string, string>> _manifest;
         private static readonly int _maxProcessConcurrency = 3;

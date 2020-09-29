@@ -2,8 +2,8 @@
 {
     public enum PackageSourceType
     {
-        NUGET,
         SDK,
+        NUGET,
         PORTABILITY_ANALYZER,
         RECOMMENDATION,
         PRIVATE

@@ -574,7 +574,7 @@ namespace Tests
 
             var externalChecker = GetExternalPackagesCompatibilityChecker();
 
-            var packageVersionPair = new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.5" };
+            var packageVersionPair = new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.5", PackageSourceType = PackageSourceType.NUGET };
             var packages = new List<PackageVersionPair>()
             {
                 packageVersionPair
@@ -593,7 +593,7 @@ namespace Tests
 
             var externalPackagesCompatibilityChecker = GetExternalPackagesCompatibilityChecker();
 
-            var packageVersionPair = new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.5" };
+            var packageVersionPair = new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.5", PackageSourceType = PackageSourceType.NUGET };
             var packages = new List<PackageVersionPair>()
             {
                 packageVersionPair
