@@ -104,15 +104,15 @@ namespace PortingAssistant.NuGet
                     {
                         _logger.LogInformation("Downloading {0} from {1}", url.Key, _options.Value.DataStoreSettings.S3Endpoint);
                         using var stream = _transferUtility.OpenStream(
-                            _options.Value.DataStoreSettings.S3Endpoint, url.Key.Substring(_options.Value.DataStoreSettings.S3Endpoint.Length + 6));
+                            _options.Value.DataStoreSettings.S3Endpoint, "recommendation/" + url.Key);
                         using var streamReader = new StreamReader(stream);
-                        var packageFromGithub = JsonConvert.DeserializeObject<PackageFromGitHub>(streamReader.ReadToEnd());
+                        var packageFromGithub = JsonConvert.DeserializeObject<RecommendationDetails>(streamReader.ReadToEnd());
 
                         foreach (var @namespace in url.Value)
                         {
                             if (recommendationTaskCompletionSources.TryGetValue(@namespace, out var taskCompletionSource))
                             {
-                                taskCompletionSource.SetResult(packageFromGithub.RecommendationObject);
+                                taskCompletionSource.SetResult(packageFromGithub);
                                 namespacesFound.Add(@namespace);
                             }
                         }
@@ -168,9 +168,5 @@ namespace PortingAssistant.NuGet
             return PackageSourceType.RECOMMENDATION;
         }
 
-        private class PackageFromGitHub
-        {
-            public RecommendationDetails RecommendationObject { get; set; }
-        }
     }
 }

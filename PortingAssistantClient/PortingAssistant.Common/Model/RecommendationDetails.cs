@@ -7,25 +7,19 @@ namespace PortingAssistant.Model
     {
         public string Name { get; set; }
         public string EncoreVersion { get; set; }
-        public string Assembly { get; set; }
-        public string Reference { get; set; }
-        public string RecommendationSource { get; set; }
-        public RecommendedActions[] RecommendedActions { get; set; }
+        public RecommendedActions[] Recommendedations { get; set; }
 
         public override bool Equals(object obj)
         {
             return obj is RecommendationDetails details &&
                    Name == details.Name &&
                    EncoreVersion == details.EncoreVersion &&
-                   Assembly == details.Assembly &&
-                   Reference == details.Reference &&
-                   RecommendationSource == details.RecommendationSource &&
-                   EqualityComparer<RecommendedActions[]>.Default.Equals(RecommendedActions, details.RecommendedActions);
+                   EqualityComparer<RecommendedActions[]>.Default.Equals(Recommendedations, details.Recommendedations);
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Name, EncoreVersion, Assembly, Reference, RecommendationSource, RecommendedActions);
+            return HashCode.Combine(Name, EncoreVersion, Recommendedations);
         }
     }
 
@@ -33,6 +27,7 @@ namespace PortingAssistant.Model
     {
         public string Type { get; set; }
         public string Value { get; set; }
+        public string Reference { get; set; }
         public Recommendation[] Recommendation { get; set; }
 
         public override bool Equals(object obj)

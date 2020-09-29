@@ -10,6 +10,10 @@ namespace PortingAssistant.Analysis.Utils
     public static class ApiCompatiblity
     {
         public const string DEFAULT_TARGET = "netcoreapp3.1";
+        private static readonly ApiRecommendation DEFAULT_RECOMMENDATION = new ApiRecommendation
+        {
+            RecommendedActionType = RecommendedActionType.NoRecommendation
+        };
 
         public static CompatibilityResult GetCompatibilityResult(Task<PackageDetails> package, string apiMethodSignature, string version, string target = DEFAULT_TARGET, bool checkLesserPackage = true)
         {
@@ -95,103 +99,90 @@ namespace PortingAssistant.Analysis.Utils
             });
         }
 
-        public static ApiRecommendation UpgradeStrategy(Task<PackageDetails> nugetPackage, string apiMethodSignature, string version, string nameSpaceToQuery, Dictionary<string, Task<RecommendationDetails>> _recommendationDetails)
+        public static ApiRecommendation UpgradeStrategy(
+            Task<PackageDetails> nugetPackage,
+            string apiMethodSignature,
+            string version,
+            string nameSpaceToQuery,
+            Dictionary<string, Task<RecommendationDetails>> _recommendationDetails)
         {
-            if (nugetPackage == null || apiMethodSignature == null || version == null)
-            {
-                return new ApiRecommendation
-                {
-                    RecommendedActionType = RecommendedActionType.NoRecommendation
-                };
-            }
-
-            nugetPackage.Wait();
-            if (!nugetPackage.IsCompletedSuccessfully)
-            {
-                return new ApiRecommendation
-                {
-                    RecommendedActionType = RecommendedActionType.NoRecommendation
-                };
-            }
-            var targetApi = GetApiDetails(nugetPackage.Result, apiMethodSignature);
-            if (targetApi == null || targetApi.Targets == null || !targetApi.Targets.TryGetValue(DEFAULT_TARGET, out var versions))
-            {
-                return new ApiRecommendation
-                {
-                    RecommendedActionType = RecommendedActionType.NoRecommendation
-                };
-            }
-
-            //var upgradeVersion = versions.Last();
-
             try
             {
-                if (!hasLesserTarget(version, versions.ToArray()))
+                if (nugetPackage != null && apiMethodSignature != null && version == null)
                 {
-                    // No Package upgrade. Check for API recommendation
-                    if (_recommendationDetails.TryGetValue(nameSpaceToQuery, out var taskCompletionSource))
-                    {
-                        var apiList = _recommendationDetails[nameSpaceToQuery];
-                        apiList.Wait();
-                        if (!apiList.IsCompletedSuccessfully)
-                        {
-                            return new ApiRecommendation
-                            {
-                                RecommendedActionType = RecommendedActionType.NoRecommendation
-                            };
-                        }
-
-                        var recommendationActions = apiList.Result.RecommendedActions;
-                        foreach (var eachRecommendationAPI in recommendationActions)
-                        {
-                            if (eachRecommendationAPI.Value == apiMethodSignature)
-                            {
-                                if (eachRecommendationAPI.Recommendation != null || eachRecommendationAPI.Recommendation.Length != 0)
-                                {
-                                    // First recommendation is the preferred one.
-                                    return new ApiRecommendation
-                                    {
-                                        RecommendedActionType = RecommendedActionType.ReplaceApi,
-                                        Description = eachRecommendationAPI.Recommendation.First().Description
-                                    };
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        return new ApiRecommendation
-                        {
-                            RecommendedActionType = RecommendedActionType.NoRecommendation
-                        };
-                    }
+                    var UpgradeVersionRecommendation = UpgradePackageVersion(nugetPackage, apiMethodSignature, version);
+                    if (UpgradeVersionRecommendation != null && UpgradeVersionRecommendation.RecommendedActionType == RecommendedActionType.UpgradePackage)
+                        return UpgradeVersionRecommendation;
                 }
-                var upgradeVersion = versions.ToList().Find(v =>
-                {
-                    if (!SemVersion.TryParse(v, out var semversion) || !SemVersion.TryParse(version, out var target))
-                    {
-                        return false;
-                    }
-
-                    return SemVersion.Compare(semversion, target) > 0;
-                });
-                return new ApiRecommendation
-                {
-                    RecommendedActionType = RecommendedActionType.UpgradePackage,
-                    Description = upgradeVersion
-                };
-
+                return FetchApiRecommendation(apiMethodSignature, nameSpaceToQuery, _recommendationDetails);
             }
             catch
             {
-                return new ApiRecommendation
-                {
-                    RecommendedActionType = RecommendedActionType.NoRecommendation
-                };
+                return DEFAULT_RECOMMENDATION;
             }
+    
+        }
+        private static ApiRecommendation UpgradePackageVersion(
+                       Task<PackageDetails> nugetPackage,
+                       string apiMethodSignature,
+                       string version)
+        {
+            nugetPackage.Wait();
+            if (nugetPackage.IsCompletedSuccessfully)
+            {
+                var targetApi = GetApiDetails(nugetPackage.Result, apiMethodSignature);
+                if (targetApi != null && targetApi.Targets != null && targetApi.Targets.TryGetValue(DEFAULT_TARGET, out var versions))
+                {
+                    if (hasLesserTarget(version, versions.ToArray()))
+                    {
+                        var upgradeVersion = versions.ToList().Find(v =>
+                        {
+                            if (!SemVersion.TryParse(v, out var semversion) || !SemVersion.TryParse(version, out var target))
+                            {
+                                return false;
+                            }
+                            return SemVersion.Compare(semversion, target) > 0;
+                        });
+                        return new ApiRecommendation
+                        {
+                            RecommendedActionType = RecommendedActionType.UpgradePackage,
+                            Description = upgradeVersion
+                        };
+                    }
+                }
+            }
+            return DEFAULT_RECOMMENDATION;
         }
 
-        private static ApiDetails GetApiDetails(PackageDetails nugetPackage, string apiMethodSignature)
+        private static ApiRecommendation FetchApiRecommendation(
+            string apiMethodSignature,
+            string nameSpaceToQuery,
+            Dictionary<string, Task<RecommendationDetails>> _recommendationDetails)
+        {
+            if (apiMethodSignature != null && _recommendationDetails.TryGetValue(nameSpaceToQuery, out var namespacesRecommendation))
+            {
+                namespacesRecommendation.Wait();
+                if (namespacesRecommendation.IsCompletedSuccessfully)
+                {
+                    var recommendationActions = namespacesRecommendation.Result.Recommendedations;
+                    var apiRecommendation = recommendationActions
+                        .Where(recommendation => recommendation != null && recommendation.Value == apiMethodSignature)
+                        .SelectMany(recommendation => recommendation.Recommendation)
+                        .Select(recommend => recommend.Description);
+                    if (apiRecommendation != null && apiRecommendation.Count() != 0)
+                    {
+                        return new ApiRecommendation
+                        {
+                            RecommendedActionType = RecommendedActionType.ReplaceApi,
+                            Description = string.Join(",",apiRecommendation.Where(recommend=> !string.IsNullOrEmpty(recommend)))
+                        };
+                    }
+                }
+            }
+            return DEFAULT_RECOMMENDATION;
+        }
+
+            private static ApiDetails GetApiDetails(PackageDetails nugetPackage, string apiMethodSignature)
         {
             if (nugetPackage == null || nugetPackage.Api == null || apiMethodSignature == null)
             {
