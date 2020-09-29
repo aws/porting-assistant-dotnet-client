@@ -141,7 +141,6 @@ namespace PortingAssistant.NuGet
                     _logger.LogInformation("Downloading {0} from {1} {2}", url.Key, _options.Value.DataStoreSettings.S3Endpoint, CompatibilityCheckerType);
                     using var stream = _transferUtility.OpenStream(
                         _options.Value.DataStoreSettings.S3Endpoint, url.Key.Substring(_options.Value.DataStoreSettings.S3Endpoint.Length + 6));
-                    _logger.LogInformation("Downloading {0} successes", url.Key);
                     using var gzipStream = new GZipStream(stream, CompressionMode.Decompress);
                     using var streamReader = new StreamReader(gzipStream);
                     var packageFromS3 = JsonConvert.DeserializeObject<PackageFromS3>(streamReader.ReadToEnd());

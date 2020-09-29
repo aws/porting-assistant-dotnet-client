@@ -102,7 +102,7 @@ namespace PortingAssistant.NuGet
                 {
                     try
                     {
-                        _logger.LogInformation("Downloading {0} from {1} recommendation source", url.Key, _options.Value.DataStoreSettings.S3Endpoint);
+                        _logger.LogInformation("Downloading {0} from {1}", url.Key, _options.Value.DataStoreSettings.S3Endpoint);
                         using var stream = _transferUtility.OpenStream(
                             _options.Value.DataStoreSettings.S3Endpoint, "recommendation/" + url.Key);
 
