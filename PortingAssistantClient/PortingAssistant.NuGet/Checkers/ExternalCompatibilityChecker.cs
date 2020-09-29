@@ -82,10 +82,11 @@ namespace PortingAssistant.NuGet
 
                 try
                 {
-                    _logger.LogInformation("Downloading {0} from {1}", fileToDownload,
-                        _options.Value.DataStoreSettings.S3Endpoint);
+                    _logger.LogInformation("Downloading {0} from {1} {2}", fileToDownload,
+                        _options.Value.DataStoreSettings.S3Endpoint, CompatibilityCheckerType);
                     using var stream = _transferUtility.OpenStream(
                         _options.Value.DataStoreSettings.S3Endpoint, fileToDownload);
+                    _logger.LogInformation("Downloading {0} successes", fileToDownload);
                     using var gzipStream = new GZipStream(stream, CompressionMode.Decompress);
                     using var streamReader = new StreamReader(gzipStream);
                     var data = JsonConvert.DeserializeObject<PackageFromS3>(streamReader.ReadToEnd());
@@ -120,13 +121,14 @@ namespace PortingAssistant.NuGet
                     else
                     {
                         _logger.LogError("Failed when downloading and parsing {0} from {1}, {2}", fileToDownload, _options.Value.DataStoreSettings.S3Endpoint, ex);
-                        foreach (var packageVersion in groupedPackageVersions.Value)
+                    }
+
+                    foreach (var packageVersion in groupedPackageVersions.Value)
+                    {
+                        if (compatibilityTaskCompletionSources.TryGetValue(packageVersion, out var taskCompletionSource))
                         {
-                            if (compatibilityTaskCompletionSources.TryGetValue(packageVersion, out var taskCompletionSource))
-                            {
-                                taskCompletionSource.SetException(new PortingAssistantClientException(ExceptionMessage.PackageNotFound(packageVersion), ex));
-                                packageVersionsWithErrors.Add(packageVersion);
-                            }
+                            taskCompletionSource.SetException(new PortingAssistantClientException(ExceptionMessage.PackageNotFound(packageVersion), ex));
+                            packageVersionsWithErrors.Add(packageVersion);
                         }
                     }
                 }

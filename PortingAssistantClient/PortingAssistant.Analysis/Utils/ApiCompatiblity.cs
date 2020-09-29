@@ -17,6 +17,7 @@ namespace PortingAssistant.Analysis.Utils
 
         public static CompatibilityResult GetCompatibilityResult(Task<PackageDetails> package, string apiMethodSignature, string version, string target = DEFAULT_TARGET, bool checkLesserPackage = true)
         {
+
             var compatiblityResult = new CompatibilityResult
             {
                 Compatibility = Compatibility.UNKNOWN,
@@ -28,30 +29,51 @@ namespace PortingAssistant.Analysis.Utils
                 return compatiblityResult;
             }
 
-            package.Wait();
-            if (!package.IsCompletedSuccessfully)
+            try
             {
-                return compatiblityResult;
-            }
+                package.Wait();
+                if (!package.IsCompletedSuccessfully)
+                {
+                    return compatiblityResult;
+                }
 
-            if (package.Result.IsDeprecated)
-            {
-                compatiblityResult.Compatibility = Compatibility.DEPRECATED;
-                return compatiblityResult;
-            }
+                if (package.Result.IsDeprecated)
+                {
+                    compatiblityResult.Compatibility = Compatibility.DEPRECATED;
+                    return compatiblityResult;
+                }
 
-            var foundApi = GetApiDetails(package.Result, apiMethodSignature);
+                var foundApi = GetApiDetails(package.Result, apiMethodSignature);
 
-            if (foundApi == null)
-            {
-                if (!checkLesserPackage || package.Result.Targets == null || !package.Result.Targets.TryGetValue(target, out var targetFramework))
+                if (foundApi == null)
+                {
+                    if (!checkLesserPackage || package.Result.Targets == null || !package.Result.Targets.TryGetValue(target, out var targetFramework))
+                    {
+                        compatiblityResult.Compatibility = Compatibility.INCOMPATIBLE;
+                        return compatiblityResult;
+                    }
+
+                    compatiblityResult.Compatibility = hasLesserTarget(version, targetFramework.ToArray()) ? Compatibility.COMPATIBLE : Compatibility.INCOMPATIBLE;
+                    compatiblityResult.CompatibleVersions = targetFramework.ToArray()
+                        .Where(v =>
+                        {
+                            if (!SemVersion.TryParse(v, out var semversion))
+                            {
+                                return false;
+                            }
+                            return SemVersion.Compare(semversion, targetversion) > 0;
+                        }).ToList();
+                    return compatiblityResult;
+                }
+
+                if (!foundApi.Targets.TryGetValue(target, out var framework))
                 {
                     compatiblityResult.Compatibility = Compatibility.INCOMPATIBLE;
                     return compatiblityResult;
                 }
 
-                compatiblityResult.Compatibility = hasLesserTarget(version, targetFramework.ToArray()) ? Compatibility.COMPATIBLE : Compatibility.INCOMPATIBLE;
-                compatiblityResult.CompatibleVersions = targetFramework.ToArray()
+                compatiblityResult.Compatibility = hasLesserTarget(version, framework.ToArray()) ? Compatibility.COMPATIBLE : Compatibility.INCOMPATIBLE;
+                compatiblityResult.CompatibleVersions = framework.ToArray()
                     .Where(v =>
                     {
                         if (!SemVersion.TryParse(v, out var semversion))
@@ -62,24 +84,10 @@ namespace PortingAssistant.Analysis.Utils
                     }).ToList();
                 return compatiblityResult;
             }
-
-            if (!foundApi.Targets.TryGetValue(target, out var framework))
+            catch
             {
-                compatiblityResult.Compatibility = Compatibility.INCOMPATIBLE;
                 return compatiblityResult;
             }
-
-            compatiblityResult.Compatibility = hasLesserTarget(version, framework.ToArray()) ? Compatibility.COMPATIBLE : Compatibility.INCOMPATIBLE;
-            compatiblityResult.CompatibleVersions = framework.ToArray()
-                .Where(v =>
-                {
-                    if (!SemVersion.TryParse(v, out var semversion))
-                    {
-                        return false;
-                    }
-                    return SemVersion.Compare(semversion, targetversion) > 0;
-                }).ToList();
-            return compatiblityResult;
         }
 
         private static bool hasLesserTarget(string version, string[] targetVersions)
