@@ -29,10 +29,6 @@ namespace PortingAssistant.Analysis.Utils
                     {
                         var packageDetails = packageResults.GetValueOrDefault(invocation.Package, null);
 
-                        if (invocation.OriginalDefinition.Contains("RedLockNet.SERedis.RedLockFactory.Create"))
-                        {
-
-                        }
                         var compatibilityResult = ApiCompatiblity.GetCompatibilityResult(packageDetails,
                                                  invocation.OriginalDefinition,
                                                  invocation.Package.Version);

@@ -116,7 +116,7 @@ namespace PortingAssistant.Analysis.Utils
         {
             try
             {
-                if (nugetPackage != null && apiMethodSignature != null && version == null)
+                if (nugetPackage != null && apiMethodSignature != null && version != null)
                 {
                     var UpgradeVersionRecommendation = UpgradePackageVersion(nugetPackage, apiMethodSignature, version);
                     if (UpgradeVersionRecommendation != null && UpgradeVersionRecommendation.RecommendedActionType == RecommendedActionType.UpgradePackage)
@@ -128,7 +128,7 @@ namespace PortingAssistant.Analysis.Utils
             {
                 return DEFAULT_RECOMMENDATION;
             }
-    
+
         }
         private static ApiRecommendation UpgradePackageVersion(
                        Task<PackageDetails> nugetPackage,
@@ -182,7 +182,7 @@ namespace PortingAssistant.Analysis.Utils
                         return new ApiRecommendation
                         {
                             RecommendedActionType = RecommendedActionType.ReplaceApi,
-                            Description = string.Join(",",apiRecommendation.Where(recommend=> !string.IsNullOrEmpty(recommend)))
+                            Description = string.Join(",", apiRecommendation.Where(recommend => !string.IsNullOrEmpty(recommend)))
                         };
                     }
                 }
@@ -190,14 +190,14 @@ namespace PortingAssistant.Analysis.Utils
             return DEFAULT_RECOMMENDATION;
         }
 
-            private static ApiDetails GetApiDetails(PackageDetails nugetPackage, string apiMethodSignature)
+        private static ApiDetails GetApiDetails(PackageDetails nugetPackage, string apiMethodSignature)
         {
             if (nugetPackage == null || nugetPackage.Api == null || apiMethodSignature == null)
             {
                 return null;
             }
 
-            var foundApi = nugetPackage.Api.FirstOrDefault(api => api.MethodSignature == apiMethodSignature.Replace("?", ""));
+            var foundApi = nugetPackage.Api.FirstOrDefault(api => api.MethodSignature.Replace("?", "") == apiMethodSignature.Replace("?", ""));
             if (foundApi == null)
             {
                 foundApi = nugetPackage.Api.FirstOrDefault(api =>
