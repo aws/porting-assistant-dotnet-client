@@ -1,0 +1,18 @@
+version: 0.2
+
+phases:
+  build:
+    commands:
+      - dotnet restore "$env:CODEBUILD_SRC_DIR\PortingAssistantClient\PortingAssistantClient.sln"
+      - dotnet build -c Release "$env:CODEBUILD_SRC_DIR\PortingAssistantClient\PortingAssistantClient.sln"
+  post_build:
+    commands:
+      - dotnet test -c Release "$env:CODEBUILD_SRC_DIR\PortingAssistantClient\PortingAssistantClient.sln" --logger trx --results-directory "$env:CODEBUILD_SRC_DIR\Report"
+
+reports:
+  PortingAssistantClient:
+    file-format: VisualStudioTrx
+    files:
+      - "**\*"
+    base-directory: "$env:CODEBUILD_SRC_DIR\Report"
+

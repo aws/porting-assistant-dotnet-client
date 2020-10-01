@@ -1,0 +1,12 @@
+{
+    "sources": [
+      {
+        "name": "s3Feed",
+        "type": "s3",
+        "path": "https://s3.amazonaws.com/porting.assistant.client.nuget/",
+        "profileName": "default",
+        "bucketName": "porting.assistant.client.nuget",
+        "region": "us-west-2"
+      }
+    ]
+  }
