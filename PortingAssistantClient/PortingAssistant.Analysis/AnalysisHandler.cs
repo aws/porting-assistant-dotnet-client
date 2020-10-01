@@ -91,6 +91,9 @@ namespace PortingAssistant.Analysis
                     return agg;
                 });
 
+                var targetframeworks = analyzer.ProjectResult.TargetFrameworks.Count == 0 ?
+                    new List<string> { analyzer.ProjectResult.TargetFramework } : analyzer.ProjectResult.TargetFrameworks;
+
                 var nugetPackages = analyzer.ProjectResult.ExternalReferences.NugetReferences
                     .Select(r => InvocationExpressionModelToInvocations.ReferenceToPackageVersionPair(r))
                     .ToHashSet();
@@ -111,9 +114,6 @@ namespace PortingAssistant.Analysis
                 var packageResults = _handler.GetNugetPackages(allPackages, null);
                 var recommendationResults = _recommendationHandler.GetApiRecommendation(namespaces.ToList());
 
-                var SourceFileAnalysisResults = InvocationExpressionModelToInvocations.AnalyzeResults(
-                    sourceFileToCodeEntityDetails, packageResults, recommendationResults);
-
                 var packageAnalysisResults = nugetPackages.Select(package =>
                 {
                     var result = PackageCompatibility.isCompatibleAsync(packageResults.GetValueOrDefault(package, null), package, _logger);
@@ -121,11 +121,15 @@ namespace PortingAssistant.Analysis
                     return new Tuple<PackageVersionPair, Task<PackageAnalysisResult>>(package, packageAnalysisResult);
                 }).ToDictionary(t => t.Item1, t => t.Item2);
 
+                var SourceFileAnalysisResults = InvocationExpressionModelToInvocations.AnalyzeResults(
+                    sourceFileToCodeEntityDetails, packageResults, recommendationResults);
+
+
                 return new ProjectAnalysisResult
                 {
                     ProjectName = project.ProjectName,
                     ProjectFile = project.ProjectFilePath,
-                    TargetFrameworks = new List<string> { analyzer.ProjectResult.TargetFramework },
+                    TargetFrameworks = targetframeworks,
                     PackageReferences = nugetPackages.ToList(),
                     ProjectReferences = analyzer.ProjectResult.ExternalReferences.ProjectReferences.Select(p => p.AssemblyLocation).ToList(),
                     PackageAnalysisResults = packageAnalysisResults,

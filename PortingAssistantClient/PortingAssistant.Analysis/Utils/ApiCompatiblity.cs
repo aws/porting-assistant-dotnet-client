@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using PortingAssistant.Model;
 using Semver;
 using System.Collections.Generic;
+using NuGet.Versioning;
 
 namespace PortingAssistant.Analysis.Utils
 {
@@ -24,7 +25,7 @@ namespace PortingAssistant.Analysis.Utils
                 CompatibleVersions = new List<string>()
             };
 
-            if (package == null || apiMethodSignature == null || !SemVersion.TryParse(version, out var targetversion))
+            if (package == null || apiMethodSignature == null || !NuGetVersion.TryParse(version, out var targetversion))
             {
                 return compatiblityResult;
             }
@@ -57,11 +58,11 @@ namespace PortingAssistant.Analysis.Utils
                     compatiblityResult.CompatibleVersions = targetFramework.ToArray()
                         .Where(v =>
                         {
-                            if (!SemVersion.TryParse(v, out var semversion))
+                            if (!NuGetVersion.TryParse(v, out var semversion))
                             {
                                 return false;
                             }
-                            return SemVersion.Compare(semversion, targetversion) > 0;
+                            return semversion.CompareTo(targetversion) > 0;
                         }).ToList();
                     return compatiblityResult;
                 }
@@ -76,11 +77,11 @@ namespace PortingAssistant.Analysis.Utils
                 compatiblityResult.CompatibleVersions = framework.ToArray()
                     .Where(v =>
                     {
-                        if (!SemVersion.TryParse(v, out var semversion))
+                        if (!NuGetVersion.TryParse(v, out var semversion))
                         {
                             return false;
                         }
-                        return SemVersion.Compare(semversion, targetversion) > 0;
+                        return semversion.CompareTo(targetversion) > 0;
                     }).ToList();
                 return compatiblityResult;
             }
@@ -92,18 +93,21 @@ namespace PortingAssistant.Analysis.Utils
 
         private static bool hasLesserTarget(string version, string[] targetVersions)
         {
-            if (!SemVersion.TryParse(version, out var target))
+            if (!NuGetVersion.TryParse(version, out var target))
             {
                 return false;
             }
-
             return targetVersions.Any(v =>
             {
-                if (!SemVersion.TryParse(v, out var semversion))
+                if (v == "0.0.0.0")
+                {
+                    return true;
+                }
+                if (!NuGetVersion.TryParse(v, out var semversion))
                 {
                     return false;
                 }
-                return SemVersion.Compare(target, semversion) > 0;
+                return target.CompareTo(semversion) >= 0;
             });
         }
 
@@ -145,11 +149,14 @@ namespace PortingAssistant.Analysis.Utils
                     {
                         var upgradeVersion = versions.ToList().Find(v =>
                         {
-                            if (!SemVersion.TryParse(v, out var semversion) || !SemVersion.TryParse(version, out var target))
+                            if (!NuGetVersion.TryParse(v, out var semversion) || !NuGetVersion.TryParse(version, out var target))
                             {
                                 return false;
                             }
-                            return SemVersion.Compare(semversion, target) > 0;
+                            else
+                            {
+                                return semversion.CompareTo(target) > 0;
+                            }
                         });
                         return new ApiRecommendation
                         {

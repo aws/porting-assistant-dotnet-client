@@ -357,7 +357,7 @@ namespace Tests.Analysis
 
             Assert.AreEqual(1, result["file1"].Count);
             Assert.AreEqual("namespace.namespace2", result["file1"][0].Package.PackageId);
-            Assert.AreEqual("0.0.0.0", result["file1"][0].Package.Version);
+            Assert.AreEqual("NOT_SEMVER", result["file1"][0].Package.Version);
 
         }
     }

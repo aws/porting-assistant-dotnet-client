@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using PortingAssistant.Model;
-using Semver;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
+using NuGet.Versioning;
 
 namespace PortingAssistant.Analysis.Utils
 {
@@ -75,7 +75,8 @@ namespace PortingAssistant.Analysis.Utils
                         CompatibleVersions = new List<string>()
                     };
                 }
-                if (!SemVersion.TryParse(packageVersionPair.Version, out var version))
+
+                if (!NuGetVersion.TryParse(packageVersionPair.Version, out var version))
                 {
                     return new CompatibilityResult
                     {
@@ -87,20 +88,20 @@ namespace PortingAssistant.Analysis.Utils
                 {
                     Compatibility = foundTarget.Any(v =>
                     {
-                        if (!SemVersion.TryParse(v, out var semversion))
+                        if (!NuGetVersion.TryParse(v, out var semversion))
                         {
                             return false;
                         }
 
-                        return SemVersion.Compare(version, semversion) >= 0;
+                        return version.CompareTo(semversion) >= 0;
                     }) ? Compatibility.COMPATIBLE : Compatibility.INCOMPATIBLE,
                     CompatibleVersions = foundTarget.Where(v =>
                     {
-                        if (!SemVersion.TryParse(v, out var semversion))
+                        if (!NuGetVersion.TryParse(v, out var semversion))
                         {
                             return false;
                         }
-                        return SemVersion.Compare(semversion, version) > 0;
+                        return semversion.CompareTo(version) > 0;
                     }).ToList()
                 };
             }
