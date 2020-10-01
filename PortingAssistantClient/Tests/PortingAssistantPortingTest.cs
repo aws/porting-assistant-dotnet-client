@@ -91,8 +91,7 @@ namespace Tests
                         var framework = NuGetFramework.Parse(tfm);
                         return string.Format("{0} {1}", framework.Framework, NuGetVersion.Parse(framework.Version.ToString()).ToNormalizedString());
                     }).ToList(),
-                    PackageReferences = projectParser.GetPackageReferences(),
-                    ProjectReferences = projectParser.GetProjectReferences()
+                    PackageReferences = projectParser.GetPackageReferences()
                 };
             }).Where(p => p != null).ToList();
 

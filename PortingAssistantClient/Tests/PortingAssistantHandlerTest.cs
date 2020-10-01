@@ -156,21 +156,11 @@ namespace Tests
                 Path.Combine(_solutionFolder, "SolutionWithProjects.sln")
             );
             Assert.AreEqual("SolutionWithProjects", solutionDetail.SolutionName);
-            Assert.AreEqual(1, solutionDetail.Projects.Find(p => p.ProjectName == "PortingAssistantApi").ProjectReferences.Count);
-            Assert.AreEqual(4, solutionDetail.Projects.Find(p => p.ProjectName == "PortingAssistantApi").PackageReferences.Count);
-            Assert.AreEqual(8, solutionDetail.Projects.Find(p => p.ProjectName == "Nop.Core").PackageReferences.Count);
 
             Assert.AreEqual(5, solutionDetail.Projects.Count);
             Assert.Contains("PortingAssistantApi", solutionDetail.Projects.Select(result => result.ProjectName).ToList());
 
             var project = solutionDetail.Projects.First(project => project.ProjectName.Equals("PortingAssistantApi"));
-            Assert.Contains("nunit", project.PackageReferences.Select(dep => dep.PackageId).ToList());
-            Assert.Contains(Path.Combine(_solutionFolder, "PortingAssistantAssessment", "PortingAssistantAssessment.csproj"),
-                project.ProjectReferences.Select(proj => proj.ReferencePath).ToList());
-
-            project = solutionDetail.Projects.First(project => project.ProjectName.Equals("Nop.Core"));
-            Assert.Contains("Autofac", project.PackageReferences.Select(dep => dep.PackageId).ToList());
-            Assert.Contains(".NETFramework 4.5.1", project.TargetFrameworks);
         }
 
 
@@ -186,11 +176,11 @@ namespace Tests
         [Test]
         public void AnalyzeSolutionWithProjectsSucceeds()
         {
-            var results = _portingAssistantHandler.AnalyzeSolution(Path.Combine(_solutionFolder, "SolutionWithProjects.sln"), new Settings());
-            Task.WaitAll(results.ProjectAnalysisResults.Values.ToArray());
-            var projectAnalysisResult = results.ProjectAnalysisResults.Values.ToList().Find(p => p.Result.ProjectName == "Nop.Core");
-            var sourceFileAnalysisResults = projectAnalysisResult.Result.SourceFileAnalysisResults;
-            var packageAnalysisResult = projectAnalysisResult.Result.PackageAnalysisResults;
+            var results = _portingAssistantHandler.AnalyzeSolutionAsync(Path.Combine(_solutionFolder, "SolutionWithProjects.sln"), new Settings());
+            Task.WaitAll(results);
+            var projectAnalysisResult = results.Result.ProjectAnalysisResults.Find(p => p.ProjectName == "Nop.Core");
+            var sourceFileAnalysisResults = projectAnalysisResult.SourceFileAnalysisResults;
+            var packageAnalysisResult = projectAnalysisResult.PackageAnalysisResults;
 
             Assert.AreEqual(_sourceFileAnalysisResult, sourceFileAnalysisResults.First());
 

@@ -65,7 +65,7 @@ namespace PortingAssistant.Analysis.Utils
         }
 
         public static Dictionary<string, List<CodeEntityDetails>> Convert(
-             Dictionary<string, List<InvocationExpression>> sourceFileToInvocations,
+             Dictionary<string, UstList<InvocationExpression>> sourceFileToInvocations,
              AnalyzerResult analyzer)
         {
 

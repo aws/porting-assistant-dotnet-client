@@ -37,57 +37,38 @@ namespace PortingAssistant.Handler
             try
             {
                 var solution = SolutionFile.Parse(solutionFilePath);
-                var failedProjects = new List<string>();
 
                 var projects = solution.ProjectsInOrder
                     .Where(p => p.ProjectType == SolutionProjectType.KnownToBeMSBuildFormat || p.ProjectType == SolutionProjectType.WebProject)
                     .Select(p =>
-                    {
-                        _logger.LogInformation("Analyzing: {0}", p.ProjectName);
-                        try
+                        new ProjectDetails
                         {
-                            var projectParser = new ProjectFileParser(p.AbsolutePath);
-
-                            return new ProjectDetails
-                            {
-                                ProjectName = p.ProjectName,
-                                ProjectFilePath = p.AbsolutePath,
-                                ProjectGuid = p.ProjectGuid,
-                                ProjectType = p.ProjectType.ToString(),
-                                TargetFrameworks = projectParser.GetTargetFrameworks().Select(tfm =>
-                                {
-                                    var framework = NuGetFramework.Parse(tfm);
-                                    return string.Format("{0} {1}", framework.Framework, NuGetVersion.Parse(framework.Version.ToString()).ToNormalizedString());
-                                }).ToList(),
-                                PackageReferences = projectParser.GetPackageReferences(),
-                                ProjectReferences = projectParser.GetProjectReferences(),
-
-                            };
+                            ProjectName = p.ProjectName,
+                            ProjectFilePath = p.AbsolutePath,
+                            ProjectGuid = p.ProjectGuid,
+                            ProjectType = p.ProjectType.ToString(),
+                            TargetFrameworks = new List<string>(),
+                            ProjectReferences = new List<string>(),
+                            PackageReferences = new List<PackageVersionPair>(),
                         }
-                        catch (Exception ex)
-                        {
-                            failedProjects.Add(p.AbsolutePath);
-                            _logger.LogWarning("Failed to assess {0}, exception: {1}", p.ProjectName, ex);
-                            return null;
-                        }
-                    }).Where(p => p != null).ToList();
+                    ).Where(p => p != null).ToList();
 
                 return new SolutionDetails
                 {
                     SolutionName = Path.GetFileNameWithoutExtension(solutionFilePath),
                     SolutionFilePath = solutionFilePath,
                     Projects = projects,
-                    FailedProjects = failedProjects
+                    FailedProjects = new List<string>(),
                 };
             }
             catch (Exception ex)
             {
                 throw new PortingAssistantException($"Cannot Analyze solution {solutionFilePath}", ex);
             }
-            
+
         }
 
-        public SolutionAnalysisResult AnalyzeSolution(string solutionFilePath, Settings settings)
+        public async Task<SolutionAnalysisResult> AnalyzeSolutionAsync(string solutionFilePath, Settings settings)
         {
             try
             {
@@ -95,20 +76,50 @@ namespace PortingAssistant.Handler
                 var projects = solutionDetails.Projects
                     .Where(p => settings.IgnoreProjects == null || !settings.IgnoreProjects.Contains(p.ProjectFilePath))
                     .ToList();
-                var projectAnalysisResults = _AnalysisHandler.AnalyzeSolution(solutionFilePath, projects);
+                var projectAnalysisResultTasks = _AnalysisHandler.AnalyzeSolution(solutionFilePath, projects);
+
+                var projectAnalysisResults = await Task.WhenAll(projects.Select(async p =>
+                {
+                    _logger.LogInformation("Analyzing: {0}", p.ProjectName);
+
+                    try
+                    {
+                        var projectAnalysisResult = projectAnalysisResultTasks.GetValueOrDefault(p.ProjectFilePath, null);
+                        if (projectAnalysisResult != null)
+                        {
+                            await projectAnalysisResult;
+                            if (projectAnalysisResult.IsCompletedSuccessfully)
+                            {
+                                p.PackageReferences = projectAnalysisResult.Result.PackageReferences;
+                                p.ProjectReferences = projectAnalysisResult.Result.ProjectReferences;
+                                p.TargetFrameworks = projectAnalysisResult.Result.TargetFrameworks;
+                                return projectAnalysisResult.Result;
+                            }
+                            solutionDetails.FailedProjects.Add(p.ProjectFilePath);
+                        }
+                        return null;
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning("Failed to assess {0}, exception: {1}", p.ProjectName, ex);
+                        solutionDetails.FailedProjects.Add(p.ProjectFilePath);
+                        return null;
+                    }
+
+                }).Where(p => p != null).ToList());
 
                 return new SolutionAnalysisResult
                 {
                     FailedProjects = solutionDetails.FailedProjects,
                     SolutionDetails = solutionDetails,
-                    ProjectAnalysisResults = projectAnalysisResults
+                    ProjectAnalysisResults = projectAnalysisResults.ToList()
                 };
 
             }
             catch (Exception ex)
             {
                 throw new PortingAssistantException($"Cannot Analyze solution {solutionFilePath}", ex);
-            } 
+            }
 
         }
 
@@ -126,9 +137,9 @@ namespace PortingAssistant.Handler
                     .ToDictionary(t => t.Item1, t => t.Item2);
 
                 return _portingHandler.ApplyPortProjectFileChanges(
-                    request.ProjectPaths, 
+                    request.ProjectPaths,
                     request.SolutionPath,
-                    request.TargetFramework, 
+                    request.TargetFramework,
                     upgradeVersions);
             }
             catch (Exception ex)

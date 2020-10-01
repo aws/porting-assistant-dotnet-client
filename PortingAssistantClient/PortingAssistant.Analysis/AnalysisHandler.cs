@@ -79,9 +79,8 @@ namespace PortingAssistant.Analysis
                 var sourceFileToInvocations = analyzer.ProjectResult.SourceFileResults.Select((sourceFile) =>
                 {
                     var invocationsInSourceFile = sourceFile.AllInvocationExpressions();
-                    var invocations = FilterInternalInvocations.Filter(invocationsInSourceFile, project);
                     _logger.LogInformation("API: SourceFile {0} has {1} invocations pre-filter", sourceFile.FileFullPath, invocationsInSourceFile.Count());
-                    return KeyValuePair.Create(sourceFile.FileFullPath, invocations);
+                    return KeyValuePair.Create(sourceFile.FileFullPath, invocationsInSourceFile);
                 }).ToDictionary(p => p.Key, p => p.Value);
 
                 var sourceFileToCodeEntityDetails = InvocationExpressionModelToInvocations.Convert(sourceFileToInvocations, analyzer);
@@ -126,6 +125,9 @@ namespace PortingAssistant.Analysis
                 {
                     ProjectName = project.ProjectName,
                     ProjectFile = project.ProjectFilePath,
+                    TargetFrameworks = new List<string> { analyzer.ProjectResult.TargetFramework },
+                    PackageReferences = nugetPackages.ToList(),
+                    ProjectReferences = analyzer.ProjectResult.ExternalReferences.ProjectReferences.Select(p => p.AssemblyLocation).ToList(),
                     PackageAnalysisResults = packageAnalysisResults,
                     IsBuildFailed = analyzer.ProjectResult.IsBuildFailed(),
                     Errors = analyzer.ProjectBuildResult.BuildErrors,

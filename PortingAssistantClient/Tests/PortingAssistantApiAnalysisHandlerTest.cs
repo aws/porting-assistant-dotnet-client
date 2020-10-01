@@ -111,13 +111,6 @@ namespace Tests
                     ProjectFilePath = p.AbsolutePath,
                     ProjectGuid = p.ProjectGuid,
                     ProjectType = p.ProjectType.ToString(),
-                    TargetFrameworks = projectParser.GetTargetFrameworks().Select(tfm =>
-                    {
-                        var framework = NuGetFramework.Parse(tfm);
-                        return string.Format("{0} {1}", framework.Framework, NuGetVersion.Parse(framework.Version.ToString()).ToNormalizedString());
-                    }).ToList(),
-                    PackageReferences = projectParser.GetPackageReferences(),
-                    ProjectReferences = projectParser.GetProjectReferences()
                 };
             }).Where(p => p != null).ToList();
 

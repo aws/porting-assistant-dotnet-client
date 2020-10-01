@@ -114,7 +114,7 @@ namespace Tests.Analysis
             var sourceFileToInvocations = new Dictionary<string, List<CodeEntityDetails>>
             {
                 {
-                    "file1", new List<CodeEntityDetails>
+                    "file1", new UstList<CodeEntityDetails>
                     {
                        _codeEntityDetails
                     }
@@ -178,10 +178,10 @@ namespace Tests.Analysis
         [Test]
         public void NormalCaseTest()
         {
-            var sourceFileToInvocations = new Dictionary<string, List<InvocationExpression>>
+            var sourceFileToInvocations = new Dictionary<string, UstList<InvocationExpression>>
              {
                  {
-                     "file1", new List<InvocationExpression>
+                     "file1", new UstList<InvocationExpression>
                      {
                          new MockInvocationExpressionModel("definition", "namespace", "test")
                      }
@@ -220,10 +220,10 @@ namespace Tests.Analysis
         [Test]
         public void MultipleNuget()
         {
-            var sourceFileToInvocations = new Dictionary<string, List<InvocationExpression>>
+            var sourceFileToInvocations = new Dictionary<string, UstList<InvocationExpression>>
             {
                 {
-                    "file1", new List<InvocationExpression>
+                    "file1", new UstList<InvocationExpression>
                     {
                         new MockInvocationExpressionModel("Newtonsoft.Json.JsonConvert.SerializeObject(object)", "namespace.namespace2.namespace3", "test")
                     }
@@ -268,10 +268,10 @@ namespace Tests.Analysis
         [Test]
         public void NugetDependencies()
         {
-            var sourceFileToInvocations = new Dictionary<string, List<InvocationExpression>>
+            var sourceFileToInvocations = new Dictionary<string, UstList<InvocationExpression>>
              {
                  {
-                     "file1", new List<InvocationExpression>
+                     "file1", new UstList<InvocationExpression>
                      {
                          new MockInvocationExpressionModel("definition", "namespace.namespace2.namespace3", "test")
                      }
@@ -315,10 +315,10 @@ namespace Tests.Analysis
         [Test]
         public void BadVersion()
         {
-            var sourceFileToInvocations = new Dictionary<string, List<InvocationExpression>>
+            var sourceFileToInvocations = new Dictionary<string, UstList<InvocationExpression>>
              {
                  {
-                     "file1", new List<InvocationExpression>
+                     "file1", new UstList<InvocationExpression>
                      {
                          new MockInvocationExpressionModel("definition", "namespace.namespace2.namespace3", "namespace2")
                      }
