@@ -1,0 +1,22 @@
+name: .NET Core
+
+on:
+  push:
+  pull_request:
+    branches: [ mainline ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.301
+    - name: Install dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --configuration Release --no-restore PortingAssistantClient/PortingAssistantClient.sln
+    - name: Test
+      run: dotnet test --no-restore --verbosity normal PortingAssistantClient/PortingAssistantClient.sln
