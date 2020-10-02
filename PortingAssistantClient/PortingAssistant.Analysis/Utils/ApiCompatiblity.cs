@@ -11,6 +11,7 @@ namespace PortingAssistant.Analysis.Utils
     public static class ApiCompatiblity
     {
         public const string DEFAULT_TARGET = "netcoreapp3.1";
+        private static Dictionary<int, Dictionary<string, int>> preIndexDict = new Dictionary<int, Dictionary<string, int>>();
         private static readonly ApiRecommendation DEFAULT_RECOMMENDATION = new ApiRecommendation
         {
             RecommendedActionType = RecommendedActionType.NoRecommendation
@@ -164,46 +165,79 @@ namespace PortingAssistant.Analysis.Utils
             return DEFAULT_RECOMMENDATION;
         }
 
-        private static ApiDetails GetApiDetails(PackageDetails nugetPackage, string apiMethodSignature)
+        private static ApiDetails GetApiDetails(PackageDetails packageDetails, string apiMethodSignature)
         {
-            if (nugetPackage == null || nugetPackage.Api == null || apiMethodSignature == null)
+            if (packageDetails == null || packageDetails.Api == null || apiMethodSignature == null)
             {
                 return null;
             }
 
-            var foundApi = nugetPackage.Api.FirstOrDefault(api => api.MethodSignature.Replace("?", "") == apiMethodSignature.Replace("?", ""));
-            if (foundApi == null)
+            var packageHashCode = packageDetails.GetHashCode();
+            if (!preIndexDict.ContainsKey(packageHashCode))
             {
-                foundApi = nugetPackage.Api.FirstOrDefault(api =>
-                {
-                    if (
-                    api.MethodParameters == null ||
-                    api.MethodParameters.Length == 0 ||
-                    api.MethodSignature == null ||
-                    api.MethodName == null
-                    )
-                    {
-                        return false;
-                    }
-
-                    try
-                    {
-                        var possibleExtension = api.MethodParameters[0];
-                        var methodSignatureIndex = api.MethodSignature.IndexOf("(") >= 0 ? api.MethodSignature.IndexOf("(") : api.MethodSignature.Length;
-                        var sliceMethodSignature = api.MethodSignature.Substring(0, methodSignatureIndex);
-                        var methondNameIndex = sliceMethodSignature.LastIndexOf(api.MethodName);
-                        var methodName = sliceMethodSignature.Substring(methondNameIndex >= 0 ? methondNameIndex : sliceMethodSignature.Length);
-                        var methodSignature = $"{possibleExtension}.{methodName}({String.Join(",", api.MethodParameters.Skip(1))})";
-                        return methodSignature == apiMethodSignature.Replace("?", "");
-                    }
-                    catch
-                    {
-                        return false;
-                    }
-                });
+                var indexDict = signatureToIndexPreProcess(packageDetails);
+                preIndexDict.Add(packageHashCode, indexDict);
             }
 
-            return foundApi;
+            if (!preIndexDict.TryGetValue(packageHashCode, out var signatureToIndex))
+            {
+                return null;
+            }
+
+            var index = signatureToIndex.GetValueOrDefault(apiMethodSignature.Replace("?", ""), -1);
+
+            if (index >= 0 && index < packageDetails.Api.Count())
+            {
+                return packageDetails.Api[index];
+            }
+
+            return null;
+        }
+
+        private static Dictionary<string, int> signatureToIndexPreProcess(PackageDetails packageDetails)
+        {
+            var indexDict = new Dictionary<string, int>();
+            if (packageDetails == null || packageDetails.Api == null)
+            {
+                return indexDict;
+            }
+
+            for (int i = 0; i < packageDetails.Api.Count(); i++)
+            {
+                var api = packageDetails.Api[i];
+                var signature = api.MethodSignature.Replace("?", "");
+                if (signature != null && signature != "")
+                {
+                    indexDict.Add(signature, i);
+                }
+
+                var extensionSignature = GetExtensionSignature(api);
+                if (extensionSignature != null && extensionSignature != "")
+                {
+                    indexDict.Add(extensionSignature, i);
+                }
+
+            }
+
+            return indexDict;
+        }
+
+        private static string GetExtensionSignature(ApiDetails api)
+        {
+            try
+            {
+                var possibleExtension = api.MethodParameters[0];
+                var methodSignatureIndex = api.MethodSignature.IndexOf("(") >= 0 ? api.MethodSignature.IndexOf("(") : api.MethodSignature.Length;
+                var sliceMethodSignature = api.MethodSignature.Substring(0, methodSignatureIndex);
+                var methondNameIndex = sliceMethodSignature.LastIndexOf(api.MethodName);
+                var methodName = sliceMethodSignature.Substring(methondNameIndex >= 0 ? methondNameIndex : sliceMethodSignature.Length);
+                var methodSignature = $"{possibleExtension}.{methodName}({String.Join(",", api.MethodParameters.Skip(1))})";
+                return methodSignature;
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }
