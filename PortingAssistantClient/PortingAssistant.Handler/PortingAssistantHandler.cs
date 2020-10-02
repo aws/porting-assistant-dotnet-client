@@ -48,7 +48,7 @@ namespace PortingAssistant.Handler
                             ProjectGuid = p.ProjectGuid,
                             ProjectType = p.ProjectType.ToString(),
                             TargetFrameworks = new List<string>(),
-                            ProjectReferences = new List<string>(),
+                            ProjectReferences = new List<ProjectReference>(),
                             PackageReferences = new List<PackageVersionPair>(),
                         }
                     ).Where(p => p != null).ToList();
@@ -90,8 +90,12 @@ namespace PortingAssistant.Handler
                             await projectAnalysisResult;
                             if (projectAnalysisResult.IsCompletedSuccessfully)
                             {
+                                var projectReferences = projectAnalysisResult.Result.ProjectReferences != null ?
+                                    projectAnalysisResult.Result.ProjectReferences
+                                    .Select(p => new ProjectReference { ReferencePath = p }).ToList()
+                                    : new List<ProjectReference>();
                                 p.PackageReferences = projectAnalysisResult.Result.PackageReferences;
-                                p.ProjectReferences = projectAnalysisResult.Result.ProjectReferences;
+                                p.ProjectReferences = projectReferences;
                                 p.TargetFrameworks = projectAnalysisResult.Result.TargetFrameworks;
                                 return projectAnalysisResult.Result;
                             }

@@ -36,8 +36,8 @@ namespace PortingAssistant.NuGet
             IEnumerable<PackageVersionPair> packageVersions,
             string pathToSolution)
         {
-            var packagesToCheck = packageVersions
-                .Where(package => package.PackageSourceType == CompatibilityCheckerType);
+            var packagesToCheck = packageVersions;
+            //.Where(package => package.PackageSourceType == CompatibilityCheckerType);
 
             var compatibilityTaskCompletionSources = packagesToCheck
                 .Select(packageVersion =>

@@ -15,7 +15,7 @@ namespace PortingAssistant.Analysis.Utils
         public static List<SourceFileAnalysisResult> AnalyzeResults(
             Dictionary<string, List<CodeEntityDetails>> sourceFileToInvocations,
             Dictionary<PackageVersionPair, Task<PackageDetails>> packageResults,
-            Dictionary<string, Task<RecommendationDetails>> recommendationDetails
+            Dictionary<string, Task<RecommendationDetails>> recommendationResults
         )
         {
 
@@ -27,16 +27,28 @@ namespace PortingAssistant.Analysis.Utils
                     SourceFilePath = sourceFile.Key,
                     ApiAnalysisResults = sourceFile.Value.Select(invocation =>
                     {
-                        var packageDetails = packageResults.GetValueOrDefault(invocation.Package, null);
+                        var package = invocation.Package;
+                        var sdkpackage = new PackageVersionPair { PackageId = invocation.Namespace, Version = "0.0.0" };
 
-                        var compatibilityResult = ApiCompatiblity.GetCompatibilityResult(packageDetails,
+                        // check result with nuget package
+                        var packageDetails = packageResults.GetValueOrDefault(package, null);
+                        var compatibilityResultWithPackage = ApiCompatiblity.GetCompatibilityResult(packageDetails,
                                                  invocation.OriginalDefinition,
                                                  invocation.Package.Version);
 
+                        // potential check with namespace
+                        var sdkpackageDetails = packageResults.GetValueOrDefault(sdkpackage, null);
+                        var compatibilityResultWithSdk = ApiCompatiblity.GetCompatibilityResult(sdkpackageDetails,
+                                                 invocation.OriginalDefinition,
+                                                 invocation.Package.Version);
+
+                        var compatibilityResult = compatibilityResultWithPackage.Compatibility == Compatibility.COMPATIBLE ? compatibilityResultWithPackage :
+                        compatibilityResultWithSdk.Compatibility == Compatibility.COMPATIBLE ? compatibilityResultWithSdk : compatibilityResultWithPackage;
+
+                        var recommendationDetails = recommendationResults.GetValueOrDefault(invocation.Namespace, null);
                         var apiRecommendation = ApiCompatiblity.UpgradeStrategy(
-                                                packageDetails,
+                                                compatibilityResult,
                                                 invocation.OriginalDefinition,
-                                                invocation.Package.Version,
                                                 invocation.Namespace,
                                                 recommendationDetails);
 

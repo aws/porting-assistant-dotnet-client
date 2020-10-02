@@ -10,6 +10,6 @@ namespace PortingAssistant.Model
         public string ProjectType { get; set; }
         public List<string> TargetFrameworks { get; set; }
         public List<PackageVersionPair> PackageReferences { get; set; }
-        public List<string> ProjectReferences { get; set; }
+        public List<ProjectReference> ProjectReferences { get; set; }
     }
 }

@@ -102,9 +102,7 @@ namespace PortingAssistant.Analysis
                     .Select(r => InvocationExpressionModelToInvocations.ReferenceToPackageVersionPair(r))
                     .ToHashSet();
 
-                var sdkPackages = analyzer.ProjectResult.ExternalReferences.SdkReferences
-                    .Select(r => InvocationExpressionModelToInvocations.ReferenceToPackageVersionPair(r, PackageSourceType.SDK))
-                    .ToHashSet();
+                var sdkPackages = namespaces.Select(n => new PackageVersionPair { PackageId = n, Version = "0.0.0" });
 
                 var allPackages = nugetPackages
                     .Union(subDependencies)

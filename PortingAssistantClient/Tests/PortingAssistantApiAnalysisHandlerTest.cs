@@ -90,6 +90,13 @@ namespace Tests
                         }, task.Task }
                     };
                 });
+            _recommendationHandlerMock.Reset();
+            _recommendationHandlerMock.Setup(handler => handler.GetApiRecommendation(It.IsAny<List<string>>()))
+                .Returns((List<string> packageVersionPairs) =>
+                {
+                    return new Dictionary<string, Task<RecommendationDetails>>();
+                });
+
         }
 
         private List<ProjectDetails> GetProjects(string pathToSolution)

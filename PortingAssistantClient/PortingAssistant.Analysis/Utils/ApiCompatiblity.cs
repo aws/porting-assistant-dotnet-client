@@ -112,21 +112,22 @@ namespace PortingAssistant.Analysis.Utils
         }
 
         public static ApiRecommendation UpgradeStrategy(
-            Task<PackageDetails> nugetPackage,
+            CompatibilityResult compatibilityResult,
             string apiMethodSignature,
-            string version,
             string nameSpaceToQuery,
-            Dictionary<string, Task<RecommendationDetails>> _recommendationDetails)
+            Task<RecommendationDetails> recommendationDetails)
         {
             try
             {
-                if (nugetPackage != null && apiMethodSignature != null && version != null)
+                if (compatibilityResult != null && compatibilityResult.CompatibleVersions != null && compatibilityResult.CompatibleVersions.Count != 0)
                 {
-                    var UpgradeVersionRecommendation = UpgradePackageVersion(nugetPackage, apiMethodSignature, version);
-                    if (UpgradeVersionRecommendation != null && UpgradeVersionRecommendation.RecommendedActionType == RecommendedActionType.UpgradePackage)
-                        return UpgradeVersionRecommendation;
+                    return new ApiRecommendation
+                    {
+                        RecommendedActionType = RecommendedActionType.UpgradePackage,
+                        Description = compatibilityResult.CompatibleVersions.FirstOrDefault()
+                    };
                 }
-                return FetchApiRecommendation(apiMethodSignature, nameSpaceToQuery, _recommendationDetails);
+                return FetchApiRecommendation(apiMethodSignature, nameSpaceToQuery, recommendationDetails);
             }
             catch
             {
@@ -134,52 +135,18 @@ namespace PortingAssistant.Analysis.Utils
             }
 
         }
-        private static ApiRecommendation UpgradePackageVersion(
-                       Task<PackageDetails> nugetPackage,
-                       string apiMethodSignature,
-                       string version)
-        {
-            nugetPackage.Wait();
-            if (nugetPackage.IsCompletedSuccessfully)
-            {
-                var targetApi = GetApiDetails(nugetPackage.Result, apiMethodSignature);
-                if (targetApi != null && targetApi.Targets != null && targetApi.Targets.TryGetValue(DEFAULT_TARGET, out var versions))
-                {
-                    if (hasLesserTarget(version, versions.ToArray()))
-                    {
-                        var upgradeVersion = versions.ToList().Find(v =>
-                        {
-                            if (!NuGetVersion.TryParse(v, out var semversion) || !NuGetVersion.TryParse(version, out var target))
-                            {
-                                return false;
-                            }
-                            else
-                            {
-                                return semversion.CompareTo(target) > 0;
-                            }
-                        });
-                        return new ApiRecommendation
-                        {
-                            RecommendedActionType = RecommendedActionType.UpgradePackage,
-                            Description = upgradeVersion
-                        };
-                    }
-                }
-            }
-            return DEFAULT_RECOMMENDATION;
-        }
 
         private static ApiRecommendation FetchApiRecommendation(
             string apiMethodSignature,
             string nameSpaceToQuery,
-            Dictionary<string, Task<RecommendationDetails>> _recommendationDetails)
+            Task<RecommendationDetails> recommendationDetails)
         {
-            if (apiMethodSignature != null && _recommendationDetails.TryGetValue(nameSpaceToQuery, out var namespacesRecommendation))
+            if (apiMethodSignature != null && recommendationDetails != null)
             {
-                namespacesRecommendation.Wait();
-                if (namespacesRecommendation.IsCompletedSuccessfully)
+                recommendationDetails.Wait();
+                if (recommendationDetails.IsCompletedSuccessfully)
                 {
-                    var recommendationActions = namespacesRecommendation.Result.Recommendedations;
+                    var recommendationActions = recommendationDetails.Result.Recommendedations;
                     var apiRecommendation = recommendationActions
                         .Where(recommendation => recommendation != null && recommendation.Value == apiMethodSignature)
                         .SelectMany(recommendation => recommendation.Recommendation)
