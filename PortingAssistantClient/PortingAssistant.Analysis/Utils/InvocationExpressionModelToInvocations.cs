@@ -28,7 +28,7 @@ namespace PortingAssistant.Analysis.Utils
                     ApiAnalysisResults = sourceFile.Value.Select(invocation =>
                     {
                         var package = invocation.Package;
-                        var sdkpackage = new PackageVersionPair { PackageId = invocation.Namespace, Version = "0.0.0" };
+                        var sdkpackage = new PackageVersionPair { PackageId = invocation.Namespace, Version = "0.0.0", PackageSourceType = PackageSourceType.SDK };
 
                         // check result with nuget package
                         var packageDetails = packageResults.GetValueOrDefault(package, null);

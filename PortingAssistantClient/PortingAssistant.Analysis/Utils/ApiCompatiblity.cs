@@ -86,7 +86,7 @@ namespace PortingAssistant.Analysis.Utils
                     }).ToList();
                 return compatiblityResult;
             }
-            catch
+            catch (Exception ex)
             {
                 return compatiblityResult;
             }
@@ -206,13 +206,13 @@ namespace PortingAssistant.Analysis.Utils
             {
                 var api = packageDetails.Api[i];
                 var signature = api.MethodSignature.Replace("?", "");
-                if (signature != null && signature != "")
+                if (signature != null && signature != "" && !indexDict.ContainsKey(signature))
                 {
                     indexDict.Add(signature, i);
                 }
 
                 var extensionSignature = GetExtensionSignature(api);
-                if (extensionSignature != null && extensionSignature != "")
+                if (extensionSignature != null && extensionSignature != "" && !indexDict.ContainsKey(extensionSignature))
                 {
                     indexDict.Add(extensionSignature, i);
                 }
