@@ -8,3 +8,5 @@ TestResults/
 commit-hook-tests/
 .vshistory/
 .idea/
+
+dist/
