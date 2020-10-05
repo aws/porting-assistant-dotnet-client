@@ -94,6 +94,10 @@ namespace PortingAssistant.Analysis
                 var targetframeworks = analyzer.ProjectResult.TargetFrameworks.Count == 0 ?
                     new List<string> { analyzer.ProjectResult.TargetFramework } : analyzer.ProjectResult.TargetFrameworks;
 
+                var ProjectReferences = analyzer.ProjectResult.ExternalReferences.ProjectReferences.Count == 0 ? 
+                    new List<string>() : 
+                    analyzer.ProjectResult.ExternalReferences.ProjectReferences.Select(p => p.AssemblyLocation).ToList();
+
                 var nugetPackages = analyzer.ProjectResult.ExternalReferences.NugetReferences
                     .Select(r => InvocationExpressionModelToInvocations.ReferenceToPackageVersionPair(r))
                     .ToHashSet();
@@ -132,7 +136,7 @@ namespace PortingAssistant.Analysis
                     ProjectReferences = analyzer.ProjectResult.ExternalReferences.ProjectReferences.Select(p => p.AssemblyLocation).ToList(),
                     PackageAnalysisResults = packageAnalysisResults,
                     IsBuildFailed = analyzer.ProjectResult.IsBuildFailed(),
-                    Errors = analyzer.ProjectBuildResult.BuildErrors,
+                    Errors = analyzer.ProjectResult.BuildErrors,
                     SourceFileAnalysisResults = SourceFileAnalysisResults
                 };
             }
