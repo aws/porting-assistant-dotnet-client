@@ -5,11 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\AwsCodeAnalyzerRoslyn\src\AwsCodeAnalyzer\AwsCodeAnalyzer.csproj" />
-    <ProjectReference Include="..\..\..\AwsCodeAnalyzerRoslyn\src\AwsCodeAnalyzer.Build\AwsCodeAnalyzer.Build.csproj" />
-    <ProjectReference Include="..\..\..\AwsCodeAnalyzerRoslyn\src\AwsCodeAnalyzer.CSharp\AwsCodeAnalyzer.CSharp.csproj" />
-    <ProjectReference Include="..\..\..\AwsCodeAnalyzerRoslyn\src\AwsCodeAnalyzer.Common\AwsCodeAnalyzer.Common.csproj" />
-    <ProjectReference Include="..\..\..\AwsCodeAnalyzerRoslyn\src\AwsCodeAnalyzer.Model\AwsCodeAnalyzer.Model.csproj" />
     <ProjectReference Include="..\PortingAssistant.Common\PortingAssistant.Common.csproj" />
     <ProjectReference Include="..\PortingAssistant.NuGet\PortingAssistant.NuGet.csproj" />
   </ItemGroup>
@@ -19,5 +14,6 @@
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="NuGet.Versioning" Version="5.7.0" />
+    <PackageReference Include="AwsCodeAnalyzer" Version="1.0.24-g2121884f18" />
   </ItemGroup>
 </Project>

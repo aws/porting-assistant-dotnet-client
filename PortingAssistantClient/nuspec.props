@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <PropertyGroup>
+    <Owners>Amazon Web Services</Owners>
+    <Authors>Amazon Web Services</Authors>
+    <Copyright>Amazon Web Services</Copyright>
+    <Description>Porting Assistant for .NET Client</Description>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <PackageTags>Porting Assistant .NET Client</PackageTags>
+    <PackageProjectUrl>https://github.com/aws/porting-assistant-dotnet-client</PackageProjectUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <UseFullSemVerForNuGet>true</UseFullSemVerForNuGet>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+  <!-- Enable deterministic builds during CI build. See https://github.com/clairernovotny/DeterministicBuilds for more info-->
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+  <!-- Add package to enable SourceLink metadata -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
+  </ItemGroup>
+</Project>
