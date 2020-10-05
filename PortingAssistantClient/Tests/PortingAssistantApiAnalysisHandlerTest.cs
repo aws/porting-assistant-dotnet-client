@@ -137,7 +137,7 @@ namespace Tests
 
             var projectAnalysisResult = result.Values.First().Result;
             Task.WaitAll(projectAnalysisResult.PackageAnalysisResults.Values.ToArray());
-            var packageAnalysisResult = projectAnalysisResult.PackageAnalysisResults.First().Value.Result;
+            var packageAnalysisResult = projectAnalysisResult.PackageAnalysisResults.First(p => p.Key.PackageId == "Newtonsoft.Json").Value.Result;
 
             Assert.AreEqual(package, packageAnalysisResult.PackageVersionPair);
             Assert.AreEqual(Compatibility.INCOMPATIBLE, packageAnalysisResult.CompatibilityResults.GetValueOrDefault(PackageCompatibility.DEFAULT_TARGET).Compatibility);
