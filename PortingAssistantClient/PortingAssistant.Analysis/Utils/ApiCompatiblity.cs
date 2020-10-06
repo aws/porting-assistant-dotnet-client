@@ -231,7 +231,7 @@ namespace PortingAssistant.Analysis.Utils
                 var sliceMethodSignature = api.MethodSignature.Substring(0, methodSignatureIndex);
                 var methondNameIndex = sliceMethodSignature.LastIndexOf(api.MethodName);
                 var methodName = sliceMethodSignature.Substring(methondNameIndex >= 0 ? methondNameIndex : sliceMethodSignature.Length);
-                var methodSignature = $"{possibleExtension}.{methodName}({String.Join(",", api.MethodParameters.Skip(1))})";
+                var methodSignature = $"{possibleExtension}.{methodName}({String.Join(", ", api.MethodParameters.Skip(1))})";
                 return methodSignature;
             }
             catch
