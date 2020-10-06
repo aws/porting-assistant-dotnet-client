@@ -72,7 +72,7 @@ namespace PortingAssistant.NuGet
                         return;
                     }
 
-                    var value = manifest.GetValueOrDefault(p.PackageId.ToLower(), null);
+                    var value = manifest.GetValueOrDefault(p.PackageId, null);
                     if (value != null)
                     {
                         compatibilityTaskCompletionSources.Add(p, new TaskCompletionSource<PackageDetails>());
