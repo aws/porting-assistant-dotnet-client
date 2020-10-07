@@ -99,14 +99,16 @@ namespace PortingAssistant.Analysis
                     analyzer.ProjectResult.ExternalReferences.ProjectReferences.Select(p => p.AssemblyLocation).ToList();
 
                 var nugetPackages = analyzer.ProjectResult.ExternalReferences.NugetReferences
+                    .Where(r => r.Identity != "Microsoft.NETCore.App")
                     .Select(r => InvocationExpressionModelToInvocations.ReferenceToPackageVersionPair(r))
                     .ToHashSet();
 
                 var subDependencies = analyzer.ProjectResult.ExternalReferences.NugetDependencies
+                    .Where(r => r.Identity != "Microsoft.NETCore.App")
                     .Select(r => InvocationExpressionModelToInvocations.ReferenceToPackageVersionPair(r))
                     .ToHashSet();
 
-                var sdkPackages = namespaces.Select(n => new PackageVersionPair { PackageId = n, Version = "0.0.0" });
+                var sdkPackages = namespaces.Select(n => new PackageVersionPair { PackageId = n, Version = "0.0.0", PackageSourceType = PackageSourceType.SDK });
 
                 var allPackages = nugetPackages
                     .Union(subDependencies)
@@ -125,7 +127,6 @@ namespace PortingAssistant.Analysis
 
                 var SourceFileAnalysisResults = InvocationExpressionModelToInvocations.AnalyzeResults(
                     sourceFileToCodeEntityDetails, packageResults, recommendationResults);
-
 
                 return new ProjectAnalysisResult
                 {

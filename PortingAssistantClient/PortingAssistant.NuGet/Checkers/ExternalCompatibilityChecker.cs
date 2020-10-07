@@ -37,8 +37,12 @@ namespace PortingAssistant.NuGet
             string pathToSolution)
         {
             var packagesToCheck = packageVersions;
-            //.Where(package => package.PackageSourceType == CompatibilityCheckerType);
 
+            if(CompatibilityCheckerType == PackageSourceType.SDK)
+            {
+                packagesToCheck = packageVersions.Where(package => package.PackageSourceType == PackageSourceType.SDK);
+            }
+            
             var compatibilityTaskCompletionSources = packagesToCheck
                 .Select(packageVersion =>
                 {
@@ -46,7 +50,7 @@ namespace PortingAssistant.NuGet
                 })
                 .ToDictionary(t => t.Item1, t => t.Item2);
 
-            _logger.LogInformation("Checking external source for compatibility of {0} package(s)", packagesToCheck.Count());
+            _logger.LogInformation("Checking {0} for compatibility of {1} package(s)", CompatibilityCheckerType, packagesToCheck.Count());
             if (packagesToCheck.Any())
             {
                 Task.Run(() =>
@@ -129,6 +133,23 @@ namespace PortingAssistant.NuGet
                             packageVersionsWithErrors.Add(packageVersion);
                         }
                     }
+                }
+            }
+
+            foreach (var packageVersion in packageVersions)
+            {
+                if (packageVersionsFound.Contains(packageVersion) || packageVersionsWithErrors.Contains(packageVersion))
+                {
+                    continue;
+                }
+
+                if (compatibilityTaskCompletionSources.TryGetValue(packageVersion, out var taskCompletionSource))
+                {
+                    var errorMessage = $"Could not find package {packageVersion} in external source; try checking an internal source.";
+                    _logger.LogInformation(errorMessage);
+
+                    var innerException = new PackageNotFoundException(errorMessage);
+                    taskCompletionSource.TrySetException(new PortingAssistantClientException(ExceptionMessage.PackageNotFound(packageVersion), innerException));
                 }
             }
         }
