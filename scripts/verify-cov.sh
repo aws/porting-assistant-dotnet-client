@@ -1,6 +1,6 @@
 #!/bin/sh -e
 rm -rf ./commit-hook-tests
-dotnet test --settings scripts/coverlet.runsettings PortingAssistantClient/PortingAssistantClient.sln -r ./commit-hook-tests
+dotnet test --settings scripts/coverlet.runsettings PortingAssistant.Client.sln -r ./commit-hook-tests
 for f in ./commit-hook-tests/**/*.xml
 do
   echo ""
