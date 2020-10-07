@@ -1,0 +1,41 @@
+﻿using Amazon.S3.Transfer;
+using PortingAssistant.Client.Analysis;
+using PortingAssistant.Client.NuGet;
+using PortingAssistant.Client.Model;
+using PortingAssistant.Client.NuGet.InternalNuGet;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using PortingAssistant.Client.Porting;
+using PortingAssistant.Client.PortingProjectFile;
+using PortingAssistant.Client.NuGet.Interfaces;
+using PortingAssistant.Client.NuGet.Utils;
+using System;
+using Microsoft.Extensions.Options;
+
+namespace PortingAssistant.Client.Handler
+{
+    public static class DependencyInjection
+    {
+        public static void AddAssessment(this IServiceCollection serviceCollection, IConfiguration cacheConfig)
+        {
+            serviceCollection.AddSingleton<IPortingAssistantHandler, PortingAssistantHandler>();
+            serviceCollection.AddSingleton<IPortingAssistantInternalNuGetCompatibilityHandler, PortingAssistantInternalNuGetCompatibilityHandler>();
+            serviceCollection.Configure<AnalyzerConfiguration>(cacheConfig);
+            serviceCollection.AddSingleton<IPortingAssistantNuGetHandler, PortingAssistantNuGetHandler>();
+            serviceCollection.AddSingleton<IPortingAssistantAnalysisHandler, PortingAssistantAnalysisHandler>();
+            serviceCollection.AddSingleton<IPortingAssistantRecommendationHandler, PortingAssistantRecommendationHandler>();
+            serviceCollection.AddSingleton<ICompatibilityChecker, InternalPackagesCompatibilityChecker>();
+            serviceCollection.AddSingleton<ICompatibilityChecker, ExternalPackagesCompatibilityChecker>();
+            serviceCollection.AddSingleton<ICompatibilityChecker, SdkCompatibilityChecker>();
+            serviceCollection.AddSingleton<ICompatibilityChecker, PortabilityAnalyzerCompatibilityChecker>();
+            serviceCollection.AddSingleton<IPortingHandler, PortingHandler>();
+            serviceCollection.AddSingleton<IPortingProjectFileHandler, PortingProjectFileHandler>();
+            serviceCollection.AddSingleton<ITransferUtility, TransferUtility>();
+            serviceCollection.AddHttpClient<IHttpService, HttpService>(client =>
+            {
+                var services = serviceCollection.BuildServiceProvider();
+                client.BaseAddress = new Uri(services.GetService<IOptions<AnalyzerConfiguration>>().Value.DataStoreSettings.HttpsEndpoint);
+            });
+        }
+    }
+}

@@ -1,0 +1,148 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <IsTestProject>true</IsTestProject>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="nunit" Version="3.12.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.16.1"><IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+<PrivateAssets>all</PrivateAssets>
+</PackageReference>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.1" />
+    <PackageReference Include="coverlet.collector" Version="1.3.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Moq" Version="4.14.4" />
+    <PackageReference Include="NuGet.Protocol" Version="5.7.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Microsoft.Build" Version="16.6.0" />
+    <PackageReference Include="DotnetHooks" Version="1.0.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="NuGet.Common" Version="5.7.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="TestXml\ProjectWithPackagesConfig\ProjectWithPackagesConfig.csproj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestXml\ProjectWithReference\ProjectWithReference.csproj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestXml\SolutionWithProjects\PortingAssistantApi\PortingAssistantApi.csproj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestXml\SolutionWithProjects\PortingAssistantApiElectron\PortingAssistantApiElectron.csproj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestXml\SolutionWithProjects\PortingAssistantAssessment\PortingAssistantAssessment.csproj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestXml\SolutionWithProjects\PortingAssistantCache\PortingAssistantCache.csproj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestXml\SolutionWithProjects\Nop.Core\Nop.Core.csproj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestXml\SolutionWithProjects\Nop.Core\packages.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestXml\SolutionWithProjects\SolutionWithProjects.sln">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestXml\SolutionWithNugetConfigFile\Test1\Test1.csproj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestXml\SolutionWithNugetConfigFile\Test2\Test2.csproj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestXml\SolutionWithNugetConfigFile\SolutionWithNugetConfigFile.sln">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestXml\SolutionWithProjects\Nop.Core\Nop.Core.csproj" />
+    <None Include="TestXml\TestPorting\src\NopCommerce.sln">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestXml\TestPorting\src\Libraries\Nop.Core\Nop.Core.csproj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestXml\SolutionWithApi\SolutionWithApi.sln">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestXml\SolutionWithApi\testproject\testproject.csproj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestXml\SolutionWithFailedContent\SolutionWithFailedContent.sln">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestXml\SolutionWithFailedContent\ProjectInWrongDirectory.csproj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestXml\SolutionWithFailedContent\test\ProjectWithCorruptPackageVersion.csproj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestXml\SolutionWithFailedContent\test\ProjectWithCorruptContent.csproj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestXml\TestPorting\corrupt\CorruptSolution.sln">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestXml\TestPorting\corrupt\CorruptProject.csproj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="TestXml\ProjectWithPackagesConfig\packages.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestXml\SolutionWithProjects\PortingAssistantApiElectron\packages.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestXml\SolutionWithProjects\PortingAssistantCache\packages.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestXml\TestNugetRepository\newtonsoft.json.12.0.3.nupkg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestXml\TestNugetRepository\newtonsoft.json.6.0.1.nupkg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestXml\SolutionWithNugetConfigFile\nuget.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestXml\TestPorting\src\Libraries\Nop.Core\app.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestXml\TestPorting\src\Libraries\Nop.Core\packages.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestXml\SolutionWithFailedContent\packages.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestXml\TestPorting\corrupt\packages.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="TestXml\TestNugetRepository\" />
+    <Folder Include="TestXml\SolutionWithNugetConfigFile\Test2\" />
+    <Folder Include="ApiAnalysis\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="TestXml\SolutionWithApi\testproject\Program.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PortingAssistant.Client.Common\PortingAssistant.Client.Common.csproj" />
+    <ProjectReference Include="..\PortingAssistant.Client.NuGet\PortingAssistant.Client.NuGet.csproj" />
+    <ProjectReference Include="..\PortingAssistant.Client.Porting\PortingAssistant.Client.Porting.csproj" />
+    <ProjectReference Include="..\PortingAssistant.Client.Analysis\PortingAssistant.Client.Analysis.csproj" />
+    <ProjectReference Include="..\PortingAssistant.Client.Handler\PortingAssistant.Client.Handler.csproj" />
+  </ItemGroup>
+</Project>

@@ -20,14 +20,14 @@ jobs:
       with:
         dotnet-version: 3.1.301
     - name: Install dependencies
-      run: dotnet restore PortingAssistantClient
+      run: dotnet restore
     - name: Build
-      run: dotnet build --configuration Release --no-restore PortingAssistantClient
+      run: dotnet build --configuration Release --no-restore
     - name: Test
-      run: dotnet test --no-restore --verbosity normal PortingAssistantClient
+      run: dotnet test --no-restore --verbosity normal
     - name: Pack
       if: ${{ github.event_name == 'push' }}
-      run: dotnet pack --configuration Release --no-restore -o dist PortingAssistantClient
+      run: dotnet pack --configuration Release --no-restore -o dist
     - name: Install Sleet
       if: ${{ github.event_name == 'push' }}
       run: dotnet tool install -g sleet
