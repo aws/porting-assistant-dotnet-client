@@ -23,18 +23,6 @@ namespace PortingAssistant.NuGet
             _compatibilityTaskCompletionSources = new ConcurrentDictionary<PackageVersionPair, TaskCompletionSource<PackageDetails>>();
         }
 
-        public Task<PackageDetails> GetPackageDetails(PackageVersionPair packageVersion)
-        {
-            if (_compatibilityTaskCompletionSources.TryGetValue(packageVersion, out var packageVersionPairResult))
-            {
-                return packageVersionPairResult.Task;
-            }
-
-            var errorMessage = $"Package not found in compatibility task results: {packageVersion}";
-            var innerException = new PackageNotFoundException(errorMessage);
-            throw new PortingAssistantClientException(ExceptionMessage.PackageNotFound(packageVersion), innerException);
-        }
-
         public Dictionary<PackageVersionPair, Task<PackageDetails>> GetNugetPackages(List<PackageVersionPair> packageVersions, string pathToSolution)
         {
             var packageVersionsToQuery = new List<PackageVersionPair>();

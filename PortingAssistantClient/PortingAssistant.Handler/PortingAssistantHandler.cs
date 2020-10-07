@@ -80,8 +80,6 @@ namespace PortingAssistant.Handler
 
                 var projectAnalysisResults = await Task.WhenAll(projects.Select(async p =>
                 {
-                    _logger.LogInformation("Analyzing: {0}", p.ProjectName);
-
                     try
                     {
                         var projectAnalysisResult = projectAnalysisResultTasks.GetValueOrDefault(p.ProjectFilePath, null);
