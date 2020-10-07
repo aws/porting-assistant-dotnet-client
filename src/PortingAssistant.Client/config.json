@@ -1,0 +1,13 @@
+﻿{
+  "AnalyzerConfiguration": {
+    "UseDataStoreSettings": true,
+    "UseInternalNuGetServer": false,
+    "DataStoreSettings": {
+      "HttpsEndpoint": "https://s3.us-west-2.amazonaws.com/aws.portingassistant.dotnet.datastore/",
+      "S3Endpoint": "aws.portingassistant.dotnet.datastore"
+    },
+    "InternalNuGetServerSettings": {
+      "NugetServerEndpoint": "NugetServerEndpoint"
+    }
+  }
+}
