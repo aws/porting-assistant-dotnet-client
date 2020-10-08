@@ -53,9 +53,7 @@ namespace PortingAssistant.Client.NuGet
                 return;
             }
 
-            var packageVersionsGroupedByPackageId = packageVersions
-                .GroupBy(pv => pv.PackageId)
-                .ToDictionary(pvGroup => pvGroup.Key, pvGroup => pvGroup.ToList());
+            var packageVersionsGroupedByPackageId = packageVersions.ToDictionary(t => t.ToString(), t => t);
 
             var distinctPackageVersions = packageVersions.Distinct().ToList();
             var exceptions = new Dictionary<PackageVersionPair, Exception>();
@@ -70,7 +68,7 @@ namespace PortingAssistant.Client.NuGet
                         {
                             if (task.IsCompletedSuccessfully)
                             {
-                                packageVersionsGroupedByPackageId.Remove(result.Key.PackageId);
+                                packageVersionsGroupedByPackageId.Remove(result.Key.ToString());
                                 if (_compatibilityTaskCompletionSources.TryGetValue(result.Key, out var packageVersionPairResult))
                                 {
                                     packageVersionPairResult.TrySetResult(task.Result);
@@ -93,7 +91,7 @@ namespace PortingAssistant.Client.NuGet
                 }
             }
 
-            foreach (var packageVersion in packageVersionsGroupedByPackageId.SelectMany(packageVersionGroup => packageVersionGroup.Value))
+            foreach (var packageVersion in packageVersionsGroupedByPackageId.Select(packageVersionGroup => packageVersionGroup.Value))
             {
                 if (_compatibilityTaskCompletionSources.TryRemove(packageVersion, out var packageVersionPairResult))
                 {
