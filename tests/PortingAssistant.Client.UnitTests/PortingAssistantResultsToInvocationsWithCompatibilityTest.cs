@@ -10,10 +10,10 @@ using System.Linq;
 using TextSpan = PortingAssistant.Client.Model.TextSpan;
 using AwsCodeAnalyzer;
 
-namespace PortingAssistant.Client.Tests.Analysis
+namespace PortingAssistant.Client.Tests
 {
 
-    public class ResultsToInvocationsWithCompatibilityTest
+    public class PortingAssistantResultsToInvocationsWithCompatibilityTest
     {
         private Mock<IPortingAssistantNuGetHandler> _handler;
         private Dictionary<PackageVersionPair, Task<PackageDetails>> packageResults;

@@ -86,7 +86,7 @@ namespace PortingAssistant.Client.Analysis.Utils
                     }).ToList();
                 return compatiblityResult;
             }
-            catch (Exception ex)
+            catch
             {
                 return compatiblityResult;
             }

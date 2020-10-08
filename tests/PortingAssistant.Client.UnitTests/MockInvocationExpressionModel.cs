@@ -1,6 +1,6 @@
 ﻿using AwsCodeAnalyzer.Model;
 
-namespace PortingAssistant.Client.Tests.Analysis
+namespace PortingAssistant.Client.Tests
 {
     public class MockInvocationExpressionModel : InvocationExpression
     {

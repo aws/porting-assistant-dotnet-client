@@ -6,7 +6,7 @@ using PortingAssistant.Client.Model;
 
 namespace PortingAssistant.Client.Tests
 {
-    public class ProjectFileParserTest
+    public class PortingAssistantProjectFileParserTest
     {
         [Test]
         public void ParseProjectWithPackageConfigSucceeds()

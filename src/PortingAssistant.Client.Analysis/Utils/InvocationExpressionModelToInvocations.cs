@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using TextSpan = PortingAssistant.Client.Model.TextSpan;
 using System.IO;
 using AwsCodeAnalyzer;
+using Microsoft.Build.Logging;
 
 namespace PortingAssistant.Client.Analysis.Utils
 {
@@ -18,7 +19,6 @@ namespace PortingAssistant.Client.Analysis.Utils
             Dictionary<string, Task<RecommendationDetails>> recommendationResults
         )
         {
-
             return sourceFileToInvocations.Select(sourceFile =>
             {
                 return new SourceFileAnalysisResult
@@ -42,8 +42,7 @@ namespace PortingAssistant.Client.Analysis.Utils
                                                  invocation.OriginalDefinition,
                                                  invocation.Package.Version);
 
-                        var compatibilityResult = compatibilityResultWithPackage.Compatibility == Compatibility.COMPATIBLE ? compatibilityResultWithPackage :
-                        compatibilityResultWithSdk.Compatibility == Compatibility.COMPATIBLE ? compatibilityResultWithSdk : compatibilityResultWithPackage;
+                        var compatibilityResult = GetCompatibilityResult(compatibilityResultWithPackage, compatibilityResultWithSdk);
 
                         var recommendationDetails = recommendationResults.GetValueOrDefault(invocation.Namespace, null);
                         var apiRecommendation = ApiCompatiblity.UpgradeStrategy(
@@ -138,6 +137,46 @@ namespace PortingAssistant.Client.Analysis.Utils
             .Where(p => p.Value.Count != 0)
             .ToDictionary(p => p.Key, p => p.Value);
 
+        }
+
+        private static CompatibilityResult GetCompatibilityResult(CompatibilityResult compatibilityResultWithPackage, CompatibilityResult compatibilityResultWithSdk)
+        {
+            var compatiblityResult = compatibilityResultWithPackage;
+
+            switch (compatibilityResultWithPackage.Compatibility)
+            {
+                case Compatibility.COMPATIBLE:
+                    break;
+
+                case Compatibility.INCOMPATIBLE:
+                    if(compatibilityResultWithSdk.Compatibility == Compatibility.COMPATIBLE)
+                    {
+                        compatiblityResult = compatibilityResultWithSdk;
+                    }
+                    break;
+
+                case Compatibility.DEPRECATED:
+                    if(compatibilityResultWithSdk.Compatibility == Compatibility.COMPATIBLE ||
+                        compatibilityResultWithSdk.Compatibility == Compatibility.INCOMPATIBLE)
+                    {
+                        compatiblityResult = compatibilityResultWithSdk;
+                    }
+                    break;
+
+                case Compatibility.UNKNOWN:
+                    if (compatibilityResultWithSdk.Compatibility == Compatibility.COMPATIBLE ||
+                        compatibilityResultWithSdk.Compatibility == Compatibility.INCOMPATIBLE
+                        || compatibilityResultWithSdk.Compatibility == Compatibility.DEPRECATED)
+                        {
+                            compatiblityResult = compatibilityResultWithSdk;
+                        }
+                    break;
+
+                default:
+                    break;
+            }
+
+            return compatiblityResult;
         }
 
         public static PackageVersionPair ReferenceToPackageVersionPair(ExternalReference reference, PackageSourceType sourceType = PackageSourceType.NUGET)
