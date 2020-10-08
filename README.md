@@ -13,31 +13,74 @@ For more information on Porting Assistant tool and try the tool, please refer th
 
 # Getting Started
 
-Follow the examples below to see how the library can be integrated into your application.
+Follow the examples below to see how the library can be integrated into your application for analyzing and porting an application.
 
 ```csharp
-/* 1. Logger object */
-   Log.Logger = new LoggerConfiguration()
-       .MinimumLevel.Debug()
-       .WriteTo.Console(theme: AnsiConsoleTheme.Code)
-       .WriteTo.File("log-.txt", rollingInterval: RollingInterval.Day)
-       .CreateLogger();
+/* Create Logger */
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Debug()
+    .WriteTo.Console(theme: AnsiConsoleTheme.Code)
+    .WriteTo.File("log-.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
 
-/* 2. Create Configuration settings */
-AnalyzerConfiguration configuration = new AnalyzerConfiguration(LanguageOptions.CSharp)
+var serviceConfig = new ConfigurationBuilder()
+    .AddJsonFile(config)
+    .Build();
+var serviceCollection = new ServiceCollection();
+ConfigureServices(serviceCollection, serviceConfig);
+
+var services = serviceCollection.BuildServiceProvider();
+var logger = services.GetRequiredService<ILogger<Program>>();
+var portingAssistantHandler = services.GetService<IPortingAssistantHandler>();
+var reportHandler = services.GetService<IReportHandler>();
+
+var settings = new AnalyzerSettings();
+
+/* Analyze the solution */
+var analyzeResults = portingAssistantHandler.AnalyzeSolutionAsync(solutionPath, settings);
+analyzeResults.Wait();
+
+/* Generate JSON output */
+if (analyzeResults.IsCompletedSuccessfully)
 {
-    MetaDataSettings =
-    {
-        LiteralExpressions = true,
-        MethodInvocations = true
-    }
+  reportHandler.GenerateJsonReport(analyzeResults.Result, outputPath);
+}
+
+
+var filteredProjects = new List<string>{ "projectname1" ,"projectname2"} 
+
+/* Porting the application to .NET Core project */
+var PortingProjectResults = analyzeResults.Result.ProjectAnalysisResults
+   .Where(project => filteredProjects.Contains(project.ProjectName));
+
+var FilteredRecommendedActions = PortingProjectResults
+   .SelectMany(project => project.PackageAnalysisResults.Values
+   .SelectMany(package => package.Result.Recommendations.RecommendedActions));
+
+var portingRequest = new PortingRequest
+{
+   Projects = filteredProjects, //By default all projects are ported
+   SolutionPath = solutionPath,
+   TargetFramework = TargetFramework.netcoreapp31,
+   RecommendedActions = FilteredRecommendedActions.ToList()
 };
 
-/* 3. Get Analyzer instance based on language */
-CodeAnalyzer analyzer = CodeAnalyzerFactory.GetAnalyzer(configuration, Log.Logger);
-            
-/* 4. Analyze the project or solution */
-var analyzerResults = await analyzer.AnalyzeSolution(wsPath);
+var portingResults = await portingAssistantHandler.ApplyPortingChanges(portingRequest);
+
+/* Generate JSON output */
+await reportHandler.GenerateJsonReport(portingResults, solutionPath, outputPath);
+
+static private void ConfigureServices(IServiceCollection serviceCollection, IConfiguration config)
+{
+   serviceCollection.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(dispose: true));
+   serviceCollection.AddAssessment(config.GetSection("AnalyzerConfiguration"));
+
+   serviceCollection.AddSingleton<IReportHandler, ReportHandler>();
+
+   serviceCollection.AddOptions();
+}
+
+
 ```
 
 ## Getting Help
