@@ -6,8 +6,8 @@
         <Configuration>
           <Format>json,cobertura</Format>
           <ExcludeByFile>
-          **/PortingAssistant.Common/**/**.cs,
-          **/PortingAssistant.Client.Tests/TestXml/**/**.cs,
+          **../src/PortingAssistant.Common/**/**.cs,
+          **../src/PortingAssistant.Client.Tests/TestXml/**/**.cs,
           </ExcludeByFile> <!-- Globbing filter -->
           <SingleHit>false</SingleHit>
           <IncludeTestAssembly>true</IncludeTestAssembly>
