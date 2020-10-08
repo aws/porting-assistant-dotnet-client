@@ -1,4 +1,4 @@
-![Porting Assistant for .NET](./pa-logo.png "Porting Assistant for .NET")
+![Porting Assistant for .NET](./logo.png "Porting Assistant for .NET")
 
 # Porting Assistant for .NET
 [![nuget](https://img.shields.io/nuget/v/PortingAssistant.Client.svg)](https://www.nuget.org/packages/PortingAssistant.Client/)
