@@ -32,8 +32,6 @@ namespace IntegrationTests
 
             var portingAssistantHandler = services.GetService<IPortingAssistantHandler>();
 
-            var nugetcheck = services.GetService<IPortingAssistantNuGetHandler>();
-
             var solutionPath = @"C:\workspace\PortingAssistant\src\PortingAssistantClient\PortingAssistantClient\NetFramworkExample\NetFramworkExample.sln";
             
             solutionAnalysisResult = portingAssistantHandler.AnalyzeSolutionAsync(solutionPath, new Settings());

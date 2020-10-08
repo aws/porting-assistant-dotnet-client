@@ -24,4 +24,14 @@
     <ProjectReference Include="..\..\src\PortingAssistant.Client.Handler\PortingAssistant.Client.Handler.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="TestProjects\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="TestProjects\TestProjects.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
