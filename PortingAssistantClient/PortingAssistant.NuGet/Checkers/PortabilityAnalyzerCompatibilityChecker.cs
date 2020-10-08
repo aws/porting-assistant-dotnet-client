@@ -66,7 +66,7 @@ namespace PortingAssistant.NuGet
 
                 var foundPackages = new Dictionary<string, List<PackageVersionPair>>();
                 packageVersions.ToList().ForEach(p =>
-                {
+                {                    
                     if (p.PackageSourceType != PackageSourceType.SDK)
                     {
                         return;
