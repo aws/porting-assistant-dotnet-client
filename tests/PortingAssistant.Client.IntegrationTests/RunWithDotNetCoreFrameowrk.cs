@@ -26,7 +26,7 @@ namespace PortingAssistant.Client.IntegrationTests
         {
             _tmpTestProjectsExtractionPath = Path.GetFullPath(Path.Combine(Path.GetTempPath(), Path.GetRandomFileName()));
             Directory.CreateDirectory(_tmpTestProjectsExtractionPath);
-            string testProjectsPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestProjects", "MiniBlog.Core-master.zip");
+            string testProjectsPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestProjects", "Miniblog.Core-master.zip");
 
             var config = "config.json";
             Log.Logger = new LoggerConfiguration()
