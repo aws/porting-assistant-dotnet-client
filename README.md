@@ -7,9 +7,9 @@ Porting Assistant for .NET is an analysis tool that scans .NET Framework applica
 
 Porting Assistant for .NET quickly scans .NET Framework applications to identify incompatibilities with .NET Core, finds known replacements, and generates detailed compatibility assessment reports. This reduces the manual effort involved in modernizing the applications to Linux.
 
-[PortingAssistant.Client](https://www.nuget.org/packages/PortingAssistant.Client/) package provides interfaces to analyze .NET applications for finding the incompatibilities, and port applications to .NET Core. Please note that,currently, limited support is there for porting.
+[PortingAssistant.Client](https://www.nuget.org/packages/PortingAssistant.Client/) package provides interfaces to analyze .NET applications for finding the incompatibilities, and port applications to .NET Core. Please note that currently there is limited support for porting.
 
-For more information on Porting Assistant tool and try the tool, please refer the documenation: https://aws.amazon.com/porting-assistant-dotnet/
+For more information on Porting Assistant tool and to try the tool, please refer the documenation: https://aws.amazon.com/porting-assistant-dotnet/
 
 # Getting Started
 
