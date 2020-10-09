@@ -1,0 +1,145 @@
+![Porting Assistant for .NET](./logo.png "Porting Assistant for .NET")
+
+# Porting Assistant for .NET
+[![nuget](https://img.shields.io/nuget/v/PortingAssistant.Client.svg)](https://www.nuget.org/packages/PortingAssistant.Client/)
+ 
+Porting Assistant for .NET is an analysis tool that scans .NET Framework applications and generates a .NET Core compatibility assessment, helping customers port their applications to Linux faster.
+ 
+Porting Assistant for .NET quickly scans .NET Framework applications to identify incompatibilities with .NET Core, finds known replacements, and generates detailed compatibility assessment reports. This reduces the manual effort involved in modernizing applications to Linux.
+ 
+[PortingAssistant.Client](https://www.nuget.org/packages/PortingAssistant.Client/) package provides interfaces to analyze .NET applications, find the incompatibilities, and port applications to .NET Core. Please note that current support for porting is limited.
+ 
+For more information about Porting Assistant and to try the tool, please refer to the documenation: https://aws.amazon.com/porting-assistant-dotnet/
+
+# Getting Started
+
+Follow the examples below to see how the library can be integrated into your application for analyzing and porting an application.
+
+```csharp
+/* Create Logger */
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Debug()
+    .WriteTo.Console(theme: AnsiConsoleTheme.Code)
+    .WriteTo.File("log-.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
+var serviceConfig = new ConfigurationBuilder()
+    .AddJsonFile(config)
+    .Build();
+var serviceCollection = new ServiceCollection();
+ConfigureServices(serviceCollection, serviceConfig);
+
+var services = serviceCollection.BuildServiceProvider();
+var logger = services.GetRequiredService<ILogger<Program>>();
+var portingAssistantHandler = services.GetService<IPortingAssistantHandler>();
+var reportHandler = services.GetService<IReportHandler>();
+
+var settings = new AnalyzerSettings();
+
+/* Analyze the solution */
+var analyzeResults = portingAssistantHandler.AnalyzeSolutionAsync(solutionPath, settings);
+analyzeResults.Wait();
+
+/* Generate JSON output */
+if (analyzeResults.IsCompletedSuccessfully)
+{
+  reportHandler.GenerateJsonReport(analyzeResults.Result, outputPath);
+}
+
+
+var filteredProjects = new List<string>{ "projectname1" ,"projectname2"} 
+
+/* Porting the application to .NET Core project */
+var PortingProjectResults = analyzeResults.Result.ProjectAnalysisResults
+   .Where(project => filteredProjects.Contains(project.ProjectName));
+
+var FilteredRecommendedActions = PortingProjectResults
+   .SelectMany(project => project.PackageAnalysisResults.Values
+   .SelectMany(package => package.Result.Recommendations.RecommendedActions));
+
+var portingRequest = new PortingRequest
+{
+   Projects = filteredProjects, //By default all projects are ported
+   SolutionPath = solutionPath,
+   TargetFramework = TargetFramework.netcoreapp31,
+   RecommendedActions = FilteredRecommendedActions.ToList()
+};
+
+var portingResults = await portingAssistantHandler.ApplyPortingChanges(portingRequest);
+
+/* Generate JSON output */
+await reportHandler.GenerateJsonReport(portingResults, solutionPath, outputPath);
+
+static private void ConfigureServices(IServiceCollection serviceCollection, IConfiguration config)
+{
+   serviceCollection.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(dispose: true));
+   serviceCollection.AddAssessment(config.GetSection("AnalyzerConfiguration"));
+
+   serviceCollection.AddSingleton<IReportHandler, ReportHandler>();
+
+   serviceCollection.AddOptions();
+}
+
+
+```
+
+## Getting Help
+
+Please use these community resources for getting help. We use the GitHub issues
+for tracking bugs and feature requests.
+
+* Send us an email to: aws-porting-assistant-support@amazon.com
+* If it turns out that you may have found a bug,
+  please open an [issue](https://github.com/aws/porting-assistant-dotnet-client/issues/new)
+  
+## Permissions: AWS Identity and Access Management (IAM)
+ 
+You must attach the following IAM policy as an inline policy to your IAM user. Then, configure a profile on your server with the IAM credentials of this user.
+ 
+ 
+```javascript
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "EnCorePermission",
+            "Effect": "Allow",
+            "Action": [
+                "execute-api:invoke",
+                "s3:GetObject",
+                "s3:ListBucket"
+            ],
+            "Resource": [
+                "arn:aws:execute-api:us-east-1:492443789615:3dmmp07yx6/*",
+                "arn:aws:execute-api:us-east-1:547614552430:8q2itpfg51/*",
+                "arn:aws:s3:::aws.portingassistant.dotnet.datastore",
+                "arn:aws:s3:::aws.portingassistant.dotnet.datastore/*"
+            ]
+        }
+    ]
+}
+```
+
+## Contributing
+
+We welcome community contributions and pull requests. See
+[CONTRIBUTING](./CONTRIBUTING.md) for information on how to set up a development
+environment and submit code.
+
+# Additional Resources
+ 
+[Porting Assistant for .NET](https://docs.aws.amazon.com/portingassistant/index.html)
+ 
+[AWS Developer Center - Explore .NET on AWS](https://aws.amazon.com/developer/language/net/)
+Find all the .NET code samples, step-by-step guides, videos, blog content, tools, and information about live events that you need in one place.
+ 
+[AWS Developer Blog - .NET](https://aws.amazon.com/blogs/developer/category/programing-language/dot-net/)
+Come see what .NET developers at AWS are up to!  Learn about new .NET software announcements, guides, and how-to's.
+
+
+# License
+
+Libraries in this repository are licensed under the Apache 2.0 License.
+
+See [LICENSE](./LICENSE) and [NOTICE](./NOTICE) for more information.  
+
