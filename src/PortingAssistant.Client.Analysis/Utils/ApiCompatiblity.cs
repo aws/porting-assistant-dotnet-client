@@ -226,6 +226,11 @@ namespace PortingAssistant.Client.Analysis.Utils
         {
             try
             {
+                if(api ==null || api.MethodParameters == null || api.MethodParameters.Count() == 0)
+                {
+                    return null;
+                }
+
                 var possibleExtension = api.MethodParameters[0];
                 var methodSignatureIndex = api.MethodSignature.IndexOf("(") >= 0 ? api.MethodSignature.IndexOf("(") : api.MethodSignature.Length;
                 var sliceMethodSignature = api.MethodSignature.Substring(0, methodSignatureIndex);
