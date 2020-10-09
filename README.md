@@ -2,14 +2,14 @@
 
 # Porting Assistant for .NET
 [![nuget](https://img.shields.io/nuget/v/PortingAssistant.Client.svg)](https://www.nuget.org/packages/PortingAssistant.Client/)
-
+ 
 Porting Assistant for .NET is an analysis tool that scans .NET Framework applications and generates a .NET Core compatibility assessment, helping customers port their applications to Linux faster.
-
-Porting Assistant for .NET quickly scans .NET Framework applications to identify incompatibilities with .NET Core, finds known replacements, and generates detailed compatibility assessment reports. This reduces the manual effort involved in modernizing the applications to Linux.
-
-[PortingAssistant.Client](https://www.nuget.org/packages/PortingAssistant.Client/) package provides interfaces to analyze .NET applications for finding the incompatibilities, and port applications to .NET Core. Please note that currently there is limited support for porting.
-
-For more information on Porting Assistant tool and to try the tool, please refer the documenation: https://aws.amazon.com/porting-assistant-dotnet/
+ 
+Porting Assistant for .NET quickly scans .NET Framework applications to identify incompatibilities with .NET Core, finds known replacements, and generates detailed compatibility assessment reports. This reduces the manual effort involved in modernizing applications to Linux.
+ 
+[PortingAssistant.Client](https://www.nuget.org/packages/PortingAssistant.Client/) package provides interfaces to analyze .NET applications, find the incompatibilities, and port applications to .NET Core. Please note that current support for porting is limited.
+ 
+For more information about Porting Assistant and to try the tool, please refer to the documenation: https://aws.amazon.com/porting-assistant-dotnet/
 
 # Getting Started
 
@@ -93,15 +93,11 @@ for tracking bugs and feature requests.
   please open an [issue](https://github.com/aws/porting-assistant-dotnet-client/issues/new)
   
 ## Permissions: AWS Identity and Access Management (IAM)
-
+ 
 You must attach the following IAM policy as an inline policy to your IAM user. Then, configure a profile on your server with the IAM credentials of this user.
-
-
+ 
+ 
 ```javascript
-AWS Identity and Access Management (IAM)
-
-You must attach the following IAM policy as an inline policy to your IAM user. Then, configure a profile on your server with the IAM credentials of this user.
-
 {
     "Version": "2012-10-17",
     "Statement": [
@@ -131,12 +127,12 @@ We welcome community contributions and pull requests. See
 environment and submit code.
 
 # Additional Resources
-
-[Porting Assistant for .NET]  https://docs.aws.amazon.com/portingassistant/index.html
-
+ 
+[Porting Assistant for .NET](https://docs.aws.amazon.com/portingassistant/index.html)
+ 
 [AWS Developer Center - Explore .NET on AWS](https://aws.amazon.com/developer/language/net/)
 Find all the .NET code samples, step-by-step guides, videos, blog content, tools, and information about live events that you need in one place.
-
+ 
 [AWS Developer Blog - .NET](https://aws.amazon.com/blogs/developer/category/programing-language/dot-net/)
 Come see what .NET developers at AWS are up to!  Learn about new .NET software announcements, guides, and how-to's.
 
