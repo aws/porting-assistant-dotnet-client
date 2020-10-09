@@ -143,12 +143,14 @@ namespace PortingAssistant.Client.Tests
             Assert.AreEqual("12.0.3", packageAnalysisResult.Recommendations.RecommendedActions.First().Description);
             Assert.AreEqual(RecommendedActionType.UpgradePackage, packageAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
 
-            Assert.AreEqual("Newtonsoft.Json", projectAnalysisResult.SourceFileAnalysisResults.Find(s => s.SourceFileName == "Program.cs").ApiAnalysisResults.First().CodeEntityDetails.Package.PackageId);
-            Assert.AreEqual("11.0.1", projectAnalysisResult.SourceFileAnalysisResults.First().ApiAnalysisResults.First().CodeEntityDetails.Package.Version);
+            var apiAnalysisResult = projectAnalysisResult.SourceFileAnalysisResults.Find(s => s.SourceFileName == "Program.cs")
+                .ApiAnalysisResults.Find(r => r.CodeEntityDetails.OriginalDefinition == "Newtonsoft.Json.JsonConvert.SerializeObject(object)");
+            Assert.AreEqual("Newtonsoft.Json", apiAnalysisResult.CodeEntityDetails.Package.PackageId);
+            Assert.AreEqual("11.0.1", apiAnalysisResult.CodeEntityDetails.Package.Version);
             Assert.AreEqual("Newtonsoft.Json.JsonConvert.SerializeObject(object)",
-                projectAnalysisResult.SourceFileAnalysisResults.First().ApiAnalysisResults.First().CodeEntityDetails.OriginalDefinition);
-            Assert.AreEqual(Compatibility.COMPATIBLE, projectAnalysisResult.SourceFileAnalysisResults.First().ApiAnalysisResults.First().CompatibilityResults.GetValueOrDefault(ApiCompatiblity.DEFAULT_TARGET).Compatibility);
-            Assert.AreEqual("12.0.3", projectAnalysisResult.SourceFileAnalysisResults.First().ApiAnalysisResults.First().Recommendations.RecommendedActions.First().Description);
+                apiAnalysisResult.CodeEntityDetails.OriginalDefinition);
+            Assert.AreEqual(Compatibility.COMPATIBLE, apiAnalysisResult.CompatibilityResults.GetValueOrDefault(ApiCompatiblity.DEFAULT_TARGET).Compatibility);
+            Assert.AreEqual("12.0.3", apiAnalysisResult.Recommendations.RecommendedActions.First().Description);
         }
 
         [Test]
