@@ -16,7 +16,7 @@ using PortingAssistant.Client.NuGet;
 namespace PortingAssistant.Client.Tests
 {
 
-    public class PortingAssistantApiAnalysisHandlerTest
+    public class PortingAssistantAnalysisHandlerTest
     {
         private Mock<IPortingAssistantNuGetHandler> _nuGetHandlerMock;
         private Mock<IPortingAssistantRecommendationHandler> _recommendationHandlerMock;
