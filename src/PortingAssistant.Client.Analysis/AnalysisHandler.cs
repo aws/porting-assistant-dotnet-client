@@ -8,7 +8,6 @@ using AwsCodeAnalyzer.Model;
 using PortingAssistant.Client.Analysis.Utils;
 using PortingAssistant.Client.Model;
 using Microsoft.Extensions.Logging;
-using Serilog;
 using PortingAssistant.Client.NuGet;
 using AnalyzerConfiguration = AwsCodeAnalyzer.AnalyzerConfiguration;
 
@@ -42,7 +41,7 @@ namespace PortingAssistant.Client.Analysis
                     ReferenceData = true
                 }
             };
-            var analyzer = CodeAnalyzerFactory.GetAnalyzer(configuration, Log.Logger);
+            var analyzer = CodeAnalyzerFactory.GetAnalyzer(configuration, _logger);
             var analyzersTask = analyzer.AnalyzeSolution(solutionFilename);
 
             return project

@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Serilog;
-using Serilog.Sinks.SystemConsole.Themes;
-
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using System.Linq;
@@ -23,12 +20,6 @@ namespace PortingAssistant.Client.Client
             PortingAssistantCLI cli = new PortingAssistantCLI();
             cli.HandleCommand(args);
             var config = @"config.json";
-            Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Debug()
-                .WriteTo.Console(theme: AnsiConsoleTheme.Code)
-                .WriteTo.File("log-.txt", rollingInterval: RollingInterval.Day)
-                .CreateLogger();
-
             var serviceConfig = new ConfigurationBuilder()
                 .AddJsonFile(config)
                 .Build();
@@ -85,7 +76,7 @@ namespace PortingAssistant.Client.Client
 
         static private void ConfigureServices(IServiceCollection serviceCollection, IConfiguration config)
         {
-            serviceCollection.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(dispose: true));
+            serviceCollection.AddLogging(loggingBuilder => loggingBuilder.AddConsole());
             serviceCollection.AddAssessment(config.GetSection("AnalyzerConfiguration"));
 
             serviceCollection.AddSingleton<IReportHandler, ReportHandler>();

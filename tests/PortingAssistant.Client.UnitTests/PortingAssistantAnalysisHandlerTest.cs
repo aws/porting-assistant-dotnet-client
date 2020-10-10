@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Build.Construction;
-using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using PortingAssistant.Client.Analysis;
@@ -63,7 +63,8 @@ namespace PortingAssistant.Client.Tests
         {
             _nuGetHandlerMock = new Mock<IPortingAssistantNuGetHandler>();
             _recommendationHandlerMock = new Mock<IPortingAssistantRecommendationHandler>();
-            _analysisHandler = new PortingAssistantAnalysisHandler(NullLogger<PortingAssistantAnalysisHandler>.Instance, _nuGetHandlerMock.Object, _recommendationHandlerMock.Object);
+            var logger = LoggerFactory.Create(builder => builder.AddConsole());
+            _analysisHandler = new PortingAssistantAnalysisHandler(logger.CreateLogger<PortingAssistantAnalysisHandler>(), _nuGetHandlerMock.Object, _recommendationHandlerMock.Object);
         }
 
         [SetUp]

@@ -13,6 +13,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="AwsCodeAnalyzer" Version="1.0.31-g41052b7fd8" />
+    <PackageReference Include="AwsCodeAnalyzer" Version="1.0.33-g1a5a5607e4" />
   </ItemGroup>
 </Project>
