@@ -3,16 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using PortingAssistant.Client.Analysis;
-using PortingAssistant.Client.Handler;
-using PortingAssistant.Client.Utils;
-using PortingAssistant.Client.NuGet;
-using PortingAssistant.Client.Model;
-using PortingAssistant.Client.Porting;
-using PortingAssistant.Client.Analysis.Utils;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using NUnit.Framework;
+using PortingAssistant.Client.Analysis;
+using PortingAssistant.Client.Analysis.Utils;
+using PortingAssistant.Client.Handler;
+using PortingAssistant.Client.Model;
+using PortingAssistant.Client.Porting;
 
 namespace PortingAssistant.Client.Tests
 {
