@@ -63,8 +63,7 @@ namespace PortingAssistant.Client.Tests
         {
             _nuGetHandlerMock = new Mock<IPortingAssistantNuGetHandler>();
             _recommendationHandlerMock = new Mock<IPortingAssistantRecommendationHandler>();
-            var logger = LoggerFactory.Create(builder => builder.AddConsole());
-            _analysisHandler = new PortingAssistantAnalysisHandler(logger.CreateLogger<PortingAssistantAnalysisHandler>(), _nuGetHandlerMock.Object, _recommendationHandlerMock.Object);
+            _analysisHandler = new PortingAssistantAnalysisHandler(TestLogger.Create<PortingAssistantAnalysisHandler>(), _nuGetHandlerMock.Object, _recommendationHandlerMock.Object);
         }
 
         [SetUp]
