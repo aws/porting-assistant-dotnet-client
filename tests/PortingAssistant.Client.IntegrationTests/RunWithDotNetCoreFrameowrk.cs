@@ -1,11 +1,9 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 using PortingAssistant.Client.Handler;
 using PortingAssistant.Client.Model;
-using Serilog;
-using Serilog.Sinks.SystemConsole.Themes;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -29,10 +27,6 @@ namespace PortingAssistant.Client.IntegrationTests
             string testProjectsPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestProjects", "Miniblog.Core-master.zip");
 
             var config = "config.json";
-            Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Debug()
-                .WriteTo.Console(theme: AnsiConsoleTheme.Code)
-                .CreateLogger();
 
             var serviceConfig = new ConfigurationBuilder()
                 .AddJsonFile(config)
@@ -54,7 +48,7 @@ namespace PortingAssistant.Client.IntegrationTests
 
         static private void ConfigureServices(IServiceCollection serviceCollection, IConfiguration config)
         {
-            serviceCollection.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(dispose: true));
+            serviceCollection.AddLogging(loggingBuilder => loggingBuilder.AddConsole());
             serviceCollection.AddAssessment(config.GetSection("AnalyzerConfiguration"));
             serviceCollection.AddOptions();
         }
