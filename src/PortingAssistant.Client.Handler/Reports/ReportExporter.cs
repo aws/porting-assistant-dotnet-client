@@ -8,20 +8,20 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using PortingAssistant.Client.Model;
 
-namespace PortingAssistant.Client.Reports
+namespace PortingAssistant.Client.Client.Reports
 {
-    public class ReportHandler : IReportHandler
+    public class ReportExporter : IReportExporter
     {
         private readonly ILogger _logger;
         private readonly string PortingResultFolder = "porting";
         private readonly string SolutionAnalyzeFolder = "solution-analyze";
         private readonly string AnalyzeRootFolder = "-analyze";
-        public ReportHandler(ILogger<ReportHandler> logger)
+        public ReportExporter(ILogger<ReportExporter> logger)
         {
             _logger = logger;
         }
 
-        public async Task<bool> GenerateJsonReport(
+        public bool GenerateJsonReport(
             List<PortingResult> portingResults,
             string SolutionName, string outputFolder)
         {
@@ -30,20 +30,10 @@ namespace PortingAssistant.Client.Reports
                 string FileName = portingResult.ProjectFile + "-porting-result.json";
                 string FileDir = Path.Combine(outputFolder, SolutionName + AnalyzeRootFolder, PortingResultFolder, FileName);
                 Directory.CreateDirectory(FileDir);
-                var writeToFile = WriteReportToFileAsync<PortingResult>(portingResult, Path.Combine(FileDir, FileName));
+                var writeToFile = WriteReportToFileAsync(portingResult, Path.Combine(FileDir, FileName));
                 writeToFile.Wait();
             });
             return true;
-        }
-
-        public async Task<bool> GenerateJsonReport(
-            SolutionDetails solutionDetails,
-            string outputFolder)
-        {
-            string FileName = solutionDetails.SolutionName + "-details.json";
-            string FileDir = Path.Combine(outputFolder, solutionDetails.SolutionName + AnalyzeRootFolder);
-            Directory.CreateDirectory(FileDir);
-            return await WriteReportToFileAsync<SolutionDetails>(solutionDetails, Path.Combine(FileDir, FileName));
         }
 
         public bool GenerateJsonReport(
@@ -139,6 +129,7 @@ namespace PortingAssistant.Client.Reports
                         await memoStream.CopyToAsync(destinationStream);
                     }
                 }
+                _logger.LogInformation("file generated at ", FilePath);
                 return true;
             }
             catch (Exception ex)
@@ -151,8 +142,6 @@ namespace PortingAssistant.Client.Reports
 
     public static class DataExtensions
     {
-        private const int DefaultBufferSize = 1024;
-        private static readonly Encoding DefaultEncoding = Encoding.UTF8;
 
         public static JsonSerializerSettings JsonSettings { get; } = new JsonSerializerSettings
         {

@@ -2,27 +2,22 @@
 using System.Collections.Generic;
 using System.Linq;
 using PortingAssistant.Client.Analysis;
-using PortingAssistant.Client.Handler.FileParser;
-using PortingAssistant.Client.NuGet;
 using PortingAssistant.Client.Model;
-using PortingAssistant.Client.Utils;
 using PortingAssistant.Client.Porting;
 using Microsoft.Build.Construction;
 using Microsoft.Extensions.Logging;
-using NuGet.Frameworks;
-using NuGet.Versioning;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace PortingAssistant.Client.Handler
+namespace PortingAssistant.Client.Client
 {
-    public class PortingAssistantHandler : IPortingAssistantHandler
+    public class PortingAssistantClient : IPortingAssistantClient
     {
         private readonly ILogger _logger;
         private readonly IPortingAssistantAnalysisHandler _AnalysisHandler;
         private readonly IPortingHandler _portingHandler;
 
-        public PortingAssistantHandler(ILogger<PortingAssistantHandler> logger,
+        public PortingAssistantClient(ILogger<PortingAssistantClient> logger,
             IPortingAssistantAnalysisHandler AnalysisHandler,
             IPortingHandler portingHandler
             )
@@ -68,7 +63,7 @@ namespace PortingAssistant.Client.Handler
 
         }
 
-        public async Task<SolutionAnalysisResult> AnalyzeSolutionAsync(string solutionFilePath, Settings settings)
+        public async Task<SolutionAnalysisResult> AnalyzeSolutionAsync(string solutionFilePath, PortingAssistantSettings settings)
         {
             try
             {

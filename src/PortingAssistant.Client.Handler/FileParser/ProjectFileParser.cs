@@ -11,7 +11,7 @@ using NuGet.Packaging;
 using NuGet.Versioning;
 using XmlUtility = NuGet.Common.XmlUtility;
 
-namespace PortingAssistant.Client.Handler.FileParser
+namespace PortingAssistant.Client.Client.FileParser
 {
     public class ProjectFileParser
     {

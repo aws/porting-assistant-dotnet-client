@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using PortingAssistant.Client.Analysis;
-using PortingAssistant.Client.Handler;
+using PortingAssistant.Client.Client;
 using PortingAssistant.Client.Utils;
 using PortingAssistant.Client.NuGet;
 using PortingAssistant.Client.Model;
@@ -20,7 +20,7 @@ namespace PortingAssistant.Client.Tests
     {
         private Mock<IPortingAssistantAnalysisHandler> _apiAnalysisHandlerMock;
         private Mock<IPortingHandler> _portingHandlerMock;
-        private PortingAssistantHandler _portingAssistantHandler;
+        private PortingAssistantClient _portingAssistantClient;
         private readonly string _solutionFolder = Path.Combine(TestContext.CurrentContext.TestDirectory,
                 "TestXml", "SolutionWithProjects");
 
@@ -81,8 +81,8 @@ namespace PortingAssistant.Client.Tests
         {
             _apiAnalysisHandlerMock = new Mock<IPortingAssistantAnalysisHandler>();
             _portingHandlerMock = new Mock<IPortingHandler>();
-            _portingAssistantHandler = new PortingAssistantHandler(
-                NullLogger<PortingAssistantHandler>.Instance,
+            _portingAssistantClient = new PortingAssistantClient(
+                NullLogger<PortingAssistantClient>.Instance,
                 _apiAnalysisHandlerMock.Object,
                 _portingHandlerMock.Object);
         }
@@ -152,7 +152,7 @@ namespace PortingAssistant.Client.Tests
         [Test]
         public void TestGetSolutionDetails()
         {
-            var solutionDetail = _portingAssistantHandler.GetSolutionDetails(
+            var solutionDetail = _portingAssistantClient.GetSolutionDetails(
                 Path.Combine(_solutionFolder, "SolutionWithProjects.sln")
             );
             Assert.AreEqual("SolutionWithProjects", solutionDetail.SolutionName);
@@ -169,14 +169,14 @@ namespace PortingAssistant.Client.Tests
         {
             Assert.Throws<PortingAssistantException>(() =>
             {
-                _portingAssistantHandler.GetSolutionDetails(Path.Combine(_solutionFolder, "NonexistentSolution.sln"));
+                _portingAssistantClient.GetSolutionDetails(Path.Combine(_solutionFolder, "NonexistentSolution.sln"));
             });
         }
 
         [Test]
         public void AnalyzeSolutionWithProjectsSucceeds()
         {
-            var results = _portingAssistantHandler.AnalyzeSolutionAsync(Path.Combine(_solutionFolder, "SolutionWithProjects.sln"), new Settings());
+            var results = _portingAssistantClient.AnalyzeSolutionAsync(Path.Combine(_solutionFolder, "SolutionWithProjects.sln"), new PortingAssistantSettings());
             Task.WaitAll(results);
             var projectAnalysisResult = results.Result.ProjectAnalysisResults.Find(p => p.ProjectName == "Nop.Core");
             var sourceFileAnalysisResults = projectAnalysisResult.SourceFileAnalysisResults;
@@ -200,7 +200,7 @@ namespace PortingAssistant.Client.Tests
 
             Assert.Throws<PortingAssistantException>(() =>
             {
-                _portingAssistantHandler.GetSolutionDetails(Path.Combine(_solutionFolder, testSolutionPath));
+                _portingAssistantClient.GetSolutionDetails(Path.Combine(_solutionFolder, testSolutionPath));
             });
         }
     }

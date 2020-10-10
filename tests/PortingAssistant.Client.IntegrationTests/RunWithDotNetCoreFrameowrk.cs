@@ -1,7 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
-using PortingAssistant.Client.Handler;
+using PortingAssistant.Client.Client;
 using PortingAssistant.Client.Model;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
@@ -17,7 +16,7 @@ namespace PortingAssistant.Client.IntegrationTests
 {
     class RunWithDotNetCoreFrameowrkTests
     {
-        private IPortingAssistantHandler portingAssistantHandler;
+        private IPortingAssistantClient portingAssistantClient;
         private string _tmpTestProjectsExtractionPath;
         private Task<SolutionAnalysisResult> solutionAnalysisResultTask;
 
@@ -28,20 +27,30 @@ namespace PortingAssistant.Client.IntegrationTests
             Directory.CreateDirectory(_tmpTestProjectsExtractionPath);
             string testProjectsPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestProjects", "Miniblog.Core-master.zip");
 
-            var config = "config.json";
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
                 .WriteTo.Console(theme: AnsiConsoleTheme.Code)
                 .CreateLogger();
 
-            var serviceConfig = new ConfigurationBuilder()
-                .AddJsonFile(config)
-                .Build();
+            var config = new AnalyzerConfiguration()
+            {
+                UseDataStoreSettings = true,
+                UseInternalNuGetServer = false,
+                DataStoreSettings = new DataStoreSettings
+                {
+                    HttpsEndpoint = "https://s3.us-west-2.amazonaws.com/aws.portingassistant.dotnet.datastore/",
+                    S3Endpoint = "aws.portingassistant.dotnet.datastore"
+                },
+                InternalNuGetServerSettings = new NuGetServerSettings
+                {
+                    NugetServerEndpoint = "NugetServerEndpoint",
+                }
+            };
             var serviceCollection = new ServiceCollection();
-            ConfigureServices(serviceCollection, serviceConfig);
+            ConfigureServices(serviceCollection, config);
 
             var services = serviceCollection.BuildServiceProvider();
-            portingAssistantHandler = services.GetService<IPortingAssistantHandler>();
+            portingAssistantClient = services.GetService<IPortingAssistantClient>();
 
             using (ZipArchive archive = ZipFile.Open(testProjectsPath, ZipArchiveMode.Read))
             {
@@ -49,13 +58,13 @@ namespace PortingAssistant.Client.IntegrationTests
             }
 
             var netCoreProjectPath = Path.Combine(_tmpTestProjectsExtractionPath, "Miniblog.Core-master", "Miniblog.Core.sln");
-            solutionAnalysisResultTask = portingAssistantHandler.AnalyzeSolutionAsync(netCoreProjectPath, new Settings());
+            solutionAnalysisResultTask = portingAssistantClient.AnalyzeSolutionAsync(netCoreProjectPath, new PortingAssistantSettings());
         }
 
-        static private void ConfigureServices(IServiceCollection serviceCollection, IConfiguration config)
+        static private void ConfigureServices(IServiceCollection serviceCollection, AnalyzerConfiguration config)
         {
             serviceCollection.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(dispose: true));
-            serviceCollection.AddAssessment(config.GetSection("AnalyzerConfiguration"));
+            serviceCollection.AddAssessment(config);
             serviceCollection.AddOptions();
         }
 

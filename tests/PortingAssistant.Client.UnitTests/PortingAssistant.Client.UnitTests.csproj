@@ -142,6 +142,6 @@
     <ProjectReference Include="..\..\src\PortingAssistant.Client.NuGet\PortingAssistant.Client.NuGet.csproj" />
     <ProjectReference Include="..\..\src\PortingAssistant.Client.Porting\PortingAssistant.Client.Porting.csproj" />
     <ProjectReference Include="..\..\src\PortingAssistant.Client.Analysis\PortingAssistant.Client.Analysis.csproj" />
-    <ProjectReference Include="..\..\src\PortingAssistant.Client.Handler\PortingAssistant.Client.Handler.csproj" />
+    <ProjectReference Include="..\..\src\PortingAssistant.Client.Handler\PortingAssistant.Client.Client.csproj" />
   </ItemGroup>
 </Project>

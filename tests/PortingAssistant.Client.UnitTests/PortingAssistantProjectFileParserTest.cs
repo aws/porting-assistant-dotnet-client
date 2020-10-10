@@ -1,6 +1,6 @@
 ﻿using System.IO;
 using System.Linq;
-using PortingAssistant.Client.Handler.FileParser;
+using PortingAssistant.Client.Client.FileParser;
 using NUnit.Framework;
 using PortingAssistant.Client.Model;
 

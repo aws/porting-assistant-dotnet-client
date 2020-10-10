@@ -9,7 +9,7 @@ using System.Linq;
 using PortingAssistant.Client.Model;
 using NuGet.Frameworks;
 using NuGet.Versioning;
-using PortingAssistant.Client.Handler.FileParser;
+using PortingAssistant.Client.Client.FileParser;
 
 namespace PortingAssistant.Client.Tests
 {

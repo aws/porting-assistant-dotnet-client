@@ -12,15 +12,15 @@ using PortingAssistant.Client.NuGet.Utils;
 using System;
 using Microsoft.Extensions.Options;
 
-namespace PortingAssistant.Client.Handler
+namespace PortingAssistant.Client.Client
 {
     public static class DependencyInjection
     {
-        public static void AddAssessment(this IServiceCollection serviceCollection, IConfiguration cacheConfig)
+        public static void AddAssessment(this IServiceCollection serviceCollection, AnalyzerConfiguration cacheConfig)
         {
-            serviceCollection.AddSingleton<IPortingAssistantHandler, PortingAssistantHandler>();
+            serviceCollection.Configure<AnalyzerConfiguration>(config => cacheConfig.DeepCopy(config));
+            serviceCollection.AddSingleton<IPortingAssistantClient, PortingAssistantClient>();
             serviceCollection.AddSingleton<IPortingAssistantInternalNuGetCompatibilityHandler, PortingAssistantInternalNuGetCompatibilityHandler>();
-            serviceCollection.Configure<AnalyzerConfiguration>(cacheConfig);
             serviceCollection.AddSingleton<IPortingAssistantNuGetHandler, PortingAssistantNuGetHandler>();
             serviceCollection.AddSingleton<IPortingAssistantAnalysisHandler, PortingAssistantAnalysisHandler>();
             serviceCollection.AddSingleton<IPortingAssistantRecommendationHandler, PortingAssistantRecommendationHandler>();

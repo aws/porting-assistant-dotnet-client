@@ -9,7 +9,7 @@ using Moq;
 using NUnit.Framework;
 using PortingAssistant.Client.Analysis;
 using PortingAssistant.Client.Analysis.Utils;
-using PortingAssistant.Client.Handler.FileParser;
+using PortingAssistant.Client.Client.FileParser;
 using PortingAssistant.Client.Model;
 using PortingAssistant.Client.NuGet;
 

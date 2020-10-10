@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using CommandLine;
 using CommandLine.Text;
-namespace PortingAssistant.Client.Model
-{
 
+namespace PortingAssistant.Client.CLI
+{
     public enum TargetFramework
     {
         netcoreapp31,
