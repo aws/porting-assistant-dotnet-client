@@ -133,9 +133,9 @@
     <Folder Include="TestXml\SolutionWithNugetConfigFile\Test2\" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="TestXml\SolutionWithApi\testproject\Program.cs">
+    <None Update="TestXml\SolutionWithApi\testproject\Program.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Compile>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\PortingAssistant.Client.Common\PortingAssistant.Client.Common.csproj" />

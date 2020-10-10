@@ -143,8 +143,13 @@ namespace PortingAssistant.Client.Tests
             Assert.AreEqual("12.0.3", packageAnalysisResult.Recommendations.RecommendedActions.First().Description);
             Assert.AreEqual(RecommendedActionType.UpgradePackage, packageAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
 
-            var apiAnalysisResult = projectAnalysisResult.SourceFileAnalysisResults.Find(s => s.SourceFileName == "Program.cs")
-                .ApiAnalysisResults.Find(r => r.CodeEntityDetails.OriginalDefinition == "Newtonsoft.Json.JsonConvert.SerializeObject(object)");
+            var sourceFile = projectAnalysisResult.SourceFileAnalysisResults.Find(s => s.SourceFileName == "Program.cs");
+            Assert.NotNull(sourceFile);
+            Assert.NotNull(sourceFile.ApiAnalysisResults);
+
+            var apiAnalysisResult = sourceFile.ApiAnalysisResults.Find(r => r.CodeEntityDetails.OriginalDefinition == "Newtonsoft.Json.JsonConvert.SerializeObject(object)");
+            Assert.NotNull(apiAnalysisResult);
+
             Assert.AreEqual("Newtonsoft.Json", apiAnalysisResult.CodeEntityDetails.Package.PackageId);
             Assert.AreEqual("11.0.1", apiAnalysisResult.CodeEntityDetails.Package.Version);
             Assert.AreEqual("Newtonsoft.Json.JsonConvert.SerializeObject(object)",
