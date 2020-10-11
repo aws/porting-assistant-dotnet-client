@@ -23,6 +23,7 @@ namespace PortingAssistant.Client.Tests
         private PortingAssistantAnalysisHandler _analysisHandler;
         private string _solutionFile;
         private List<ProjectDetails> _projects;
+        private List<string> _projectPaths;
 
         private readonly PackageDetails _packageDetails = new PackageDetails
         {
@@ -72,6 +73,7 @@ namespace PortingAssistant.Client.Tests
             _solutionFile = Path.Combine(TestContext.CurrentContext.TestDirectory,
                 "TestXml", "SolutionWithApi", "SolutionWithApi.sln");
             _projects = GetProjects(_solutionFile);
+            _projectPaths = _projects.Select(p => p.ProjectFilePath).ToList();
 
             _nuGetHandlerMock.Reset();
 
@@ -130,7 +132,7 @@ namespace PortingAssistant.Client.Tests
                 PackageId = "Newtonsoft.Json",
                 Version = "11.0.1"
             };
-            var result = _analysisHandler.AnalyzeSolution(_solutionFile, _projects);
+            var result = _analysisHandler.AnalyzeSolution(_solutionFile, _projectPaths);
             Task.WaitAll(result.Values.ToArray());
 
             var projectAnalysisResult = result.Values.First().Result;
@@ -163,7 +165,7 @@ namespace PortingAssistant.Client.Tests
         {
             Assert.Throws<AggregateException>(() =>
             {
-                var result = _analysisHandler.AnalyzeSolution(Path.Combine(_solutionFile, "Rand.sln"), _projects);
+                var result = _analysisHandler.AnalyzeSolution(Path.Combine(_solutionFile, "Rand.sln"), _projectPaths);
                 Task.WaitAll(result.Values.ToArray());
             });
         }
@@ -173,7 +175,7 @@ namespace PortingAssistant.Client.Tests
         {
             Assert.Throws<AggregateException>(() =>
             {
-                var result = _analysisHandler.AnalyzeSolution(Path.Combine(_solutionFile, "Rand.sln"), _projects);
+                var result = _analysisHandler.AnalyzeSolution(Path.Combine(_solutionFile, "Rand.sln"), _projectPaths);
                 Task.WaitAll(result.Values.ToArray());
             });
         }

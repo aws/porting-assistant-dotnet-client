@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace PortingAssistant.Client.IntegrationTests
@@ -43,7 +42,7 @@ namespace PortingAssistant.Client.IntegrationTests
             }
 
             var netCoreProjectPath = Path.Combine(_tmpTestProjectsExtractionPath, "Miniblog.Core-master", "Miniblog.Core.sln");
-            solutionAnalysisResultTask = portingAssistantHandler.AnalyzeSolutionAsync(netCoreProjectPath, new Settings());
+            solutionAnalysisResultTask = portingAssistantHandler.AnalyzeSolutionAsync(netCoreProjectPath, new Settings { IgnoreProjects = new List<string>()});
         }
 
         static private void ConfigureServices(IServiceCollection serviceCollection, IConfiguration config)
@@ -91,7 +90,7 @@ namespace PortingAssistant.Client.IntegrationTests
             Assert.AreEqual("Miniblog.Core", projectDetails.ProjectName);
             Assert.AreEqual(Path.Combine(_tmpTestProjectsExtractionPath, "Miniblog.Core-master",
                 "src", "Miniblog.Core.csproj"), projectDetails.ProjectFilePath);
-            Assert.AreEqual("{8CE1A353-8B0D-43F1-B681-6057BAC241BC}", projectDetails.ProjectGuid);
+            Assert.AreEqual("8CE1A353-8B0D-43F1-B681-6057BAC241BC".ToLower(), projectDetails.ProjectGuid);
             Assert.AreEqual("KnownToBeMSBuildFormat", projectDetails.ProjectType);
             Assert.AreEqual("netcoreapp3.1", projectDetails.TargetFrameworks.First());
             Assert.AreEqual(0, projectDetails.ProjectReferences.Count);

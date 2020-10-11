@@ -6,6 +6,6 @@ namespace PortingAssistant.Client.Analysis
 {
     public interface IPortingAssistantAnalysisHandler
     {
-        Dictionary<string, Task<ProjectAnalysisResult>> AnalyzeSolution(string solutionFilename, List<ProjectDetails> projects);
+        Dictionary<string, Task<ProjectAnalysisResult>> AnalyzeSolution(string solutionFilename, List<string> projects);
     }
 }

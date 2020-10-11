@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Serilog;
+using Serilog.Sinks.SystemConsole.Themes;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using System.Linq;
