@@ -30,11 +30,8 @@ namespace PortingAssistant.Client.Client
             serviceCollection.AddSingleton<IPortingHandler, PortingHandler>();
             serviceCollection.AddSingleton<IPortingProjectFileHandler, PortingProjectFileHandler>();
             serviceCollection.AddSingleton<ITransferUtility, TransferUtility>();
-            serviceCollection.AddHttpClient<IHttpService, HttpService>(client =>
-            {
-                var services = serviceCollection.BuildServiceProvider();
-                client.BaseAddress = new Uri(services.GetService<IOptions<PortingAssistantConfiguration>>().Value.DataStoreSettings.HttpsEndpoint);
-            });
+            serviceCollection.AddSingleton<IHttpService, HttpService>();
+            serviceCollection.AddHttpClient();
         }
     }
 }

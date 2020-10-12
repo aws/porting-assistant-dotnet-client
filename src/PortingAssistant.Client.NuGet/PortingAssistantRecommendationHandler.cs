@@ -106,7 +106,7 @@ namespace PortingAssistant.Client.NuGet
                     try
                     {
                         _logger.LogInformation("Downloading {0} from {1}", url.Key, CompatibilityCheckerType);
-                        using var stream = await _httpService.DownloadS3FileAsync("recommendation/" + url.Key);
+                        using var stream = await _httpService.DownloadGitHubFileAsync("recommendation/" + url.Key);
 
                         using var streamReader = new StreamReader(stream);
                         var packageFromGithub = JsonConvert.DeserializeObject<RecommendationDetails>(streamReader.ReadToEnd());
@@ -173,7 +173,7 @@ namespace PortingAssistant.Client.NuGet
 
         private async Task<Dictionary<string, string>> GetManifestAsync()
         {
-            using var stream = await _httpService.DownloadS3FileAsync(RecommendationLookupFile);
+            using var stream = await _httpService.DownloadGitHubFileAsync("data/" + RecommendationLookupFile);
             using var streamReader = new StreamReader(stream);
             return JsonConvert.DeserializeObject<JObject>(streamReader.ReadToEnd()).ToObject<Dictionary<string, string>>();
         }
