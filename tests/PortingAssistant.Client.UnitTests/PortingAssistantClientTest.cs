@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging.Abstractions;
+using Moq;
+using NUnit.Framework;
 using PortingAssistant.Client.Analysis;
 using PortingAssistant.Client.Client;
 using PortingAssistant.Client.Utils;
@@ -10,9 +13,7 @@ using PortingAssistant.Client.NuGet;
 using PortingAssistant.Client.Model;
 using PortingAssistant.Client.Porting;
 using PortingAssistant.Client.Analysis.Utils;
-using Microsoft.Extensions.Logging.Abstractions;
-using Moq;
-using NUnit.Framework;
+using Microsoft.Build.Construction;
 
 namespace PortingAssistant.Client.Tests
 {
@@ -92,8 +93,8 @@ namespace PortingAssistant.Client.Tests
         {
 
             _apiAnalysisHandlerMock.Reset();
-            _apiAnalysisHandlerMock.Setup(analyzer => analyzer.AnalyzeSolution(It.IsAny<string>(), It.IsAny<List<ProjectDetails>>()))
-                .Returns((string solutionFilePath, List<ProjectDetails> projects) =>
+            _apiAnalysisHandlerMock.Setup(analyzer => analyzer.AnalyzeSolution(It.IsAny<string>(), It.IsAny<List<string>>()))
+                .Returns((string solutionFilePath, List<string> projects) =>
                 {
                     return projects.Select(project =>
                     {
@@ -132,8 +133,8 @@ namespace PortingAssistant.Client.Tests
 
                         taskCompletionSource.SetResult(new ProjectAnalysisResult
                         {
-                            ProjectName = project.ProjectName,
-                            ProjectFile = project.ProjectFilePath,
+                            ProjectName = Path.GetFileNameWithoutExtension(project),
+                            ProjectFilePath = project,
                             PackageAnalysisResults = new Dictionary<PackageVersionPair, Task<PackageAnalysisResult>>
                             {
                                 {package, taskPackageCompletionSource.Task }
@@ -141,43 +142,21 @@ namespace PortingAssistant.Client.Tests
                             SourceFileAnalysisResults = new List<SourceFileAnalysisResult>
                             {
                                 _sourceFileAnalysisResult
-                            }
+                            },
+                            ProjectGuid = "xxx",
+                            ProjectType = SolutionProjectType.KnownToBeMSBuildFormat.ToString()
                         });
 
-                        return new Tuple<string, Task<ProjectAnalysisResult>>(project.ProjectFilePath, taskCompletionSource.Task);
+                        return new Tuple<string, Task<ProjectAnalysisResult>>(project, taskCompletionSource.Task);
                     }).ToDictionary(t => t.Item1, t => t.Item2);
                 });
-        }
-
-        [Test]
-        public void TestGetSolutionDetails()
-        {
-            var solutionDetail = _portingAssistantClient.GetSolutionDetails(
-                Path.Combine(_solutionFolder, "SolutionWithProjects.sln")
-            );
-            Assert.AreEqual("SolutionWithProjects", solutionDetail.SolutionName);
-
-            Assert.AreEqual(5, solutionDetail.Projects.Count);
-            Assert.Contains("PortingAssistantApi", solutionDetail.Projects.Select(result => result.ProjectName).ToList());
-
-            var project = solutionDetail.Projects.First(project => project.ProjectName.Equals("PortingAssistantApi"));
-        }
-
-
-        [Test]
-        public void GetSolutionDetailsForNonexistentSolutionThrowsException()
-        {
-            Assert.Throws<PortingAssistantException>(() =>
-            {
-                _portingAssistantClient.GetSolutionDetails(Path.Combine(_solutionFolder, "NonexistentSolution.sln"));
-            });
         }
 
         [Test]
         public void AnalyzeSolutionWithProjectsSucceeds()
         {
             var results = _portingAssistantClient.AnalyzeSolutionAsync(Path.Combine(_solutionFolder, "SolutionWithProjects.sln"), new PortingAssistantSettings());
-            Task.WaitAll(results);
+            results.Wait();
             var projectAnalysisResult = results.Result.ProjectAnalysisResults.Find(p => p.ProjectName == "Nop.Core");
             var sourceFileAnalysisResults = projectAnalysisResult.SourceFileAnalysisResults;
             var packageAnalysisResult = projectAnalysisResult.PackageAnalysisResults;
@@ -190,6 +169,16 @@ namespace PortingAssistant.Client.Tests
             var compatibilityResult = packageResult.Value.Result.CompatibilityResults.GetValueOrDefault(PackageCompatibility.DEFAULT_TARGET);
             Assert.AreEqual(Compatibility.COMPATIBLE, compatibilityResult.Compatibility);
             Assert.AreEqual("12.0.3", compatibilityResult.CompatibleVersions.First());
+
+            var solutionDetail = results.Result.SolutionDetails;
+            Assert.AreEqual("SolutionWithProjects", solutionDetail.SolutionName);
+
+            Assert.AreEqual(5, solutionDetail.Projects.Count);
+            Assert.Contains("PortingAssistantApi", solutionDetail.Projects.Select(result => result.ProjectName).ToList());
+
+            var project = solutionDetail.Projects.First(project => project.ProjectName.Equals("PortingAssistantApi"));
+            Assert.AreEqual("xxx", project.ProjectGuid);
+            Assert.AreEqual(SolutionProjectType.KnownToBeMSBuildFormat.ToString(), project.ProjectType);
         }
 
         [Test]
@@ -198,9 +187,10 @@ namespace PortingAssistant.Client.Tests
             var testSolutionPath = Path.Combine(TestContext.CurrentContext.TestDirectory,
                 "TestXml", "SolutionWithFailedContent", "NopCommerce.sln");
 
-            Assert.Throws<PortingAssistantException>(() =>
+            Assert.Throws<AggregateException>(() =>
             {
-                _portingAssistantClient.GetSolutionDetails(Path.Combine(_solutionFolder, testSolutionPath));
+                var result = _portingAssistantClient.AnalyzeSolutionAsync(testSolutionPath, new PortingAssistantSettings());
+                result.Wait();
             });
         }
     }

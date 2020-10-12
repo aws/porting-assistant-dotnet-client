@@ -6,7 +6,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PortingAssistant.Client.CLI
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PortingAssistant.Client.Common", "src\PortingAssistant.Client.Common\PortingAssistant.Client.Common.csproj", "{73463208-681B-47A9-A73F-65DD37CACBCC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PortingAssistant.Client.Client", "src\PortingAssistant.Client.Handler\PortingAssistant.Client.Client.csproj", "{DEC7CBB8-ADE8-47E6-96FF-79F39B26E402}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PortingAssistant.Client.Client", "src\PortingAssistant.Client.Client\PortingAssistant.Client.Client.csproj", "{DEC7CBB8-ADE8-47E6-96FF-79F39B26E402}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PortingAssistant.Client.NuGet", "src\PortingAssistant.Client.NuGet\PortingAssistant.Client.NuGet.csproj", "{492A6A84-872D-4963-9EF2-A6F75B2C8DA7}"
 EndProject

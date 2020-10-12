@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Build.Construction;
-using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using PortingAssistant.Client.Analysis;
@@ -23,6 +23,7 @@ namespace PortingAssistant.Client.Tests
         private PortingAssistantAnalysisHandler _analysisHandler;
         private string _solutionFile;
         private List<ProjectDetails> _projects;
+        private List<string> _projectPaths;
 
         private readonly PackageDetails _packageDetails = new PackageDetails
         {
@@ -63,7 +64,7 @@ namespace PortingAssistant.Client.Tests
         {
             _nuGetHandlerMock = new Mock<IPortingAssistantNuGetHandler>();
             _recommendationHandlerMock = new Mock<IPortingAssistantRecommendationHandler>();
-            _analysisHandler = new PortingAssistantAnalysisHandler(NullLogger<PortingAssistantAnalysisHandler>.Instance, _nuGetHandlerMock.Object, _recommendationHandlerMock.Object);
+            _analysisHandler = new PortingAssistantAnalysisHandler(TestLogger.Create<PortingAssistantAnalysisHandler>(), _nuGetHandlerMock.Object, _recommendationHandlerMock.Object);
         }
 
         [SetUp]
@@ -72,6 +73,7 @@ namespace PortingAssistant.Client.Tests
             _solutionFile = Path.Combine(TestContext.CurrentContext.TestDirectory,
                 "TestXml", "SolutionWithApi", "SolutionWithApi.sln");
             _projects = GetProjects(_solutionFile);
+            _projectPaths = _projects.Select(p => p.ProjectFilePath).ToList();
 
             _nuGetHandlerMock.Reset();
 
@@ -130,7 +132,7 @@ namespace PortingAssistant.Client.Tests
                 PackageId = "Newtonsoft.Json",
                 Version = "11.0.1"
             };
-            var result = _analysisHandler.AnalyzeSolution(_solutionFile, _projects);
+            var result = _analysisHandler.AnalyzeSolution(_solutionFile, _projectPaths);
             Task.WaitAll(result.Values.ToArray());
 
             var projectAnalysisResult = result.Values.First().Result;
@@ -143,8 +145,13 @@ namespace PortingAssistant.Client.Tests
             Assert.AreEqual("12.0.3", packageAnalysisResult.Recommendations.RecommendedActions.First().Description);
             Assert.AreEqual(RecommendedActionType.UpgradePackage, packageAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
 
-            var apiAnalysisResult = projectAnalysisResult.SourceFileAnalysisResults.Find(s => s.SourceFileName == "Program.cs")
-                .ApiAnalysisResults.Find(r => r.CodeEntityDetails.OriginalDefinition == "Newtonsoft.Json.JsonConvert.SerializeObject(object)");
+            var sourceFile = projectAnalysisResult.SourceFileAnalysisResults.Find(s => s.SourceFileName == "Program.cs");
+            Assert.NotNull(sourceFile);
+            Assert.NotNull(sourceFile.ApiAnalysisResults);
+
+            var apiAnalysisResult = sourceFile.ApiAnalysisResults.Find(r => r.CodeEntityDetails.OriginalDefinition == "Newtonsoft.Json.JsonConvert.SerializeObject(object)");
+            Assert.NotNull(apiAnalysisResult);
+
             Assert.AreEqual("Newtonsoft.Json", apiAnalysisResult.CodeEntityDetails.Package.PackageId);
             Assert.AreEqual("11.0.1", apiAnalysisResult.CodeEntityDetails.Package.Version);
             Assert.AreEqual("Newtonsoft.Json.JsonConvert.SerializeObject(object)",
@@ -158,7 +165,7 @@ namespace PortingAssistant.Client.Tests
         {
             Assert.Throws<AggregateException>(() =>
             {
-                var result = _analysisHandler.AnalyzeSolution(Path.Combine(_solutionFile, "Rand.sln"), _projects);
+                var result = _analysisHandler.AnalyzeSolution(Path.Combine(_solutionFile, "Rand.sln"), _projectPaths);
                 Task.WaitAll(result.Values.ToArray());
             });
         }
@@ -168,7 +175,7 @@ namespace PortingAssistant.Client.Tests
         {
             Assert.Throws<AggregateException>(() =>
             {
-                var result = _analysisHandler.AnalyzeSolution(Path.Combine(_solutionFile, "Rand.sln"), _projects);
+                var result = _analysisHandler.AnalyzeSolution(Path.Combine(_solutionFile, "Rand.sln"), _projectPaths);
                 Task.WaitAll(result.Values.ToArray());
             });
         }

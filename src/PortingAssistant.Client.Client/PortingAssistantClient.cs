@@ -27,87 +27,69 @@ namespace PortingAssistant.Client.Client
             _portingHandler = portingHandler;
         }
 
-        public SolutionDetails GetSolutionDetails(string solutionFilePath)
-        {
-            try
-            {
-                var solution = SolutionFile.Parse(solutionFilePath);
-
-                var projects = solution.ProjectsInOrder
-                    .Where(p => p.ProjectType == SolutionProjectType.KnownToBeMSBuildFormat || p.ProjectType == SolutionProjectType.WebProject)
-                    .Select(p =>
-                        new ProjectDetails
-                        {
-                            ProjectName = p.ProjectName,
-                            ProjectFilePath = p.AbsolutePath,
-                            ProjectGuid = p.ProjectGuid,
-                            ProjectType = p.ProjectType.ToString(),
-                            TargetFrameworks = new List<string>(),
-                            ProjectReferences = new List<ProjectReference>(),
-                            PackageReferences = new List<PackageVersionPair>(),
-                        }
-                    ).Where(p => p != null).ToList();
-
-                return new SolutionDetails
-                {
-                    SolutionName = Path.GetFileNameWithoutExtension(solutionFilePath),
-                    SolutionFilePath = solutionFilePath,
-                    Projects = projects,
-                    FailedProjects = new List<string>(),
-                };
-            }
-            catch (Exception ex)
-            {
-                throw new PortingAssistantException($"Cannot Analyze solution {solutionFilePath}", ex);
-            }
-
-        }
-
         public async Task<SolutionAnalysisResult> AnalyzeSolutionAsync(string solutionFilePath, PortingAssistantSettings settings)
         {
             try
             {
-                var solutionDetails = GetSolutionDetails(solutionFilePath);
-                var projects = solutionDetails.Projects
-                    .Where(p => settings.IgnoreProjects == null || !settings.IgnoreProjects.Contains(p.ProjectFilePath))
+                var solution = SolutionFile.Parse(solutionFilePath);
+                var failedProjects = new List<string>();
+
+                var projects = solution.ProjectsInOrder.Where(p => 
+                    (p.ProjectType == SolutionProjectType.KnownToBeMSBuildFormat || 
+                    p.ProjectType == SolutionProjectType.WebProject) && 
+                    (settings.IgnoreProjects == null ||
+                    !settings.IgnoreProjects.Contains(p.AbsolutePath)))
+                    .Select(p => p.AbsolutePath)
                     .ToList();
+
                 var projectAnalysisResultTasks = _AnalysisHandler.AnalyzeSolution(solutionFilePath, projects);
 
                 var projectAnalysisResults = await Task.WhenAll(projects.Select(async p =>
                 {
                     try
                     {
-                        var projectAnalysisResult = projectAnalysisResultTasks.GetValueOrDefault(p.ProjectFilePath, null);
+                        var projectAnalysisResult = projectAnalysisResultTasks.GetValueOrDefault(p, null);
                         if (projectAnalysisResult != null)
                         {
                             await projectAnalysisResult;
                             if (projectAnalysisResult.IsCompletedSuccessfully)
                             {
-                                var projectReferences = projectAnalysisResult.Result.ProjectReferences != null ?
-                                    projectAnalysisResult.Result.ProjectReferences
-                                    .Select(p => new ProjectReference { ReferencePath = p }).ToList()
-                                    : new List<ProjectReference>();
-                                p.PackageReferences = projectAnalysisResult.Result.PackageReferences;
-                                p.ProjectReferences = projectReferences;
-                                p.TargetFrameworks = projectAnalysisResult.Result.TargetFrameworks;
                                 return projectAnalysisResult.Result;
                             }
-                            solutionDetails.FailedProjects.Add(p.ProjectFilePath);
+                            failedProjects.Add(p);
                         }
                         return null;
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogWarning("Failed to assess {0}, exception: {1}", p.ProjectName, ex);
-                        solutionDetails.FailedProjects.Add(p.ProjectFilePath);
+                        _logger.LogWarning("Failed to assess {0}, exception: {1}", p, ex);
+                        failedProjects.Add(p);
                         return null;
                     }
 
                 }).Where(p => p != null).ToList());
 
+                var solutionDetails = new SolutionDetails
+                {
+                    SolutionName = Path.GetFileNameWithoutExtension(solutionFilePath),
+                    SolutionFilePath = solutionFilePath,
+                    Projects = projectAnalysisResults.Select(p => new ProjectDetails { 
+                        PackageReferences = p.PackageReferences,
+                        ProjectFilePath = p.ProjectFilePath,
+                        ProjectGuid = p.ProjectGuid,
+                        ProjectName = p.ProjectName,
+                        ProjectReferences = p.ProjectReferences,
+                        ProjectType = p.ProjectType,
+                        TargetFrameworks = p.TargetFrameworks
+                    }).ToList(),
+
+                    FailedProjects = failedProjects
+                };
+
+
                 return new SolutionAnalysisResult
                 {
-                    FailedProjects = solutionDetails.FailedProjects,
+                    FailedProjects = failedProjects,
                     SolutionDetails = solutionDetails,
                     ProjectAnalysisResults = projectAnalysisResults.ToList()
                 };

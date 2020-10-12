@@ -8,7 +8,6 @@ using AwsCodeAnalyzer.Model;
 using PortingAssistant.Client.Analysis.Utils;
 using PortingAssistant.Client.Model;
 using Microsoft.Extensions.Logging;
-using Serilog;
 using PortingAssistant.Client.NuGet;
 using AnalyzerConfiguration = AwsCodeAnalyzer.AnalyzerConfiguration;
 
@@ -31,7 +30,7 @@ namespace PortingAssistant.Client.Analysis
         }
 
         public Dictionary<string, Task<ProjectAnalysisResult>> AnalyzeSolution(
-            string solutionFilename, List<ProjectDetails> project)
+            string solutionFilename, List<string> projects)
         {
             var configuration = new AnalyzerConfiguration(LanguageOptions.CSharp)
             {
@@ -39,27 +38,28 @@ namespace PortingAssistant.Client.Analysis
                 {
                     LiteralExpressions = true,
                     MethodInvocations = true,
-                    ReferenceData = true
+                    ReferenceData = true,
+                    LoadBuildData = true
                 }
             };
-            var analyzer = CodeAnalyzerFactory.GetAnalyzer(configuration, Log.Logger);
+            var analyzer = CodeAnalyzerFactory.GetAnalyzer(configuration, _logger);
             var analyzersTask = analyzer.AnalyzeSolution(solutionFilename);
 
-            return project
+            return projects
                     .Select((project) => AnalyzeProject(solutionFilename, project, analyzersTask))
                     .Where(p => p.Value != null)
                     .ToDictionary(p => p.Key, p => p.Value);
         }
 
         private KeyValuePair<string, Task<ProjectAnalysisResult>> AnalyzeProject(
-            string solutionFilename, ProjectDetails project, Task<List<AnalyzerResult>> analyzersTask)
+            string solutionFilename, string project, Task<List<AnalyzerResult>> analyzersTask)
         {
             var task = AnalyzeProjectAsync(solutionFilename, project, analyzersTask);
-            return KeyValuePair.Create(project.ProjectFilePath, task);
+            return KeyValuePair.Create(project, task);
         }
 
         private async Task<ProjectAnalysisResult> AnalyzeProjectAsync(
-            string solutionFilename, ProjectDetails project, Task<List<AnalyzerResult>> analyzersTask)
+            string solutionFilename, string project, Task<List<AnalyzerResult>> analyzersTask)
         {
             try
             {
@@ -68,12 +68,12 @@ namespace PortingAssistant.Client.Analysis
                 var invocationsMethodSignatures = new HashSet<string>();
 
                 var analyzer = analyzers.Find((a) => a.ProjectResult?.ProjectFilePath != null &&
-                    a.ProjectResult.ProjectFilePath.Equals(project.ProjectFilePath));
+                    a.ProjectResult.ProjectFilePath.Equals(project));
 
                 if (analyzer == null || analyzer.ProjectResult == null)
                 {
-                    _logger.LogError("Unable to build {0}.", project.ProjectName);
-                    throw new PortingAssistantClientException($"Build {project.ProjectName} failed", null);
+                    _logger.LogError("Unable to build {0}.", project);
+                    throw new PortingAssistantClientException($"Build {project} failed", null);
                 }
 
                 var sourceFileToInvocations = analyzer.ProjectResult.SourceFileResults.Select((sourceFile) =>
@@ -99,12 +99,10 @@ namespace PortingAssistant.Client.Analysis
                     analyzer.ProjectResult.ExternalReferences.ProjectReferences.Select(p => p.AssemblyLocation).ToList();
 
                 var nugetPackages = analyzer.ProjectResult.ExternalReferences.NugetReferences
-                    .Where(r => r.Identity != "Microsoft.NETCore.App")
                     .Select(r => InvocationExpressionModelToInvocations.ReferenceToPackageVersionPair(r))
                     .ToHashSet();
 
                 var subDependencies = analyzer.ProjectResult.ExternalReferences.NugetDependencies
-                    .Where(r => r.Identity != "Microsoft.NETCore.App")
                     .Select(r => InvocationExpressionModelToInvocations.ReferenceToPackageVersionPair(r))
                     .ToHashSet();
 
@@ -130,21 +128,23 @@ namespace PortingAssistant.Client.Analysis
 
                 return new ProjectAnalysisResult
                 {
-                    ProjectName = project.ProjectName,
-                    ProjectFile = project.ProjectFilePath,
+                    ProjectName = analyzer.ProjectResult.ProjectName,
+                    ProjectFilePath = analyzer.ProjectResult.ProjectFilePath,
                     TargetFrameworks = targetframeworks,
                     PackageReferences = nugetPackages.ToList(),
-                    ProjectReferences = analyzer.ProjectResult.ExternalReferences.ProjectReferences.Select(p => p.AssemblyLocation).ToList(),
+                    ProjectReferences = analyzer.ProjectResult.ExternalReferences.ProjectReferences.Select(p => new ProjectReference { ReferencePath = p.AssemblyLocation }).ToList(),
                     PackageAnalysisResults = packageAnalysisResults,
                     IsBuildFailed = analyzer.ProjectResult.IsBuildFailed(),
                     Errors = analyzer.ProjectResult.BuildErrors,
+                    ProjectGuid = analyzer.ProjectBuildResult.ProjectGuid,
+                    ProjectType = analyzer.ProjectBuildResult.ProjectType,
                     SourceFileAnalysisResults = SourceFileAnalysisResults
                 };
             }
             catch (Exception ex)
             {
-                _logger.LogError("Error while analyzing {0}, {1}", project.ProjectName, ex);
-                throw new PortingAssistantException($"Error while analyzing {project.ProjectName}", ex);
+                _logger.LogError("Error while analyzing {0}, {1}", project, ex);
+                throw new PortingAssistantException($"Error while analyzing {project}", ex);
             }
             finally
             {

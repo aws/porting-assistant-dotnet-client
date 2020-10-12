@@ -23,7 +23,21 @@ namespace PortingAssistant.Client.CLI
                 .CreateLogger();
             try
             {
-                var portingAssistantBuilder = PortingAssistantBuilder.Build(logger);
+                var configuration = new AnalyzerConfiguration()
+                {
+                    UseDataStoreSettings = true,
+                    UseInternalNuGetServer = false,
+                    DataStoreSettings = new DataStoreSettings
+                    {
+                        HttpsEndpoint = "https://s3.us-west-2.amazonaws.com/aws.portingassistant.dotnet.datastore/",
+                        S3Endpoint = "aws.portingassistant.dotnet.datastore"
+                    },
+                    InternalNuGetServerSettings = new NuGetServerSettings
+                    {
+                        NugetServerEndpoint = "NugetServerEndpoint",
+                    }
+                };
+                var portingAssistantBuilder = PortingAssistantBuilder.Build(configuration, logger);
                 var portingAssistantClient = portingAssistantBuilder.GetPortingAssistant();
                 var reportExporter = portingAssistantBuilder.GetReportExporter();
                 var solutiongSettings = cli.IgnoreProjects != null && cli.IgnoreProjects.Count != 0 ?

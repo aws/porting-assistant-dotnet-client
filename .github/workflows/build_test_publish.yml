@@ -24,7 +24,7 @@ jobs:
     - name: Build
       run: dotnet build --configuration Release --no-restore
     - name: Test
-      run: dotnet test --no-restore --verbosity normal
+      run: dotnet test --configuration Release --no-restore --verbosity normal
     - name: Pack
       if: ${{ github.event_name == 'push' }}
       run: dotnet pack --configuration Release --no-restore -o dist

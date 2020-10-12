@@ -3,7 +3,6 @@ using PortingAssistant.Client.Analysis;
 using PortingAssistant.Client.NuGet;
 using PortingAssistant.Client.Model;
 using PortingAssistant.Client.NuGet.InternalNuGet;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PortingAssistant.Client.Porting;
 using PortingAssistant.Client.PortingProjectFile;

@@ -24,39 +24,26 @@ namespace PortingAssistant.Client.Client
             return ReportExporter;
         }
 
-        private PortingAssistantBuilder(ILogger logger)
+        private PortingAssistantBuilder(AnalyzerConfiguration configuration, ILogger logger)
         {
             this.Logger = logger;
-            this.Configuration = new AnalyzerConfiguration()
-            {
-                UseDataStoreSettings = true,
-                UseInternalNuGetServer = false,
-                DataStoreSettings = new DataStoreSettings
-                {
-                    HttpsEndpoint = "https://s3.us-west-2.amazonaws.com/aws.portingassistant.dotnet.datastore/",
-                    S3Endpoint = "aws.portingassistant.dotnet.datastore"
-                },
-                InternalNuGetServerSettings = new NuGetServerSettings
-                {
-                    NugetServerEndpoint = "NugetServerEndpoint",
-                }
-            };
-            ConfigureServices(Configuration);
+            this.Configuration = configuration;
+            ConfigureServices();
             var services = ServiceCollection.BuildServiceProvider();
             this.PortingAssistantClient = services.GetService<IPortingAssistantClient>();
             this.ReportExporter = services.GetService<IReportExporter>();
         }
 
-        public static PortingAssistantBuilder Build(ILogger logger = null)
+        public static PortingAssistantBuilder Build(AnalyzerConfiguration configuration, ILogger logger = null)
         {
-            return new PortingAssistantBuilder(logger);
+            return new PortingAssistantBuilder(configuration, logger);
         }
 
-        private void ConfigureServices(AnalyzerConfiguration configaration)
+        private void ConfigureServices()
         {
             ServiceCollection = new ServiceCollection();
             ServiceCollection.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(logger: Logger, dispose: false));
-            ServiceCollection.AddAssessment(configaration);
+            ServiceCollection.AddAssessment(Configuration);
             ServiceCollection.AddSingleton<IReportExporter, ReportExporter>();
             ServiceCollection.AddOptions();
         }
