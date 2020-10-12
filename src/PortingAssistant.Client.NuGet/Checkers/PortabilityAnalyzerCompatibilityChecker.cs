@@ -22,7 +22,7 @@ namespace PortingAssistant.Client.NuGet
         private const string NamespaceLookupFile = "microsoftlibs.namespace.lookup.json";
         private readonly ILogger _logger;
         private readonly IHttpService _httpService;
-        private Task<Dictionary<string, string>> _manifest;
+        private Dictionary<string, string> _manifest;
         private static readonly int _maxProcessConcurrency = 3;
         private static readonly SemaphoreSlim _semaphore = new SemaphoreSlim(_maxProcessConcurrency);
 
@@ -35,7 +35,7 @@ namespace PortingAssistant.Client.NuGet
         /// <param name="logger">Logger object</param>
         public PortabilityAnalyzerCompatibilityChecker(
             IHttpService httpService,
-            ILogger<ExternalPackagesCompatibilityChecker> logger
+            ILogger<PortabilityAnalyzerCompatibilityChecker> logger
             )
         {
             _logger = logger;
@@ -59,20 +59,19 @@ namespace PortingAssistant.Client.NuGet
             {
                 if (_manifest == null)
                 {
-                    _manifest = GetManifestAsync();
+                    var manifestTask = GetManifestAsync();
+                    manifestTask.Wait();
+                    _manifest = manifestTask.Result;
                 }
-                Task.WaitAll(_manifest);
-                var manifest = _manifest.Result;
-
                 var foundPackages = new Dictionary<string, List<PackageVersionPair>>();
                 packageVersions.ToList().ForEach(p =>
-                {                    
+                {
                     if (p.PackageSourceType != PackageSourceType.SDK)
                     {
                         return;
                     }
 
-                    var value = manifest.GetValueOrDefault(p.PackageId, null);
+                    var value = _manifest.GetValueOrDefault(p.PackageId, null);
                     if (value != null)
                     {
                         compatibilityTaskCompletionSources.Add(p, new TaskCompletionSource<PackageDetails>());
@@ -135,7 +134,7 @@ namespace PortingAssistant.Client.NuGet
                 try
                 {
                     _logger.LogInformation("Downloading {0} from {1}", url.Key, CompatibilityCheckerType);
-                    using var stream = await _httpService.DownloadS3FileAsync(url.Key.Substring(43));
+                    using var stream = await _httpService.DownloadS3FileAsync(url.Key);
                     using var gzipStream = new GZipStream(stream, CompressionMode.Decompress);
                     using var streamReader = new StreamReader(gzipStream);
                     var packageFromS3 = JsonConvert.DeserializeObject<PackageFromS3>(streamReader.ReadToEnd());
@@ -194,7 +193,7 @@ namespace PortingAssistant.Client.NuGet
 
         private async Task<Dictionary<string, string>> GetManifestAsync()
         {
-            using var stream = await _httpService.DownloadS3FileAsync("microsoftlibs.namespace.lookup.json");
+            using var stream = await _httpService.DownloadS3FileAsync(NamespaceLookupFile);
             using var streamReader = new StreamReader(stream);
             return JsonConvert.DeserializeObject<JObject>(streamReader.ReadToEnd()).ToObject<Dictionary<string, string>>();
         }

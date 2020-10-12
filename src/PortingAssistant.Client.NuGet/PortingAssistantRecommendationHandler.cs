@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using PortingAssistant.Client.Model;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Amazon.S3.Transfer;
 using System.IO;
 using PortingAssistant.Client.NuGet.Interfaces;
 using Newtonsoft.Json.Linq;
@@ -20,14 +19,15 @@ namespace PortingAssistant.Client.NuGet
         private static readonly int _maxProcessConcurrency = 3;
         private static readonly SemaphoreSlim _semaphore = new SemaphoreSlim(_maxProcessConcurrency);
         private const string RecommendationLookupFile = "namespaces.recommendation.lookup.json";
-        private Task<Dictionary<string, string>> _manifest;
+        private Dictionary<string, string> _manifest;
 
         public PackageSourceType CompatibilityCheckerType => PackageSourceType.RECOMMENDATION;
 
 
         public PortingAssistantRecommendationHandler(
             IHttpService httpService,
-            ILogger<ExternalPackagesCompatibilityChecker> logger)
+            ILogger<PortingAssistantRecommendationHandler> logger
+            )
         {
             _logger = logger;
             _httpService = httpService;
@@ -41,15 +41,14 @@ namespace PortingAssistant.Client.NuGet
             {
                 if (_manifest == null)
                 {
-                    _manifest = GetManifestAsync();
+                    var manifestTask = GetManifestAsync();
+                    manifestTask.Wait();
+                    _manifest = manifestTask.Result;
                 }
-                Task.WaitAll(_manifest);
-                var manifest = _manifest.Result;
-
                 var foundPackages = new Dictionary<string, List<string>>();
                 namespaces.ToList().ForEach(p =>
                 {
-                    var value = manifest.GetValueOrDefault(p.ToLower(), null);
+                    var value = _manifest.GetValueOrDefault(p, null);
                     if (value != null)
                     {
                         recommendationTaskCompletionSources.Add(p, new TaskCompletionSource<RecommendationDetails>());

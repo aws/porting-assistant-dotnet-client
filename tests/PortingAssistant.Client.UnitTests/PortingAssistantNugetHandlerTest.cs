@@ -27,6 +27,7 @@ namespace PortingAssistant.Client.Tests
         private Mock<InternalPackagesCompatibilityChecker> _internalPackagesCompatibilityChecker;
         private ExternalPackagesCompatibilityChecker _externalPackagesCompatibilityChecker;
         private SdkCompatibilityChecker _sdkCompatibilityChecker;
+        private PortabilityAnalyzerCompatibilityChecker _portabilityAnalyzerCompatibilityChecker;
         private Mock<ILogger<PortingAssistantNuGetHandler>> _loggerMock;
         private readonly string _testSolutionDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory,
                 "TestXml", "SolutionWithNugetConfigFile");
@@ -64,6 +65,7 @@ namespace PortingAssistant.Client.Tests
             }
         };
 
+        private readonly Dictionary<string, string> _manifest = new Dictionary<string, string> { { "Newtonsoft.Json", "microsoftlibs.newtonsoft.json.json" } };
         private async Task<InternalNuGetCompatibilityResult> GetCompatibilityResult(
             int timeout, bool compatibility)
         {
@@ -102,10 +104,10 @@ namespace PortingAssistant.Client.Tests
             mockResourceRepository.Setup(source => source.GetResourceAsync<
                 FindPackageByIdResource>())
                 .Returns(async () =>
-               {
-                   await Task.Delay(5);
-                   return mockResource.Object;
-               });
+                {
+                    await Task.Delay(5);
+                    return mockResource.Object;
+                });
 
             mockResourceRepositories.Add(mockResourceRepository.Object);
             return mockResourceRepositories.AsEnumerable();
@@ -191,18 +193,30 @@ namespace PortingAssistant.Client.Tests
                     await Task.Delay(1);
                     var stream = new MemoryStream();
                     var writer = new StreamWriter(stream);
-                    var test = JsonConvert.SerializeObject(new Dictionary<string, PackageDetails> { { "Package", _packageDetails } });
-                    writer.Write(test);
-                    writer.Flush();
-                    stream.Position = 0;
-
-                    var outputStream = new MemoryStream();
-                    var gzipStream = new GZipStream(outputStream, CompressionLevel.Fastest);
-                    stream.CopyTo(gzipStream);
-                    gzipStream.Flush();
-                    outputStream.Position = 0;
-
-                    return outputStream;
+                    if (key.Equals("microsoftlibs.namespace.lookup.json"))
+                    {
+                        var test = JsonConvert.SerializeObject(_manifest);
+                        writer.Write(test);
+                        writer.Flush();
+                        stream.Position = 0;
+                        var outputStream = new MemoryStream();
+                        stream.CopyTo(outputStream);
+                        outputStream.Position = 0;
+                        return outputStream;
+                    }
+                    else
+                    {
+                        var test = JsonConvert.SerializeObject(new Dictionary<string, PackageDetails> { { "Package", _packageDetails } });
+                        writer.Write(test);
+                        writer.Flush();
+                        stream.Position = 0;
+                        var outputStream = new MemoryStream();
+                        var gzipStream = new GZipStream(outputStream, CompressionLevel.Fastest);
+                        stream.CopyTo(gzipStream);
+                        gzipStream.Flush();
+                        outputStream.Position = 0;
+                        return outputStream;
+                    }
                 });
 
             _internalNuGetCompatibilityHandlerMock.Reset();
@@ -227,6 +241,13 @@ namespace PortingAssistant.Client.Tests
             _sdkCompatibilityChecker = new SdkCompatibilityChecker(
                 _httpService.Object,
                 NullLogger<SdkCompatibilityChecker>.Instance
+                );
+
+            
+
+            _portabilityAnalyzerCompatibilityChecker = new PortabilityAnalyzerCompatibilityChecker(
+                _httpService.Object,
+                NullLogger<PortabilityAnalyzerCompatibilityChecker>.Instance
                 );
 
             _internalPackagesCompatibilityChecker = new Mock<InternalPackagesCompatibilityChecker>(
@@ -263,6 +284,15 @@ namespace PortingAssistant.Client.Tests
         private IPortingAssistantNuGetHandler GetNamespaceNugetHandler()
         {
             var checkers = new List<ICompatibilityChecker>() { _sdkCompatibilityChecker };
+            return new PortingAssistantNuGetHandler(
+                    NullLogger<PortingAssistantNuGetHandler>.Instance,
+                    checkers.AsEnumerable()
+                    );
+        }
+
+        private IPortingAssistantNuGetHandler GetPortabilityAnalzyerHandler()
+        {
+            var checkers = new List<ICompatibilityChecker>() { _portabilityAnalyzerCompatibilityChecker };
             return new PortingAssistantNuGetHandler(
                     NullLogger<PortingAssistantNuGetHandler>.Instance,
                     checkers.AsEnumerable()
@@ -324,18 +354,30 @@ namespace PortingAssistant.Client.Tests
                     await Task.Delay(1);
                     var stream = new MemoryStream();
                     var writer = new StreamWriter(stream);
-                    var test = JsonConvert.SerializeObject(new Dictionary<string, PackageDetails> { { "Package", packageDetails } });
-                    writer.Write(test);
-                    writer.Flush();
-                    stream.Position = 0;
-
-                    var outputStream = new MemoryStream();
-                    var gzipStream = new GZipStream(outputStream, CompressionLevel.Fastest);
-                    stream.CopyTo(gzipStream);
-                    gzipStream.Flush();
-                    outputStream.Position = 0;
-
-                    return outputStream;
+                    if (key.Equals("microsoftlibs.namespace.lookup.json"))
+                    {
+                        var test = JsonConvert.SerializeObject(_manifest);
+                        writer.Write(test);
+                        writer.Flush();
+                        stream.Position = 0;
+                        var outputStream = new MemoryStream();
+                        stream.CopyTo(outputStream);
+                        outputStream.Position = 0;
+                        return outputStream;
+                    }
+                    else
+                    {
+                        var test = JsonConvert.SerializeObject(new Dictionary<string, PackageDetails> { { "Package", packageDetails } });
+                        writer.Write(test);
+                        writer.Flush();
+                        stream.Position = 0;
+                        var outputStream = new MemoryStream();
+                        var gzipStream = new GZipStream(outputStream, CompressionLevel.Fastest);
+                        stream.CopyTo(gzipStream);
+                        gzipStream.Flush();
+                        outputStream.Position = 0;
+                        return outputStream;
+                    }
                 });
         }
 
@@ -360,6 +402,23 @@ namespace PortingAssistant.Client.Tests
         public void GetPackageWithSdkRepositorySucceeds()
         {
             var handler = GetNamespaceNugetHandler();
+            var packages = new List<PackageVersionPair>()
+            {
+              new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.3", PackageSourceType = PackageSourceType.SDK }
+            };
+            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
+            Task.WaitAll(resultTasks.Values.ToArray());
+
+            Assert.AreEqual(_packageDetails.Name, resultTasks.Values.First().Result.Name);
+            Assert.AreEqual(_packageDetails.Api.Count(), resultTasks.Values.First().Result.Api.Count());
+            Assert.AreEqual(_packageDetails.Targets.Count(), resultTasks.Values.First().Result.Targets.Count());
+            Assert.AreEqual(_packageDetails.Versions.Count(), resultTasks.Values.First().Result.Versions.Count());
+        }
+
+        [Test]
+        public void GetPackageWithPortabilityAnalyzerCatalogSucceeds()
+        {
+            var handler = GetPortabilityAnalzyerHandler();
             var packages = new List<PackageVersionPair>()
             {
               new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.3", PackageSourceType = PackageSourceType.SDK }
