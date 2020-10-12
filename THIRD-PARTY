@@ -1,5 +1,17 @@
-** github.com/aws/porting-assistant-dotnet-client; version V1.0.0 --
-https://docs.aws.amazon.com/portingassistant/index.html
+** AWSSDK.S3; version 3.3.111.7 -- https://github.com/aws/aws-sdk-net
+** Microsoft.Extensions.Http; version 3.1.7 --
+https://dotnet.microsoft.com/apps/aspnet
+** Microsoft.Extensions.Logging; version 3.1.7 --
+https://dotnet.microsoft.com/apps/aspnet
+** Microsoft.Extensions.Logging.Abstractions; version 3.1.7 --
+https://dotnet.microsoft.com/apps/aspnet
+** Microsoft.Extensions.Options.ConfigurationExtensions; version 3.1.7 --
+https://dotnet.microsoft.com/apps/aspnet
+** Microsoft.NET.Test.Sdk; version 16.6.1 --
+https://dotnet.microsoft.com/apps/aspnet
+** Nuget Frameworks; version 5.7.0 -- https://github.com/NuGet/NuGet.Client
+** Nuget.Protocol; version 5.7.0 -- https://github.com/NuGet/Home
+** Serilog; version 2.9.0 -- https://github.com/serilog/serilog
 
 Apache License
 
@@ -199,54 +211,76 @@ See the License for the specific language governing permissions and
 
 limitations under the License.
 
-* For github.com/aws/aws-xray-sdk-dotnet see also this required NOTICE:
-    Copyright 2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+* For AWSSDK.S3 see also this required NOTICE:
+    © 2020, Amazon Web Services, Inc. or its affiliates. All rights reserved.
+* For Microsoft.Extensions.Http see also this required NOTICE:
+    © Microsoft Corporation. All rights reserved.
+* For Microsoft.Extensions.Logging see also this required NOTICE:
+    © Microsoft Corporation. All rights reserved.
+* For Microsoft.Extensions.Logging.Abstractions see also this required NOTICE:
+    © Microsoft Corporation. All rights reserved.
+* For Microsoft.Extensions.Options.ConfigurationExtensions see also this
+required NOTICE:
+    © Microsoft Corporation. All rights reserved.
+* For Microsoft.NET.Test.Sdk see also this required NOTICE:
+    © Microsoft Corporation. All rights reserved.
+* For Nuget Frameworks see also this required NOTICE:
+    Copyright (c) .NET Foundation and Contributors.
+* For Nuget.Protocol see also this required NOTICE:
+    Copyright (c) .NET Foundation. All rights reserved.
+* For Serilog see also this required NOTICE:
+    Copyright 2013-2018 Serilog Contributors
 
 ------
 
-** github.com/Microsoft/clr-samples; version N/A --
-https://github.com/Microsoft/clr-samples
-Copyright (c) 2016 Microsoft
-
-The MIT License (MIT)
-
-Copyright (c) 2016 Microsoft
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-------
-
-** github.com/dotnet/runtime; version 3.1 -- https://github.com/dotnet/runtime
-Copyright (c) .NET Foundation and contributors. All rights reserved.
-
-The MIT License (MIT)
-
-Copyright (c) .NET Foundation and Contributors
-
+** Moq; version 4.14.4 -- https://www.nuget.org/packages/Moq/4.14.4
+Copyright (c) 2007, Clarius Consulting, Manas Technology Solutions, InSTEDD
 All rights reserved.
 
+BSD 3-Clause License
+
+Copyright (c) 2007, Clarius Consulting, Manas Technology Solutions, InSTEDD
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+    * Redistributions of source code must retain the above copyright notice,
+    this list of conditions and the following disclaimer.
+
+    * Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimer in the
+    documentation and/or other materials provided with the distribution.
+
+    * Neither the names of the copyright holders nor the names of its
+    contributors may be used to endorse or promote products derived from this
+    software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+------
+
+** NUnit3TestAdapter; version 3.16.1 --
+https://github.com/nunit/docs/wiki/Visual-Studio-Test-Adapter
+Copyright © 2015-2016 Charlie Poole
+
+License - NUnit and NUnit3 Test Adapters for Visual Studio
+Copyright © 2015-2016 Charlie Poole
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
-the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is furnished
-to do so, subject to the following conditions:
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
 
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
@@ -261,13 +295,13 @@ SOFTWARE.
 
 ------
 
-** github.com/MicrosoftArchive/clrprofiler; version N/A --
-https://github.com/MicrosoftArchive/clrprofiler
-Copyright (c) 2017 Microsoft
+** Project2015To2017; version 4.1.3 --
+https://github.com/hvanbakel/CsprojToVs2017
+Copyright (c) 2018 Hans van Bakel
 
 MIT License
 
-Copyright (c) 2017 Microsoft
+Copyright (c) 2018 Hans van Bakel
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -289,29 +323,190 @@ SOFTWARE.
 
 ------
 
-** github.com/LitJSON/litjson; version v0.12.0 -- https://litjson.net
-All the source code and related files distributed with this software have been
-dedicated to the public domain by the authors.
+** Microsoft.Build; version 16.6.0 -- https://github.com/dotnet/msbuild
+© Microsoft Corporation. All rights reserved.
 
-This is free and unencumbered software released into the public domain.
+The MIT License (MIT)
 
-Anyone is free to copy, modify, publish, use, compile, sell, or
-distribute this software, either in source code form or as a compiled binary,
-for any purpose, commercial or non-commercial, and by any means.
+Copyright (c) .NET Foundation and contributors
 
-In jurisdictions that recognize copyright laws, the author or authors of this
-software dedicate any and all copyright interest in the software to the public
-domain. We make this dedication for the benefit of the public at large and to
-the detriment of our heirs and successors. We intend this dedication to be an
-overt act of relinquishment in perpetuity of all present and future rights to
-this software under copyright law.
+All rights reserved.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-For more information, please refer to <http://unlicense.org/>
+------
+
+** Newtonsoft.Json; version 12.0.3 -- http://www.newtonsoft.com/json
+© 2017 Newtonsoft
+
+The MIT License (MIT)
+
+Copyright (c) 2007 James Newton-King
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+------
+
+** coverlet.collector; version 1.3.0 -- https://github.com/tonerdo/coverlet
+Copyright (c) 2018 Toni Solarin-Sodara
+
+The MIT License (MIT)
+
+Copyright (c) 2018 Toni Solarin-Sodara
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+------
+
+** semver; version 2.0.6 -- https://github.com/maxhauser/semver
+Copyright (c) 2013 Max Hauser
+
+Copyright (c) 2013 Max Hauser
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+------
+
+** Buildalyzer; version 3.0.1 -- https://github.com/daveaglick/Buildalyzer
+Copyright (c) 2018 Dave Glick
+** Buildalyzer.Workspaces; version 3.0.1 --
+https://github.com/daveaglick/Buildalyzer
+Copyright (c) 2018 Dave Glick
+
+MIT License
+
+Copyright (c) 2018 Dave Glick
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+------
+
+** NUnit; version 3.12.0 -- https://nunit.org/
+Copyright (c) 2019 Charlie Poole, Rob Prouse
+
+Copyright (c) 2019 Charlie Poole, Rob Prouse
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+------
+
+** DotnetHooks; version 1.0.0 -- https://github.com/Nagarian/dotnethooks/
+No copyright was found for this project.
+
+MIT License
+
+Copyright (c) [year] [fullname]
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
