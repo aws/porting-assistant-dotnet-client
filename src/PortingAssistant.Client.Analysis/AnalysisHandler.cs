@@ -99,12 +99,10 @@ namespace PortingAssistant.Client.Analysis
                     analyzer.ProjectResult.ExternalReferences.ProjectReferences.Select(p => p.AssemblyLocation).ToList();
 
                 var nugetPackages = analyzer.ProjectResult.ExternalReferences.NugetReferences
-                    .Where(r => r.Identity != "Microsoft.NETCore.App")
                     .Select(r => InvocationExpressionModelToInvocations.ReferenceToPackageVersionPair(r))
                     .ToHashSet();
 
                 var subDependencies = analyzer.ProjectResult.ExternalReferences.NugetDependencies
-                    .Where(r => r.Identity != "Microsoft.NETCore.App")
                     .Select(r => InvocationExpressionModelToInvocations.ReferenceToPackageVersionPair(r))
                     .ToHashSet();
 
