@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using Serilog;
-using Serilog.Sinks.SystemConsole.Themes;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 using System.Linq;
 using PortingAssistant.Client.Model;
 using PortingAssistant.Client.Client;
@@ -16,11 +18,7 @@ namespace PortingAssistant.Client.CLI
 
             PortingAssistantCLI cli = new PortingAssistantCLI();
             cli.HandleCommand(args);
-            var logger = Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Debug()
-                .WriteTo.Console(theme: AnsiConsoleTheme.Code)
-                .WriteTo.File("log-.txt", rollingInterval: RollingInterval.Day)
-                .CreateLogger();
+            var logger = LoggerFactory.Create(builder => builder.SetMinimumLevel(LogLevel.Debug).AddConsole());
             try
             {
                 var configuration = new AnalyzerConfiguration()

@@ -26,6 +26,7 @@ namespace PortingAssistant.Client.Tests
         private Mock<IPortingAssistantInternalNuGetCompatibilityHandler> _internalNuGetCompatibilityHandlerMock;
         private Mock<InternalPackagesCompatibilityChecker> _internalPackagesCompatibilityChecker;
         private ExternalPackagesCompatibilityChecker _externalPackagesCompatibilityChecker;
+        private PortabilityAnalyzerCompatibilityChecker _portabilityAnalyzerCompatibilityChecker;
         private SdkCompatibilityChecker _sdkCompatibilityChecker;
         private PortabilityAnalyzerCompatibilityChecker _portabilityAnalyzerCompatibilityChecker;
         private Mock<ILogger<PortingAssistantNuGetHandler>> _loggerMock;
@@ -238,12 +239,15 @@ namespace PortingAssistant.Client.Tests
                 NullLogger<ExternalPackagesCompatibilityChecker>.Instance
                 );
 
+            _portabilityAnalyzerCompatibilityChecker = new PortabilityAnalyzerCompatibilityChecker(
+                _httpService.Object,
+                NullLogger<PortabilityAnalyzerCompatibilityChecker>.Instance
+                );
+
             _sdkCompatibilityChecker = new SdkCompatibilityChecker(
                 _httpService.Object,
                 NullLogger<SdkCompatibilityChecker>.Instance
                 );
-
-            
 
             _portabilityAnalyzerCompatibilityChecker = new PortabilityAnalyzerCompatibilityChecker(
                 _httpService.Object,

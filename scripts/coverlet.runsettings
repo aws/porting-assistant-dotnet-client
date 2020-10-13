@@ -4,10 +4,12 @@
     <DataCollectors>
       <DataCollector friendlyName="XPlat code coverage">
         <Configuration>
-          <Format>json,cobertura</Format>
+          <Format>json,cobertura,lcov</Format>
           <ExcludeByFile>
-          **../src/PortingAssistant.Common/**/**.cs,
-          **../src/PortingAssistant.Client.Tests/TestXml/**/**.cs,
+          **/src/PortingAssistant.Client.Common/**/**.cs,
+          **/src/PortingAssistant.Client.Handler/DependencyInjection.cs,
+          **/tests/PortingAssistant.Client.UnitTests/TestXml/**/**.cs,
+          **/tests/PortingAssistant.Client.IntegrationTests/TestProjects/**/**.cs,
           </ExcludeByFile> <!-- Globbing filter -->
           <SingleHit>false</SingleHit>
           <IncludeTestAssembly>true</IncludeTestAssembly>

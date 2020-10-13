@@ -1,13 +1,12 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using AwsCodeAnalyzer.Model;
-using PortingAssistant.Client.Model;
-using NuGet.Versioning;
-using System.Threading.Tasks;
-using TextSpan = PortingAssistant.Client.Model.TextSpan;
 using System.IO;
-using AwsCodeAnalyzer;
-using Microsoft.Build.Logging;
+using System.Linq;
+using System.Threading.Tasks;
+using Codelyzer.Analysis;
+using Codelyzer.Analysis.Model;
+using NuGet.Versioning;
+using PortingAssistant.Client.Model;
+using TextSpan = PortingAssistant.Client.Model.TextSpan;
 
 namespace PortingAssistant.Client.Analysis.Utils
 {
@@ -139,7 +138,7 @@ namespace PortingAssistant.Client.Analysis.Utils
 
         }
 
-        private static CompatibilityResult GetCompatibilityResult(CompatibilityResult compatibilityResultWithPackage, CompatibilityResult compatibilityResultWithSdk)
+        public static CompatibilityResult GetCompatibilityResult(CompatibilityResult compatibilityResultWithPackage, CompatibilityResult compatibilityResultWithSdk)
         {
             var compatiblityResult = compatibilityResultWithPackage;
 

@@ -1,4 +1,4 @@
-﻿using AwsCodeAnalyzer.Model;
+﻿using Codelyzer.Analysis.Model;
 
 namespace PortingAssistant.Client.Tests
 {

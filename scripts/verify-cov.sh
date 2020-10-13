@@ -1,6 +1,6 @@
 #!/bin/sh -e
 rm -rf ./commit-hook-tests
-dotnet test --settings scripts/coverlet.runsettings PortingAssistant.Client.sln -r ./commit-hook-tests
+dotnet test --settings scripts/coverlet.runsettings tests/PortingAssistant.Client.UnitTests/PortingAssistant.Client.UnitTests.csproj -r ./commit-hook-tests
 for f in ./commit-hook-tests/**/*.xml
 do
   echo ""
@@ -14,4 +14,3 @@ do
   fi
   echo "Code coverage: $coverage"
 done
-rm -rf ./commit-hook-tests

@@ -1,14 +1,14 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using AwsCodeAnalyzer.Model;
-using PortingAssistant.Client.NuGet;
-using PortingAssistant.Client.Model;
-using PortingAssistant.Client.Analysis.Utils;
+using Codelyzer.Analysis;
+using Codelyzer.Analysis.Model;
 using Moq;
 using NUnit.Framework;
-using System.Linq;
+using PortingAssistant.Client.Analysis.Utils;
+using PortingAssistant.Client.Model;
+using PortingAssistant.Client.NuGet;
 using TextSpan = PortingAssistant.Client.Model.TextSpan;
-using AwsCodeAnalyzer;
 
 namespace PortingAssistant.Client.Tests
 {

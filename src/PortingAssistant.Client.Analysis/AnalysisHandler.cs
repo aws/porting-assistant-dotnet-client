@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using AwsCodeAnalyzer;
-using AwsCodeAnalyzer.Model;
 using PortingAssistant.Client.Analysis.Utils;
 using PortingAssistant.Client.Model;
 using Microsoft.Extensions.Logging;
 using PortingAssistant.Client.NuGet;
-using AnalyzerConfiguration = AwsCodeAnalyzer.AnalyzerConfiguration;
+using Codelyzer.Analysis;
+using AnalyzerConfiguration = Codelyzer.Analysis.AnalyzerConfiguration;
+using Codelyzer.Analysis.Model;
 
 namespace PortingAssistant.Client.Analysis
 {

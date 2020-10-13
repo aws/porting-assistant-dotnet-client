@@ -195,7 +195,8 @@ namespace PortingAssistant.Client.NuGet
         {
             using var stream = await _httpService.DownloadS3FileAsync(NamespaceLookupFile);
             using var streamReader = new StreamReader(stream);
-            return JsonConvert.DeserializeObject<JObject>(streamReader.ReadToEnd()).ToObject<Dictionary<string, string>>();
+            var result = streamReader.ReadToEnd();
+            return JsonConvert.DeserializeObject<JObject>(result).ToObject<Dictionary<string, string>>();
         }
 
         private class PackageFromS3
