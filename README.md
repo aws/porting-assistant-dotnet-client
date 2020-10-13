@@ -34,8 +34,7 @@ var portingAssistantClient = portingAssistantBuilder.GetPortingAssistant();
 /* For exporting the assessment results into a file */
 var reportExporter = portingAssistantBuilder.GetReportExporter();
 
-
-var settings = new Configuration();
+var settings = new AnalyzerConfiguration();
 
 /* Analyze the solution */
 var analyzeResults = await portingAssistantHandler.AnalyzeSolutionAsync(solutionPath, settings);
