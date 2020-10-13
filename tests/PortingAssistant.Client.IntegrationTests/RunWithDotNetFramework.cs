@@ -1,15 +1,13 @@
-using Microsoft.Extensions.DependencyInjection;
-using Serilog;
-using PortingAssistant.Client.Client;
-using System.Threading.Tasks;
-using PortingAssistant.Client.Model;
-using NUnit.Framework;
-using Serilog.Sinks.SystemConsole.Themes;
-using PortingAssistant.Client.NuGet;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using NUnit.Framework;
+using PortingAssistant.Client.Client;
+using PortingAssistant.Client.Model;
 
 namespace PortingAssistant.Client.IntegrationTests
 {
@@ -25,11 +23,6 @@ namespace PortingAssistant.Client.IntegrationTests
             _tmpTestProjectsExtractionPath = Path.GetFullPath(Path.Combine(Path.GetTempPath(), Path.GetRandomFileName()));
             Directory.CreateDirectory(_tmpTestProjectsExtractionPath);
             string testProjectsPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestProjects", "NetFrameworkExample.zip");
-
-            Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Debug()
-                .WriteTo.Console(theme: AnsiConsoleTheme.Code)
-                .CreateLogger();
 
             var config = new AnalyzerConfiguration()
             {
@@ -63,7 +56,7 @@ namespace PortingAssistant.Client.IntegrationTests
 
         static private void ConfigureServices(IServiceCollection serviceCollection, AnalyzerConfiguration config)
         {
-            serviceCollection.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(dispose: true));
+            serviceCollection.AddLogging(loggingBuilder => loggingBuilder.AddConsole());
             serviceCollection.AddAssessment(config);
             serviceCollection.AddOptions();
         }
