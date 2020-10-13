@@ -1,4 +1,4 @@
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 using PortingAssistant.Client.Client;
@@ -24,30 +24,7 @@ namespace PortingAssistant.Client.IntegrationTests
             Directory.CreateDirectory(_tmpTestProjectsExtractionPath);
             string testProjectsPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestProjects", "Miniblog.Core-master.zip");
 
-<<<<<<< HEAD
             var config = new PortingAssistantConfiguration();
-=======
-            Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Debug()
-                .WriteTo.Console(theme: AnsiConsoleTheme.Code)
-                .CreateLogger();
-
-            var config = new AnalyzerConfiguration()
-            {
-                UseDataStoreSettings = true,
-                UseInternalNuGetServer = false,
-                DataStoreSettings = new DataStoreSettings
-                {
-                    HttpsEndpoint = "https://s3.us-west-2.amazonaws.com/aws.portingassistant.dotnet.datastore/",
-                    S3Endpoint = "aws.portingassistant.dotnet.datastore",
-                    GitHubEndpoint = "https://raw.githubusercontent.com/aws/porting-assistant-dotnet-datastore/master/"
-                },
-                InternalNuGetServerSettings = new NuGetServerSettings
-                {
-                    NugetServerEndpoint = "NugetServerEndpoint",
-                }
-            };
->>>>>>> c2f4e00... Add GitHub Download funcition for recommendation file
             var serviceCollection = new ServiceCollection();
             ConfigureServices(serviceCollection, config);
 
