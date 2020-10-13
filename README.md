@@ -16,36 +16,34 @@ For more information about Porting Assistant and to try the tool, please refer t
 Follow the examples below to see how the library can be integrated into your application for analyzing and porting an application.
 
 ```csharp
-/* Create Logger */
+/* Create Logger object */
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Debug()
     .WriteTo.Console(theme: AnsiConsoleTheme.Code)
     .WriteTo.File("log-.txt", rollingInterval: RollingInterval.Day)
     .CreateLogger();
 
-var serviceConfig = new ConfigurationBuilder()
-    .AddJsonFile(config)
-    .Build();
-var serviceCollection = new ServiceCollection();
-ConfigureServices(serviceCollection, serviceConfig);
+/* Create configuration object */
+var configuration = new PortingAssistantConfiguration();
 
-var services = serviceCollection.BuildServiceProvider();
-var logger = services.GetRequiredService<ILogger<Program>>();
-var portingAssistantHandler = services.GetService<IPortingAssistantHandler>();
-var reportHandler = services.GetService<IReportHandler>();
+/* Create PortingAssistatntClient object */
+var portingAssistantBuilder = PortingAssistantBuilder.Build(configuration, logger);
 
-var settings = new AnalyzerSettings();
+var portingAssistantClient = portingAssistantBuilder.GetPortingAssistant();
+
+/* For exporting the assessment results into a file */
+var reportExporter = portingAssistantBuilder.GetReportExporter();
+
+var analyzerSettings = new AnalyzerSettings();
 
 /* Analyze the solution */
-var analyzeResults = portingAssistantHandler.AnalyzeSolutionAsync(solutionPath, settings);
-analyzeResults.Wait();
+var analyzeResults = await portingAssistantHandler.AnalyzeSolutionAsync(solutionPath, analyzerSettings);
 
 /* Generate JSON output */
 if (analyzeResults.IsCompletedSuccessfully)
 {
-  reportHandler.GenerateJsonReport(analyzeResults.Result, outputPath);
+   reportHandler.GenerateJsonReport(analyzeResults.Result, outputPath);
 }
-
 
 var filteredProjects = new List<string>{ "projectname1" ,"projectname2"} 
 
@@ -69,18 +67,6 @@ var portingResults = await portingAssistantHandler.ApplyPortingChanges(portingRe
 
 /* Generate JSON output */
 await reportHandler.GenerateJsonReport(portingResults, solutionPath, outputPath);
-
-static private void ConfigureServices(IServiceCollection serviceCollection, IConfiguration config)
-{
-   serviceCollection.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(dispose: true));
-   serviceCollection.AddAssessment(config.GetSection("AnalyzerConfiguration"));
-
-   serviceCollection.AddSingleton<IReportHandler, ReportHandler>();
-
-   serviceCollection.AddOptions();
-}
-
-
 ```
 
 ## Getting Help
