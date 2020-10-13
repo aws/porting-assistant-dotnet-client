@@ -63,14 +63,14 @@ namespace PortingAssistant.Client.UnitTests
             _httpService.Reset();
 
             _httpService
-                .Setup(transfer => transfer.DownloadS3FileAsync(It.IsAny<string>()))
+                .Setup(transfer => transfer.DownloadGitHubFileAsync(It.IsAny<string>()))
                 .Returns(async (string key) =>
                 {
                     await Task.Delay(1);
                     var stream = new MemoryStream();
                     var writer = new StreamWriter(stream);
                     string test = null;
-                    if (key.Equals("namespaces.recommendation.lookup.json"))
+                    if (key.Equals("data/namespaces.recommendation.lookup.json"))
                     {
                         test = JsonConvert.SerializeObject(_manifest);
                     }

@@ -13,7 +13,7 @@ namespace PortingAssistant.Client.NuGet.Utils
         private readonly HttpClient _S3httpClient;
         private readonly HttpClient _GitHubHttpClient;
 
-        public HttpService(IHttpClientFactory httpClientFactory, IOptions<AnalyzerConfiguration> options)
+        public HttpService(IHttpClientFactory httpClientFactory, IOptions<PortingAssistantConfiguration> options)
         {
             _S3httpClient = httpClientFactory.CreateClient();
             _S3httpClient.BaseAddress = new Uri(options.Value.DataStoreSettings.HttpsEndpoint);
