@@ -1,6 +1,6 @@
-﻿
+﻿using System;
 using Microsoft.Extensions.DependencyInjection;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using PortingAssistant.Client.Client.Reports;
 using PortingAssistant.Client.Model;
 
@@ -13,7 +13,7 @@ namespace PortingAssistant.Client.Client
         private readonly IPortingAssistantClient PortingAssistantClient;
         private readonly IReportExporter ReportExporter;
         private readonly AnalyzerConfiguration Configuration;
-        private readonly ILogger Logger;
+        private readonly Action<ILoggingBuilder> LogConfiguration;
         public IPortingAssistantClient GetPortingAssistant()
         {
             return PortingAssistantClient;
@@ -24,9 +24,9 @@ namespace PortingAssistant.Client.Client
             return ReportExporter;
         }
 
-        private PortingAssistantBuilder(AnalyzerConfiguration configuration, ILogger logger)
+        private PortingAssistantBuilder(AnalyzerConfiguration configuration, Action<ILoggingBuilder> logConfiguration)
         {
-            this.Logger = logger;
+            this.LogConfiguration = logConfiguration;
             this.Configuration = configuration;
             ConfigureServices();
             var services = ServiceCollection.BuildServiceProvider();
@@ -34,15 +34,19 @@ namespace PortingAssistant.Client.Client
             this.ReportExporter = services.GetService<IReportExporter>();
         }
 
-        public static PortingAssistantBuilder Build(AnalyzerConfiguration configuration, ILogger logger = null)
+        public static PortingAssistantBuilder Build(AnalyzerConfiguration configuration, Action<ILoggingBuilder> logConfiguration = null)
         {
-            return new PortingAssistantBuilder(configuration, logger);
+            if (logConfiguration == null)
+            {
+                logConfiguration = (config) => config.AddConsole();
+            }
+            return new PortingAssistantBuilder(configuration, logConfiguration);
         }
 
         private void ConfigureServices()
         {
             ServiceCollection = new ServiceCollection();
-            ServiceCollection.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(logger: Logger, dispose: false));
+            ServiceCollection.AddLogging(LogConfiguration);
             ServiceCollection.AddAssessment(Configuration);
             ServiceCollection.AddSingleton<IReportExporter, ReportExporter>();
             ServiceCollection.AddOptions();

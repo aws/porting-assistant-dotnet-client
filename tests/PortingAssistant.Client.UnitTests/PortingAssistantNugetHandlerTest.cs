@@ -28,7 +28,6 @@ namespace PortingAssistant.Client.Tests
         private ExternalPackagesCompatibilityChecker _externalPackagesCompatibilityChecker;
         private PortabilityAnalyzerCompatibilityChecker _portabilityAnalyzerCompatibilityChecker;
         private SdkCompatibilityChecker _sdkCompatibilityChecker;
-        private PortabilityAnalyzerCompatibilityChecker _portabilityAnalyzerCompatibilityChecker;
         private Mock<ILogger<PortingAssistantNuGetHandler>> _loggerMock;
         private readonly string _testSolutionDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory,
                 "TestXml", "SolutionWithNugetConfigFile");

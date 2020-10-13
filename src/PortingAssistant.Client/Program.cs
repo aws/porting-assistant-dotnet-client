@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
 using System.Linq;
-using PortingAssistant.Client.Model;
+using Microsoft.Extensions.Logging;
 using PortingAssistant.Client.Client;
+using PortingAssistant.Client.Model;
 
 namespace PortingAssistant.Client.CLI
 
@@ -18,7 +15,6 @@ namespace PortingAssistant.Client.CLI
 
             PortingAssistantCLI cli = new PortingAssistantCLI();
             cli.HandleCommand(args);
-            var logger = LoggerFactory.Create(builder => builder.SetMinimumLevel(LogLevel.Debug).AddConsole());
             try
             {
                 var configuration = new AnalyzerConfiguration()
@@ -35,7 +31,7 @@ namespace PortingAssistant.Client.CLI
                         NugetServerEndpoint = "NugetServerEndpoint",
                     }
                 };
-                var portingAssistantBuilder = PortingAssistantBuilder.Build(configuration, logger);
+                var portingAssistantBuilder = PortingAssistantBuilder.Build(configuration, logConfig => logConfig.AddConsole());
                 var portingAssistantClient = portingAssistantBuilder.GetPortingAssistant();
                 var reportExporter = portingAssistantBuilder.GetReportExporter();
                 var solutiongSettings = cli.IgnoreProjects != null && cli.IgnoreProjects.Count != 0 ?
