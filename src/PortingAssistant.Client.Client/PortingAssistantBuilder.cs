@@ -12,7 +12,7 @@ namespace PortingAssistant.Client.Client
         private ServiceCollection ServiceCollection;
         private readonly IPortingAssistantClient PortingAssistantClient;
         private readonly IReportExporter ReportExporter;
-        private readonly AnalyzerConfiguration Configuration;
+        private readonly PortingAssistantConfiguration Configuration;
         private readonly Action<ILoggingBuilder> LogConfiguration;
         public IPortingAssistantClient GetPortingAssistant()
         {
@@ -24,7 +24,7 @@ namespace PortingAssistant.Client.Client
             return ReportExporter;
         }
 
-        private PortingAssistantBuilder(AnalyzerConfiguration configuration, Action<ILoggingBuilder> logConfiguration)
+        private PortingAssistantBuilder(PortingAssistantConfiguration configuration, Action<ILoggingBuilder> logConfiguration)
         {
             this.LogConfiguration = logConfiguration;
             this.Configuration = configuration;
@@ -34,7 +34,7 @@ namespace PortingAssistant.Client.Client
             this.ReportExporter = services.GetService<IReportExporter>();
         }
 
-        public static PortingAssistantBuilder Build(AnalyzerConfiguration configuration, Action<ILoggingBuilder> logConfiguration = null)
+        public static PortingAssistantBuilder Build(PortingAssistantConfiguration configuration, Action<ILoggingBuilder> logConfiguration = null)
         {
             if (logConfiguration == null)
             {

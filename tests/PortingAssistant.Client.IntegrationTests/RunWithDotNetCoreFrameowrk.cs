@@ -24,20 +24,7 @@ namespace PortingAssistant.Client.IntegrationTests
             Directory.CreateDirectory(_tmpTestProjectsExtractionPath);
             string testProjectsPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestProjects", "Miniblog.Core-master.zip");
 
-            var config = new AnalyzerConfiguration()
-            {
-                UseDataStoreSettings = true,
-                UseInternalNuGetServer = false,
-                DataStoreSettings = new DataStoreSettings
-                {
-                    HttpsEndpoint = "https://s3.us-west-2.amazonaws.com/aws.portingassistant.dotnet.datastore/",
-                    S3Endpoint = "aws.portingassistant.dotnet.datastore"
-                },
-                InternalNuGetServerSettings = new NuGetServerSettings
-                {
-                    NugetServerEndpoint = "NugetServerEndpoint",
-                }
-            };
+            var config = new PortingAssistantConfiguration();
             var serviceCollection = new ServiceCollection();
             ConfigureServices(serviceCollection, config);
 
@@ -50,10 +37,10 @@ namespace PortingAssistant.Client.IntegrationTests
             }
 
             var netCoreProjectPath = Path.Combine(_tmpTestProjectsExtractionPath, "Miniblog.Core-master", "Miniblog.Core.sln");
-            solutionAnalysisResultTask = portingAssistantClient.AnalyzeSolutionAsync(netCoreProjectPath, new PortingAssistantSettings());
+            solutionAnalysisResultTask = portingAssistantClient.AnalyzeSolutionAsync(netCoreProjectPath, new AnalyzerSettings());
         }
 
-        static private void ConfigureServices(IServiceCollection serviceCollection, AnalyzerConfiguration config)
+        static private void ConfigureServices(IServiceCollection serviceCollection, PortingAssistantConfiguration config)
         {
             serviceCollection.AddLogging(loggingBuilder => loggingBuilder.AddConsole());
             serviceCollection.AddAssessment(config);

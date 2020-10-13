@@ -15,9 +15,9 @@ namespace PortingAssistant.Client.Client
 {
     public static class DependencyInjection
     {
-        public static void AddAssessment(this IServiceCollection serviceCollection, AnalyzerConfiguration cacheConfig)
+        public static void AddAssessment(this IServiceCollection serviceCollection, PortingAssistantConfiguration cacheConfig)
         {
-            serviceCollection.Configure<AnalyzerConfiguration>(config => cacheConfig.DeepCopy(config));
+            serviceCollection.Configure<PortingAssistantConfiguration>(config => cacheConfig.DeepCopy(config));
             serviceCollection.AddSingleton<IPortingAssistantClient, PortingAssistantClient>();
             serviceCollection.AddSingleton<IPortingAssistantInternalNuGetCompatibilityHandler, PortingAssistantInternalNuGetCompatibilityHandler>();
             serviceCollection.AddSingleton<IPortingAssistantNuGetHandler, PortingAssistantNuGetHandler>();
@@ -33,7 +33,7 @@ namespace PortingAssistant.Client.Client
             serviceCollection.AddHttpClient<IHttpService, HttpService>(client =>
             {
                 var services = serviceCollection.BuildServiceProvider();
-                client.BaseAddress = new Uri(services.GetService<IOptions<AnalyzerConfiguration>>().Value.DataStoreSettings.HttpsEndpoint);
+                client.BaseAddress = new Uri(services.GetService<IOptions<PortingAssistantConfiguration>>().Value.DataStoreSettings.HttpsEndpoint);
             });
         }
     }

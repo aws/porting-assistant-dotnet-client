@@ -27,7 +27,7 @@ namespace PortingAssistant.Client.Client
             _portingHandler = portingHandler;
         }
 
-        public async Task<SolutionAnalysisResult> AnalyzeSolutionAsync(string solutionFilePath, PortingAssistantSettings settings)
+        public async Task<SolutionAnalysisResult> AnalyzeSolutionAsync(string solutionFilePath, AnalyzerSettings settings)
         {
             try
             {

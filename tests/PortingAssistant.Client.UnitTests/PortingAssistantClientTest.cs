@@ -156,7 +156,7 @@ namespace PortingAssistant.Client.Tests
         [Test]
         public void AnalyzeSolutionWithProjectsSucceeds()
         {
-            var results = _portingAssistantClient.AnalyzeSolutionAsync(Path.Combine(_solutionFolder, "SolutionWithProjects.sln"), new PortingAssistantSettings());
+            var results = _portingAssistantClient.AnalyzeSolutionAsync(Path.Combine(_solutionFolder, "SolutionWithProjects.sln"), new AnalyzerSettings());
             results.Wait();
             var projectAnalysisResult = results.Result.ProjectAnalysisResults.Find(p => p.ProjectName == "Nop.Core");
             var sourceFileAnalysisResults = projectAnalysisResult.SourceFileAnalysisResults;
@@ -190,7 +190,7 @@ namespace PortingAssistant.Client.Tests
 
             Assert.Throws<AggregateException>(() =>
             {
-                var result = _portingAssistantClient.AnalyzeSolutionAsync(testSolutionPath, new PortingAssistantSettings());
+                var result = _portingAssistantClient.AnalyzeSolutionAsync(testSolutionPath, new AnalyzerSettings());
                 result.Wait();
             });
         }
