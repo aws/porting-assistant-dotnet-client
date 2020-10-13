@@ -42,21 +42,20 @@ namespace PortingAssistant.Client.Client
                     .Select(p => p.AbsolutePath)
                     .ToList();
 
-                var projectAnalysisResultTasks = _AnalysisHandler.AnalyzeSolution(solutionFilePath, projects);
+                var projectAnalysisResultTasks = await _AnalysisHandler.AnalyzeSolution(solutionFilePath, projects);
 
-                var projectAnalysisResults = await Task.WhenAll(projects.Select(async p =>
+                var projectAnalysisResults = projects.Select(p =>
                 {
                     try
                     {
                         var projectAnalysisResult = projectAnalysisResultTasks.GetValueOrDefault(p, null);
                         if (projectAnalysisResult != null)
                         {
-                            await projectAnalysisResult;
-                            if (projectAnalysisResult.IsCompletedSuccessfully)
+                            if (projectAnalysisResult.IsBuildFailed)
                             {
-                                return projectAnalysisResult.Result;
+                                failedProjects.Add(p);
                             }
-                            failedProjects.Add(p);
+                            return projectAnalysisResult;
                         }
                         return null;
                     }
@@ -66,8 +65,7 @@ namespace PortingAssistant.Client.Client
                         failedProjects.Add(p);
                         return null;
                     }
-
-                }).Where(p => p != null).ToList());
+                }).Where(p => p != null).ToList();
 
                 var solutionDetails = new SolutionDetails
                 {
@@ -91,7 +89,7 @@ namespace PortingAssistant.Client.Client
                 {
                     FailedProjects = failedProjects,
                     SolutionDetails = solutionDetails,
-                    ProjectAnalysisResults = projectAnalysisResults.ToList()
+                    ProjectAnalysisResults = projectAnalysisResults
                 };
 
             }

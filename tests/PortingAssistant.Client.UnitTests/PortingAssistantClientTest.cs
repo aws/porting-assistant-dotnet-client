@@ -97,16 +97,14 @@ namespace PortingAssistant.Client.Tests
             _apiAnalysisHandlerMock.Setup(analyzer => analyzer.AnalyzeSolution(It.IsAny<string>(), It.IsAny<List<string>>()))
                 .Returns((string solutionFilePath, List<string> projects) =>
                 {
-                    return projects.Select(project =>
+                    return Task.Run(() => projects.Select(project =>
                     {
                         var package = new PackageVersionPair
                         {
                             PackageId = "Newtonsoft.Json",
                             Version = "11.0.1"
                         };
-                        var taskCompletionSource = new TaskCompletionSource<ProjectAnalysisResult>();
-                        var taskPackageCompletionSource = new TaskCompletionSource<PackageAnalysisResult>();
-                        taskPackageCompletionSource.SetResult(new PackageAnalysisResult
+                        var packageAnalysisResult = Task.Run(() => new PackageAnalysisResult
                         {
                             PackageVersionPair = package,
                             CompatibilityResults = new Dictionary<string, CompatibilityResult>
@@ -132,13 +130,13 @@ namespace PortingAssistant.Client.Tests
                             }
                         });
 
-                        taskCompletionSource.SetResult(new ProjectAnalysisResult
+                        var projectAnalysisResult = new ProjectAnalysisResult
                         {
                             ProjectName = Path.GetFileNameWithoutExtension(project),
                             ProjectFilePath = project,
                             PackageAnalysisResults = new Dictionary<PackageVersionPair, Task<PackageAnalysisResult>>
                             {
-                                {package, taskPackageCompletionSource.Task }
+                                { package, packageAnalysisResult }
                             },
                             SourceFileAnalysisResults = new List<SourceFileAnalysisResult>
                             {
@@ -146,10 +144,10 @@ namespace PortingAssistant.Client.Tests
                             },
                             ProjectGuid = "xxx",
                             ProjectType = SolutionProjectType.KnownToBeMSBuildFormat.ToString()
-                        });
+                        };
 
-                        return new Tuple<string, Task<ProjectAnalysisResult>>(project, taskCompletionSource.Task);
-                    }).ToDictionary(t => t.Item1, t => t.Item2);
+                        return new KeyValuePair<string, ProjectAnalysisResult>(project, projectAnalysisResult);
+                    }).ToDictionary(k => k.Key, v => v.Value));
                 });
         }
 

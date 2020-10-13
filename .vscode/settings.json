@@ -1,0 +1,3 @@
+{
+    "markiscodecoverage.searchCriteria": "commit-hook-tests/*/coverage.info"
+}

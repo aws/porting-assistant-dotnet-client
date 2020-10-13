@@ -57,7 +57,6 @@ namespace PortingAssistant.Client.Analysis.Utils
                             CompatibilityResults = new Dictionary<string, CompatibilityResult>
                             {
                                 { ApiCompatiblity.DEFAULT_TARGET, compatibilityResult}
-
                             },
                             Recommendations = new Recommendations
                             {

@@ -21,7 +21,7 @@ namespace PortingAssistant.Client.CLI
                 var portingAssistantBuilder = PortingAssistantBuilder.Build(configuration, logConfig => logConfig.AddConsole());
                 var portingAssistantClient = portingAssistantBuilder.GetPortingAssistant();
                 var reportExporter = portingAssistantBuilder.GetReportExporter();
-                var solutiongSettings = cli.IgnoreProjects != null && cli.IgnoreProjects.Count != 0 ?
+                var solutionSettings = cli.IgnoreProjects != null && cli.IgnoreProjects.Count != 0 ?
                         new AnalyzerSettings
                         {
                             IgnoreProjects = cli.IgnoreProjects
@@ -30,7 +30,7 @@ namespace PortingAssistant.Client.CLI
                             IgnoreProjects = new List<string>()
                         };
 
-                var analyzeResults = portingAssistantClient.AnalyzeSolutionAsync(cli.SolutionPath, solutiongSettings);
+                var analyzeResults = portingAssistantClient.AnalyzeSolutionAsync(cli.SolutionPath, solutionSettings);
                 analyzeResults.Wait();
                 if (analyzeResults.IsCompletedSuccessfully)
                 {

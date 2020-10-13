@@ -10,6 +10,7 @@ using PortingAssistant.Client.NuGet;
 using Codelyzer.Analysis;
 using AnalyzerConfiguration = Codelyzer.Analysis.AnalyzerConfiguration;
 using Codelyzer.Analysis.Model;
+using System.IO;
 
 namespace PortingAssistant.Client.Analysis
 {
@@ -18,8 +19,6 @@ namespace PortingAssistant.Client.Analysis
         private readonly ILogger<PortingAssistantAnalysisHandler> _logger;
         private readonly IPortingAssistantNuGetHandler _handler;
         private readonly IPortingAssistantRecommendationHandler _recommendationHandler;
-        private static readonly int _maxBuildConcurrency = 1;
-        private static readonly SemaphoreSlim _buildConcurrency = new SemaphoreSlim(_maxBuildConcurrency);
 
         public PortingAssistantAnalysisHandler(ILogger<PortingAssistantAnalysisHandler> logger,
             IPortingAssistantNuGetHandler handler, IPortingAssistantRecommendationHandler recommendationHandler)
@@ -29,42 +28,34 @@ namespace PortingAssistant.Client.Analysis
             _recommendationHandler = recommendationHandler;
         }
 
-        public Dictionary<string, Task<ProjectAnalysisResult>> AnalyzeSolution(
+        public async Task<Dictionary<string, ProjectAnalysisResult>> AnalyzeSolution(
             string solutionFilename, List<string> projects)
         {
             var configuration = new AnalyzerConfiguration(LanguageOptions.CSharp)
             {
                 MetaDataSettings =
-                {
-                    LiteralExpressions = true,
-                    MethodInvocations = true,
-                    ReferenceData = true,
-                    LoadBuildData = true
-                }
+            {
+                LiteralExpressions = true,
+                MethodInvocations = true,
+                ReferenceData = true,
+                LoadBuildData = true
+            }
             };
             var analyzer = CodeAnalyzerFactory.GetAnalyzer(configuration, _logger);
-            var analyzersTask = analyzer.AnalyzeSolution(solutionFilename);
+            var analyzersTask = await analyzer.AnalyzeSolution(solutionFilename);
 
             return projects
-                    .Select((project) => AnalyzeProject(solutionFilename, project, analyzersTask))
+                    .Select((project) => new KeyValuePair<string, ProjectAnalysisResult>(project, AnalyzeProject(project, analyzersTask)))
                     .Where(p => p.Value != null)
                     .ToDictionary(p => p.Key, p => p.Value);
+            
         }
 
-        private KeyValuePair<string, Task<ProjectAnalysisResult>> AnalyzeProject(
-            string solutionFilename, string project, Task<List<AnalyzerResult>> analyzersTask)
-        {
-            var task = AnalyzeProjectAsync(solutionFilename, project, analyzersTask);
-            return KeyValuePair.Create(project, task);
-        }
-
-        private async Task<ProjectAnalysisResult> AnalyzeProjectAsync(
-            string solutionFilename, string project, Task<List<AnalyzerResult>> analyzersTask)
+        private ProjectAnalysisResult AnalyzeProject(
+            string project, List<AnalyzerResult> analyzers)
         {
             try
             {
-                _buildConcurrency.Wait();
-                var analyzers = await analyzersTask;
                 var invocationsMethodSignatures = new HashSet<string>();
 
                 var analyzer = analyzers.Find((a) => a.ProjectResult?.ProjectFilePath != null &&
@@ -73,7 +64,21 @@ namespace PortingAssistant.Client.Analysis
                 if (analyzer == null || analyzer.ProjectResult == null)
                 {
                     _logger.LogError("Unable to build {0}.", project);
-                    throw new PortingAssistantClientException($"Build {project} failed", null);
+
+                    return new ProjectAnalysisResult
+                    {
+                        ProjectName = Path.GetFileNameWithoutExtension(project),
+                        ProjectFilePath = project,
+                        TargetFrameworks = null,
+                        PackageReferences = new List<PackageVersionPair>(),
+                        ProjectReferences = new List<ProjectReference>(),
+                        PackageAnalysisResults = new Dictionary<PackageVersionPair, Task<PackageAnalysisResult>>(),
+                        IsBuildFailed = true,
+                        Errors = new List<string> { string.Format("Error while analyzing {0}", project) },
+                        ProjectGuid = null,
+                        ProjectType = null,
+                        SourceFileAnalysisResults = new List<SourceFileAnalysisResult>()
+                    };
                 }
 
                 var sourceFileToInvocations = analyzer.ProjectResult.SourceFileResults.Select((sourceFile) =>
@@ -144,11 +149,20 @@ namespace PortingAssistant.Client.Analysis
             catch (Exception ex)
             {
                 _logger.LogError("Error while analyzing {0}, {1}", project, ex);
-                throw new PortingAssistantException($"Error while analyzing {project}", ex);
-            }
-            finally
-            {
-                _buildConcurrency.Release();
+                return new ProjectAnalysisResult
+                {
+                    ProjectName = Path.GetFileNameWithoutExtension(project),
+                    ProjectFilePath = project,
+                    TargetFrameworks = null,
+                    PackageReferences = new List<PackageVersionPair>(),
+                    ProjectReferences = new List<ProjectReference>(),
+                    PackageAnalysisResults = new Dictionary<PackageVersionPair, Task<PackageAnalysisResult>>(),
+                    IsBuildFailed = true,
+                    Errors = new List<string> { string.Format("Error while analyzing {0}, {1}", project, ex) },
+                    ProjectGuid = null,
+                    ProjectType = null,
+                    SourceFileAnalysisResults = new List<SourceFileAnalysisResult>()
+                };
             }
         }
     }

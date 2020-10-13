@@ -133,9 +133,9 @@ namespace PortingAssistant.Client.Tests
                 Version = "11.0.1"
             };
             var result = _analysisHandler.AnalyzeSolution(_solutionFile, _projectPaths);
-            Task.WaitAll(result.Values.ToArray());
+            Task.WaitAll(result);
 
-            var projectAnalysisResult = result.Values.First().Result;
+            var projectAnalysisResult = result.Result.Values.First();
             Task.WaitAll(projectAnalysisResult.PackageAnalysisResults.Values.ToArray());
             var packageAnalysisResult = projectAnalysisResult.PackageAnalysisResults.First(p => p.Key.PackageId == "Newtonsoft.Json").Value.Result;
 
@@ -161,12 +161,20 @@ namespace PortingAssistant.Client.Tests
         }
 
         [Test]
+        public void AnalyzeBadProjectDoesNotThrowException()
+        {
+            var result = _analysisHandler.AnalyzeSolution(_solutionFile, new List<string> { "Rand.csproj" });
+            Task.WaitAll(result);
+            Assert.AreEqual(true, result.Result.GetValueOrDefault("Rand.csproj", null).IsBuildFailed);
+        }
+
+        [Test]
         public void AnalyzeNullPathThrowsException()
         {
             Assert.Throws<AggregateException>(() =>
             {
-                var result = _analysisHandler.AnalyzeSolution(Path.Combine(_solutionFile, "Rand.sln"), _projectPaths);
-                Task.WaitAll(result.Values.ToArray());
+                var result = _analysisHandler.AnalyzeSolution(null, _projectPaths);
+                Task.WaitAll(result);
             });
         }
 
@@ -176,7 +184,7 @@ namespace PortingAssistant.Client.Tests
             Assert.Throws<AggregateException>(() =>
             {
                 var result = _analysisHandler.AnalyzeSolution(Path.Combine(_solutionFile, "Rand.sln"), _projectPaths);
-                Task.WaitAll(result.Values.ToArray());
+                Task.WaitAll(result);
             });
         }
     }
