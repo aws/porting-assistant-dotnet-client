@@ -42,29 +42,20 @@ namespace PortingAssistant.Client.Client
                     .Select(p => p.AbsolutePath)
                     .ToList();
 
-                var projectAnalysisResultTasks = await _AnalysisHandler.AnalyzeSolution(solutionFilePath, projects);
+                var projectAnalysisResultsDict = await _AnalysisHandler.AnalyzeSolution(solutionFilePath, projects);
 
                 var projectAnalysisResults = projects.Select(p =>
                 {
-                    try
+                    var projectAnalysisResult = projectAnalysisResultsDict.GetValueOrDefault(p, null);
+                    if (projectAnalysisResult != null)
                     {
-                        var projectAnalysisResult = projectAnalysisResultTasks.GetValueOrDefault(p, null);
-                        if (projectAnalysisResult != null)
+                        if (projectAnalysisResult.IsBuildFailed)
                         {
-                            if (projectAnalysisResult.IsBuildFailed)
-                            {
-                                failedProjects.Add(p);
-                            }
-                            return projectAnalysisResult;
+                            failedProjects.Add(p);
                         }
-                        return null;
+                        return projectAnalysisResult;
                     }
-                    catch (Exception ex)
-                    {
-                        _logger.LogWarning("Failed to assess {0}, exception: {1}", p, ex);
-                        failedProjects.Add(p);
-                        return null;
-                    }
+                    return null;
                 }).Where(p => p != null).ToList();
 
                 var solutionDetails = new SolutionDetails
