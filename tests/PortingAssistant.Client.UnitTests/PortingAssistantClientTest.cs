@@ -9,22 +9,26 @@ using Moq;
 using NUnit.Framework;
 using PortingAssistant.Client.Analysis;
 using PortingAssistant.Client.Client;
-using PortingAssistant.Client.Utils;
-using PortingAssistant.Client.NuGet;
 using PortingAssistant.Client.Model;
 using PortingAssistant.Client.Porting;
 using PortingAssistant.Client.Analysis.Utils;
-using Microsoft.Build.Construction;
+using PortingAssistant.Client.Client.FileParser;
+using NuGet.Frameworks;
+using NuGet.Versioning;
+using PortingAssistant.Client.PortingProjectFile;
 
 namespace PortingAssistant.Client.Tests
 {
     public class PortingAssistantHandlerTest
     {
         private Mock<IPortingAssistantAnalysisHandler> _apiAnalysisHandlerMock;
-        private Mock<IPortingHandler> _portingHandlerMock;
+        private IPortingHandler _portingHandlerMock;
         private PortingAssistantClient _portingAssistantClient;
         private readonly string _solutionFolder = Path.Combine(TestContext.CurrentContext.TestDirectory,
                 "TestXml", "SolutionWithProjects");
+        private string _tmpDirectory;
+        private string _tmpProjectPath;
+        private string _tmpSolutionDirectory;
 
         private readonly PackageDetails _packageDetails = new PackageDetails
         {
@@ -78,20 +82,54 @@ namespace PortingAssistant.Client.Tests
             }
         };
 
+        private void DirectoryCopy(string sourceDirName, string destDirName, bool copySubDirs)
+        {
+            DirectoryInfo dir = new DirectoryInfo(sourceDirName);
+
+            DirectoryInfo[] dirs = dir.GetDirectories();
+            if (!Directory.Exists(destDirName))
+            {
+                Directory.CreateDirectory(destDirName);
+            }
+
+            FileInfo[] files = dir.GetFiles();
+            foreach (var fileInfo in files)
+            {
+                string tempPath = Path.Combine(destDirName, fileInfo.Name);
+                fileInfo.CopyTo(tempPath, false);
+            }
+
+            if (copySubDirs)
+            {
+                foreach (var subDir in dirs)
+                {
+                    string tempPath = Path.Combine(destDirName, subDir.Name);
+                    DirectoryCopy(subDir.FullName, tempPath, true);
+                }
+            }
+        }
+
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
             _apiAnalysisHandlerMock = new Mock<IPortingAssistantAnalysisHandler>();
-            _portingHandlerMock = new Mock<IPortingHandler>();
+            _portingHandlerMock = new PortingHandler(NullLogger<PortingHandler>.Instance, 
+                new PortingProjectFileHandler(NullLogger<PortingProjectFileHandler>.Instance));
             _portingAssistantClient = new PortingAssistantClient(
                 NullLogger<PortingAssistantClient>.Instance,
                 _apiAnalysisHandlerMock.Object,
-                _portingHandlerMock.Object);
+                _portingHandlerMock);
         }
 
         [SetUp]
         public void SetUp()
         {
+            var solutionDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestXml", "TestPorting");
+            _tmpDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestXml", "TmpDirectory");
+            DirectoryCopy(solutionDirectory, _tmpDirectory, true);
+
+            _tmpSolutionDirectory = Path.Combine(_tmpDirectory, "src");
+            _tmpProjectPath = Path.Combine(_tmpSolutionDirectory, "Libraries", "Nop.Core", "Nop.Core.csproj");
 
             _apiAnalysisHandlerMock.Reset();
             _apiAnalysisHandlerMock.Setup(analyzer => analyzer.AnalyzeSolution(It.IsAny<string>(), It.IsAny<List<string>>()))
@@ -151,6 +189,42 @@ namespace PortingAssistant.Client.Tests
                 });
         }
 
+        private List<ProjectDetails> GetProjects(string pathToSolution)
+        {
+            var solution = SolutionFile.Parse(pathToSolution);
+
+            var projects = solution.ProjectsInOrder.Select(p =>
+            {
+                if (p.ProjectType != SolutionProjectType.KnownToBeMSBuildFormat && p.ProjectType != SolutionProjectType.WebProject)
+                {
+                    return null;
+                }
+
+                var projectParser = new ProjectFileParser(p.AbsolutePath);
+
+                return new ProjectDetails
+                {
+                    ProjectName = p.ProjectName,
+                    ProjectFilePath = p.AbsolutePath,
+                    ProjectGuid = p.ProjectGuid,
+                    TargetFrameworks = projectParser.GetTargetFrameworks().Select(tfm =>
+                    {
+                        var framework = NuGetFramework.Parse(tfm);
+                        return string.Format("{0} {1}", framework.Framework, NuGetVersion.Parse(framework.Version.ToString()).ToNormalizedString());
+                    }).ToList(),
+                    PackageReferences = projectParser.GetPackageReferences()
+                };
+            }).Where(p => p != null).ToList();
+
+            return projects;
+        }
+
+        [TearDown]
+        public void Cleanup()
+        {
+            Directory.Delete(_tmpDirectory, true);
+        }
+
         [Test]
         public void AnalyzeSolutionWithProjectsSucceeds()
         {
@@ -178,6 +252,42 @@ namespace PortingAssistant.Client.Tests
             var project = solutionDetail.Projects.First(project => project.ProjectName.Equals("PortingAssistantApi"));
             Assert.AreEqual("xxx", project.ProjectGuid);
             Assert.AreEqual(SolutionProjectType.KnownToBeMSBuildFormat.ToString(), project.ProjectType);
+        }
+
+        [Test]
+        public void PortProjectFile()
+        {
+            var request = new PortingRequest
+            {
+                ProjectPaths = new List<string> { _tmpProjectPath },
+                SolutionPath = _tmpSolutionDirectory,
+                TargetFramework = "netcoreapp3.1.0",
+                RecommendedActions = new List<RecommendedAction> 
+                {
+                    new PackageRecommendation
+                    {
+                        PackageId = "Newtonsoft.Json",
+                        RecommendedActionType = RecommendedActionType.UpgradePackage,
+                        TargetVersions = new List<string> { "12.0.3" },
+                    } 
+                }
+            };
+
+            var result = _portingAssistantClient.ApplyPortingChanges(request);
+            Assert.True(result[0].Success);
+            Assert.AreEqual(_tmpProjectPath, result[0].ProjectFile);
+            Assert.AreEqual("Nop.Core", result[0].ProjectName);
+
+            var portResult = GetProjects(Path.Combine(_tmpSolutionDirectory, "NopCommerce.sln")).Find(package => package.ProjectName == "Nop.Core");
+            Assert.AreEqual(_tmpProjectPath, portResult.ProjectFilePath);
+            Assert.AreEqual(".NETCoreApp 3.1.0", portResult.TargetFrameworks[0]);
+            Assert.AreEqual(
+                new PackageVersionPair
+                {
+                    PackageId = "Newtonsoft.Json",
+                    Version = "12.0.3"
+                },
+                portResult.PackageReferences.Find(nugetPackage => nugetPackage.PackageId == "Newtonsoft.Json"));
         }
 
         [Test]
