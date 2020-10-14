@@ -112,7 +112,7 @@ You must attach the following IAM policy as an inline policy to your IAM user. T
 * Provide command line arguments for a solution path and output path, then run the application.
 
 ## Other Packages
-[Codelyzer](https://github.com/aws/codelyzer-analysis): Porting Assistant uses Codelyzer to get package and APIs information for finding the compatibilities and replacements.
+[Codelyzer](https://github.com/aws/codelyzer-analysis): Porting Assistant uses Codelyzer to get package and API information used for finding compatibilities and replacements.
 
 [Porting Assistant for .NET Datastore](https://github.com/aws/porting-assistant-dotnet-datastore): The repository containing the data set and recommendations used in compatibility assessment.
 
