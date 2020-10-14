@@ -11,7 +11,7 @@ Porting Assistant for .NET quickly scans .NET Framework applications to identify
  
 For more information about Porting Assistant and to try the tool, please refer to the documenation: https://aws.amazon.com/porting-assistant-dotnet/
 
-# Getting Started
+## Getting Started
 
 Follow the examples below to see how the library can be integrated into your application for analyzing and porting an application.
 
@@ -105,6 +105,12 @@ You must attach the following IAM policy as an inline policy to your IAM user. T
     ]
 }
 ```
+
+## Other Packages
+[Codelyzer](https://github.com/aws/codelyzer-analysis): Porting Assistant uses Codelyzer to get package and APIs information for finding the compatibilities and replacements.
+
+[Porting Assistant for .NET Datastore](https://github.com/aws/porting-assistant-dotnet-datastore): The repository containing the data set and recommendations used in compatibility assessment.
+
 
 ## Contributing
 
