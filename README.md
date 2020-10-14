@@ -120,8 +120,9 @@ You must attach the following IAM policy as an inline policy to your IAM user. T
 
 
 ## Contributing
+* [Adding Recommendations](https://github.com/aws/porting-assistant-dotnet-datastore/blob/master/RECOMMENDATIONS.md)
 
-We welcome community contributions and pull requests. See
+* We welcome community contributions and pull requests. See
 [CONTRIBUTING](./CONTRIBUTING.md) for information on how to set up a development
 environment and submit code.
 
