@@ -108,8 +108,8 @@ You must attach the following IAM policy as an inline policy to your IAM user. T
 ## How to use this code?
 * Clone the Git repository.
 * Load the solution `PortingAssistant.Client.sln` using Visual Studio or Rider. 
-* Create "Run/Debug" Configuration for "PortingAssistant.Client" project 
-* Provide command line arguments for solution path and output path. Then, just run it
+* Create a "Run/Debug" Configuration for the "PortingAssistant.Client" project.
+* Provide command line arguments for a solution path and output path, then run the application.
 
 ## Other Packages
 [Codelyzer](https://github.com/aws/codelyzer-analysis): Porting Assistant uses Codelyzer to get package and APIs information for finding the compatibilities and replacements.
