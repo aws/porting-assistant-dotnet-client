@@ -75,9 +75,10 @@ await reportHandler.GenerateJsonReport(portingResults, solutionPath, outputPath)
 Please use these community resources for getting help. We use the GitHub issues
 for tracking bugs and feature requests.
 
-* Send us an email to: aws-porting-assistant-support@amazon.com
 * If it turns out that you may have found a bug,
   please open an [issue](https://github.com/aws/porting-assistant-dotnet-client/issues/new)
+  
+* Send us an email to: aws-porting-assistant-support@amazon.com
   
 ## Permissions: AWS Identity and Access Management (IAM)
  
