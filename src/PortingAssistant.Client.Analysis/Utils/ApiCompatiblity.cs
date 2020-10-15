@@ -147,10 +147,10 @@ namespace PortingAssistant.Client.Analysis.Utils
                 recommendationDetails.Wait();
                 if (recommendationDetails.IsCompletedSuccessfully)
                 {
-                    var recommendationActions = recommendationDetails.Result.Recommendedations;
+                    var recommendationActions = recommendationDetails.Result.Recommendations;
                     var apiRecommendation = recommendationActions
                         .Where(recommendation => recommendation != null && recommendation.Value == apiMethodSignature)
-                        .SelectMany(recommendation => recommendation.Recommendation)
+                        .SelectMany(recommendation => recommendation.RecommendedActions)
                         .Select(recommend => recommend.Description);
                     if (apiRecommendation != null && apiRecommendation.Count() != 0)
                     {

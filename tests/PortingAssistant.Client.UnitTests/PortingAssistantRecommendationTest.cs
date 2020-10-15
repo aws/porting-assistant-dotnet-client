@@ -21,21 +21,20 @@ namespace PortingAssistant.Client.UnitTests
         private readonly RecommendationDetails _recommendationDetails = new RecommendationDetails
         {
             Name = "System.Web.Configuration",
-            EncoreVersion = "1.0.0",
-            Recommendedations = new RecommendedActions[]
+            Version = "1.0.0",
+            Recommendations = new RecommendationModel[]
             {
-                new RecommendedActions
+                new RecommendationModel
                 {
                     Type = "Method",
                     Value = "System.Web.Configuration.BrowserCapabilitiesFactory.OperaminiProcessBrowsers(bool, System.Collections.Specialized.NameValueCollection, System.Web.HttpBrowserCapabilities)",
-                    Reference = "System.Web.Configuration",
-                    Recommendation = new Recommendation[]
+                    RecommendedActions = new RecommendedActionModel[]
                     {
-                        new Recommendation()
+                        new RecommendedActionModel()
                         {
                             Source = "Amazon",
                             Preferred = "yes",
-                            Versions = new SortedSet<string>()
+                            TargetFrameworks = new SortedSet<string>()
                             {
                                 "netframework45",
                                 "netcore31"
@@ -105,16 +104,16 @@ namespace PortingAssistant.Client.UnitTests
             Task.WaitAll(resultTasks.Values.ToArray());
 
             Assert.AreEqual(_recommendationDetails.Name, resultTasks.Values.First().Result.Name);
-            Assert.AreEqual(_recommendationDetails.EncoreVersion, resultTasks.Values.First().Result.EncoreVersion);
+            Assert.AreEqual(_recommendationDetails.Version, resultTasks.Values.First().Result.Version);
             Assert.AreEqual(
-                _recommendationDetails.Recommendedations.Count(),
-                resultTasks.Values.First().Result.Recommendedations.Count());
+                _recommendationDetails.Recommendations.Count(),
+                resultTasks.Values.First().Result.Recommendations.Count());
             Assert.AreEqual(
-                _recommendationDetails.Recommendedations.First().Value,
-                resultTasks.Values.First().Result.Recommendedations.First().Value);
+                _recommendationDetails.Recommendations.First().Value,
+                resultTasks.Values.First().Result.Recommendations.First().Value);
             Assert.AreEqual(
-                _recommendationDetails.Recommendedations.First().Recommendation.First().Description,
-                resultTasks.Values.First().Result.Recommendedations.First().Recommendation.First().Description);
+                _recommendationDetails.Recommendations.First().RecommendedActions.First().Description,
+                resultTasks.Values.First().Result.Recommendations.First().RecommendedActions.First().Description);
         }
     }
 }
