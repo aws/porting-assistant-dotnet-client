@@ -13,6 +13,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="Codelyzer.Analysis" Version="1.0.43-g5c1b3900ba" />
+    <PackageReference Include="Codelyzer.Analysis" Version="1.0.46-g978592bc4a" />
   </ItemGroup>
 </Project>
