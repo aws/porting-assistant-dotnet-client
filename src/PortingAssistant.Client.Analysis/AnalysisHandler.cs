@@ -31,30 +31,22 @@ namespace PortingAssistant.Client.Analysis
         public async Task<Dictionary<string, ProjectAnalysisResult>> AnalyzeSolution(
             string solutionFilename, List<string> projects)
         {
-            try
+            var configuration = new AnalyzerConfiguration(LanguageOptions.CSharp)
             {
-                var configuration = new AnalyzerConfiguration(LanguageOptions.CSharp)
-                {
-                    MetaDataSettings = {
+                MetaDataSettings = {
                         LiteralExpressions = true,
                         MethodInvocations = true,
                         ReferenceData = true,
                         LoadBuildData = true
                     }
-                };
-                var analyzer = CodeAnalyzerFactory.GetAnalyzer(configuration, _logger);
-                var analyzersTask = await analyzer.AnalyzeSolution(solutionFilename);
+            };
+            var analyzer = CodeAnalyzerFactory.GetAnalyzer(configuration, _logger);
+            var analyzersTask = await analyzer.AnalyzeSolution(solutionFilename);
 
-                return projects
-                        .Select((project) => new KeyValuePair<string, ProjectAnalysisResult>(project, AnalyzeProject(project, analyzersTask)))
-                        .Where(p => p.Value != null)
-                        .ToDictionary(p => p.Key, p => p.Value);
-            }
-            finally
-            {
-                // Garbage collect before starting the next solution.
-                CommonUtils.RunGarbageCollection(_logger, "PortingAssistantAnalysisHandler");
-            }
+            return projects
+                    .Select((project) => new KeyValuePair<string, ProjectAnalysisResult>(project, AnalyzeProject(project, analyzersTask)))
+                    .Where(p => p.Value != null)
+                    .ToDictionary(p => p.Key, p => p.Value);
         }
 
         private ProjectAnalysisResult AnalyzeProject(
