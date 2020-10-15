@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
+using Codelyzer.Analysis;
+using Codelyzer.Analysis.Common;
+using Codelyzer.Analysis.Model;
+using Microsoft.Extensions.Logging;
 using PortingAssistant.Client.Analysis.Utils;
 using PortingAssistant.Client.Model;
-using Microsoft.Extensions.Logging;
 using PortingAssistant.Client.NuGet;
-using Codelyzer.Analysis;
 using AnalyzerConfiguration = Codelyzer.Analysis.AnalyzerConfiguration;
-using Codelyzer.Analysis.Model;
-using System.IO;
 
 namespace PortingAssistant.Client.Analysis
 {
@@ -31,24 +31,30 @@ namespace PortingAssistant.Client.Analysis
         public async Task<Dictionary<string, ProjectAnalysisResult>> AnalyzeSolution(
             string solutionFilename, List<string> projects)
         {
-            var configuration = new AnalyzerConfiguration(LanguageOptions.CSharp)
+            try
             {
-                MetaDataSettings =
-            {
-                LiteralExpressions = true,
-                MethodInvocations = true,
-                ReferenceData = true,
-                LoadBuildData = true
-            }
-            };
-            var analyzer = CodeAnalyzerFactory.GetAnalyzer(configuration, _logger);
-            var analyzersTask = await analyzer.AnalyzeSolution(solutionFilename);
+                var configuration = new AnalyzerConfiguration(LanguageOptions.CSharp)
+                {
+                    MetaDataSettings = {
+                        LiteralExpressions = true,
+                        MethodInvocations = true,
+                        ReferenceData = true,
+                        LoadBuildData = true
+                    }
+                };
+                var analyzer = CodeAnalyzerFactory.GetAnalyzer(configuration, _logger);
+                var analyzersTask = await analyzer.AnalyzeSolution(solutionFilename);
 
-            return projects
-                    .Select((project) => new KeyValuePair<string, ProjectAnalysisResult>(project, AnalyzeProject(project, analyzersTask)))
-                    .Where(p => p.Value != null)
-                    .ToDictionary(p => p.Key, p => p.Value);
-            
+                return projects
+                        .Select((project) => new KeyValuePair<string, ProjectAnalysisResult>(project, AnalyzeProject(project, analyzersTask)))
+                        .Where(p => p.Value != null)
+                        .ToDictionary(p => p.Key, p => p.Value);
+            }
+            finally
+            {
+                // Garbage collect before starting the next solution.
+                CommonUtils.RunGarbageCollection(_logger, "PortingAssistantAnalysisHandler");
+            }
         }
 
         private ProjectAnalysisResult AnalyzeProject(
@@ -69,7 +75,7 @@ namespace PortingAssistant.Client.Analysis
                     {
                         ProjectName = Path.GetFileNameWithoutExtension(project),
                         ProjectFilePath = project,
-                        TargetFrameworks = null,
+                        TargetFrameworks = new List<string>(),
                         PackageReferences = new List<PackageVersionPair>(),
                         ProjectReferences = new List<ProjectReference>(),
                         PackageAnalysisResults = new Dictionary<PackageVersionPair, Task<PackageAnalysisResult>>(),
@@ -99,8 +105,8 @@ namespace PortingAssistant.Client.Analysis
                 var targetframeworks = analyzer.ProjectResult.TargetFrameworks.Count == 0 ?
                     new List<string> { analyzer.ProjectResult.TargetFramework } : analyzer.ProjectResult.TargetFrameworks;
 
-                var ProjectReferences = analyzer.ProjectResult.ExternalReferences.ProjectReferences.Count == 0 ? 
-                    new List<string>() : 
+                var ProjectReferences = analyzer.ProjectResult.ExternalReferences.ProjectReferences.Count == 0 ?
+                    new List<string>() :
                     analyzer.ProjectResult.ExternalReferences.ProjectReferences.Select(p => p.AssemblyLocation).ToList();
 
                 var nugetPackages = analyzer.ProjectResult.ExternalReferences.NugetReferences
@@ -153,7 +159,7 @@ namespace PortingAssistant.Client.Analysis
                 {
                     ProjectName = Path.GetFileNameWithoutExtension(project),
                     ProjectFilePath = project,
-                    TargetFrameworks = null,
+                    TargetFrameworks = new List<string>(),
                     PackageReferences = new List<PackageVersionPair>(),
                     ProjectReferences = new List<ProjectReference>(),
                     PackageAnalysisResults = new Dictionary<PackageVersionPair, Task<PackageAnalysisResult>>(),
