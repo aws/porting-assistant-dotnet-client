@@ -64,7 +64,7 @@ namespace PortingAssistant.Client.Analysis
             {
                 var invocationsMethodSignatures = new HashSet<string>();
 
-                var analyzer = analyzers.Find((a) => a.ProjectResult?.ProjectFilePath != null &&
+                using var analyzer = analyzers.Find((a) => a.ProjectResult?.ProjectFilePath != null &&
                     a.ProjectResult.ProjectFilePath.Equals(project));
 
                 if (analyzer == null || analyzer.ProjectResult == null)
