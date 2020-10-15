@@ -8,6 +8,6 @@ namespace PortingAssistant.Client.Model
         public List<string> ProjectPaths { get; set; }
         public string SolutionPath { get; set; }
         public string TargetFramework { get; set; }
-        public List<RecommendedAction> RecommendedActions { get; set; }
+        public List<PackageRecommendation> RecommendedActions { get; set; }
     }
 }
