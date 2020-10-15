@@ -2,6 +2,7 @@
 
 # Porting Assistant for .NET
 [![nuget](https://img.shields.io/nuget/v/PortingAssistant.Client.svg)](https://www.nuget.org/packages/PortingAssistant.Client/)
+![Build Test Publish](https://github.com/aws/porting-assistant-dotnet-client/workflows/Build%20Test%20Publish/badge.svg)
  
 Porting Assistant for .NET is an analysis tool that scans .NET Framework applications and generates a .NET Core compatibility assessment, helping customers port their applications to Linux faster.
  
@@ -11,7 +12,7 @@ Porting Assistant for .NET quickly scans .NET Framework applications to identify
  
 For more information about Porting Assistant and to try the tool, please refer to the documenation: https://aws.amazon.com/porting-assistant-dotnet/
 
-# Getting Started
+## Getting Started
 
 Follow the examples below to see how the library can be integrated into your application for analyzing and porting an application.
 
@@ -74,9 +75,10 @@ await reportHandler.GenerateJsonReport(portingResults, solutionPath, outputPath)
 Please use these community resources for getting help. We use the GitHub issues
 for tracking bugs and feature requests.
 
-* Send us an email to: aws-porting-assistant-support@amazon.com
 * If it turns out that you may have found a bug,
   please open an [issue](https://github.com/aws/porting-assistant-dotnet-client/issues/new)
+  
+* Send us an email to: aws-porting-assistant-support@amazon.com
   
 ## Permissions: AWS Identity and Access Management (IAM)
  
@@ -105,10 +107,22 @@ You must attach the following IAM policy as an inline policy to your IAM user. T
     ]
 }
 ```
+## How to use this code?
+* Clone the Git repository.
+* Load the solution `PortingAssistant.Client.sln` using Visual Studio or Rider. 
+* Create a "Run/Debug" Configuration for the "PortingAssistant.Client" project.
+* Provide command line arguments for a solution path and output path, then run the application.
+
+## Other Packages
+[Codelyzer](https://github.com/aws/codelyzer-analysis): Porting Assistant uses Codelyzer to get package and API information used for finding compatibilities and replacements.
+
+[Porting Assistant for .NET Datastore](https://github.com/aws/porting-assistant-dotnet-datastore): The repository containing the data set and recommendations used in compatibility assessment.
+
 
 ## Contributing
+* [Adding Recommendations](https://github.com/aws/porting-assistant-dotnet-datastore/blob/master/RECOMMENDATIONS.md)
 
-We welcome community contributions and pull requests. See
+* We welcome community contributions and pull requests. See
 [CONTRIBUTING](./CONTRIBUTING.md) for information on how to set up a development
 environment and submit code.
 
