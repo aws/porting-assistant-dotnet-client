@@ -78,33 +78,6 @@ for tracking bugs and feature requests.
   
 * Send us an email to: aws-porting-assistant-support@amazon.com
   
-## Permissions: AWS Identity and Access Management (IAM)
- 
-You must attach the following IAM policy as an inline policy to your IAM user. Then, configure a profile on your server with the IAM credentials of this user.
- 
- 
-```javascript
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Sid": "EnCorePermission",
-            "Effect": "Allow",
-            "Action": [
-                "execute-api:invoke",
-                "s3:GetObject",
-                "s3:ListBucket"
-            ],
-            "Resource": [
-                "arn:aws:execute-api:us-east-1:492443789615:3dmmp07yx6/*",
-                "arn:aws:execute-api:us-east-1:547614552430:8q2itpfg51/*",
-                "arn:aws:s3:::aws.portingassistant.dotnet.datastore",
-                "arn:aws:s3:::aws.portingassistant.dotnet.datastore/*"
-            ]
-        }
-    ]
-}
-```
 ## How to use this code?
 * Clone the Git repository.
 * Load the solution `PortingAssistant.Client.sln` using Visual Studio or Rider. 
