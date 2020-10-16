@@ -140,6 +140,7 @@ Come see what .NET developers at AWS are up to!  Learn about new .NET software a
 * [Nuget.Client](https://github.com/NuGet/NuGet.Client) - Nuget.Client provides tools to interface with Nuget.org and parse Nuget configuration files.
 * [Portability Analyzer](https://github.com/microsoft/dotnet-apiport) - Portability Analyzer analyzes assembly files to access API compatibility with various versions of .NET. Porting Assistant for .NET makes use of recommendations and data provided by Portability Analyzer.
 * [The .NET Compiler Platform ("Roslyn")](https://github.com/dotnet/roslyn) - Roslyn provides open-source C# and Visual Basic compilers with rich code analysis APIs. 
+* [.NET SDKs](https://dotnet.microsoft.com/) - .NET SDKs is a set of libraries and tools that allow developers to create .NET applications and libraries.
 * [THIRD-PARTY](./THIRD-PARTY) - This project would not be possible without additional dependencies listed in [THIRD-PARTY](./THIRD-PARTY).
 
 # License
