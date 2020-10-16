@@ -134,6 +134,13 @@ Find all the .NET code samples, step-by-step guides, videos, blog content, tools
 [AWS Developer Blog - .NET](https://aws.amazon.com/blogs/developer/category/programing-language/dot-net/)
 Come see what .NET developers at AWS are up to!  Learn about new .NET software announcements, guides, and how-to's.
 
+## Thank you
+* [CsprojToVs2017](https://github.com/hvanbakel/CsprojToVs2017) - CsprojToVs2017 helps convert project files from from the legacy format to the Visual Studio 2017/2019 format.
+* [Buildalyzer](https://github.com/daveaglick/Buildalyzer) - Buildalyzer lets you run MSBuild from your own code and returns information about the project.
+* [Nuget.Client](https://github.com/NuGet/NuGet.Client) - Nuget.Client provides tools to interface with Nuget.org and parse Nuget configuration files.
+* [Portability Analyzer](https://github.com/microsoft/dotnet-apiport) - Portability Analyzer analyzes assembly files to access API compatibility with various versions of .NET. Porting Assistant for .NET makes use of recommendations and data provided by Portability Analyzer.
+* [The .NET Compiler Platform ("Roslyn")](https://github.com/dotnet/roslyn) - Roslyn provides open-source C# and Visual Basic compilers with rich code analysis APIs. 
+* [THIRD-PARTY](./THIRD-PARTY) - This project would not be possible without additional dependencies listed in [THIRD-PARTY](./THIRD-PARTY).
 
 # License
 
