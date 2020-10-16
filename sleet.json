@@ -1,0 +1,12 @@
+{
+  "sources": [
+    {
+      "name": "s3Feed",
+      "type": "s3",
+      "path": "https://s3-us-west-2.amazonaws.com/aws.portingassistant.dotnet.download/nuget/",
+      "bucketName": "aws.portingassistant.dotnet.download",
+      "feedSubPath": "nuget",
+      "region": "us-west-2"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat code coverage">
+        <Configuration>
+          <Format>json,cobertura,lcov</Format>
+          <ExcludeByFile>
+          **/src/PortingAssistant.Client.Common/**/**.cs,
+          **/src/PortingAssistant.Client.Handler/DependencyInjection.cs,
+          **/tests/PortingAssistant.Client.UnitTests/TestXml/**/**.cs,
+          **/tests/PortingAssistant.Client.IntegrationTests/TestProjects/**/**.cs,
+          </ExcludeByFile> <!-- Globbing filter -->
+          <SingleHit>false</SingleHit>
+          <IncludeTestAssembly>true</IncludeTestAssembly>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>
