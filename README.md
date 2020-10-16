@@ -130,7 +130,7 @@ environment and submit code.
 * [Nuget.Client](https://github.com/NuGet/NuGet.Client) - Nuget.Client provides tools to interface with Nuget.org and parse Nuget configuration files.
 * [Portability Analyzer](https://github.com/microsoft/dotnet-apiport) - Portability Analyzer analyzes assembly files to access API compatibility with various versions of .NET. Porting Assistant for .NET makes use of recommendations and data provided by Portability Analyzer.
 * [The .NET Compiler Platform ("Roslyn")](https://github.com/dotnet/roslyn) - Roslyn provides open-source C# and Visual Basic compilers with rich code analysis APIs. 
-* [THIRD-PARTY](./THIRD-PARTY.md) - We also leveraged many other dependencies listed in [THIRD-PARTY](./THIRD-PARTY.md).
+* [THIRD-PARTY](./THIRD-PARTY.md) - This project would not be possible without additional dependencies listed in [THIRD-PARTY](./THIRD-PARTY.md).
 
 # Additional Resources
  
