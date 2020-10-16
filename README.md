@@ -124,6 +124,12 @@ You must attach the following IAM policy as an inline policy to your IAM user. T
 [CONTRIBUTING](./CONTRIBUTING.md) for information on how to set up a development
 environment and submit code.
 
+## Thank you
+[CsprojToVs2017](https://github.com/hvanbakel/CsprojToVs2017) - CsprojToVs2017 helps convert project files from from the legacy format to the Visual Studio 2017/2019 format.
+[Buildalyzer](https://github.com/daveaglick/Buildalyzer) - Buildalyzer lets you run MSBuild from your own code and returns information about the project.
+[Nuget.Client](https://github.com/NuGet/NuGet.Client) - Nuget.Client provides tools to interface with Nuget.org and parse Nuget configuration files.
+[THIRD-PARTY](./THIRD-PARTY.md) - We also leveraged many other dependencies listed in [THIRD-PARTY](./THIRD-PARTY.md).
+
 # Additional Resources
  
 [Porting Assistant for .NET](https://docs.aws.amazon.com/portingassistant/index.html)
