@@ -1,7 +1,7 @@
 ![Porting Assistant for .NET](./logo.png "Porting Assistant for .NET")
 
 # Porting Assistant for .NET
-![Build Test Publish](https://github.com/aws/porting-assistant-dotnet-client/workflows/Build%20Test%20Publish/badge.svg)
+![Build Test](https://github.com/aws/porting-assistant-dotnet-client/workflows/Build%20Test/badge.svg)
  
 Porting Assistant for .NET is an analysis tool that scans .NET Framework applications and generates a .NET Core compatibility assessment, helping customers port their applications to Linux faster.
  
