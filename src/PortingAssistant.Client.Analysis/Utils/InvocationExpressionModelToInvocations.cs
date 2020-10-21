@@ -18,7 +18,7 @@ namespace PortingAssistant.Client.Analysis.Utils
             Dictionary<string, Task<RecommendationDetails>> recommendationResults
         )
         {
-            var packageDetailsWithIndexsResults = ApiCompatiblity.PreProcessPackageDetails(packageResults);
+            var packageDetailsWithIndicesResults = ApiCompatiblity.PreProcessPackageDetails(packageResults);
             return sourceFileToInvocations.Select(sourceFile =>
             {
                 return new SourceFileAnalysisResult
@@ -31,13 +31,13 @@ namespace PortingAssistant.Client.Analysis.Utils
                         var sdkpackage = new PackageVersionPair { PackageId = invocation.Namespace, Version = "0.0.0", PackageSourceType = PackageSourceType.SDK };
 
                         // check result with nuget package
-                        var packageDetails = packageDetailsWithIndexsResults.GetValueOrDefault(package, null);
+                        var packageDetails = packageDetailsWithIndicesResults.GetValueOrDefault(package, null);
                         var compatibilityResultWithPackage = ApiCompatiblity.GetCompatibilityResult(packageDetails,
                                                  invocation.OriginalDefinition,
                                                  invocation.Package.Version);
 
                         // potential check with namespace
-                        var sdkpackageDetails = packageDetailsWithIndexsResults.GetValueOrDefault(sdkpackage, null);
+                        var sdkpackageDetails = packageDetailsWithIndicesResults.GetValueOrDefault(sdkpackage, null);
                         var compatibilityResultWithSdk = ApiCompatiblity.GetCompatibilityResult(sdkpackageDetails,
                                                  invocation.OriginalDefinition,
                                                  invocation.Package.Version);

@@ -16,7 +16,7 @@ namespace PortingAssistant.Client.Analysis.Utils
             RecommendedActionType = RecommendedActionType.NoRecommendation
         };
 
-        public static CompatibilityResult GetCompatibilityResult(PackageDetailsWithApiIndexs package, string apiMethodSignature, string version, string target = DEFAULT_TARGET, bool checkLesserPackage = false)
+        public static CompatibilityResult GetCompatibilityResult(PackageDetailsWithApiIndices package, string apiMethodSignature, string version, string target = DEFAULT_TARGET, bool checkLesserPackage = false)
         {
 
             var compatiblityResult = new CompatibilityResult
@@ -156,28 +156,28 @@ namespace PortingAssistant.Client.Analysis.Utils
             return DEFAULT_RECOMMENDATION;
         }
 
-        private static ApiDetails GetApiDetails(PackageDetailsWithApiIndexs packageDetailsWithApiIndexs, string apiMethodSignature)
+        private static ApiDetails GetApiDetails(PackageDetailsWithApiIndices packageDetailsWithApiIndices, string apiMethodSignature)
         {
-            if (packageDetailsWithApiIndexs == null ||
-                packageDetailsWithApiIndexs.PackageDetails == null ||
-                packageDetailsWithApiIndexs.IndexDict == null ||
-                packageDetailsWithApiIndexs.PackageDetails.Api == null ||
+            if (packageDetailsWithApiIndices == null ||
+                packageDetailsWithApiIndices.PackageDetails == null ||
+                packageDetailsWithApiIndices.IndexDict == null ||
+                packageDetailsWithApiIndices.PackageDetails.Api == null ||
                 apiMethodSignature == null)
             {
                 return null;
             }
 
-            var index = packageDetailsWithApiIndexs.IndexDict.GetValueOrDefault(apiMethodSignature.Replace("?", ""), -1);
+            var index = packageDetailsWithApiIndices.IndexDict.GetValueOrDefault(apiMethodSignature.Replace("?", ""), -1);
 
-            if (index >= 0 && index < packageDetailsWithApiIndexs.PackageDetails.Api.Count())
+            if (index >= 0 && index < packageDetailsWithApiIndices.PackageDetails.Api.Count())
             {
-                return packageDetailsWithApiIndexs.PackageDetails.Api[index];
+                return packageDetailsWithApiIndices.PackageDetails.Api[index];
             }
 
             return null;
         }
 
-        public static Dictionary<PackageVersionPair, PackageDetailsWithApiIndexs> PreProcessPackageDetails(Dictionary<PackageVersionPair, Task<PackageDetails>> packageResults)
+        public static Dictionary<PackageVersionPair, PackageDetailsWithApiIndices> PreProcessPackageDetails(Dictionary<PackageVersionPair, Task<PackageDetails>> packageResults)
         {
             return packageResults.Select(entity =>
             {
@@ -187,7 +187,7 @@ namespace PortingAssistant.Client.Analysis.Utils
                     if (entity.Value.IsCompletedSuccessfully)
                     {
                         var indexDict = signatureToIndexPreProcess(entity.Value.Result);
-                        return new Tuple<PackageVersionPair, PackageDetailsWithApiIndexs>(entity.Key, new PackageDetailsWithApiIndexs
+                        return new Tuple<PackageVersionPair, PackageDetailsWithApiIndices>(entity.Key, new PackageDetailsWithApiIndices
                         {
                             PackageDetails = entity.Value.Result,
                             IndexDict = indexDict
