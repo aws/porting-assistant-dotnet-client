@@ -18,6 +18,7 @@ namespace PortingAssistant.Client.Analysis.Utils
             Dictionary<string, Task<RecommendationDetails>> recommendationResults
         )
         {
+            var packageDetailsWithIndicesResults = ApiCompatiblity.PreProcessPackageDetails(packageResults);
             return sourceFileToInvocations.Select(sourceFile =>
             {
                 return new SourceFileAnalysisResult
@@ -30,13 +31,13 @@ namespace PortingAssistant.Client.Analysis.Utils
                         var sdkpackage = new PackageVersionPair { PackageId = invocation.Namespace, Version = "0.0.0", PackageSourceType = PackageSourceType.SDK };
 
                         // check result with nuget package
-                        var packageDetails = packageResults.GetValueOrDefault(package, null);
+                        var packageDetails = packageDetailsWithIndicesResults.GetValueOrDefault(package, null);
                         var compatibilityResultWithPackage = ApiCompatiblity.GetCompatibilityResult(packageDetails,
                                                  invocation.OriginalDefinition,
                                                  invocation.Package.Version);
 
                         // potential check with namespace
-                        var sdkpackageDetails = packageResults.GetValueOrDefault(sdkpackage, null);
+                        var sdkpackageDetails = packageDetailsWithIndicesResults.GetValueOrDefault(sdkpackage, null);
                         var compatibilityResultWithSdk = ApiCompatiblity.GetCompatibilityResult(sdkpackageDetails,
                                                  invocation.OriginalDefinition,
                                                  invocation.Package.Version);
@@ -92,7 +93,9 @@ namespace PortingAssistant.Client.Analysis.Utils
 
                         // Check if invocation is from Nuget
                         var potentialNugetPackage = analyzer?.ProjectResult?.ExternalReferences?.NugetReferences?.Find((n) =>
-                           n.AssemblyLocation != null && n.AssemblyLocation.EndsWith(invocation.Reference.Assembly + ".dll"));                        if (potentialNugetPackage == null)
+                           n.AssemblyLocation != null && n.AssemblyLocation.EndsWith(invocation.Reference.Assembly + ".dll")); 
+                        
+                        if (potentialNugetPackage == null)
                         {
                             potentialNugetPackage = analyzer?.ProjectResult?.ExternalReferences?.NugetDependencies?.Find((n) =>
                            n.AssemblyLocation != null && n.AssemblyLocation.EndsWith(invocation.Reference.Assembly + ".dll"));
@@ -147,14 +150,14 @@ namespace PortingAssistant.Client.Analysis.Utils
                     break;
 
                 case Compatibility.INCOMPATIBLE:
-                    if(compatibilityResultWithSdk.Compatibility == Compatibility.COMPATIBLE)
+                    if (compatibilityResultWithSdk.Compatibility == Compatibility.COMPATIBLE)
                     {
                         compatiblityResult = compatibilityResultWithSdk;
                     }
                     break;
 
                 case Compatibility.DEPRECATED:
-                    if(compatibilityResultWithSdk.Compatibility == Compatibility.COMPATIBLE ||
+                    if (compatibilityResultWithSdk.Compatibility == Compatibility.COMPATIBLE ||
                         compatibilityResultWithSdk.Compatibility == Compatibility.INCOMPATIBLE)
                     {
                         compatiblityResult = compatibilityResultWithSdk;
@@ -165,9 +168,9 @@ namespace PortingAssistant.Client.Analysis.Utils
                     if (compatibilityResultWithSdk.Compatibility == Compatibility.COMPATIBLE ||
                         compatibilityResultWithSdk.Compatibility == Compatibility.INCOMPATIBLE
                         || compatibilityResultWithSdk.Compatibility == Compatibility.DEPRECATED)
-                        {
-                            compatiblityResult = compatibilityResultWithSdk;
-                        }
+                    {
+                        compatiblityResult = compatibilityResultWithSdk;
+                    }
                     break;
 
                 default:

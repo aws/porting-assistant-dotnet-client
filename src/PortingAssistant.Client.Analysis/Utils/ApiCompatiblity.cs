@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using PortingAssistant.Client.Model;
-using Semver;
 using System.Collections.Generic;
 using NuGet.Versioning;
 
@@ -17,7 +16,7 @@ namespace PortingAssistant.Client.Analysis.Utils
             RecommendedActionType = RecommendedActionType.NoRecommendation
         };
 
-        public static CompatibilityResult GetCompatibilityResult(Task<PackageDetails> package, string apiMethodSignature, string version, string target = DEFAULT_TARGET, bool checkLesserPackage = false)
+        public static CompatibilityResult GetCompatibilityResult(PackageDetailsWithApiIndices package, string apiMethodSignature, string version, string target = DEFAULT_TARGET, bool checkLesserPackage = false)
         {
 
             var compatiblityResult = new CompatibilityResult
@@ -31,51 +30,24 @@ namespace PortingAssistant.Client.Analysis.Utils
                 return compatiblityResult;
             }
 
-            try
+            if (package.PackageDetails.IsDeprecated)
             {
-                package.Wait();
-                if (!package.IsCompletedSuccessfully)
-                {
-                    return compatiblityResult;
-                }
+                compatiblityResult.Compatibility = Compatibility.DEPRECATED;
+                return compatiblityResult;
+            }
 
-                if (package.Result.IsDeprecated)
-                {
-                    compatiblityResult.Compatibility = Compatibility.DEPRECATED;
-                    return compatiblityResult;
-                }
+            var foundApi = GetApiDetails(package, apiMethodSignature);
 
-                var foundApi = GetApiDetails(package.Result, apiMethodSignature);
-
-                if (foundApi == null)
-                {
-                    if (!checkLesserPackage || package.Result.Targets == null || !package.Result.Targets.TryGetValue(target, out var targetFramework))
-                    {
-                        compatiblityResult.Compatibility = Compatibility.INCOMPATIBLE;
-                        return compatiblityResult;
-                    }
-
-                    compatiblityResult.Compatibility = hasLesserTarget(version, targetFramework.ToArray()) ? Compatibility.COMPATIBLE : Compatibility.INCOMPATIBLE;
-                    compatiblityResult.CompatibleVersions = targetFramework.ToArray()
-                        .Where(v =>
-                        {
-                            if (!NuGetVersion.TryParse(v, out var semversion))
-                            {
-                                return false;
-                            }
-                            return semversion.CompareTo(targetversion) > 0;
-                        }).ToList();
-                    return compatiblityResult;
-                }
-
-                if (!foundApi.Targets.TryGetValue(target, out var framework))
+            if (foundApi == null)
+            {
+                if (!checkLesserPackage || package.PackageDetails.Targets == null || !package.PackageDetails.Targets.TryGetValue(target, out var targetFramework))
                 {
                     compatiblityResult.Compatibility = Compatibility.INCOMPATIBLE;
                     return compatiblityResult;
                 }
 
-                compatiblityResult.Compatibility = hasLesserTarget(version, framework.ToArray()) ? Compatibility.COMPATIBLE : Compatibility.INCOMPATIBLE;
-                compatiblityResult.CompatibleVersions = framework.ToArray()
+                compatiblityResult.Compatibility = hasLesserTarget(version, targetFramework.ToArray()) ? Compatibility.COMPATIBLE : Compatibility.INCOMPATIBLE;
+                compatiblityResult.CompatibleVersions = targetFramework.ToArray()
                     .Where(v =>
                     {
                         if (!NuGetVersion.TryParse(v, out var semversion))
@@ -86,10 +58,24 @@ namespace PortingAssistant.Client.Analysis.Utils
                     }).ToList();
                 return compatiblityResult;
             }
-            catch
+
+            if (!foundApi.Targets.TryGetValue(target, out var framework))
             {
+                compatiblityResult.Compatibility = Compatibility.INCOMPATIBLE;
                 return compatiblityResult;
             }
+
+            compatiblityResult.Compatibility = hasLesserTarget(version, framework.ToArray()) ? Compatibility.COMPATIBLE : Compatibility.INCOMPATIBLE;
+            compatiblityResult.CompatibleVersions = framework.ToArray()
+                .Where(v =>
+                {
+                    if (!NuGetVersion.TryParse(v, out var semversion))
+                    {
+                        return false;
+                    }
+                    return semversion.CompareTo(targetversion) > 0;
+                }).ToList();
+            return compatiblityResult;
         }
 
         private static bool hasLesserTarget(string version, string[] targetVersions)
@@ -100,7 +86,7 @@ namespace PortingAssistant.Client.Analysis.Utils
             }
             return targetVersions.Any(v =>
             {
-                if (v == "0.0.0.0")
+                if (v == "0.0.0" || v == "0.0.0.0")
                 {
                     return true;
                 }
@@ -170,32 +156,50 @@ namespace PortingAssistant.Client.Analysis.Utils
             return DEFAULT_RECOMMENDATION;
         }
 
-        private static ApiDetails GetApiDetails(PackageDetails packageDetails, string apiMethodSignature)
+        private static ApiDetails GetApiDetails(PackageDetailsWithApiIndices packageDetailsWithApiIndices, string apiMethodSignature)
         {
-            if (packageDetails == null || packageDetails.Api == null || apiMethodSignature == null)
+            if (packageDetailsWithApiIndices == null ||
+                packageDetailsWithApiIndices.PackageDetails == null ||
+                packageDetailsWithApiIndices.IndexDict == null ||
+                packageDetailsWithApiIndices.PackageDetails.Api == null ||
+                apiMethodSignature == null)
             {
                 return null;
             }
 
-            if (!preIndexDict.ContainsKey(packageDetails))
-            {
-                var indexDict = signatureToIndexPreProcess(packageDetails);
-                preIndexDict.Add(packageDetails, indexDict);
-            }
+            var index = packageDetailsWithApiIndices.IndexDict.GetValueOrDefault(apiMethodSignature.Replace("?", ""), -1);
 
-            if (!preIndexDict.TryGetValue(packageDetails, out var signatureToIndex))
+            if (index >= 0 && index < packageDetailsWithApiIndices.PackageDetails.Api.Count())
             {
-                return null;
-            }
-
-            var index = signatureToIndex.GetValueOrDefault(apiMethodSignature.Replace("?", ""), -1);
-
-            if (index >= 0 && index < packageDetails.Api.Count())
-            {
-                return packageDetails.Api[index];
+                return packageDetailsWithApiIndices.PackageDetails.Api[index];
             }
 
             return null;
+        }
+
+        public static Dictionary<PackageVersionPair, PackageDetailsWithApiIndices> PreProcessPackageDetails(Dictionary<PackageVersionPair, Task<PackageDetails>> packageResults)
+        {
+            return packageResults.Select(entity =>
+            {
+                try
+                {
+                    entity.Value.Wait();
+                    if (entity.Value.IsCompletedSuccessfully)
+                    {
+                        var indexDict = signatureToIndexPreProcess(entity.Value.Result);
+                        return new Tuple<PackageVersionPair, PackageDetailsWithApiIndices>(entity.Key, new PackageDetailsWithApiIndices
+                        {
+                            PackageDetails = entity.Value.Result,
+                            IndexDict = indexDict
+                        });
+                    }
+                    return null;
+                }
+                catch
+                {
+                    return null;
+                }
+            }).Where(p => p != null).ToDictionary(t => t.Item1, t => t.Item2);
         }
 
         private static Dictionary<string, int> signatureToIndexPreProcess(PackageDetails packageDetails)
