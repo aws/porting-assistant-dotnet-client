@@ -668,7 +668,7 @@ namespace PortingAssistant.Client.Tests
                 It.IsAny<EventId>(),
                 It.IsAny<It.IsValueType>(),
                 It.IsAny<Exception>(),
-                (Func<It.IsValueType, Exception, string>)It.IsAny<object>()), Times.Once);
+                (Func<It.IsValueType, Exception, string>)It.IsAny<object>()), Times.Exactly(2));
 
             Assert.Throws<AggregateException>(() =>
             {
@@ -690,7 +690,7 @@ namespace PortingAssistant.Client.Tests
                 It.IsAny<EventId>(),
                 It.IsAny<It.IsValueType>(),
                 It.IsAny<Exception>(),
-                (Func<It.IsValueType, Exception, string>)It.IsAny<object>()), Times.Once);
+                (Func<It.IsValueType, Exception, string>)It.IsAny<object>()), Times.Exactly(2));
         }
 
         [Test]
@@ -732,7 +732,7 @@ namespace PortingAssistant.Client.Tests
                 It.IsAny<EventId>(),
                 It.IsAny<It.IsValueType>(),
                 It.IsAny<Exception>(),
-                (Func<It.IsValueType, Exception, string>)It.IsAny<object>()), Times.Once);
+                (Func<It.IsValueType, Exception, string>)It.IsAny<object>()), Times.Exactly(2));
         }
 
         [Test]
