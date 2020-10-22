@@ -152,9 +152,9 @@ namespace PortingAssistant.Client.NuGet
             var repositories = sourceRepositoryProvider
                 .GetRepositories()
                 .Where(r =>
-                    r.PackageSource.Name.ToLower() != "nuget.org"
+                    !string.Equals(r.PackageSource.Name, "nuget.org", StringComparison.OrdinalIgnoreCase)
                     && r.PackageSource.IsEnabled
-                    && r.PackageSource.Name.ToLower() != "microsoft visual studio offline packages")
+                    && !string.Equals(r.PackageSource.Name, "microsoft visual studio offline packages", StringComparison.OrdinalIgnoreCase))
                 .ToList();
 
             return repositories;
