@@ -104,7 +104,7 @@ namespace PortingAssistant.Client.Client.Reports
                     Task.WaitAll(writeToFiles.ToArray());
 
                 });
-                if (FailedProjects != null && FailedProjects.Count != 0)
+                if (FailedProjects?.Count != 0)
                 {
                     WriteReportToFileAsync(FailedProjects, Path.Combine(BaseDir, "failed.json")).Wait();
                 }

@@ -755,7 +755,7 @@ namespace PortingAssistant.Client.Tests
             var result = _internalPackagesCompatibilityChecker.Object.Check(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
 
             Task.WaitAll(result.Values.ToArray());
-            Assert.AreEqual(0, result.Values.ToList().First().Result.Targets.GetValueOrDefault("netcoreapp3.1").Count);
+            Assert.AreEqual(0, result.Values.First().Result.Targets.GetValueOrDefault("netcoreapp3.1").Count);
 
             _internalNuGetCompatibilityHandlerMock.Reset();
             _internalNuGetCompatibilityHandlerMock

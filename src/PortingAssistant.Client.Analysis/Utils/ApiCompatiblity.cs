@@ -46,7 +46,7 @@ namespace PortingAssistant.Client.Analysis.Utils
                 }
 
                 compatiblityResult.Compatibility = HasLesserTarget(version, targetFramework.ToArray()) ? Compatibility.COMPATIBLE : Compatibility.INCOMPATIBLE;
-                compatiblityResult.CompatibleVersions = targetFramework.ToArray()
+                compatiblityResult.CompatibleVersions = targetFramework
                     .Where(v =>
                     {
                         if (!NuGetVersion.TryParse(v, out var semversion))
@@ -65,7 +65,7 @@ namespace PortingAssistant.Client.Analysis.Utils
             }
 
             compatiblityResult.Compatibility = HasLesserTarget(version, framework.ToArray()) ? Compatibility.COMPATIBLE : Compatibility.INCOMPATIBLE;
-            compatiblityResult.CompatibleVersions = framework.ToArray()
+            compatiblityResult.CompatibleVersions = framework
                 .Where(v =>
                 {
                     if (!NuGetVersion.TryParse(v, out var semversion))

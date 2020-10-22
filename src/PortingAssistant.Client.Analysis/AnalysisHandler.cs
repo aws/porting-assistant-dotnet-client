@@ -123,7 +123,7 @@ namespace PortingAssistant.Client.Analysis
                     ProjectFilePath = analyzer.ProjectResult.ProjectFilePath,
                     TargetFrameworks = targetframeworks,
                     PackageReferences = nugetPackages.ToList(),
-                    ProjectReferences = analyzer.ProjectResult.ExternalReferences.ProjectReferences.Select(p => new ProjectReference { ReferencePath = p.AssemblyLocation }).ToList(),
+                    ProjectReferences = analyzer.ProjectResult.ExternalReferences.ProjectReferences.ConvertAll(p => new ProjectReference { ReferencePath = p.AssemblyLocation }),
                     PackageAnalysisResults = packageAnalysisResults,
                     IsBuildFailed = analyzer.ProjectResult.IsBuildFailed(),
                     Errors = analyzer.ProjectResult.BuildErrors,
