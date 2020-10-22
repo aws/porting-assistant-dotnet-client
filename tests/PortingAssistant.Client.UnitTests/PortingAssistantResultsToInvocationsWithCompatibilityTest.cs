@@ -121,17 +121,6 @@ namespace PortingAssistant.Client.Tests
                 }
             };
 
-            var project = new ProjectDetails
-            {
-                PackageReferences = new List<PackageVersionPair>
-                {
-                    new PackageVersionPair {
-                        PackageId = "namespace",
-                        Version = "11.2"
-                    }
-                }
-            };
-
             var result = InvocationExpressionModelToInvocations.AnalyzeResults(
                 sourceFileToInvocations, packageResults, recommendationResults);
 
@@ -150,17 +139,6 @@ namespace PortingAssistant.Client.Tests
                     "file1", new List<CodeEntityDetails>
                     {
                        _codeEntityDetails
-                    }
-                }
-            };
-
-            var project = new ProjectDetails
-            {
-                PackageReferences = new List<PackageVersionPair>
-                {
-                    new PackageVersionPair {
-                        PackageId = "namespace",
-                        Version = "11.2"
                     }
                 }
             };

@@ -48,7 +48,6 @@ namespace PortingAssistant.Client.Analysis.Utils
                         var apiRecommendation = ApiCompatiblity.UpgradeStrategy(
                                                 compatibilityResult,
                                                 invocation.OriginalDefinition,
-                                                invocation.Namespace,
                                                 recommendationDetails);
 
 

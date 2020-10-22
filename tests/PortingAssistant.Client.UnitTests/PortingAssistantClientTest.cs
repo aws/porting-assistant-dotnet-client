@@ -113,8 +113,7 @@ namespace PortingAssistant.Client.Tests
         public void OneTimeSetUp()
         {
             _apiAnalysisHandlerMock = new Mock<IPortingAssistantAnalysisHandler>();
-            _portingHandlerMock = new PortingHandler(NullLogger<PortingHandler>.Instance, 
-                new PortingProjectFileHandler(NullLogger<PortingProjectFileHandler>.Instance));
+            _portingHandlerMock = new PortingHandler(new PortingProjectFileHandler(NullLogger<PortingProjectFileHandler>.Instance));
             _portingAssistantClient = new PortingAssistantClient(
                 NullLogger<PortingAssistantClient>.Instance,
                 _apiAnalysisHandlerMock.Object,

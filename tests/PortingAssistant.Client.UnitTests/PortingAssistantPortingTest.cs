@@ -25,7 +25,7 @@ namespace PortingAssistant.Client.Tests
         public void Setup()
         {
             _portingProjectFileHandler = new PortingProjectFileHandler(NullLogger<PortingProjectFileHandler>.Instance);
-            _portingHandler = new PortingHandler(NullLogger<PortingHandler>.Instance, _portingProjectFileHandler);
+            _portingHandler = new PortingHandler(_portingProjectFileHandler);
 
             var solutionDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestXml", "TestPorting");
             _tmpDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestXml", "TmpDirectory");

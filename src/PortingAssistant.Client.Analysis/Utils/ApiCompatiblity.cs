@@ -10,7 +10,6 @@ namespace PortingAssistant.Client.Analysis.Utils
     public static class ApiCompatiblity
     {
         public const string DEFAULT_TARGET = "netcoreapp3.1";
-        private static Dictionary<PackageDetails, Dictionary<string, int>> preIndexDict = new Dictionary<PackageDetails, Dictionary<string, int>>();
         private static readonly ApiRecommendation DEFAULT_RECOMMENDATION = new ApiRecommendation
         {
             RecommendedActionType = RecommendedActionType.NoRecommendation
@@ -101,7 +100,6 @@ namespace PortingAssistant.Client.Analysis.Utils
         public static ApiRecommendation UpgradeStrategy(
             CompatibilityResult compatibilityResult,
             string apiMethodSignature,
-            string nameSpaceToQuery,
             Task<RecommendationDetails> recommendationDetails)
         {
             try
@@ -119,7 +117,7 @@ namespace PortingAssistant.Client.Analysis.Utils
                         };
                     }
                 }
-                return FetchApiRecommendation(apiMethodSignature, nameSpaceToQuery, recommendationDetails);
+                return FetchApiRecommendation(apiMethodSignature, recommendationDetails);
             }
             catch
             {
@@ -130,7 +128,6 @@ namespace PortingAssistant.Client.Analysis.Utils
 
         private static ApiRecommendation FetchApiRecommendation(
             string apiMethodSignature,
-            string nameSpaceToQuery,
             Task<RecommendationDetails> recommendationDetails)
         {
             if (apiMethodSignature != null && recommendationDetails != null)
