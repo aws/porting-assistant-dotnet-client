@@ -122,13 +122,10 @@ namespace PortingAssistant.Client.Client.Reports
         {
             try
             {
-                using (var destinationStream = new FileStream(FilePath, FileMode.Create))
-                {
-                    using (var memoStream = new MemoryStream(obj.Serialize<T>()))
-                    {
-                        await memoStream.CopyToAsync(destinationStream);
-                    }
-                }
+                using var destinationStream = new FileStream(FilePath, FileMode.Create);
+                using var memoStream = new MemoryStream(obj.Serialize<T>());
+
+                await memoStream.CopyToAsync(destinationStream);
                 _logger.LogInformation("file generated at ", FilePath);
                 return true;
             }
@@ -152,18 +149,13 @@ namespace PortingAssistant.Client.Client.Reports
 
         public static byte[] Serialize<T>(this T data)
         {
-            using (var outputStream = new MemoryStream())
-            {
-                using (var writer = new StreamWriter(outputStream))
-                {
-                    using (var jsonWriter = new JsonTextWriter(writer))
-                    {
-                        Serializer.Serialize(jsonWriter, data);
-                    }
-                }
+            using var outputStream = new MemoryStream();
+            using var writer = new StreamWriter(outputStream);
+            using var jsonWriter = new JsonTextWriter(writer);
 
-                return outputStream.ToArray();
-            }
+            Serializer.Serialize(jsonWriter, data);
+
+            return outputStream.ToArray();
         }
 
         public static T Deserialize<T>(this Stream stream)
