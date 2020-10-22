@@ -127,7 +127,7 @@ namespace PortingAssistant.Client.Tests
             Assert.AreEqual(1, result.First().ApiAnalysisResults.Count);
             Assert.AreEqual("11.0.1", result.First().ApiAnalysisResults.First().CodeEntityDetails.Package.Version);
             Assert.AreEqual(Compatibility.COMPATIBLE, result.First().ApiAnalysisResults.First().CompatibilityResults.GetValueOrDefault(ApiCompatiblity.DEFAULT_TARGET).Compatibility);
-            Assert.AreEqual("12.0.3", result[0].ApiAnalysisResults[0].Recommendations.RecommendedActions.First().Description); ;
+            Assert.AreEqual("12.0.3", result[0].ApiAnalysisResults[0].Recommendations.RecommendedActions.First().Description);
         }
 
         [Test]
@@ -149,7 +149,7 @@ namespace PortingAssistant.Client.Tests
             Assert.AreEqual(1, result.First().ApiAnalysisResults.Count);
             Assert.AreEqual("11.0.1", result.First().ApiAnalysisResults.First().CodeEntityDetails.Package.Version);
             Assert.AreEqual(Compatibility.UNKNOWN, result.First().ApiAnalysisResults.First().CompatibilityResults.GetValueOrDefault(ApiCompatiblity.DEFAULT_TARGET).Compatibility);
-            Assert.IsNull(result[0].ApiAnalysisResults[0].Recommendations.RecommendedActions.First().Description); ;
+            Assert.IsNull(result[0].ApiAnalysisResults[0].Recommendations.RecommendedActions.First().Description);
         }
 
 
