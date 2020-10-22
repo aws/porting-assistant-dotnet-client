@@ -86,11 +86,11 @@ namespace PortingAssistant.Client.Tests
                     ProjectName = p.ProjectName,
                     ProjectFilePath = p.AbsolutePath,
                     ProjectGuid = p.ProjectGuid,
-                    TargetFrameworks = projectParser.GetTargetFrameworks().Select(tfm =>
+                    TargetFrameworks = projectParser.GetTargetFrameworks().ConvertAll(tfm =>
                     {
                         var framework = NuGetFramework.Parse(tfm);
                         return string.Format("{0} {1}", framework.Framework, NuGetVersion.Parse(framework.Version.ToString()).ToNormalizedString());
-                    }).ToList(),
+                    }),
                     PackageReferences = projectParser.GetPackageReferences()
                 };
             }).Where(p => p != null).ToList();

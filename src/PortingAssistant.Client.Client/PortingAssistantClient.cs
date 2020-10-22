@@ -61,7 +61,7 @@ namespace PortingAssistant.Client.Client
                 {
                     SolutionName = Path.GetFileNameWithoutExtension(solutionFilePath),
                     SolutionFilePath = solutionFilePath,
-                    Projects = projectAnalysisResults.Select(p => new ProjectDetails {
+                    Projects = projectAnalysisResults.ConvertAll(p => new ProjectDetails {
                         PackageReferences = p.PackageReferences,
                         ProjectFilePath = p.ProjectFilePath,
                         ProjectGuid = p.ProjectGuid,
@@ -70,7 +70,7 @@ namespace PortingAssistant.Client.Client
                         ProjectType = p.ProjectType,
                         TargetFrameworks = p.TargetFrameworks,
                         IsBuildFailed = p.IsBuildFailed
-                    }).ToList(),
+                    }),
 
                     FailedProjects = failedProjects
                 };

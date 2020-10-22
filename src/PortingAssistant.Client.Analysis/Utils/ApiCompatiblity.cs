@@ -166,7 +166,7 @@ namespace PortingAssistant.Client.Analysis.Utils
 
             var index = packageDetailsWithApiIndices.IndexDict.GetValueOrDefault(apiMethodSignature.Replace("?", ""), -1);
 
-            if (index >= 0 && index < packageDetailsWithApiIndices.PackageDetails.Api.Count())
+            if (index >= 0 && index < packageDetailsWithApiIndices.PackageDetails.Api.Length)
             {
                 return packageDetailsWithApiIndices.PackageDetails.Api[index];
             }
@@ -207,7 +207,7 @@ namespace PortingAssistant.Client.Analysis.Utils
                 return indexDict;
             }
 
-            for (int i = 0; i < packageDetails.Api.Count(); i++)
+            for (int i = 0; i < packageDetails.Api.Length; i++)
             {
                 var api = packageDetails.Api[i];
                 var signature = api.MethodSignature.Replace("?", "");
@@ -231,7 +231,7 @@ namespace PortingAssistant.Client.Analysis.Utils
         {
             try
             {
-                if (api == null || api.MethodParameters == null || api.MethodParameters.Count() == 0)
+                if (api == null || api.MethodParameters == null || api.MethodParameters.Length == 0)
                 {
                     return null;
                 }

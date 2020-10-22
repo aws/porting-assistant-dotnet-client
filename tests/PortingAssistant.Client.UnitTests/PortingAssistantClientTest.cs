@@ -180,7 +180,7 @@ namespace PortingAssistant.Client.Tests
                                 _sourceFileAnalysisResult
                             },
                             ProjectGuid = "xxx",
-                            ProjectType = SolutionProjectType.KnownToBeMSBuildFormat.ToString()
+                            ProjectType = nameof(SolutionProjectType.KnownToBeMSBuildFormat)
                         };
 
                         return new KeyValuePair<string, ProjectAnalysisResult>(project, projectAnalysisResult);
@@ -206,11 +206,11 @@ namespace PortingAssistant.Client.Tests
                     ProjectName = p.ProjectName,
                     ProjectFilePath = p.AbsolutePath,
                     ProjectGuid = p.ProjectGuid,
-                    TargetFrameworks = projectParser.GetTargetFrameworks().Select(tfm =>
+                    TargetFrameworks = projectParser.GetTargetFrameworks().ConvertAll(tfm =>
                     {
                         var framework = NuGetFramework.Parse(tfm);
                         return string.Format("{0} {1}", framework.Framework, NuGetVersion.Parse(framework.Version.ToString()).ToNormalizedString());
-                    }).ToList(),
+                    }),
                     PackageReferences = projectParser.GetPackageReferences()
                 };
             }).Where(p => p != null).ToList();
@@ -237,7 +237,7 @@ namespace PortingAssistant.Client.Tests
 
             Task.WaitAll(packageAnalysisResult.Values.ToArray());
             var packageResult = packageAnalysisResult.First(p => p.Value.Result.PackageVersionPair.PackageId == _packageDetails.Name);
-            Assert.AreEqual(RecommendedActionType.UpgradePackage, packageResult.Value.Result.Recommendations.RecommendedActions.First().RecommendedActionType); ;
+            Assert.AreEqual(RecommendedActionType.UpgradePackage, packageResult.Value.Result.Recommendations.RecommendedActions.First().RecommendedActionType);
             var compatibilityResult = packageResult.Value.Result.CompatibilityResults.GetValueOrDefault(PackageCompatibility.DEFAULT_TARGET);
             Assert.AreEqual(Compatibility.COMPATIBLE, compatibilityResult.Compatibility);
             Assert.AreEqual("12.0.3", compatibilityResult.CompatibleVersions.First());
@@ -246,11 +246,11 @@ namespace PortingAssistant.Client.Tests
             Assert.AreEqual("SolutionWithProjects", solutionDetail.SolutionName);
 
             Assert.AreEqual(5, solutionDetail.Projects.Count);
-            Assert.Contains("PortingAssistantApi", solutionDetail.Projects.Select(result => result.ProjectName).ToList());
+            Assert.Contains("PortingAssistantApi", solutionDetail.Projects.ConvertAll(result => result.ProjectName));
 
             var project = solutionDetail.Projects.First(project => project.ProjectName.Equals("PortingAssistantApi"));
             Assert.AreEqual("xxx", project.ProjectGuid);
-            Assert.AreEqual(SolutionProjectType.KnownToBeMSBuildFormat.ToString(), project.ProjectType);
+            Assert.AreEqual(nameof(SolutionProjectType.KnownToBeMSBuildFormat), project.ProjectType);
         }
 
         [Test]
@@ -261,14 +261,14 @@ namespace PortingAssistant.Client.Tests
                 ProjectPaths = new List<string> { _tmpProjectPath },
                 SolutionPath = _tmpSolutionDirectory,
                 TargetFramework = "netcoreapp3.1.0",
-                RecommendedActions = new List<RecommendedAction> 
+                RecommendedActions = new List<RecommendedAction>
                 {
                     new PackageRecommendation
                     {
                         PackageId = "Newtonsoft.Json",
                         RecommendedActionType = RecommendedActionType.UpgradePackage,
                         TargetVersions = new List<string> { "12.0.3" },
-                    } 
+                    }
                 }
             };
 

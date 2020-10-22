@@ -396,9 +396,9 @@ namespace PortingAssistant.Client.Tests
             Task.WaitAll(resultTasks.Values.ToArray());
 
             Assert.AreEqual(_packageDetails.Name, resultTasks.Values.First().Result.Name);
-            Assert.AreEqual(_packageDetails.Api.Count(), resultTasks.Values.First().Result.Api.Count());
-            Assert.AreEqual(_packageDetails.Targets.Count(), resultTasks.Values.First().Result.Targets.Count());
-            Assert.AreEqual(_packageDetails.Versions.Count(), resultTasks.Values.First().Result.Versions.Count());
+            Assert.AreEqual(_packageDetails.Api.Length, resultTasks.Values.First().Result.Api.Length);
+            Assert.AreEqual(_packageDetails.Targets.Count, resultTasks.Values.First().Result.Targets.Count);
+            Assert.AreEqual(_packageDetails.Versions.Count, resultTasks.Values.First().Result.Versions.Count);
         }
 
         [Test]
@@ -413,9 +413,9 @@ namespace PortingAssistant.Client.Tests
             Task.WaitAll(resultTasks.Values.ToArray());
 
             Assert.AreEqual(_packageDetails.Name, resultTasks.Values.First().Result.Name);
-            Assert.AreEqual(_packageDetails.Api.Count(), resultTasks.Values.First().Result.Api.Count());
-            Assert.AreEqual(_packageDetails.Targets.Count(), resultTasks.Values.First().Result.Targets.Count());
-            Assert.AreEqual(_packageDetails.Versions.Count(), resultTasks.Values.First().Result.Versions.Count());
+            Assert.AreEqual(_packageDetails.Api.Length, resultTasks.Values.First().Result.Api.Length);
+            Assert.AreEqual(_packageDetails.Targets.Count, resultTasks.Values.First().Result.Targets.Count);
+            Assert.AreEqual(_packageDetails.Versions.Count, resultTasks.Values.First().Result.Versions.Count);
         }
 
         [Test]
@@ -430,9 +430,9 @@ namespace PortingAssistant.Client.Tests
             Task.WaitAll(resultTasks.Values.ToArray());
 
             Assert.AreEqual(_packageDetails.Name, resultTasks.Values.First().Result.Name);
-            Assert.AreEqual(_packageDetails.Api.Count(), resultTasks.Values.First().Result.Api.Count());
-            Assert.AreEqual(_packageDetails.Targets.Count(), resultTasks.Values.First().Result.Targets.Count());
-            Assert.AreEqual(_packageDetails.Versions.Count(), resultTasks.Values.First().Result.Versions.Count());
+            Assert.AreEqual(_packageDetails.Api.Length, resultTasks.Values.First().Result.Api.Length);
+            Assert.AreEqual(_packageDetails.Targets.Count, resultTasks.Values.First().Result.Targets.Count);
+            Assert.AreEqual(_packageDetails.Versions.Count, resultTasks.Values.First().Result.Versions.Count);
         }
 
         [Test]
@@ -476,9 +476,9 @@ namespace PortingAssistant.Client.Tests
             Task.WaitAll(resultTasks.Values.ToArray());
 
             Assert.AreEqual(_packageDetails.Name, resultTasks.Values.First().Result.Name);
-            Assert.AreEqual(_packageDetails.Api.Count(), resultTasks.Values.First().Result.Api.Count());
-            Assert.AreEqual(_packageDetails.Targets.Count(), resultTasks.Values.First().Result.Targets.Count());
-            Assert.AreEqual(_packageDetails.Versions.Count(), resultTasks.Values.First().Result.Versions.Count());
+            Assert.AreEqual(_packageDetails.Api.Length, resultTasks.Values.First().Result.Api.Length);
+            Assert.AreEqual(_packageDetails.Targets.Count, resultTasks.Values.First().Result.Targets.Count);
+            Assert.AreEqual(_packageDetails.Versions.Count, resultTasks.Values.First().Result.Versions.Count);
         }
 
         [Test]
