@@ -49,7 +49,7 @@ namespace PortingAssistant.Client.NuGet
         /// <param name="packageVersions">The package versions to check</param>
         /// <param name="pathToSolution">Path to the solution to check</param>
         /// <returns>The results of the compatibility check</returns>
-        public Dictionary<PackageVersionPair, Task<PackageDetails>> CheckAsync(
+        public Dictionary<PackageVersionPair, Task<PackageDetails>> Check(
             IEnumerable<PackageVersionPair> packageVersions,
             string pathToSolution)
         {

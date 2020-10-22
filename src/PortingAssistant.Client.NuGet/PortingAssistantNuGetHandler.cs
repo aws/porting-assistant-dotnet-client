@@ -61,7 +61,7 @@ namespace PortingAssistant.Client.NuGet
             {
                 try
                 {
-                    var compatibilityResults = compatibilityChecker.CheckAsync(distinctPackageVersions, pathToSolution);
+                    var compatibilityResults = compatibilityChecker.Check(distinctPackageVersions, pathToSolution);
                     await Task.WhenAll(compatibilityResults.Select(result =>
                     {
                         return result.Value.ContinueWith(task =>

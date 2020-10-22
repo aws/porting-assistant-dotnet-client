@@ -21,6 +21,6 @@ namespace PortingAssistant.Client.NuGet
         /// <param name="packageVersions">A collection of packages and their versions</param>
         /// <param name="pathToSolution">The solution to check</param>
         /// <returns></returns>
-        public Dictionary<PackageVersionPair, Task<PackageDetails>> CheckAsync(IEnumerable<PackageVersionPair> packageVersions, string pathToSolution);
+        public Dictionary<PackageVersionPair, Task<PackageDetails>> Check(IEnumerable<PackageVersionPair> packageVersions, string pathToSolution);
     }
 }

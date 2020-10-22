@@ -31,17 +31,17 @@ namespace PortingAssistant.Client.NuGet
             _httpService = httpService;
         }
 
-        public Dictionary<PackageVersionPair, Task<PackageDetails>> CheckAsync(
+        public Dictionary<PackageVersionPair, Task<PackageDetails>> Check(
             IEnumerable<PackageVersionPair> packageVersions,
             string pathToSolution)
         {
             var packagesToCheck = packageVersions;
 
-            if(CompatibilityCheckerType == PackageSourceType.SDK)
+            if (CompatibilityCheckerType == PackageSourceType.SDK)
             {
                 packagesToCheck = packageVersions.Where(package => package.PackageSourceType == PackageSourceType.SDK);
             }
-            
+
             var compatibilityTaskCompletionSources = packagesToCheck
                 .Select(packageVersion =>
                 {

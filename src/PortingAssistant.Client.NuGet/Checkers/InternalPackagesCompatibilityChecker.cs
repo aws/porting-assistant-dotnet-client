@@ -30,7 +30,7 @@ namespace PortingAssistant.Client.NuGet
             _logger = logger;
         }
 
-        public Dictionary<PackageVersionPair, Task<PackageDetails>> CheckAsync(
+        public Dictionary<PackageVersionPair, Task<PackageDetails>> Check(
             IEnumerable<PackageVersionPair> packageVersions,
             string pathToSolution)
         {
