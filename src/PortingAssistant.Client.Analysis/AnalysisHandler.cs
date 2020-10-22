@@ -115,7 +115,7 @@ namespace PortingAssistant.Client.Analysis
 
                 var packageAnalysisResults = nugetPackages.Select(package =>
                 {
-                    var result = PackageCompatibility.isCompatibleAsync(packageResults.GetValueOrDefault(package, null), package, _logger);
+                    var result = PackageCompatibility.IsCompatibleAsync(packageResults.GetValueOrDefault(package, null), package, _logger);
                     var packageAnalysisResult = PackageCompatibility.GetPackageAnalysisResult(result, package);
                     return new Tuple<PackageVersionPair, Task<PackageAnalysisResult>>(package, packageAnalysisResult);
                 }).ToDictionary(t => t.Item1, t => t.Item2);

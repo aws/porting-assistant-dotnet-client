@@ -12,13 +12,13 @@ namespace PortingAssistant.Client.Client
 {
     public class PortingAssistantClient : IPortingAssistantClient
     {
-        private readonly IPortingAssistantAnalysisHandler _AnalysisHandler;
+        private readonly IPortingAssistantAnalysisHandler _analysisHandler;
         private readonly IPortingHandler _portingHandler;
 
         public PortingAssistantClient(IPortingAssistantAnalysisHandler AnalysisHandler,
             IPortingHandler portingHandler)
         {
-            _AnalysisHandler = AnalysisHandler;
+            _analysisHandler = AnalysisHandler;
             _portingHandler = portingHandler;
         }
 
@@ -36,7 +36,7 @@ namespace PortingAssistant.Client.Client
                     .Select(p => p.AbsolutePath)
                     .ToList();
 
-                var projectAnalysisResultsDict = await _AnalysisHandler.AnalyzeSolution(solutionFilePath, projects);
+                var projectAnalysisResultsDict = await _analysisHandler.AnalyzeSolution(solutionFilePath, projects);
 
                 var projectAnalysisResults = projects.Select(p =>
                 {
@@ -56,7 +56,8 @@ namespace PortingAssistant.Client.Client
                 {
                     SolutionName = Path.GetFileNameWithoutExtension(solutionFilePath),
                     SolutionFilePath = solutionFilePath,
-                    Projects = projectAnalysisResults.ConvertAll(p => new ProjectDetails {
+                    Projects = projectAnalysisResults.ConvertAll(p => new ProjectDetails
+                    {
                         PackageReferences = p.PackageReferences,
                         ProjectFilePath = p.ProjectFilePath,
                         ProjectGuid = p.ProjectGuid,

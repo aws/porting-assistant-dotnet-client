@@ -45,7 +45,7 @@ namespace PortingAssistant.Client.Analysis.Utils
                     return compatiblityResult;
                 }
 
-                compatiblityResult.Compatibility = hasLesserTarget(version, targetFramework.ToArray()) ? Compatibility.COMPATIBLE : Compatibility.INCOMPATIBLE;
+                compatiblityResult.Compatibility = HasLesserTarget(version, targetFramework.ToArray()) ? Compatibility.COMPATIBLE : Compatibility.INCOMPATIBLE;
                 compatiblityResult.CompatibleVersions = targetFramework.ToArray()
                     .Where(v =>
                     {
@@ -64,7 +64,7 @@ namespace PortingAssistant.Client.Analysis.Utils
                 return compatiblityResult;
             }
 
-            compatiblityResult.Compatibility = hasLesserTarget(version, framework.ToArray()) ? Compatibility.COMPATIBLE : Compatibility.INCOMPATIBLE;
+            compatiblityResult.Compatibility = HasLesserTarget(version, framework.ToArray()) ? Compatibility.COMPATIBLE : Compatibility.INCOMPATIBLE;
             compatiblityResult.CompatibleVersions = framework.ToArray()
                 .Where(v =>
                 {
@@ -77,7 +77,7 @@ namespace PortingAssistant.Client.Analysis.Utils
             return compatiblityResult;
         }
 
-        private static bool hasLesserTarget(string version, string[] targetVersions)
+        private static bool HasLesserTarget(string version, string[] targetVersions)
         {
             if (!NuGetVersion.TryParse(version, out var target))
             {
@@ -183,7 +183,7 @@ namespace PortingAssistant.Client.Analysis.Utils
                     entity.Value.Wait();
                     if (entity.Value.IsCompletedSuccessfully)
                     {
-                        var indexDict = signatureToIndexPreProcess(entity.Value.Result);
+                        var indexDict = SignatureToIndexPreProcess(entity.Value.Result);
                         return new Tuple<PackageVersionPair, PackageDetailsWithApiIndices>(entity.Key, new PackageDetailsWithApiIndices
                         {
                             PackageDetails = entity.Value.Result,
@@ -199,7 +199,7 @@ namespace PortingAssistant.Client.Analysis.Utils
             }).Where(p => p != null).ToDictionary(t => t.Item1, t => t.Item2);
         }
 
-        private static Dictionary<string, int> signatureToIndexPreProcess(PackageDetails packageDetails)
+        private static Dictionary<string, int> SignatureToIndexPreProcess(PackageDetails packageDetails)
         {
             var indexDict = new Dictionary<string, int>();
             if (packageDetails == null || packageDetails.Api == null)
