@@ -79,7 +79,7 @@ namespace PortingAssistant.Client.NuGet
 
                         versionSet.Add(version);
                         var compatibility = await ProcessCompatibility(packageVersionPair, internalRepositories);
-                        if (compatibility != null && compatibility.IsCompatible)
+                        if (compatibility?.IsCompatible == true)
                         {
                             compatibleVersionSet.Add(version);
                         }

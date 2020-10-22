@@ -34,11 +34,10 @@ namespace PortingAssistant.Client.Client
                 var solution = SolutionFile.Parse(solutionFilePath);
                 var failedProjects = new List<string>();
 
-                var projects = solution.ProjectsInOrder.Where(p => 
-                    (p.ProjectType == SolutionProjectType.KnownToBeMSBuildFormat || 
-                    p.ProjectType == SolutionProjectType.WebProject) && 
-                    (settings.IgnoreProjects == null ||
-                    !settings.IgnoreProjects.Contains(p.AbsolutePath)))
+                var projects = solution.ProjectsInOrder.Where(p =>
+                    (p.ProjectType == SolutionProjectType.KnownToBeMSBuildFormat ||
+                    p.ProjectType == SolutionProjectType.WebProject) &&
+                    (settings.IgnoreProjects?.Contains(p.AbsolutePath) != true))
                     .Select(p => p.AbsolutePath)
                     .ToList();
 
@@ -62,7 +61,7 @@ namespace PortingAssistant.Client.Client
                 {
                     SolutionName = Path.GetFileNameWithoutExtension(solutionFilePath),
                     SolutionFilePath = solutionFilePath,
-                    Projects = projectAnalysisResults.Select(p => new ProjectDetails { 
+                    Projects = projectAnalysisResults.Select(p => new ProjectDetails {
                         PackageReferences = p.PackageReferences,
                         ProjectFilePath = p.ProjectFilePath,
                         ProjectGuid = p.ProjectGuid,

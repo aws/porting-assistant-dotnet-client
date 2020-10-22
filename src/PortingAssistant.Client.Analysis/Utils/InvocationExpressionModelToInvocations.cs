@@ -92,18 +92,18 @@ namespace PortingAssistant.Client.Analysis.Utils
 
                         // Check if invocation is from Nuget
                         var potentialNugetPackage = analyzer?.ProjectResult?.ExternalReferences?.NugetReferences?.Find((n) =>
-                           n.AssemblyLocation != null && n.AssemblyLocation.EndsWith(invocation.Reference.Assembly + ".dll")); 
-                        
+                           n.AssemblyLocation?.EndsWith(invocation.Reference.Assembly + ".dll") == true);
+
                         if (potentialNugetPackage == null)
                         {
                             potentialNugetPackage = analyzer?.ProjectResult?.ExternalReferences?.NugetDependencies?.Find((n) =>
-                           n.AssemblyLocation != null && n.AssemblyLocation.EndsWith(invocation.Reference.Assembly + ".dll"));
+                           n.AssemblyLocation?.EndsWith(invocation.Reference.Assembly + ".dll") == true);
                         }
                         PackageVersionPair nugetPackage = ReferenceToPackageVersionPair(potentialNugetPackage);
 
                         // Check if invocation is from SDK
                         var potentialSdk = analyzer?.ProjectResult?.ExternalReferences?.SdkReferences?.Find((s) =>
-                            s.AssemblyLocation != null && s.AssemblyLocation.EndsWith(invocation.Reference.Assembly + ".dll"));
+                            s.AssemblyLocation?.EndsWith(invocation.Reference.Assembly + ".dll") == true);
                         PackageVersionPair sdk = ReferenceToPackageVersionPair(potentialSdk, PackageSourceType.SDK);
 
                         // If both nuget package and sdk are null, this invocation is from an internal project. Skip it.

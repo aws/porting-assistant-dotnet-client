@@ -105,7 +105,7 @@ namespace PortingAssistant.Client.Analysis.Utils
             try
             {
 
-                if (compatibilityResult != null && compatibilityResult.CompatibleVersions != null)
+                if (compatibilityResult?.CompatibleVersions != null)
                 {
                     var validVersions = compatibilityResult.CompatibleVersions.Where(v => !v.Contains("-")).ToList();
                     if (validVersions.Count != 0)
@@ -211,13 +211,13 @@ namespace PortingAssistant.Client.Analysis.Utils
             {
                 var api = packageDetails.Api[i];
                 var signature = api.MethodSignature.Replace("?", "");
-                if (signature != null && signature != "" && !indexDict.ContainsKey(signature))
+                if (!string.IsNullOrEmpty(signature) && !indexDict.ContainsKey(signature))
                 {
                     indexDict.Add(signature, i);
                 }
 
                 var extensionSignature = GetExtensionSignature(api);
-                if (extensionSignature != null && extensionSignature != "" && !indexDict.ContainsKey(extensionSignature))
+                if (!string.IsNullOrEmpty(extensionSignature) && !indexDict.ContainsKey(extensionSignature))
                 {
                     indexDict.Add(extensionSignature, i);
                 }
