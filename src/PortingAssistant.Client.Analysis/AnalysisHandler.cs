@@ -62,8 +62,6 @@ namespace PortingAssistant.Client.Analysis
         {
             try
             {
-                var invocationsMethodSignatures = new HashSet<string>();
-
                 using var analyzer = analyzers.Find((a) => a.ProjectResult?.ProjectFilePath != null &&
                     a.ProjectResult.ProjectFilePath.Equals(project));
 
@@ -90,10 +88,6 @@ namespace PortingAssistant.Client.Analysis
 
                 var targetframeworks = analyzer.ProjectResult.TargetFrameworks.Count == 0 ?
                     new List<string> { analyzer.ProjectResult.TargetFramework } : analyzer.ProjectResult.TargetFrameworks;
-
-                var ProjectReferences = analyzer.ProjectResult.ExternalReferences.ProjectReferences.Count == 0 ?
-                    new List<string>() :
-                    analyzer.ProjectResult.ExternalReferences.ProjectReferences.Select(p => p.AssemblyLocation).ToList();
 
                 var nugetPackages = analyzer.ProjectResult.ExternalReferences.NugetReferences
                     .Select(r => InvocationExpressionModelToInvocations.ReferenceToPackageVersionPair(r))

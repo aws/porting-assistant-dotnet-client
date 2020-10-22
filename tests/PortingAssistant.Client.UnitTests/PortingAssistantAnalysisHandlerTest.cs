@@ -110,8 +110,6 @@ namespace PortingAssistant.Client.Tests
                     return null;
                 }
 
-                var projectParser = new ProjectFileParser(p.AbsolutePath);
-
                 return new ProjectDetails
                 {
                     ProjectName = p.ProjectName,
