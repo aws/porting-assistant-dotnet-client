@@ -152,7 +152,6 @@ namespace PortingAssistant.Client.NuGet
                 {
                     if (ex.Message.Contains("404"))
                     {
-                        var s3Exception = ex as AmazonS3Exception;
                         _logger.LogInformation($"Encountered {ex.GetType()} while downloading and parsing {url.Key} " +
                                               $"from {CompatibilityCheckerType}, but it was ignored. " +
                                               $"ErrorMessage: {ex.Message}.");

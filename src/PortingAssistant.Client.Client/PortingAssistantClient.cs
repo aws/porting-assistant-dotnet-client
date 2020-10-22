@@ -5,7 +5,6 @@ using PortingAssistant.Client.Analysis;
 using PortingAssistant.Client.Model;
 using PortingAssistant.Client.Porting;
 using Microsoft.Build.Construction;
-using Microsoft.Extensions.Logging;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -13,16 +12,12 @@ namespace PortingAssistant.Client.Client
 {
     public class PortingAssistantClient : IPortingAssistantClient
     {
-        private readonly ILogger _logger;
         private readonly IPortingAssistantAnalysisHandler _AnalysisHandler;
         private readonly IPortingHandler _portingHandler;
 
-        public PortingAssistantClient(ILogger<PortingAssistantClient> logger,
-            IPortingAssistantAnalysisHandler AnalysisHandler,
-            IPortingHandler portingHandler
-            )
+        public PortingAssistantClient(IPortingAssistantAnalysisHandler AnalysisHandler,
+            IPortingHandler portingHandler)
         {
-            _logger = logger;
             _AnalysisHandler = AnalysisHandler;
             _portingHandler = portingHandler;
         }

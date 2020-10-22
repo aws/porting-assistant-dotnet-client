@@ -115,7 +115,6 @@ namespace PortingAssistant.Client.Tests
             _apiAnalysisHandlerMock = new Mock<IPortingAssistantAnalysisHandler>();
             _portingHandlerMock = new PortingHandler(new PortingProjectFileHandler(NullLogger<PortingProjectFileHandler>.Instance));
             _portingAssistantClient = new PortingAssistantClient(
-                NullLogger<PortingAssistantClient>.Instance,
                 _apiAnalysisHandlerMock.Object,
                 _portingHandlerMock);
         }
