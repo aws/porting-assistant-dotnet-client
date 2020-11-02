@@ -49,7 +49,7 @@ namespace PortingAssistant.Client.NuGet
         /// <param name="packageVersions">The package versions to check</param>
         /// <param name="pathToSolution">Path to the solution to check</param>
         /// <returns>The results of the compatibility check</returns>
-        public Dictionary<PackageVersionPair, Task<PackageDetails>> CheckAsync(
+        public Dictionary<PackageVersionPair, Task<PackageDetails>> Check(
             IEnumerable<PackageVersionPair> packageVersions,
             string pathToSolution)
         {
@@ -152,7 +152,6 @@ namespace PortingAssistant.Client.NuGet
                 {
                     if (ex.Message.Contains("404"))
                     {
-                        var s3Exception = ex as AmazonS3Exception;
                         _logger.LogInformation($"Encountered {ex.GetType()} while downloading and parsing {url.Key} " +
                                               $"from {CompatibilityCheckerType}, but it was ignored. " +
                                               $"ErrorMessage: {ex.Message}.");

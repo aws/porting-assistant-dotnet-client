@@ -66,7 +66,7 @@ namespace PortingAssistant.Client.CLI
                     }
                     SolutionPath = o.SolutionPath;
 
-                    if (o.OutputPath == null || o.OutputPath.Length == 0)
+                    if (string.IsNullOrEmpty(o.OutputPath))
                     {
                         Console.WriteLine("Invalid output path " + OutputPath);
                         Environment.Exit(-1);

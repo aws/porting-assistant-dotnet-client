@@ -40,7 +40,7 @@ namespace PortingAssistant.Client.UnitTests
                                 "netcore31"
                             },
                             Description = "System.Web (AKA classic ASP.NET) won't be ported to .NET Core. See https://aka.ms/unsupported-netfx-api.",
-                            Actions = new Actions[0]
+                            Actions = Array.Empty<Actions>()
                         }
                     }
                 }
@@ -86,7 +86,7 @@ namespace PortingAssistant.Client.UnitTests
                     return outputStream;
                 });
 
-            
+
 
             _portingAssistantRecommendationHandler = new PortingAssistantRecommendationHandler(
                 _httpService.Object,
@@ -106,8 +106,8 @@ namespace PortingAssistant.Client.UnitTests
             Assert.AreEqual(_recommendationDetails.Name, resultTasks.Values.First().Result.Name);
             Assert.AreEqual(_recommendationDetails.Version, resultTasks.Values.First().Result.Version);
             Assert.AreEqual(
-                _recommendationDetails.Recommendations.Count(),
-                resultTasks.Values.First().Result.Recommendations.Count());
+                _recommendationDetails.Recommendations.Length,
+                resultTasks.Values.First().Result.Recommendations.Length);
             Assert.AreEqual(
                 _recommendationDetails.Recommendations.First().Value,
                 resultTasks.Values.First().Result.Recommendations.First().Value);

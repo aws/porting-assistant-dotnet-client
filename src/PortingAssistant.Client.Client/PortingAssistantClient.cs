@@ -5,7 +5,6 @@ using PortingAssistant.Client.Analysis;
 using PortingAssistant.Client.Model;
 using PortingAssistant.Client.Porting;
 using Microsoft.Build.Construction;
-using Microsoft.Extensions.Logging;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -13,17 +12,13 @@ namespace PortingAssistant.Client.Client
 {
     public class PortingAssistantClient : IPortingAssistantClient
     {
-        private readonly ILogger _logger;
-        private readonly IPortingAssistantAnalysisHandler _AnalysisHandler;
+        private readonly IPortingAssistantAnalysisHandler _analysisHandler;
         private readonly IPortingHandler _portingHandler;
 
-        public PortingAssistantClient(ILogger<PortingAssistantClient> logger,
-            IPortingAssistantAnalysisHandler AnalysisHandler,
-            IPortingHandler portingHandler
-            )
+        public PortingAssistantClient(IPortingAssistantAnalysisHandler AnalysisHandler,
+            IPortingHandler portingHandler)
         {
-            _logger = logger;
-            _AnalysisHandler = AnalysisHandler;
+            _analysisHandler = AnalysisHandler;
             _portingHandler = portingHandler;
         }
 
@@ -34,15 +29,14 @@ namespace PortingAssistant.Client.Client
                 var solution = SolutionFile.Parse(solutionFilePath);
                 var failedProjects = new List<string>();
 
-                var projects = solution.ProjectsInOrder.Where(p => 
-                    (p.ProjectType == SolutionProjectType.KnownToBeMSBuildFormat || 
-                    p.ProjectType == SolutionProjectType.WebProject) && 
-                    (settings.IgnoreProjects == null ||
-                    !settings.IgnoreProjects.Contains(p.AbsolutePath)))
+                var projects = solution.ProjectsInOrder.Where(p =>
+                    (p.ProjectType == SolutionProjectType.KnownToBeMSBuildFormat ||
+                    p.ProjectType == SolutionProjectType.WebProject) &&
+                    (settings.IgnoreProjects?.Contains(p.AbsolutePath) != true))
                     .Select(p => p.AbsolutePath)
                     .ToList();
 
-                var projectAnalysisResultsDict = await _AnalysisHandler.AnalyzeSolution(solutionFilePath, projects);
+                var projectAnalysisResultsDict = await _analysisHandler.AnalyzeSolution(solutionFilePath, projects);
 
                 var projectAnalysisResults = projects.Select(p =>
                 {
@@ -62,7 +56,8 @@ namespace PortingAssistant.Client.Client
                 {
                     SolutionName = Path.GetFileNameWithoutExtension(solutionFilePath),
                     SolutionFilePath = solutionFilePath,
-                    Projects = projectAnalysisResults.Select(p => new ProjectDetails { 
+                    Projects = projectAnalysisResults.ConvertAll(p => new ProjectDetails
+                    {
                         PackageReferences = p.PackageReferences,
                         ProjectFilePath = p.ProjectFilePath,
                         ProjectGuid = p.ProjectGuid,
@@ -71,7 +66,7 @@ namespace PortingAssistant.Client.Client
                         ProjectType = p.ProjectType,
                         TargetFrameworks = p.TargetFrameworks,
                         IsBuildFailed = p.IsBuildFailed
-                    }).ToList(),
+                    }),
 
                     FailedProjects = failedProjects
                 };

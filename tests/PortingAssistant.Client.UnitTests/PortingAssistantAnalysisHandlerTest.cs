@@ -72,7 +72,7 @@ namespace PortingAssistant.Client.Tests
             _solutionFile = Path.Combine(TestContext.CurrentContext.TestDirectory,
                 "TestXml", "SolutionWithApi", "SolutionWithApi.sln");
             _projects = GetProjects(_solutionFile);
-            _projectPaths = _projects.Select(p => p.ProjectFilePath).ToList();
+            _projectPaths = _projects.ConvertAll(p => p.ProjectFilePath);
 
             _nuGetHandlerMock.Reset();
 
@@ -109,8 +109,6 @@ namespace PortingAssistant.Client.Tests
                 {
                     return null;
                 }
-
-                var projectParser = new ProjectFileParser(p.AbsolutePath);
 
                 return new ProjectDetails
                 {

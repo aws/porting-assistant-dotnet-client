@@ -30,7 +30,7 @@ namespace PortingAssistant.Client.NuGet
             _logger = logger;
         }
 
-        public Dictionary<PackageVersionPair, Task<PackageDetails>> CheckAsync(
+        public Dictionary<PackageVersionPair, Task<PackageDetails>> Check(
             IEnumerable<PackageVersionPair> packageVersions,
             string pathToSolution)
         {
@@ -79,7 +79,7 @@ namespace PortingAssistant.Client.NuGet
 
                         versionSet.Add(version);
                         var compatibility = await ProcessCompatibility(packageVersionPair, internalRepositories);
-                        if (compatibility != null && compatibility.IsCompatible)
+                        if (compatibility?.IsCompatible == true)
                         {
                             compatibleVersionSet.Add(version);
                         }
@@ -152,9 +152,9 @@ namespace PortingAssistant.Client.NuGet
             var repositories = sourceRepositoryProvider
                 .GetRepositories()
                 .Where(r =>
-                    r.PackageSource.Name.ToLower() != "nuget.org"
+                    !string.Equals(r.PackageSource.Name, "nuget.org", StringComparison.OrdinalIgnoreCase)
                     && r.PackageSource.IsEnabled
-                    && r.PackageSource.Name.ToLower() != "microsoft visual studio offline packages")
+                    && !string.Equals(r.PackageSource.Name, "microsoft visual studio offline packages", StringComparison.OrdinalIgnoreCase))
                 .ToList();
 
             return repositories;

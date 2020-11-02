@@ -43,7 +43,7 @@ namespace PortingAssistant.Client.Model
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(License); ;
+            return HashCode.Combine(License);
         }
     }
 

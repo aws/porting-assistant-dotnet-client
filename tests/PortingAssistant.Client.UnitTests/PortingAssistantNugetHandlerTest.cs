@@ -314,7 +314,7 @@ namespace PortingAssistant.Client.Tests
         private IPortingAssistantNuGetHandler GetCheckerWithException()
         {
             var checker = new Mock<ICompatibilityChecker>();
-            checker.Setup(checker => checker.CheckAsync(
+            checker.Setup(checker => checker.Check(
                 It.IsAny<List<PackageVersionPair>>(),
                 It.IsAny<string>()))
                 .Throws(new Exception("test"));
@@ -396,9 +396,9 @@ namespace PortingAssistant.Client.Tests
             Task.WaitAll(resultTasks.Values.ToArray());
 
             Assert.AreEqual(_packageDetails.Name, resultTasks.Values.First().Result.Name);
-            Assert.AreEqual(_packageDetails.Api.Count(), resultTasks.Values.First().Result.Api.Count());
-            Assert.AreEqual(_packageDetails.Targets.Count(), resultTasks.Values.First().Result.Targets.Count());
-            Assert.AreEqual(_packageDetails.Versions.Count(), resultTasks.Values.First().Result.Versions.Count());
+            Assert.AreEqual(_packageDetails.Api.Length, resultTasks.Values.First().Result.Api.Length);
+            Assert.AreEqual(_packageDetails.Targets.Count, resultTasks.Values.First().Result.Targets.Count);
+            Assert.AreEqual(_packageDetails.Versions.Count, resultTasks.Values.First().Result.Versions.Count);
         }
 
         [Test]
@@ -413,9 +413,9 @@ namespace PortingAssistant.Client.Tests
             Task.WaitAll(resultTasks.Values.ToArray());
 
             Assert.AreEqual(_packageDetails.Name, resultTasks.Values.First().Result.Name);
-            Assert.AreEqual(_packageDetails.Api.Count(), resultTasks.Values.First().Result.Api.Count());
-            Assert.AreEqual(_packageDetails.Targets.Count(), resultTasks.Values.First().Result.Targets.Count());
-            Assert.AreEqual(_packageDetails.Versions.Count(), resultTasks.Values.First().Result.Versions.Count());
+            Assert.AreEqual(_packageDetails.Api.Length, resultTasks.Values.First().Result.Api.Length);
+            Assert.AreEqual(_packageDetails.Targets.Count, resultTasks.Values.First().Result.Targets.Count);
+            Assert.AreEqual(_packageDetails.Versions.Count, resultTasks.Values.First().Result.Versions.Count);
         }
 
         [Test]
@@ -430,9 +430,9 @@ namespace PortingAssistant.Client.Tests
             Task.WaitAll(resultTasks.Values.ToArray());
 
             Assert.AreEqual(_packageDetails.Name, resultTasks.Values.First().Result.Name);
-            Assert.AreEqual(_packageDetails.Api.Count(), resultTasks.Values.First().Result.Api.Count());
-            Assert.AreEqual(_packageDetails.Targets.Count(), resultTasks.Values.First().Result.Targets.Count());
-            Assert.AreEqual(_packageDetails.Versions.Count(), resultTasks.Values.First().Result.Versions.Count());
+            Assert.AreEqual(_packageDetails.Api.Length, resultTasks.Values.First().Result.Api.Length);
+            Assert.AreEqual(_packageDetails.Targets.Count, resultTasks.Values.First().Result.Targets.Count);
+            Assert.AreEqual(_packageDetails.Versions.Count, resultTasks.Values.First().Result.Versions.Count);
         }
 
         [Test]
@@ -476,9 +476,9 @@ namespace PortingAssistant.Client.Tests
             Task.WaitAll(resultTasks.Values.ToArray());
 
             Assert.AreEqual(_packageDetails.Name, resultTasks.Values.First().Result.Name);
-            Assert.AreEqual(_packageDetails.Api.Count(), resultTasks.Values.First().Result.Api.Count());
-            Assert.AreEqual(_packageDetails.Targets.Count(), resultTasks.Values.First().Result.Targets.Count());
-            Assert.AreEqual(_packageDetails.Versions.Count(), resultTasks.Values.First().Result.Versions.Count());
+            Assert.AreEqual(_packageDetails.Api.Length, resultTasks.Values.First().Result.Api.Length);
+            Assert.AreEqual(_packageDetails.Targets.Count, resultTasks.Values.First().Result.Targets.Count);
+            Assert.AreEqual(_packageDetails.Versions.Count, resultTasks.Values.First().Result.Versions.Count);
         }
 
         [Test]
@@ -643,7 +643,7 @@ namespace PortingAssistant.Client.Tests
             };
             Assert.Throws<AggregateException>(() =>
             {
-                var resultTasks = externalChecker.CheckAsync(packages, null);
+                var resultTasks = externalChecker.Check(packages, null);
                 Task.WaitAll(resultTasks.Values.ToArray());
             });
         }
@@ -661,7 +661,7 @@ namespace PortingAssistant.Client.Tests
                 packageVersionPair
             };
 
-            var resultTasks = externalPackagesCompatibilityChecker.CheckAsync(packages, null);
+            var resultTasks = externalPackagesCompatibilityChecker.Check(packages, null);
 
             _loggerMock.Verify(_ => _.Log(
                 LogLevel.Error,
@@ -752,10 +752,10 @@ namespace PortingAssistant.Client.Tests
             {
                 packageVersionPair
             };
-            var result = _internalPackagesCompatibilityChecker.Object.CheckAsync(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
+            var result = _internalPackagesCompatibilityChecker.Object.Check(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
 
             Task.WaitAll(result.Values.ToArray());
-            Assert.AreEqual(0, result.Values.ToList().First().Result.Targets.GetValueOrDefault("netcoreapp3.1").Count);
+            Assert.AreEqual(0, result.Values.First().Result.Targets.GetValueOrDefault("netcoreapp3.1").Count);
 
             _internalNuGetCompatibilityHandlerMock.Reset();
             _internalNuGetCompatibilityHandlerMock
@@ -766,7 +766,7 @@ namespace PortingAssistant.Client.Tests
                 It.IsAny<IEnumerable<SourceRepository>>()))
                 .Throws(new AggregateException());
 
-            result = _internalPackagesCompatibilityChecker.Object.CheckAsync(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
+            result = _internalPackagesCompatibilityChecker.Object.Check(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
 
             Task.WaitAll(result.Values.ToArray());
             Assert.AreEqual(0, result.Values.First().Result.Targets.GetValueOrDefault("netcoreapp3.1").Count);

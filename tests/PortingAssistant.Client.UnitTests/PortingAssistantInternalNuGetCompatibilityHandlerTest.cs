@@ -28,7 +28,7 @@ namespace PortingAssistant.Client.Tests
 
             var repositories = sourceRepositoryProvider
                 .GetRepositories()
-                .Where(r => r.PackageSource.Name.ToLower() != "nuget.org");
+                .Where(r => !string.Equals(r.PackageSource.Name, "nuget.org", StringComparison.OrdinalIgnoreCase));
 
             return repositories;
         }

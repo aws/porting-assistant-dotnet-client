@@ -25,7 +25,7 @@ namespace PortingAssistant.Client.Tests
         public void Setup()
         {
             _portingProjectFileHandler = new PortingProjectFileHandler(NullLogger<PortingProjectFileHandler>.Instance);
-            _portingHandler = new PortingHandler(NullLogger<PortingHandler>.Instance, _portingProjectFileHandler);
+            _portingHandler = new PortingHandler(_portingProjectFileHandler);
 
             var solutionDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestXml", "TestPorting");
             _tmpDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestXml", "TmpDirectory");
@@ -86,11 +86,11 @@ namespace PortingAssistant.Client.Tests
                     ProjectName = p.ProjectName,
                     ProjectFilePath = p.AbsolutePath,
                     ProjectGuid = p.ProjectGuid,
-                    TargetFrameworks = projectParser.GetTargetFrameworks().Select(tfm =>
+                    TargetFrameworks = projectParser.GetTargetFrameworks().ConvertAll(tfm =>
                     {
                         var framework = NuGetFramework.Parse(tfm);
                         return string.Format("{0} {1}", framework.Framework, NuGetVersion.Parse(framework.Version.ToString()).ToNormalizedString());
-                    }).ToList(),
+                    }),
                     PackageReferences = projectParser.GetPackageReferences()
                 };
             }).Where(p => p != null).ToList();

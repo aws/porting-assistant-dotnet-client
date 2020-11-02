@@ -21,7 +21,7 @@ namespace PortingAssistant.Client.PortingProjectFile
         private readonly ILogger _logger;
         private readonly MigrationFacility _facility;
 
-        private static readonly ProjectWriteOptions writeOptions = new ProjectWriteOptions
+        private static readonly ProjectWriteOptions WriteOptions = new ProjectWriteOptions
         {
             MakeBackups = false
         };
@@ -71,7 +71,7 @@ namespace PortingAssistant.Client.PortingProjectFile
 
             var selectedProjects = projects.Where(project => projectPaths.Contains(project.FilePath.FullName)).ToList();
 
-            var writer = new ProjectWriter(_logger, writeOptions);
+            var writer = new ProjectWriter(_logger, WriteOptions);
 
             foreach (var project in selectedProjects)
             {

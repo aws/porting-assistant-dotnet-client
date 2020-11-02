@@ -10,7 +10,6 @@ namespace PortingAssistant.Client.Analysis.Utils
     public static class ApiCompatiblity
     {
         public const string DEFAULT_TARGET = "netcoreapp3.1";
-        private static Dictionary<PackageDetails, Dictionary<string, int>> preIndexDict = new Dictionary<PackageDetails, Dictionary<string, int>>();
         private static readonly ApiRecommendation DEFAULT_RECOMMENDATION = new ApiRecommendation
         {
             RecommendedActionType = RecommendedActionType.NoRecommendation
@@ -46,8 +45,8 @@ namespace PortingAssistant.Client.Analysis.Utils
                     return compatiblityResult;
                 }
 
-                compatiblityResult.Compatibility = hasLesserTarget(version, targetFramework.ToArray()) ? Compatibility.COMPATIBLE : Compatibility.INCOMPATIBLE;
-                compatiblityResult.CompatibleVersions = targetFramework.ToArray()
+                compatiblityResult.Compatibility = HasLesserTarget(version, targetFramework.ToArray()) ? Compatibility.COMPATIBLE : Compatibility.INCOMPATIBLE;
+                compatiblityResult.CompatibleVersions = targetFramework
                     .Where(v =>
                     {
                         if (!NuGetVersion.TryParse(v, out var semversion))
@@ -65,8 +64,8 @@ namespace PortingAssistant.Client.Analysis.Utils
                 return compatiblityResult;
             }
 
-            compatiblityResult.Compatibility = hasLesserTarget(version, framework.ToArray()) ? Compatibility.COMPATIBLE : Compatibility.INCOMPATIBLE;
-            compatiblityResult.CompatibleVersions = framework.ToArray()
+            compatiblityResult.Compatibility = HasLesserTarget(version, framework.ToArray()) ? Compatibility.COMPATIBLE : Compatibility.INCOMPATIBLE;
+            compatiblityResult.CompatibleVersions = framework
                 .Where(v =>
                 {
                     if (!NuGetVersion.TryParse(v, out var semversion))
@@ -78,7 +77,7 @@ namespace PortingAssistant.Client.Analysis.Utils
             return compatiblityResult;
         }
 
-        private static bool hasLesserTarget(string version, string[] targetVersions)
+        private static bool HasLesserTarget(string version, string[] targetVersions)
         {
             if (!NuGetVersion.TryParse(version, out var target))
             {
@@ -101,13 +100,12 @@ namespace PortingAssistant.Client.Analysis.Utils
         public static ApiRecommendation UpgradeStrategy(
             CompatibilityResult compatibilityResult,
             string apiMethodSignature,
-            string nameSpaceToQuery,
             Task<RecommendationDetails> recommendationDetails)
         {
             try
             {
 
-                if (compatibilityResult != null && compatibilityResult.CompatibleVersions != null)
+                if (compatibilityResult?.CompatibleVersions != null)
                 {
                     var validVersions = compatibilityResult.CompatibleVersions.Where(v => !v.Contains("-")).ToList();
                     if (validVersions.Count != 0)
@@ -119,7 +117,7 @@ namespace PortingAssistant.Client.Analysis.Utils
                         };
                     }
                 }
-                return FetchApiRecommendation(apiMethodSignature, nameSpaceToQuery, recommendationDetails);
+                return FetchApiRecommendation(apiMethodSignature, recommendationDetails);
             }
             catch
             {
@@ -130,7 +128,6 @@ namespace PortingAssistant.Client.Analysis.Utils
 
         private static ApiRecommendation FetchApiRecommendation(
             string apiMethodSignature,
-            string nameSpaceToQuery,
             Task<RecommendationDetails> recommendationDetails)
         {
             if (apiMethodSignature != null && recommendationDetails != null)
@@ -169,7 +166,7 @@ namespace PortingAssistant.Client.Analysis.Utils
 
             var index = packageDetailsWithApiIndices.IndexDict.GetValueOrDefault(apiMethodSignature.Replace("?", ""), -1);
 
-            if (index >= 0 && index < packageDetailsWithApiIndices.PackageDetails.Api.Count())
+            if (index >= 0 && index < packageDetailsWithApiIndices.PackageDetails.Api.Length)
             {
                 return packageDetailsWithApiIndices.PackageDetails.Api[index];
             }
@@ -186,7 +183,7 @@ namespace PortingAssistant.Client.Analysis.Utils
                     entity.Value.Wait();
                     if (entity.Value.IsCompletedSuccessfully)
                     {
-                        var indexDict = signatureToIndexPreProcess(entity.Value.Result);
+                        var indexDict = SignatureToIndexPreProcess(entity.Value.Result);
                         return new Tuple<PackageVersionPair, PackageDetailsWithApiIndices>(entity.Key, new PackageDetailsWithApiIndices
                         {
                             PackageDetails = entity.Value.Result,
@@ -202,7 +199,7 @@ namespace PortingAssistant.Client.Analysis.Utils
             }).Where(p => p != null).ToDictionary(t => t.Item1, t => t.Item2);
         }
 
-        private static Dictionary<string, int> signatureToIndexPreProcess(PackageDetails packageDetails)
+        private static Dictionary<string, int> SignatureToIndexPreProcess(PackageDetails packageDetails)
         {
             var indexDict = new Dictionary<string, int>();
             if (packageDetails == null || packageDetails.Api == null)
@@ -210,17 +207,17 @@ namespace PortingAssistant.Client.Analysis.Utils
                 return indexDict;
             }
 
-            for (int i = 0; i < packageDetails.Api.Count(); i++)
+            for (int i = 0; i < packageDetails.Api.Length; i++)
             {
                 var api = packageDetails.Api[i];
                 var signature = api.MethodSignature.Replace("?", "");
-                if (signature != null && signature != "" && !indexDict.ContainsKey(signature))
+                if (!string.IsNullOrEmpty(signature) && !indexDict.ContainsKey(signature))
                 {
                     indexDict.Add(signature, i);
                 }
 
                 var extensionSignature = GetExtensionSignature(api);
-                if (extensionSignature != null && extensionSignature != "" && !indexDict.ContainsKey(extensionSignature))
+                if (!string.IsNullOrEmpty(extensionSignature) && !indexDict.ContainsKey(extensionSignature))
                 {
                     indexDict.Add(extensionSignature, i);
                 }
@@ -234,7 +231,7 @@ namespace PortingAssistant.Client.Analysis.Utils
         {
             try
             {
-                if (api == null || api.MethodParameters == null || api.MethodParameters.Count() == 0)
+                if (api == null || api.MethodParameters == null || api.MethodParameters.Length == 0)
                 {
                     return null;
                 }

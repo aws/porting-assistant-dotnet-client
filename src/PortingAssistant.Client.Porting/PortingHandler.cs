@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.Extensions.Logging;
 using PortingAssistant.Client.Model;
 using PortingAssistant.Client.PortingProjectFile;
 
@@ -8,7 +7,6 @@ namespace PortingAssistant.Client.Porting
 {
     public class PortingHandler : IPortingHandler
     {
-        private readonly ILogger _logger;
         private readonly IPortingProjectFileHandler _portingProjectFileHandler;
 
         /// <summary>
@@ -16,9 +14,8 @@ namespace PortingAssistant.Client.Porting
         /// </summary>
         /// <param name="logger">An ILogger object</param>
         /// <param name="portingProjectFileHandler">A instance of a handler object to run the porting</param>
-        public PortingHandler(ILogger<PortingHandler> logger, IPortingProjectFileHandler portingProjectFileHandler)
+        public PortingHandler(IPortingProjectFileHandler portingProjectFileHandler)
         {
-            _logger = logger;
             _portingProjectFileHandler = portingProjectFileHandler;
         }
 

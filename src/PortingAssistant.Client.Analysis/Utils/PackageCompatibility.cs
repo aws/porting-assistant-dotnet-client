@@ -43,7 +43,7 @@ namespace PortingAssistant.Client.Analysis.Utils
             };
         }
 
-        public static async Task<CompatibilityResult> isCompatibleAsync(Task<PackageDetails> packageDetails, PackageVersionPair packageVersionPair, ILogger _logger, string target = DEFAULT_TARGET)
+        public static async Task<CompatibilityResult> IsCompatibleAsync(Task<PackageDetails> packageDetails, PackageVersionPair packageVersionPair, ILogger _logger, string target = DEFAULT_TARGET)
         {
             if (packageDetails == null || packageVersionPair == null)
             {
