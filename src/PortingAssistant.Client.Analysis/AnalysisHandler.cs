@@ -68,7 +68,7 @@ namespace PortingAssistant.Client.Analysis
                 if (analyzer == null || analyzer.ProjectResult == null)
                 {
                     _logger.LogError("Unable to build {0}.", project);
-                    return null;
+                    throw new PortingAssistantException($"Build project {project} failed", null);
                 }
 
                 var sourceFileToInvocations = analyzer.ProjectResult.SourceFileResults.Select((sourceFile) =>
