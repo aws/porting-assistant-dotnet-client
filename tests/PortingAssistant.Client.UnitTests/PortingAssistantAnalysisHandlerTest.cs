@@ -164,7 +164,7 @@ namespace PortingAssistant.Client.Tests
         {
             var result = _analysisHandler.AnalyzeSolution(_solutionFile, new List<string> { "Rand.csproj" });
             Task.WaitAll(result);
-            Assert.IsNull(result.Result.GetValueOrDefault("Rand.csproj", null));
+            Assert.True(result.Result.GetValueOrDefault("Rand.csproj", null).IsBuildFailed);
         }
 
         [Test]
