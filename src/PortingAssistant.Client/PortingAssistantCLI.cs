@@ -19,7 +19,7 @@ namespace PortingAssistant.Client.CLI
 
         public string PortingProjectPath { get; set; }
 
-        [Option('o', "ouput-path", Required = true, HelpText = "output folder.")]
+        [Option('o', "output-path", Required = true, HelpText = "output folder.")]
         public string OutputPath { get; set; }
 
         [Option('i', "ignore-projects", Separator = ',', Required = false, HelpText = "ignore projects in the solution")]
