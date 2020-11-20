@@ -109,13 +109,13 @@ namespace PortingAssistant.Client.Analysis
 
                 var packageAnalysisResults = nugetPackages.Select(package =>
                 {
-                    var result = PackageCompatibility.IsCompatibleAsync(packageResults.GetValueOrDefault(package, null), package, _logger);
+                    var result = PackageCompatibility.IsCompatibleAsync(packageResults.GetValueOrDefault(package, null), package, _logger, targetFramework);
                     var packageAnalysisResult = PackageCompatibility.GetPackageAnalysisResult(result, package, targetFramework);
                     return new Tuple<PackageVersionPair, Task<PackageAnalysisResult>>(package, packageAnalysisResult);
                 }).ToDictionary(t => t.Item1, t => t.Item2);
 
                 var SourceFileAnalysisResults = InvocationExpressionModelToInvocations.AnalyzeResults(
-                    sourceFileToCodeEntityDetails, packageResults, recommendationResults);
+                    sourceFileToCodeEntityDetails, packageResults, recommendationResults, targetFramework);
 
                 return new ProjectAnalysisResult
                 {
