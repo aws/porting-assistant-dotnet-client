@@ -9,13 +9,12 @@ namespace PortingAssistant.Client.Analysis.Utils
 {
     public static class ApiCompatiblity
     {
-        public const string DEFAULT_TARGET = "netcoreapp3.1";
         private static readonly ApiRecommendation DEFAULT_RECOMMENDATION = new ApiRecommendation
         {
             RecommendedActionType = RecommendedActionType.NoRecommendation
         };
 
-        public static CompatibilityResult GetCompatibilityResult(PackageDetailsWithApiIndices package, string apiMethodSignature, string version, string target = DEFAULT_TARGET, bool checkLesserPackage = false)
+        public static CompatibilityResult GetCompatibilityResult(PackageDetailsWithApiIndices package, string apiMethodSignature, string version, string target = "netcoreapp3.1", bool checkLesserPackage = false)
         {
 
             var compatiblityResult = new CompatibilityResult

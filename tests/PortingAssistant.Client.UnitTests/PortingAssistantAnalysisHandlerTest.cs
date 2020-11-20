@@ -23,6 +23,7 @@ namespace PortingAssistant.Client.Tests
         private string _solutionFile;
         private List<ProjectDetails> _projects;
         private List<string> _projectPaths;
+        private string DEFAULT_TARGET = "netcoreapp3.1";
 
         private readonly PackageDetails _packageDetails = new PackageDetails
         {
@@ -139,8 +140,8 @@ namespace PortingAssistant.Client.Tests
             var packageAnalysisResult = projectAnalysisResult.PackageAnalysisResults.First(p => p.Key.PackageId == "Newtonsoft.Json").Value.Result;
 
             Assert.AreEqual(package, packageAnalysisResult.PackageVersionPair);
-            Assert.AreEqual(Compatibility.INCOMPATIBLE, packageAnalysisResult.CompatibilityResults.GetValueOrDefault(PackageCompatibility.DEFAULT_TARGET).Compatibility);
-            Assert.AreEqual("12.0.3", packageAnalysisResult.CompatibilityResults.GetValueOrDefault(PackageCompatibility.DEFAULT_TARGET).CompatibleVersions.First());
+            Assert.AreEqual(Compatibility.INCOMPATIBLE, packageAnalysisResult.CompatibilityResults.GetValueOrDefault(DEFAULT_TARGET).Compatibility);
+            Assert.AreEqual("12.0.3", packageAnalysisResult.CompatibilityResults.GetValueOrDefault(DEFAULT_TARGET).CompatibleVersions.First());
             Assert.AreEqual("12.0.3", packageAnalysisResult.Recommendations.RecommendedActions.First().Description);
             Assert.AreEqual(RecommendedActionType.UpgradePackage, packageAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
 
@@ -155,7 +156,7 @@ namespace PortingAssistant.Client.Tests
             Assert.AreEqual("11.0.1", apiAnalysisResult.CodeEntityDetails.Package.Version);
             Assert.AreEqual("Newtonsoft.Json.JsonConvert.SerializeObject(object)",
                 apiAnalysisResult.CodeEntityDetails.OriginalDefinition);
-            Assert.AreEqual(Compatibility.COMPATIBLE, apiAnalysisResult.CompatibilityResults.GetValueOrDefault(ApiCompatiblity.DEFAULT_TARGET).Compatibility);
+            Assert.AreEqual(Compatibility.COMPATIBLE, apiAnalysisResult.CompatibilityResults.GetValueOrDefault(DEFAULT_TARGET).Compatibility);
             Assert.AreEqual("12.0.3", apiAnalysisResult.Recommendations.RecommendedActions.First().Description);
         }
 

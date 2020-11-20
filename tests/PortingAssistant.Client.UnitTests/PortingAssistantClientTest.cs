@@ -29,6 +29,7 @@ namespace PortingAssistant.Client.Tests
         private string _tmpDirectory;
         private string _tmpProjectPath;
         private string _tmpSolutionDirectory;
+        private static string DEFAULT_TARGET = "netcoreapp3.1";
 
         private readonly PackageDetails _packageDetails = new PackageDetails
         {
@@ -73,7 +74,7 @@ namespace PortingAssistant.Client.Tests
                 {
                     CompatibilityResults = new Dictionary<string, CompatibilityResult>
                     {
-                        { ApiCompatiblity.DEFAULT_TARGET, new CompatibilityResult{
+                        { DEFAULT_TARGET, new CompatibilityResult{
                             Compatibility = Compatibility.COMPATIBLE,
                             CompatibleVersions = new List<string>{ "12.0.3", "12.0.4" }
                         } }
@@ -130,8 +131,8 @@ namespace PortingAssistant.Client.Tests
             _tmpProjectPath = Path.Combine(_tmpSolutionDirectory, "Libraries", "Nop.Core", "Nop.Core.csproj");
 
             _apiAnalysisHandlerMock.Reset();
-            _apiAnalysisHandlerMock.Setup(analyzer => analyzer.AnalyzeSolution(It.IsAny<string>(), It.IsAny<List<string>>()))
-                .Returns((string solutionFilePath, List<string> projects) =>
+            _apiAnalysisHandlerMock.Setup(analyzer => analyzer.AnalyzeSolution(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
+                .Returns((string solutionFilePath, List<string> projects, string targetFramework) =>
                 {
                     return Task.Run(() => projects.Select(project =>
                     {
@@ -145,7 +146,7 @@ namespace PortingAssistant.Client.Tests
                             PackageVersionPair = package,
                             CompatibilityResults = new Dictionary<string, CompatibilityResult>
                             {
-                                {"netcoreapp3.1", new CompatibilityResult{
+                                {targetFramework, new CompatibilityResult{
                                     Compatibility = Compatibility.COMPATIBLE,
                                     CompatibleVersions = new List<string>
                                     {
@@ -226,7 +227,7 @@ namespace PortingAssistant.Client.Tests
         [Test]
         public void AnalyzeSolutionWithProjectsSucceeds()
         {
-            var results = _portingAssistantClient.AnalyzeSolutionAsync(Path.Combine(_solutionFolder, "SolutionWithProjects.sln"), new AnalyzerSettings());
+            var results = _portingAssistantClient.AnalyzeSolutionAsync(Path.Combine(_solutionFolder, "SolutionWithProjects.sln"), new AnalyzerSettings { TargetFramework = "netcoreapp3.1"});
             results.Wait();
             var projectAnalysisResult = results.Result.ProjectAnalysisResults.Find(p => p.ProjectName == "Nop.Core");
             var sourceFileAnalysisResults = projectAnalysisResult.SourceFileAnalysisResults;
@@ -237,7 +238,7 @@ namespace PortingAssistant.Client.Tests
             Task.WaitAll(packageAnalysisResult.Values.ToArray());
             var packageResult = packageAnalysisResult.First(p => p.Value.Result.PackageVersionPair.PackageId == _packageDetails.Name);
             Assert.AreEqual(RecommendedActionType.UpgradePackage, packageResult.Value.Result.Recommendations.RecommendedActions.First().RecommendedActionType);
-            var compatibilityResult = packageResult.Value.Result.CompatibilityResults.GetValueOrDefault(PackageCompatibility.DEFAULT_TARGET);
+            var compatibilityResult = packageResult.Value.Result.CompatibilityResults.GetValueOrDefault(DEFAULT_TARGET);
             Assert.AreEqual(Compatibility.COMPATIBLE, compatibilityResult.Compatibility);
             Assert.AreEqual("12.0.3", compatibilityResult.CompatibleVersions.First());
 

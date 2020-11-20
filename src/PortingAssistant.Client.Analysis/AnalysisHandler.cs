@@ -29,7 +29,7 @@ namespace PortingAssistant.Client.Analysis
         }
 
         public async Task<Dictionary<string, ProjectAnalysisResult>> AnalyzeSolution(
-            string solutionFilename, List<string> projects)
+            string solutionFilename, List<string> projects, string targetFramework = "netcoreapp3.1")
         {
             try
             {
@@ -46,7 +46,7 @@ namespace PortingAssistant.Client.Analysis
                 var analyzersTask = await analyzer.AnalyzeSolution(solutionFilename);
 
                 return projects
-                        .Select((project) => new KeyValuePair<string, ProjectAnalysisResult>(project, AnalyzeProject(project, analyzersTask)))
+                        .Select((project) => new KeyValuePair<string, ProjectAnalysisResult>(project, AnalyzeProject(project, analyzersTask, targetFramework)))
                         .Where(p => p.Value != null)
                         .ToDictionary(p => p.Key, p => p.Value);
             }
@@ -58,7 +58,7 @@ namespace PortingAssistant.Client.Analysis
         }
 
         private ProjectAnalysisResult AnalyzeProject(
-            string project, List<AnalyzerResult> analyzers)
+            string project, List<AnalyzerResult> analyzers, string targetFramework = "netcoreapp3.1")
         {
             try
             {
@@ -110,7 +110,7 @@ namespace PortingAssistant.Client.Analysis
                 var packageAnalysisResults = nugetPackages.Select(package =>
                 {
                     var result = PackageCompatibility.IsCompatibleAsync(packageResults.GetValueOrDefault(package, null), package, _logger);
-                    var packageAnalysisResult = PackageCompatibility.GetPackageAnalysisResult(result, package);
+                    var packageAnalysisResult = PackageCompatibility.GetPackageAnalysisResult(result, package, targetFramework);
                     return new Tuple<PackageVersionPair, Task<PackageAnalysisResult>>(package, packageAnalysisResult);
                 }).ToDictionary(t => t.Item1, t => t.Item2);
 
