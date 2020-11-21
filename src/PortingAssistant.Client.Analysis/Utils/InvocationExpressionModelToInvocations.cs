@@ -35,13 +35,15 @@ namespace PortingAssistant.Client.Analysis.Utils
                         var packageDetails = packageDetailsWithIndicesResults.GetValueOrDefault(package, null);
                         var compatibilityResultWithPackage = ApiCompatiblity.GetCompatibilityResult(packageDetails,
                                                  invocation.OriginalDefinition,
-                                                 invocation.Package.Version);
+                                                 invocation.Package.Version,
+                                                 tragetFramework);
 
                         // potential check with namespace
                         var sdkpackageDetails = packageDetailsWithIndicesResults.GetValueOrDefault(sdkpackage, null);
                         var compatibilityResultWithSdk = ApiCompatiblity.GetCompatibilityResult(sdkpackageDetails,
                                                  invocation.OriginalDefinition,
-                                                 invocation.Package.Version);
+                                                 invocation.Package.Version,
+                                                 tragetFramework);
 
                         var compatibilityResult = GetCompatibilityResult(compatibilityResultWithPackage, compatibilityResultWithSdk);
 
