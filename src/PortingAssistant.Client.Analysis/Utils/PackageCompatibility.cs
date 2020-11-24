@@ -82,6 +82,17 @@ namespace PortingAssistant.Client.Analysis.Utils
                         CompatibleVersions = new List<string>()
                     };
                 }
+
+                var compatibleVersions = foundTarget.Where(v =>
+                {
+                    if (!NuGetVersion.TryParse(v, out var semversion))
+                    {
+                        return false;
+                    }
+                    return semversion.CompareTo(version) > 0;
+                }).ToList();
+
+                compatibleVersions.Sort( (a, b) => NuGetVersion.Parse(a).CompareTo(NuGetVersion.Parse(b)));
                 return new CompatibilityResult
                 {
                     Compatibility = foundTarget.Any(v =>
@@ -93,14 +104,7 @@ namespace PortingAssistant.Client.Analysis.Utils
 
                         return version.CompareTo(semversion) >= 0;
                     }) ? Compatibility.COMPATIBLE : Compatibility.INCOMPATIBLE,
-                    CompatibleVersions = foundTarget.Where(v =>
-                    {
-                        if (!NuGetVersion.TryParse(v, out var semversion))
-                        {
-                            return false;
-                        }
-                        return semversion.CompareTo(version) > 0;
-                    }).ToList()
+                    CompatibleVersions = compatibleVersions
                 };
             }
             catch (Exception e)
