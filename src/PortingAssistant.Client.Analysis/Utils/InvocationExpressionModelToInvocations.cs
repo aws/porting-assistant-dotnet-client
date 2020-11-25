@@ -15,7 +15,8 @@ namespace PortingAssistant.Client.Analysis.Utils
         public static List<SourceFileAnalysisResult> AnalyzeResults(
             Dictionary<string, List<CodeEntityDetails>> sourceFileToInvocations,
             Dictionary<PackageVersionPair, Task<PackageDetails>> packageResults,
-            Dictionary<string, Task<RecommendationDetails>> recommendationResults
+            Dictionary<string, Task<RecommendationDetails>> recommendationResults,
+            string tragetFramework = "netcoreapp3.1"
         )
         {
             var packageDetailsWithIndicesResults = ApiCompatiblity.PreProcessPackageDetails(packageResults);
@@ -34,13 +35,15 @@ namespace PortingAssistant.Client.Analysis.Utils
                         var packageDetails = packageDetailsWithIndicesResults.GetValueOrDefault(package, null);
                         var compatibilityResultWithPackage = ApiCompatiblity.GetCompatibilityResult(packageDetails,
                                                  invocation.OriginalDefinition,
-                                                 invocation.Package.Version);
+                                                 invocation.Package.Version,
+                                                 tragetFramework);
 
                         // potential check with namespace
                         var sdkpackageDetails = packageDetailsWithIndicesResults.GetValueOrDefault(sdkpackage, null);
                         var compatibilityResultWithSdk = ApiCompatiblity.GetCompatibilityResult(sdkpackageDetails,
                                                  invocation.OriginalDefinition,
-                                                 invocation.Package.Version);
+                                                 invocation.Package.Version,
+                                                 tragetFramework);
 
                         var compatibilityResult = GetCompatibilityResult(compatibilityResultWithPackage, compatibilityResultWithSdk);
 
@@ -56,7 +59,7 @@ namespace PortingAssistant.Client.Analysis.Utils
                             CodeEntityDetails = invocation,
                             CompatibilityResults = new Dictionary<string, CompatibilityResult>
                             {
-                                { ApiCompatiblity.DEFAULT_TARGET, compatibilityResult}
+                                { tragetFramework, compatibilityResult}
                             },
                             Recommendations = new Recommendations
                             {

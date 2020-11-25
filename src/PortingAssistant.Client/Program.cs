@@ -24,10 +24,12 @@ namespace PortingAssistant.Client.CLI
                 var solutionSettings = cli.IgnoreProjects != null && cli.IgnoreProjects.Count != 0 ?
                         new AnalyzerSettings
                         {
-                            IgnoreProjects = cli.IgnoreProjects
+                            IgnoreProjects = cli.IgnoreProjects,
+                            TargetFramework = cli.Target
                         } : new AnalyzerSettings
                         {
-                            IgnoreProjects = new List<string>()
+                            IgnoreProjects = new List<string>(),
+                            TargetFramework = cli.Target
                         };
 
                 var analyzeResults = portingAssistantClient.AnalyzeSolutionAsync(cli.SolutionPath, solutionSettings);
@@ -40,7 +42,7 @@ namespace PortingAssistant.Client.CLI
                 {
                     Console.WriteLine("err generated solution analysis report");
                 }
-                if (cli.PortingProjects != null)
+                if (cli.PortingProjects != null && cli.PortingProjects.Count != 0)
                 {
 
                     var PortingProjectResults = analyzeResults.Result.ProjectAnalysisResults

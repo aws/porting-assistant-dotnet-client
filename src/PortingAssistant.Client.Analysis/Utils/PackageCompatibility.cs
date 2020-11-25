@@ -10,9 +10,7 @@ namespace PortingAssistant.Client.Analysis.Utils
 {
     public static class PackageCompatibility
     {
-        public const string DEFAULT_TARGET = "netcoreapp3.1";
-
-        public static async Task<PackageAnalysisResult> GetPackageAnalysisResult(Task<CompatibilityResult> CompatibilityResult, PackageVersionPair packageVersionPair)
+        public static async Task<PackageAnalysisResult> GetPackageAnalysisResult(Task<CompatibilityResult> CompatibilityResult, PackageVersionPair packageVersionPair, string targetFramework)
         {
             var result = await CompatibilityResult;
             return new PackageAnalysisResult
@@ -21,7 +19,7 @@ namespace PortingAssistant.Client.Analysis.Utils
                 CompatibilityResults = new Dictionary<string, CompatibilityResult>
                 {
                     {
-                        DEFAULT_TARGET, new CompatibilityResult
+                        targetFramework, new CompatibilityResult
                         {
                             Compatibility = result.Compatibility,
                             CompatibleVersions = result.CompatibleVersions
@@ -43,7 +41,7 @@ namespace PortingAssistant.Client.Analysis.Utils
             };
         }
 
-        public static async Task<CompatibilityResult> IsCompatibleAsync(Task<PackageDetails> packageDetails, PackageVersionPair packageVersionPair, ILogger _logger, string target = DEFAULT_TARGET)
+        public static async Task<CompatibilityResult> IsCompatibleAsync(Task<PackageDetails> packageDetails, PackageVersionPair packageVersionPair, ILogger _logger, string target = "netcoreapp3.1")
         {
             if (packageDetails == null || packageVersionPair == null)
             {
@@ -84,6 +82,17 @@ namespace PortingAssistant.Client.Analysis.Utils
                         CompatibleVersions = new List<string>()
                     };
                 }
+
+                var compatibleVersions = foundTarget.Where(v =>
+                {
+                    if (!NuGetVersion.TryParse(v, out var semversion))
+                    {
+                        return false;
+                    }
+                    return semversion.CompareTo(version) > 0;
+                }).ToList();
+
+                compatibleVersions.Sort( (a, b) => NuGetVersion.Parse(a).CompareTo(NuGetVersion.Parse(b)));
                 return new CompatibilityResult
                 {
                     Compatibility = foundTarget.Any(v =>
@@ -95,14 +104,7 @@ namespace PortingAssistant.Client.Analysis.Utils
 
                         return version.CompareTo(semversion) >= 0;
                     }) ? Compatibility.COMPATIBLE : Compatibility.INCOMPATIBLE,
-                    CompatibleVersions = foundTarget.Where(v =>
-                    {
-                        if (!NuGetVersion.TryParse(v, out var semversion))
-                        {
-                            return false;
-                        }
-                        return semversion.CompareTo(version) > 0;
-                    }).ToList()
+                    CompatibleVersions = compatibleVersions
                 };
             }
             catch (Exception e)

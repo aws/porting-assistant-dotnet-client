@@ -6,6 +6,6 @@ namespace PortingAssistant.Client.Analysis
 {
     public interface IPortingAssistantAnalysisHandler
     {
-        Task<Dictionary<string, ProjectAnalysisResult>> AnalyzeSolution(string solutionFilename, List<string> projects);
+        Task<Dictionary<string, ProjectAnalysisResult>> AnalyzeSolution(string solutionFilename, List<string> projects, string targetFramework = "netcoreapp3.1");
     }
 }

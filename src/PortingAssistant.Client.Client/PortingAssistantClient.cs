@@ -36,7 +36,9 @@ namespace PortingAssistant.Client.Client
                     .Select(p => p.AbsolutePath)
                     .ToList();
 
-                var projectAnalysisResultsDict = await _analysisHandler.AnalyzeSolution(solutionFilePath, projects);
+                var targetFramework = settings.TargetFramework ?? "netcoreapp3.1";
+
+                var projectAnalysisResultsDict = await _analysisHandler.AnalyzeSolution(solutionFilePath, projects, targetFramework);
 
                 var projectAnalysisResults = projects.Select(p =>
                 {
