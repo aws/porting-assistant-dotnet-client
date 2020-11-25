@@ -93,7 +93,7 @@ namespace PortingAssistant.Client.NuGet
 
             foreach (var packageVersion in packageVersionsGroupedByPackageId.Select(packageVersionGroup => packageVersionGroup.Value))
             {
-                if (_compatibilityTaskCompletionSources.TryGetValue(packageVersion, out var packageVersionPairResult))
+                if (packageVersion != null && _compatibilityTaskCompletionSources.TryGetValue(packageVersion, out var packageVersionPairResult))
                 {
                     _logger.LogError($"Cound not find package {packageVersion} in all sources");
                     var defaultErrorMessage = $"Could not find package {packageVersion}. Compatibility task status: {packageVersionPairResult.Task.Status}.";
