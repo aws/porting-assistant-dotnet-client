@@ -16,7 +16,7 @@ namespace PortingAssistant.Client.Analysis.Utils
             Dictionary<string, List<CodeEntityDetails>> sourceFileToInvocations,
             Dictionary<PackageVersionPair, Task<PackageDetails>> packageResults,
             Dictionary<string, Task<RecommendationDetails>> recommendationResults,
-            string tragetFramework = "netcoreapp3.1"
+            string targetFramework = "netcoreapp3.1"
         )
         {
             var packageDetailsWithIndicesResults = ApiCompatiblity.PreProcessPackageDetails(packageResults);
@@ -36,14 +36,14 @@ namespace PortingAssistant.Client.Analysis.Utils
                         var compatibilityResultWithPackage = ApiCompatiblity.GetCompatibilityResult(packageDetails,
                                                  invocation.OriginalDefinition,
                                                  invocation.Package.Version,
-                                                 tragetFramework);
+                                                 targetFramework);
 
                         // potential check with namespace
                         var sdkpackageDetails = packageDetailsWithIndicesResults.GetValueOrDefault(sdkpackage, null);
                         var compatibilityResultWithSdk = ApiCompatiblity.GetCompatibilityResult(sdkpackageDetails,
                                                  invocation.OriginalDefinition,
                                                  invocation.Package.Version,
-                                                 tragetFramework);
+                                                 targetFramework);
 
                         var compatibilityResult = GetCompatibilityResult(compatibilityResultWithPackage, compatibilityResultWithSdk);
 
@@ -51,7 +51,8 @@ namespace PortingAssistant.Client.Analysis.Utils
                         var apiRecommendation = ApiCompatiblity.UpgradeStrategy(
                                                 compatibilityResult,
                                                 invocation.OriginalDefinition,
-                                                recommendationDetails);
+                                                recommendationDetails,
+                                                targetFramework);
 
 
                         return new ApiAnalysisResult
@@ -59,7 +60,7 @@ namespace PortingAssistant.Client.Analysis.Utils
                             CodeEntityDetails = invocation,
                             CompatibilityResults = new Dictionary<string, CompatibilityResult>
                             {
-                                { tragetFramework, compatibilityResult}
+                                { targetFramework, compatibilityResult}
                             },
                             Recommendations = new Recommendations
                             {
