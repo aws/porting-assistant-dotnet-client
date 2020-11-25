@@ -26,7 +26,7 @@ namespace PortingAssistant.Client.Model
 
         public override string ToString()
         {
-            return $"{PackageId}-{Version}";
+            return $"{PackageId}-{Version}-{PackageSourceType.ToString()}";
         }
     }
 }
