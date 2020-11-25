@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
+using PortingAssistant.Client.Analysis.Utils;
 using PortingAssistant.Client.Model;
 using PortingAssistant.Client.NuGet;
 using PortingAssistant.Client.NuGet.Interfaces;
@@ -41,6 +42,17 @@ namespace PortingAssistant.Client.UnitTests
                             },
                             Description = "System.Web (AKA classic ASP.NET) won't be ported to .NET Core. See https://aka.ms/unsupported-netfx-api.",
                             Actions = Array.Empty<Actions>()
+                        },
+                        new RecommendedActionModel()
+                        {
+                            Source = "Amazon",
+                            Preferred = "yes",
+                            TargetFrameworks = new SortedSet<string>()
+                            {
+                                "net5.0"
+                            },
+                            Description = "No Recommendation in net5.0 now",
+                            Actions = Array.Empty<Actions>()
                         }
                     }
                 }
@@ -48,11 +60,16 @@ namespace PortingAssistant.Client.UnitTests
             }
         };
 
+        private readonly CompatibilityResult compatibilityResult = new CompatibilityResult
+        {
+            Compatibility = Compatibility.INCOMPATIBLE,
+            CompatibleVersions = new List<string>()
+        };
+
         private readonly Dictionary<string, string> _manifest = new Dictionary<string, string>() { { "System.Web.Configuration", "system.web.configuration.recommendation.json" } };
         [OneTimeSetUp]
         public void OneTimeSetup()
         {
-            //httpMessageHandler = new Mock<HttpMessageHandler>
             _httpService = new Mock<IHttpService>();
         }
 
@@ -114,6 +131,24 @@ namespace PortingAssistant.Client.UnitTests
             Assert.AreEqual(
                 _recommendationDetails.Recommendations.First().RecommendedActions.First().Description,
                 resultTasks.Values.First().Result.Recommendations.First().RecommendedActions.First().Description);
+        }
+
+        [Test]
+        public void TestUpgradeStrategy()
+        {
+            var namespaces = new List<string>() { "System.Web.Configuration" };
+
+            var apiMethod = "System.Web.Configuration.BrowserCapabilitiesFactory.OperaminiProcessBrowsers(bool, System.Collections.Specialized.NameValueCollection, System.Web.HttpBrowserCapabilities)";
+            var description = "System.Web (AKA classic ASP.NET) won't be ported to .NET Core. See https://aka.ms/unsupported-netfx-api.";
+            var resultTasks = _portingAssistantRecommendationHandler.GetApiRecommendation(namespaces).GetValueOrDefault("System.Web.Configuration");
+            var recommendation = ApiCompatiblity.UpgradeStrategy(compatibilityResult, apiMethod, resultTasks, "netcore31");
+            Assert.AreEqual(RecommendedActionType.ReplaceApi, recommendation.RecommendedActionType);
+            Assert.AreEqual(description, recommendation.Description);
+            recommendation = ApiCompatiblity.UpgradeStrategy(compatibilityResult, apiMethod, resultTasks, "net5.0");
+            Assert.AreEqual(RecommendedActionType.ReplaceApi, recommendation.RecommendedActionType);
+            Assert.AreEqual("No Recommendation in net5.0 now", recommendation.Description);
+            recommendation = ApiCompatiblity.UpgradeStrategy(compatibilityResult, apiMethod, resultTasks, "xxxx");
+            Assert.AreEqual(RecommendedActionType.NoRecommendation, recommendation.RecommendedActionType);
         }
     }
 }

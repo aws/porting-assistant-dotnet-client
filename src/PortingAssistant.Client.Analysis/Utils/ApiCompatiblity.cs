@@ -99,7 +99,8 @@ namespace PortingAssistant.Client.Analysis.Utils
         public static ApiRecommendation UpgradeStrategy(
             CompatibilityResult compatibilityResult,
             string apiMethodSignature,
-            Task<RecommendationDetails> recommendationDetails)
+            Task<RecommendationDetails> recommendationDetails,
+            string target = "netcoreapp3.1")
         {
             try
             {
@@ -116,7 +117,7 @@ namespace PortingAssistant.Client.Analysis.Utils
                         };
                     }
                 }
-                return FetchApiRecommendation(apiMethodSignature, recommendationDetails);
+                return FetchApiRecommendation(apiMethodSignature, recommendationDetails, target);
             }
             catch
             {
@@ -127,7 +128,8 @@ namespace PortingAssistant.Client.Analysis.Utils
 
         private static ApiRecommendation FetchApiRecommendation(
             string apiMethodSignature,
-            Task<RecommendationDetails> recommendationDetails)
+            Task<RecommendationDetails> recommendationDetails,
+            string target = "netcoreapp3.1")
         {
             if (apiMethodSignature != null && recommendationDetails != null)
             {
@@ -138,6 +140,7 @@ namespace PortingAssistant.Client.Analysis.Utils
                     var apiRecommendation = recommendationActions
                         .Where(recommendation => recommendation != null && recommendation.Value == apiMethodSignature)
                         .SelectMany(recommendation => recommendation.RecommendedActions)
+                        .Where(recomendation => recomendation.TargetFrameworks.Contains(target.ToLower()))
                         .Select(recommend => recommend.Description);
                     if (apiRecommendation != null && apiRecommendation.Count() != 0)
                     {
