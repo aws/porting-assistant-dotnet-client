@@ -26,9 +26,9 @@ namespace PortingAssistant.Client.Analysis.Utils
                         }
                     }
                 },
-                Recommendations = new Recommendations
+                Recommendations = new PortingAssistant.Client.Model.Recommendations
                 {
-                    RecommendedActions = new List<RecommendedAction>
+                    RecommendedActions = new List<PortingAssistant.Client.Model.RecommendedAction>
                     {
                         new PackageRecommendation
                         {

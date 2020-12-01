@@ -16,6 +16,7 @@ namespace PortingAssistant.Client.Analysis.Utils
             Dictionary<string, List<CodeEntityDetails>> sourceFileToInvocations,
             Dictionary<PackageVersionPair, Task<PackageDetails>> packageResults,
             Dictionary<string, Task<RecommendationDetails>> recommendationResults,
+            Dictionary<string, List<RecommendedAction>> portingActionResults,
             string targetFramework = "netcoreapp3.1"
         )
         {
@@ -26,6 +27,7 @@ namespace PortingAssistant.Client.Analysis.Utils
                 {
                     SourceFileName = Path.GetFileName(sourceFile.Key),
                     SourceFilePath = sourceFile.Key,
+                    RecommendedActions = portingActionResults.GetValueOrDefault(sourceFile.Key, new List<RecommendedAction>()),
                     ApiAnalysisResults = sourceFile.Value.Select(invocation =>
                     {
                         var package = invocation.Package;
@@ -62,7 +64,7 @@ namespace PortingAssistant.Client.Analysis.Utils
                             {
                                 { targetFramework, compatibilityResult}
                             },
-                            Recommendations = new Recommendations
+                            Recommendations = new PortingAssistant.Client.Model.Recommendations
                             {
                                 RecommendedActions = new List<RecommendedAction>
                                 {
@@ -87,7 +89,6 @@ namespace PortingAssistant.Client.Analysis.Utils
                     sourceFile.Key,
                     sourceFile.Value.Select(invocation =>
                     {
-
                         var assemblyLength = invocation.Reference?.Assembly?.Length;
                         if (assemblyLength == null || assemblyLength == 0)
                         {
