@@ -123,7 +123,7 @@ namespace PortingAssistant.Client.Tests
             };
 
             var result = InvocationExpressionModelToInvocations.AnalyzeResults(
-                sourceFileToInvocations, packageResults, recommendationResults);
+                sourceFileToInvocations, packageResults, recommendationResults, new Dictionary<string, List<RecommendedAction>>());
 
             Assert.AreEqual(1, result.First().ApiAnalysisResults.Count);
             Assert.AreEqual("11.0.1", result.First().ApiAnalysisResults.First().CodeEntityDetails.Package.Version);
@@ -145,7 +145,7 @@ namespace PortingAssistant.Client.Tests
             };
 
             var result = InvocationExpressionModelToInvocations.AnalyzeResults(
-                sourceFileToInvocations, new Dictionary<PackageVersionPair, Task<PackageDetails>>(), recommendationResults);
+                sourceFileToInvocations, new Dictionary<PackageVersionPair, Task<PackageDetails>>(), recommendationResults, new Dictionary<string, List<RecommendedAction>>());
 
             Assert.AreEqual(1, result.First().ApiAnalysisResults.Count);
             Assert.AreEqual("11.0.1", result.First().ApiAnalysisResults.First().CodeEntityDetails.Package.Version);

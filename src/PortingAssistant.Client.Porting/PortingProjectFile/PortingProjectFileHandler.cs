@@ -1,15 +1,11 @@
-﻿using System;
+﻿using CTA.Rules.Models;
+using CTA.Rules.PortCore;
+using Microsoft.Extensions.Logging;
+using PortingAssistant.Client.Model;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Microsoft.Extensions.Logging;
-using PortingAssistant.Client.Model;
-using Project2015To2017;
-using Project2015To2017.Analysis;
-using Project2015To2017.Caching;
-using Project2015To2017.Definition;
-using Project2015To2017.Migrate2019.Library;
-using Project2015To2017.Writing;
 
 namespace PortingAssistant.Client.PortingProjectFile
 {
@@ -19,12 +15,6 @@ namespace PortingAssistant.Client.PortingProjectFile
     public class PortingProjectFileHandler : IPortingProjectFileHandler
     {
         private readonly ILogger _logger;
-        private readonly MigrationFacility _facility;
-
-        private static readonly ProjectWriteOptions WriteOptions = new ProjectWriteOptions
-        {
-            MakeBackups = false
-        };
 
         /// <summary>
         /// Creates an instance of a PortingProjectFileHandler
@@ -33,7 +23,6 @@ namespace PortingAssistant.Client.PortingProjectFile
         public PortingProjectFileHandler(ILogger<PortingProjectFileHandler> logger)
         {
             _logger = logger;
-            _facility = new MigrationFacility(_logger);
         }
 
         /// <summary>
@@ -51,6 +40,19 @@ namespace PortingAssistant.Client.PortingProjectFile
             _logger.LogInformation("Applying porting changes to {0}", projectPaths);
 
             var results = new List<PortingResult>();
+            List<PortCoreConfiguration> configs = new List<PortCoreConfiguration>();
+
+            projectPaths.ForEach((proj) =>
+            {
+                configs.Add(new PortCoreConfiguration()
+                {
+                    ProjectPath = proj,
+                    UseDefaultRules = true,
+                    PackageReferences = upgradeVersions,
+                    TargetVersions = new List<string> { targetFramework }
+                });
+            });
+
             var projectFilesNotFound = projectPaths.Where((path) => !File.Exists(path)).ToList();
             projectFilesNotFound.ForEach((path) => results.Add(new PortingResult
             {
@@ -60,67 +62,37 @@ namespace PortingAssistant.Client.PortingProjectFile
                 Success = false
             }));
 
-            var conversionOptions = new ConversionOptions
+            try
             {
-                ForceOnUnsupportedProjects = true,
-                ProjectCache = new DefaultProjectCache(),
-                TargetFrameworks = new List<string> { targetFramework },
-            };
-
-            var (projects, _) = _facility.ParseProjects(new[] { solutionPath }, Vs16TransformationSet.Instance, conversionOptions);
-
-            var selectedProjects = projects.Where(project => projectPaths.Contains(project.FilePath.FullName)).ToList();
-
-            var writer = new ProjectWriter(_logger, WriteOptions);
-
-            foreach (var project in selectedProjects)
+                SolutionPort solutionPort = new SolutionPort(solutionPath, configs, _logger);
+                solutionPort.Run();
+            }
+            catch (Exception ex)
             {
-                try
+                _logger.LogError($"Failed to port projects{projectPaths}");
+                configs.ForEach(config =>
                 {
-                    project.PackageReferences = project.PackageReferences.Select(p =>
-                        new PackageReference
-                        {
-                            Id = p.Id,
-                            Version = upgradeVersions.ContainsKey(p.Id) ? upgradeVersions[p.Id] : p.Version,
-                            IsDevelopmentDependency = p.IsDevelopmentDependency,
-                            DefinitionElement = p.DefinitionElement
-                        }).ToList();
-
-                    if (writer.TryWrite(project))
+                    if (!projectFilesNotFound.Contains(config.ProjectPath))
                     {
                         results.Add(new PortingResult
                         {
-                            Success = true,
-                            ProjectFile = project.FilePath.FullName,
-                            ProjectName = project.ProjectName
-                        });
-                    }
-                    else
-                    {
-                        results.Add(new PortingResult
-                        {
+                            Message = $"porting project with error {ex.Message}",
                             Success = false,
-                            ProjectFile = project.FilePath.FullName,
-                            ProjectName = project.ProjectName
+                            ProjectFile = config.ProjectPath,
+                            ProjectName = Path.GetFileNameWithoutExtension(config.ProjectPath)
                         });
                     }
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Project {Item} analysis has thrown an exception",
-                        project.ProjectName);
-
-                    results.Add(new PortingResult
-                    {
-                        Success = false,
-                        ProjectFile = project.FilePath.FullName,
-                        ProjectName = project.ProjectName,
-                        Exception = ex
-                    });
-                }
+                });
+                return results;
             }
 
-            conversionOptions.ProjectCache?.Purge();
+            //TODO Return result from solution run
+            projectPaths.Where(p => !projectFilesNotFound.Contains(p)).ToList().ForEach((path) => results.Add(new PortingResult
+            {
+                ProjectFile = path,
+                ProjectName = Path.GetFileNameWithoutExtension(path),
+                Success = true
+            }));
 
             _logger.LogInformation("Completed porting changes to {0}", projectPaths);
 

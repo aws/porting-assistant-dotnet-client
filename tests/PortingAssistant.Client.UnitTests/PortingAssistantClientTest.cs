@@ -29,6 +29,7 @@ namespace PortingAssistant.Client.Tests
         private string _tmpDirectory;
         private string _tmpProjectPath;
         private string _tmpSolutionDirectory;
+        private string _tmpSolutionFileName;
         private static string DEFAULT_TARGET = "netcoreapp3.1";
 
         private readonly PackageDetails _packageDetails = new PackageDetails
@@ -128,6 +129,7 @@ namespace PortingAssistant.Client.Tests
             DirectoryCopy(solutionDirectory, _tmpDirectory, true);
 
             _tmpSolutionDirectory = Path.Combine(_tmpDirectory, "src");
+            _tmpSolutionFileName = Path.Combine(_tmpSolutionDirectory, "NopCommerce.sln");
             _tmpProjectPath = Path.Combine(_tmpSolutionDirectory, "Libraries", "Nop.Core", "Nop.Core.csproj");
 
             _apiAnalysisHandlerMock.Reset();
@@ -154,7 +156,7 @@ namespace PortingAssistant.Client.Tests
                                     }
                                 }}
                             },
-                            Recommendations = new Recommendations
+                            Recommendations = new PortingAssistant.Client.Model.Recommendations
                             {
                                 RecommendedActions = new List<RecommendedAction>
                                 {
@@ -227,7 +229,7 @@ namespace PortingAssistant.Client.Tests
         [Test]
         public void AnalyzeSolutionWithProjectsSucceeds()
         {
-            var results = _portingAssistantClient.AnalyzeSolutionAsync(Path.Combine(_solutionFolder, "SolutionWithProjects.sln"), new AnalyzerSettings { TargetFramework = "netcoreapp3.1"});
+            var results = _portingAssistantClient.AnalyzeSolutionAsync(Path.Combine(_solutionFolder, "SolutionWithProjects.sln"), new AnalyzerSettings { TargetFramework = "netcoreapp3.1" });
             results.Wait();
             var projectAnalysisResult = results.Result.ProjectAnalysisResults.Find(p => p.ProjectName == "Nop.Core");
             var sourceFileAnalysisResults = projectAnalysisResult.SourceFileAnalysisResults;
@@ -259,8 +261,8 @@ namespace PortingAssistant.Client.Tests
             var request = new PortingRequest
             {
                 ProjectPaths = new List<string> { _tmpProjectPath },
-                SolutionPath = _tmpSolutionDirectory,
-                TargetFramework = "netcoreapp3.1.0",
+                SolutionPath = _tmpSolutionFileName,
+                TargetFramework = "netcoreapp3.1",
                 RecommendedActions = new List<RecommendedAction>
                 {
                     new PackageRecommendation
@@ -288,6 +290,7 @@ namespace PortingAssistant.Client.Tests
                 },
                 portResult.PackageReferences.Find(nugetPackage => nugetPackage.PackageId == "Newtonsoft.Json"));
         }
+
 
         [Test]
         public void GetProjectWithCorruptedSolutionFileThrowsException()

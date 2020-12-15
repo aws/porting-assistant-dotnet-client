@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using CTA.Rules.Models;
+using CTA.Rules.PortCore;
 using Codelyzer.Analysis;
 using Codelyzer.Analysis.Common;
 using Codelyzer.Analysis.Model;
@@ -39,14 +41,21 @@ namespace PortingAssistant.Client.Analysis
                     {
                         LiteralExpressions = true,
                         MethodInvocations = true,
-                        ReferenceData = true
+                        ReferenceData = true,
+                        Annotations = true,
+                        DeclarationNodes = true,
+                        LoadBuildData = true,
+                        LocationData = true,
+                        InterfaceDeclarations = true
                     }
                 };
                 var analyzer = CodeAnalyzerFactory.GetAnalyzer(configuration, _logger);
                 var analyzersTask = await analyzer.AnalyzeSolution(solutionFilename);
 
+                var analysisActions = AnalyzeActions(projects, targetFramework, analyzersTask, solutionFilename);
+
                 return projects
-                        .Select((project) => new KeyValuePair<string, ProjectAnalysisResult>(project, AnalyzeProject(project, analyzersTask, targetFramework)))
+                        .Select((project) => new KeyValuePair<string, ProjectAnalysisResult>(project, AnalyzeProject(project, analyzersTask, analysisActions, targetFramework)))
                         .Where(p => p.Value != null)
                         .ToDictionary(p => p.Key, p => p.Value);
             }
@@ -57,13 +66,42 @@ namespace PortingAssistant.Client.Analysis
 
         }
 
+        private Dictionary<string, ProjectActions> AnalyzeActions(List<string> projects, string targetFramework, List<AnalyzerResult> analyzerResults, string pathToSolution)
+        {
+            List<PortCoreConfiguration> configs = new List<PortCoreConfiguration>();
+
+            var anaylyzedProjects = projects.Where(p =>
+            {
+                var project = analyzerResults.Find((a) => a.ProjectResult?.ProjectFilePath != null &&
+                    a.ProjectResult.ProjectFilePath.Equals(p));
+                return project != null;
+            }).ToList();
+
+            foreach (var proj in anaylyzedProjects)
+            {
+                PortCoreConfiguration projectConfiguration = new PortCoreConfiguration()
+                {
+                    ProjectPath = proj,
+                    UseDefaultRules = true,
+                    TargetVersions = new List<string> { targetFramework },
+                };
+
+                configs.Add(projectConfiguration);
+            }
+            var solutionPort = new SolutionPort(pathToSolution, analyzerResults, configs, _logger);
+            return solutionPort.AnalysisRun().ToDictionary(cd => cd.Key, cd => cd.Value);
+        }
+
         private ProjectAnalysisResult AnalyzeProject(
-            string project, List<AnalyzerResult> analyzers, string targetFramework = "netcoreapp3.1")
+            string project, List<AnalyzerResult> analyzers, Dictionary<string, ProjectActions> analysisActions, string targetFramework = "netcoreapp3.1")
         {
             try
             {
                 using var analyzer = analyzers.Find((a) => a.ProjectResult?.ProjectFilePath != null &&
                     a.ProjectResult.ProjectFilePath.Equals(project));
+
+                var projectActions = new ProjectActions();
+                analysisActions.TryGetValue(project, out projectActions);
 
                 if (analyzer == null || analyzer.ProjectResult == null)
                 {
@@ -114,8 +152,12 @@ namespace PortingAssistant.Client.Analysis
                     return new Tuple<PackageVersionPair, Task<PackageAnalysisResult>>(package, packageAnalysisResult);
                 }).ToDictionary(t => t.Item1, t => t.Item2);
 
+                var portingActionResults = ProjectActionsToRecommendedActions.Convert(projectActions);
+
                 var SourceFileAnalysisResults = InvocationExpressionModelToInvocations.AnalyzeResults(
-                    sourceFileToCodeEntityDetails, packageResults, recommendationResults, targetFramework);
+                    sourceFileToCodeEntityDetails, packageResults, recommendationResults, portingActionResults, targetFramework);
+
+
 
                 return new ProjectAnalysisResult
                 {

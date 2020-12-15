@@ -18,6 +18,7 @@ namespace PortingAssistant.Client.Tests
         private string _tmpDirectory;
         private string _tmpProjectPath;
         private string _tmpSolutionDirectory;
+        private string _tmpSolutionFileName;
         private IPortingHandler _portingHandler;
         private IPortingProjectFileHandler _portingProjectFileHandler;
 
@@ -32,6 +33,7 @@ namespace PortingAssistant.Client.Tests
             DirectoryCopy(solutionDirectory, _tmpDirectory, true);
 
             _tmpSolutionDirectory = Path.Combine(_tmpDirectory, "src");
+            _tmpSolutionFileName = Path.Combine(_tmpSolutionDirectory, "NopCommerce.sln");
             _tmpProjectPath = Path.Combine(_tmpSolutionDirectory, "Libraries", "Nop.Core", "Nop.Core.csproj");
         }
 
@@ -104,15 +106,15 @@ namespace PortingAssistant.Client.Tests
             var result = _portingHandler.ApplyPortProjectFileChanges
                 (
                 new List<string> { _tmpProjectPath },
-                _tmpSolutionDirectory,
-                "netcoreapp3.1.0",
+                _tmpSolutionFileName,
+                "netcoreapp3.1",
                 new Dictionary<string, string> { { "Newtonsoft.Json", "12.0.3" } });
 
             Assert.True(result[0].Success);
             Assert.AreEqual(_tmpProjectPath, result[0].ProjectFile);
             Assert.AreEqual("Nop.Core", result[0].ProjectName);
 
-            var portResult = GetProjects(Path.Combine(_tmpSolutionDirectory, "NopCommerce.sln")).Find(package => package.ProjectName == "Nop.Core");
+            var portResult = GetProjects(_tmpSolutionFileName).Find(package => package.ProjectName == "Nop.Core");
             Assert.AreEqual(_tmpProjectPath, portResult.ProjectFilePath);
             Assert.AreEqual(".NETCoreApp 3.1.0", portResult.TargetFrameworks[0]);
             Assert.AreEqual(
@@ -130,7 +132,7 @@ namespace PortingAssistant.Client.Tests
             var somePath = "randomPath";
             var result = _portingHandler.ApplyPortProjectFileChanges(
                 new List<string> { somePath },
-                _tmpSolutionDirectory,
+                _tmpSolutionFileName,
                 "netcoreapp3.1.0",
                 new Dictionary<string, string>
                 {

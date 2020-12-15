@@ -9,10 +9,7 @@
     <ProjectReference Include="..\PortingAssistant.Client.NuGet\PortingAssistant.Client.NuGet.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Utils\" />
-  </ItemGroup>
-  <ItemGroup>
+    <PackageReference Include="CTA.Rules.PortCore" Version="1.0.11-g35133328b4" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="Codelyzer.Analysis" Version="1.1.1" />
   </ItemGroup>
 </Project>
