@@ -9,7 +9,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Codelyzer.Analysis.Model" Version="1.2.36-alpha-gfac142e986" />
-    <PackageReference Include="CTA.Rules.PortCore" Version="1.0.15-g1a3bc1122d" />
+    <PackageReference Include="CTA.Rules.PortCore" Version="1.0.3-g88f844f990" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.8" />
   </ItemGroup>
   <ItemGroup>
