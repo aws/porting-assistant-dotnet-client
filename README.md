@@ -67,6 +67,7 @@ For more information about Porting Assistant and to try the tool, please refer t
    /* Generate JSON output */
    reportExporter.GenerateJsonReport(portingResults, solutionPath, outputPath);          
 ```
+* Update the rules applied by modifying the downloaded rule files in your working directory.
 
 ## Getting Help
 
@@ -88,6 +89,8 @@ for tracking bugs and feature requests.
 [Codelyzer](https://github.com/aws/codelyzer): Porting Assistant uses Codelyzer to get package and API information used for finding compatibilities and replacements.
 
 [Porting Assistant for .NET Datastore](https://github.com/aws/porting-assistant-dotnet-datastore): The repository containing the data set and recommendations used in compatibility assessment.
+
+[Code translation assistant](https://github.com/aws/cta): The repository used to apply code translations
 
 
 ## Contributing
