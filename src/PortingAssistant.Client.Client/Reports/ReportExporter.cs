@@ -122,10 +122,7 @@ namespace PortingAssistant.Client.Client.Reports
         {
             try
             {
-                using var destinationStream = new FileStream(FilePath, FileMode.Create);
-                using var memoStream = new MemoryStream(obj.Serialize<T>());
-
-                await memoStream.CopyToAsync(destinationStream);
+                await File.WriteAllTextAsync(FilePath, JsonConvert.SerializeObject(obj, Formatting.Indented));
                 _logger.LogInformation("file generated at ", FilePath);
                 return true;
             }
