@@ -89,6 +89,8 @@ for tracking bugs and feature requests.
 
 [Porting Assistant for .NET Datastore](https://github.com/aws/porting-assistant-dotnet-datastore): The repository containing the data set and recommendations used in compatibility assessment.
 
+[Code translation assistant](https://github.com/aws/cta): The repository used to apply code translations
+
 
 ## Contributing
 * [Adding Recommendations](https://github.com/aws/porting-assistant-dotnet-datastore/blob/master/RECOMMENDATIONS.md)
