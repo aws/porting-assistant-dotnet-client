@@ -67,7 +67,6 @@ For more information about Porting Assistant and to try the tool, please refer t
    /* Generate JSON output */
    reportExporter.GenerateJsonReport(portingResults, solutionPath, outputPath);          
 ```
-* Update the rules applied by modifying the downloaded rule files in your working directory.
 
 ## Getting Help
 
