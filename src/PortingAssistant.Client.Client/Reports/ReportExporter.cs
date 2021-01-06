@@ -122,10 +122,7 @@ namespace PortingAssistant.Client.Client.Reports
         {
             try
             {
-                using var destinationStream = new FileStream(FilePath, FileMode.Create);
-                using var memoStream = new MemoryStream(obj.Serialize<T>());
-
-                await memoStream.CopyToAsync(destinationStream);
+                await File.WriteAllTextAsync(FilePath, JsonConvert.SerializeObject(obj, Formatting.Indented));
                 _logger.LogInformation("file generated at ", FilePath);
                 return true;
             }
@@ -134,35 +131,6 @@ namespace PortingAssistant.Client.Client.Reports
                 _logger.LogError("failed to generate report: {0}", ex);
                 return false;
             }
-        }
-    }
-
-    public static class DataExtensions
-    {
-
-        public static JsonSerializerSettings JsonSettings { get; } = new JsonSerializerSettings
-        {
-            Formatting = Formatting.Indented
-        };
-
-        public static JsonSerializer Serializer { get; } = JsonSerializer.Create(JsonSettings);
-
-        public static byte[] Serialize<T>(this T data)
-        {
-            using var outputStream = new MemoryStream();
-            using var writer = new StreamWriter(outputStream);
-            using var jsonWriter = new JsonTextWriter(writer);
-
-            Serializer.Serialize(jsonWriter, data);
-
-            return outputStream.ToArray();
-        }
-
-        public static T Deserialize<T>(this Stream stream)
-        {
-            var reader = new StreamReader(stream);
-
-            return (T)Serializer.Deserialize(reader, typeof(T));
         }
     }
 }
