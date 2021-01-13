@@ -8,7 +8,6 @@
     <ProjectReference Include="..\PortingAssistant.Client.Common\PortingAssistant.Client.Common.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Codelyzer.Analysis.Model" Version="1.2.36-alpha-gfac142e986" />
     <PackageReference Include="CTA.Rules.PortCore" Version="1.1.2" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.8" />
   </ItemGroup>
