@@ -32,7 +32,7 @@ jobs:
       run: dotnet pack --configuration Release --no-restore -o dist
     - name: Install Sleet
       if: ${{ github.event_name == 'push' }}
-      run: dotnet tool install -g sleet
+      run: dotnet tool install -g sleet --version 3.2.0
     - name: "Configure AWS Credentials"
       if: ${{ github.event_name == 'push' }}
       uses: aws-actions/configure-aws-credentials@v1
