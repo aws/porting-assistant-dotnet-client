@@ -127,6 +127,33 @@ namespace PortingAssistant.Client.Tests
         }
 
         [Test]
+        public void PortingProjectSucceedsWithOriginalVerson()
+        {
+            var result = _portingHandler.ApplyPortProjectFileChanges
+                (
+                new List<string> { _tmpProjectPath },
+                _tmpSolutionFileName,
+                "netcoreapp3.1",
+                new Dictionary<string, string> { { "Newtonsoft.Json", "9.0.0" } },
+                new Dictionary<string, string> { { "Newtonsoft.Json", "12.0.3" } });
+
+            Assert.True(result[0].Success);
+            Assert.AreEqual(_tmpProjectPath, result[0].ProjectFile);
+            Assert.AreEqual("Nop.Core", result[0].ProjectName);
+
+            var portResult = GetProjects(_tmpSolutionFileName).Find(package => package.ProjectName == "Nop.Core");
+            Assert.AreEqual(_tmpProjectPath, portResult.ProjectFilePath);
+            Assert.AreEqual(".NETCoreApp 3.1.0", portResult.TargetFrameworks[0]);
+            Assert.AreEqual(
+                new PackageVersionPair
+                {
+                    PackageId = "Newtonsoft.Json",
+                    Version = "12.0.3"
+                },
+                portResult.PackageReferences.Find(nugetPackage => nugetPackage.PackageId == "Newtonsoft.Json"));
+        }
+
+        [Test]
         public void PortingMissingProjectFailsWithErrorMessage()
         {
             var somePath = "randomPath";

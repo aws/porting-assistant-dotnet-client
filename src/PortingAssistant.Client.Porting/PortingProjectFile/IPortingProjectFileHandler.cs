@@ -19,5 +19,9 @@ namespace PortingAssistant.Client.PortingProjectFile
         List<PortingResult> ApplyProjectChanges(
             List<string> projectPaths, string solutionPath, string targetFramework,
             Dictionary<string, string> upgradeVersions);
+        List<PortingResult> ApplyProjectChanges(
+            List<string> projectPaths, string solutionPath, string targetFramework,
+            Dictionary<string, string> originalVersions,
+            Dictionary<string, string> upgradeVersions);
     }
 }
