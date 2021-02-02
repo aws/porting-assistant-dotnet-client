@@ -31,34 +31,12 @@ namespace PortingAssistant.Client.PortingProjectFile
         /// <param name="projectPaths">List of projects paths</param>
         /// <param name="solutionPath">Path to solution file</param>
         /// <param name="targetFramework">Target framework to be used when porting</param>
-        /// <param name="originalVersions">List of key/value pairs where key is package and value is version number</param>
         /// <param name="upgradeVersions">List of key/value pairs where key is package and value is version number</param>
         /// <returns>A PortingProjectFileResult object, representing the result of the porting operation</returns>
         /// 
         public List<PortingResult> ApplyProjectChanges(
             List<string> projectPaths, string solutionPath, string targetFramework,
-            Dictionary<string, string> originalVersions,
-            Dictionary<string, string> upgradeVersions)
-        {
-            foreach (var key in originalVersions.Keys)
-            {
-                _logger.LogInformation($"upgrade package {key} from version {originalVersions.GetValueOrDefault(key)} to {upgradeVersions.GetValueOrDefault(key)}");
-            }
-            return ApplyProjectChanges(projectPaths, solutionPath, targetFramework, upgradeVersions);
-        }
-
-        /// <summary>
-        /// Ports a list of projects
-        /// </summary>
-        /// <param name="projectPaths">List of projects paths</param>
-        /// <param name="solutionPath">Path to solution file</param>
-        /// <param name="targetFramework">Target framework to be used when porting</param>
-        /// <param name="upgradeVersions">List of key/value pairs where key is package and value is version number</param>
-        /// <returns>A PortingProjectFileResult object, representing the result of the porting operation</returns>
-        /// 
-        public List<PortingResult> ApplyProjectChanges(
-            List<string> projectPaths, string solutionPath, string targetFramework,
-            Dictionary<string, string> upgradeVersions)
+            Dictionary<string, Tuple<string, string>> upgradeVersions)
         {
             _logger.LogInformation("Applying porting changes to {0}", projectPaths);
 

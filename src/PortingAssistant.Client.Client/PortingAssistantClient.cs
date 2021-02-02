@@ -98,7 +98,7 @@ namespace PortingAssistant.Client.Client
                     .Select(recommendation =>
                     {
                         var packageRecommendation = (PackageRecommendation)recommendation;
-                        return new Tuple<string, string>(packageRecommendation.PackageId, packageRecommendation.TargetVersions.First());
+                        return new Tuple<string, Tuple<string, string>>(packageRecommendation.PackageId, new Tuple<string, string>(packageRecommendation.Version, packageRecommendation.TargetVersions.First()));
                     })
                     .ToDictionary(t => t.Item1, t => t.Item2);
 
