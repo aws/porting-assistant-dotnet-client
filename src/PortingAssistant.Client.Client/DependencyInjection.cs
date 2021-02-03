@@ -1,5 +1,4 @@
-﻿using Amazon.S3.Transfer;
-using PortingAssistant.Client.Analysis;
+﻿using PortingAssistant.Client.Analysis;
 using PortingAssistant.Client.NuGet;
 using PortingAssistant.Client.Model;
 using PortingAssistant.Client.NuGet.InternalNuGet;
@@ -9,7 +8,9 @@ using PortingAssistant.Client.PortingProjectFile;
 using PortingAssistant.Client.NuGet.Interfaces;
 using PortingAssistant.Client.NuGet.Utils;
 using System;
-using Microsoft.Extensions.Options;
+using Polly;
+using System.Net.Http;
+using Polly.Extensions.Http;
 
 namespace PortingAssistant.Client.Client
 {
@@ -29,7 +30,23 @@ namespace PortingAssistant.Client.Client
             serviceCollection.AddTransient<IPortingHandler, PortingHandler>();
             serviceCollection.AddTransient<IPortingProjectFileHandler, PortingProjectFileHandler>();
             serviceCollection.AddTransient<IHttpService, HttpService>();
-            serviceCollection.AddHttpClient();
+            serviceCollection.AddHttpClient("s3")
+                .SetHandlerLifetime(TimeSpan.FromMinutes(5))
+                .AddPolicyHandler(GetRetryPolicy());
+            serviceCollection.AddHttpClient("github")
+                .SetHandlerLifetime(TimeSpan.FromMinutes(5))
+                .AddPolicyHandler(GetRetryPolicy());
+        }
+
+        public static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
+        {
+            Random jitterer = new Random();
+            return HttpPolicyExtensions
+                .HandleTransientHttpError()
+                .WaitAndRetryAsync(3,    // exponential back-off plus some jitter
+                    retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))
+                                  + TimeSpan.FromMilliseconds(jitterer.Next(0, 100))
+                );
         }
     }
 }

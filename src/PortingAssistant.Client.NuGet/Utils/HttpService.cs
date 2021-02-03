@@ -15,9 +15,9 @@ namespace PortingAssistant.Client.NuGet.Utils
 
         public HttpService(IHttpClientFactory httpClientFactory, IOptions<PortingAssistantConfiguration> options)
         {
-            _S3httpClient = httpClientFactory.CreateClient();
+            _S3httpClient = httpClientFactory.CreateClient("s3");
             _S3httpClient.BaseAddress = new Uri(options.Value.DataStoreSettings.HttpsEndpoint);
-            _GitHubHttpClient = httpClientFactory.CreateClient();
+            _GitHubHttpClient = httpClientFactory.CreateClient("github");
             _GitHubHttpClient.BaseAddress = new Uri(options.Value.DataStoreSettings.GitHubEndpoint);
         }
 
