@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using PortingAssistant.Client.Model;
 
 namespace PortingAssistant.Client.PortingProjectFile
@@ -18,6 +19,6 @@ namespace PortingAssistant.Client.PortingProjectFile
         /// <returns>A PortingProjectFileResult object, representing the result of the porting operation</returns>
         List<PortingResult> ApplyProjectChanges(
             List<string> projectPaths, string solutionPath, string targetFramework,
-            Dictionary<string, string> upgradeVersions);
+            Dictionary<string, Tuple<string, string>> upgradeVersions);
     }
 }

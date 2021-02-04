@@ -10,6 +10,7 @@ using PortingAssistant.Client.Model;
 using NuGet.Frameworks;
 using NuGet.Versioning;
 using PortingAssistant.Client.Client.FileParser;
+using System;
 
 namespace PortingAssistant.Client.Tests
 {
@@ -101,14 +102,14 @@ namespace PortingAssistant.Client.Tests
         }
 
         [Test]
-        public void PortingProjectSucceeds()
+        public void PortingProjectSucceedsWithOriginalVerson()
         {
             var result = _portingHandler.ApplyPortProjectFileChanges
                 (
                 new List<string> { _tmpProjectPath },
                 _tmpSolutionFileName,
                 "netcoreapp3.1",
-                new Dictionary<string, string> { { "Newtonsoft.Json", "12.0.3" } });
+                new Dictionary<string, Tuple<string, string>> { { "Newtonsoft.Json", new Tuple<string, string>("9.0.0", "12.0.3") } });
 
             Assert.True(result[0].Success);
             Assert.AreEqual(_tmpProjectPath, result[0].ProjectFile);
@@ -134,9 +135,9 @@ namespace PortingAssistant.Client.Tests
                 new List<string> { somePath },
                 _tmpSolutionFileName,
                 "netcoreapp3.1.0",
-                new Dictionary<string, string>
+                new Dictionary<string, Tuple<string, string>>
                 {
-                    { "Newtonsoft", "12.0.6" }
+                    { "Newtonsoft",new Tuple<string, string>("9.0.0", "12.0.3") }
                 });
 
             Assert.False(result[0].Success);
@@ -155,9 +156,9 @@ namespace PortingAssistant.Client.Tests
                 new List<string> { corruptProjectFilePath },
                 corruptSolutionFilePath,
                 "netcoreapp3.1.0",
-                new Dictionary<string, string>
+                new Dictionary<string, Tuple<string, string>>
                 {
-                    ["Newtonsoft"] = "12.0.6"
+                    ["Newtonsoft"] = new Tuple<string, string>("9.0.0", "12.0.3")
                 });
 
             Assert.AreEqual(1, result.Count);

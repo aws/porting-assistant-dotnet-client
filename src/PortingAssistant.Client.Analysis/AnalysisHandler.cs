@@ -66,7 +66,7 @@ namespace PortingAssistant.Client.Analysis
 
         }
 
-        private Dictionary<string, ProjectActions> AnalyzeActions(List<string> projects, string targetFramework, List<AnalyzerResult> analyzerResults, string pathToSolution)
+        private List<ProjectResult> AnalyzeActions(List<string> projects, string targetFramework, List<AnalyzerResult> analyzerResults, string pathToSolution)
         {
             List<PortCoreConfiguration> configs = new List<PortCoreConfiguration>();
 
@@ -89,19 +89,18 @@ namespace PortingAssistant.Client.Analysis
                 configs.Add(projectConfiguration);
             }
             var solutionPort = new SolutionPort(pathToSolution, analyzerResults, configs, _logger);
-            return solutionPort.AnalysisRun().ToDictionary(cd => cd.Key, cd => cd.Value);
+            return solutionPort.AnalysisRun().ProjectResults.ToList();
         }
 
         private ProjectAnalysisResult AnalyzeProject(
-            string project, List<AnalyzerResult> analyzers, Dictionary<string, ProjectActions> analysisActions, string targetFramework = "netcoreapp3.1")
+            string project, List<AnalyzerResult> analyzers, List<ProjectResult> analysisActions, string targetFramework = "netcoreapp3.1")
         {
             try
             {
                 using var analyzer = analyzers.Find((a) => a.ProjectResult?.ProjectFilePath != null &&
                     a.ProjectResult.ProjectFilePath.Equals(project));
 
-                var projectActions = new ProjectActions();
-                analysisActions.TryGetValue(project, out projectActions);
+                var projectActions = analysisActions.FirstOrDefault(p => p.ProjectFile == project)?.ProjectActions ?? new ProjectActions();
 
                 if (analyzer == null || analyzer.ProjectResult == null)
                 {

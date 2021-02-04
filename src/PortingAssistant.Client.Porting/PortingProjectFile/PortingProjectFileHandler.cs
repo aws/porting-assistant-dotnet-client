@@ -33,9 +33,10 @@ namespace PortingAssistant.Client.PortingProjectFile
         /// <param name="targetFramework">Target framework to be used when porting</param>
         /// <param name="upgradeVersions">List of key/value pairs where key is package and value is version number</param>
         /// <returns>A PortingProjectFileResult object, representing the result of the porting operation</returns>
+        /// 
         public List<PortingResult> ApplyProjectChanges(
             List<string> projectPaths, string solutionPath, string targetFramework,
-            Dictionary<string, string> upgradeVersions)
+            Dictionary<string, Tuple<string, string>> upgradeVersions)
         {
             _logger.LogInformation("Applying porting changes to {0}", projectPaths);
 
@@ -69,7 +70,7 @@ namespace PortingAssistant.Client.PortingProjectFile
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Failed to port projects{projectPaths}");
+                _logger.LogError($"Failed to port projects{projectPaths} with error: {ex}");
                 configs.ForEach(config =>
                 {
                     if (!projectFilesNotFound.Contains(config.ProjectPath))
