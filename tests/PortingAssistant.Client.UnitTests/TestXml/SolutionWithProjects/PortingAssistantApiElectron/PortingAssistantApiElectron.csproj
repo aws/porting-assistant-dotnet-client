@@ -487,22 +487,6 @@
     <Content Include="Content\files\ExportImport\Index.htm" />
     <Content Include="Content\files\Index.htm" />
     <Content Include="Content\Images\default-image.png" />
-    <Content Include="Content\jquery-ui-themes\smoothness\images\animated-overlay.gif" />
-    <Content Include="Content\jquery-ui-themes\smoothness\images\ui-bg_flat_0_aaaaaa_40x100.png" />
-    <Content Include="Content\jquery-ui-themes\smoothness\images\ui-bg_flat_75_ffffff_40x100.png" />
-    <Content Include="Content\jquery-ui-themes\smoothness\images\ui-bg_glass_55_fbf9ee_1x400.png" />
-    <Content Include="Content\jquery-ui-themes\smoothness\images\ui-bg_glass_65_ffffff_1x400.png" />
-    <Content Include="Content\jquery-ui-themes\smoothness\images\ui-bg_glass_75_dadada_1x400.png" />
-    <Content Include="Content\jquery-ui-themes\smoothness\images\ui-bg_glass_75_e6e6e6_1x400.png" />
-    <Content Include="Content\jquery-ui-themes\smoothness\images\ui-bg_glass_95_fef1ec_1x400.png" />
-    <Content Include="Content\jquery-ui-themes\smoothness\images\ui-bg_highlight-soft_75_cccccc_1x100.png" />
-    <Content Include="Content\jquery-ui-themes\smoothness\images\ui-icons_222222_256x240.png" />
-    <Content Include="Content\jquery-ui-themes\smoothness\images\ui-icons_2e83ff_256x240.png" />
-    <Content Include="Content\jquery-ui-themes\smoothness\images\ui-icons_454545_256x240.png" />
-    <Content Include="Content\jquery-ui-themes\smoothness\images\ui-icons_888888_256x240.png" />
-    <Content Include="Content\jquery-ui-themes\smoothness\images\ui-icons_cd0a0a_256x240.png" />
-    <Content Include="Content\jquery-ui-themes\smoothness\jquery-ui-1.10.3.custom.css" />
-    <Content Include="Content\jquery-ui-themes\smoothness\jquery-ui-1.10.3.custom.min.css" />
     <Content Include="Content\magnific-popup\magnific-popup.css" />
     <Content Include="Content\samples\category_accessories.jpg" />
     <Content Include="Content\samples\category_apparel.jpeg" />
@@ -596,22 +580,9 @@
     <Content Include="Content\samples\product_IfYouWait_1.zip" />
     <Content Include="Content\samples\product_NightVision_1.zip" />
     <Content Include="Content\samples\product_ScienceAndFaith_1.zip" />
-    <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\fineuploader\iframe.xss.response-4.2.2.js" />
-    <Content Include="Scripts\fineuploader\jquery.fineuploader-4.2.2.js" />
-    <Content Include="Scripts\fineuploader\jquery.fineuploader-4.2.2.min.js" />
-    <Content Include="Scripts\jquery-1.10.2.js" />
-    <Content Include="Scripts\jquery-1.10.2.min.js" />
-    <Content Include="Scripts\jquery-migrate-1.2.1.js" />
-    <Content Include="Scripts\jquery-migrate-1.2.1.min.js" />
-    <Content Include="Scripts\jquery-ui-1.10.3.custom.js" />
-    <Content Include="Scripts\jquery-ui-1.10.3.custom.min.js" />
-    <Content Include="Scripts\jquery.magnific-popup.js" />
-    <Content Include="Scripts\jquery.magnific-popup.min.js" />
-    <None Include="Scripts\jquery.validate-vsdoc.js" />
     <Content Include="Scripts\respond.min.js" />
     <Content Include="Scripts\selectivizr.min.js" />
-    <Content Include="Scripts\jquery-1.10.2.min.map" />
     <None Include="Scripts\_references.js" />
     <Content Include="Themes\DefaultClean\Content\css\ie8.css" />
     <Content Include="Themes\DefaultClean\Content\css\styles.css" />
@@ -946,10 +917,6 @@
     <Content Include="Web.Release.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>
-    <Content Include="Scripts\jquery.validate.js" />
-    <Content Include="Scripts\jquery.validate.min.js" />
-    <Content Include="Scripts\jquery.validate.unobtrusive.js" />
-    <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Views\Shared\Header.cshtml" />
     <Content Include="Views\Common\Footer.cshtml" />
     <Content Include="Views\Customer\_ExternalAuthentication.AssociateMessage.cshtml" />
