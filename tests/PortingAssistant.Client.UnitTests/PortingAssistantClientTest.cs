@@ -260,7 +260,19 @@ namespace PortingAssistant.Client.Tests
         {
             var request = new PortingRequest
             {
-                ProjectPaths = new List<string> { _tmpProjectPath },
+                Projects = new List<ProjectDetails> {
+                    new ProjectDetails {
+                        ProjectFilePath = _tmpProjectPath,
+                        PackageReferences = new List<PackageVersionPair>
+                        {
+                            new PackageVersionPair
+                            {
+                                PackageId = "Newtonsoft.Json",
+                                Version = "9.0.1"
+                            }
+                        }
+                    }
+                },
                 SolutionPath = _tmpSolutionFileName,
                 TargetFramework = "netcoreapp3.1",
                 RecommendedActions = new List<RecommendedAction>
@@ -268,6 +280,7 @@ namespace PortingAssistant.Client.Tests
                     new PackageRecommendation
                     {
                         PackageId = "Newtonsoft.Json",
+                        Version = "9.0.1",
                         RecommendedActionType = RecommendedActionType.UpgradePackage,
                         TargetVersions = new List<string> { "12.0.3" },
                     }
