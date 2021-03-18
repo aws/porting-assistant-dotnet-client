@@ -106,7 +106,7 @@ namespace PortingAssistant.Client.Tests
         {
             var result = _portingHandler.ApplyPortProjectFileChanges
                 (
-                new List<string> { _tmpProjectPath },
+                GetProjects(_tmpSolutionFileName),
                 _tmpSolutionFileName,
                 "netcoreapp3.1",
                 new Dictionary<string, Tuple<string, string>> { { "Newtonsoft.Json", new Tuple<string, string>("9.0.0", "12.0.3") } });
@@ -132,7 +132,21 @@ namespace PortingAssistant.Client.Tests
         {
             var somePath = "randomPath";
             var result = _portingHandler.ApplyPortProjectFileChanges(
-                new List<string> { somePath },
+                new List<ProjectDetails>
+                {
+                    new ProjectDetails
+                    {
+                        ProjectFilePath = somePath,
+                        PackageReferences = new List<PackageVersionPair>
+                        {
+                            new PackageVersionPair
+                            {
+                                PackageId = "Newtonsoft",
+                                Version = "9.0.0"
+                            }
+                        }
+                    }
+                },
                 _tmpSolutionFileName,
                 "netcoreapp3.1.0",
                 new Dictionary<string, Tuple<string, string>>
@@ -151,9 +165,22 @@ namespace PortingAssistant.Client.Tests
             var solutionDir = Path.Combine(_tmpDirectory, "corrupt");
             var corruptSolutionFilePath = Path.Combine(solutionDir, "CorruptSolution.sln");
             var corruptProjectFilePath = Path.Combine(solutionDir, "CorruptProject.csproj");
-            var result = _portingHandler.ApplyPortProjectFileChanges
-                (
-                new List<string> { corruptProjectFilePath },
+            var result = _portingHandler.ApplyPortProjectFileChanges(
+                new List<ProjectDetails>
+                {
+                    new ProjectDetails
+                    {
+                        ProjectFilePath = corruptProjectFilePath,
+                        PackageReferences = new List<PackageVersionPair>
+                        {
+                            new PackageVersionPair
+                            {
+                                PackageId = "Newtonsoft",
+                                Version = "9.0.0"
+                            }
+                        }
+                    }
+                },
                 corruptSolutionFilePath,
                 "netcoreapp3.1.0",
                 new Dictionary<string, Tuple<string, string>>

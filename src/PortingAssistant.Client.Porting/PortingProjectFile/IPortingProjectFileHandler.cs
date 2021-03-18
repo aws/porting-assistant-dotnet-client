@@ -18,7 +18,7 @@ namespace PortingAssistant.Client.PortingProjectFile
         /// <param name="upgradeVersions">List of key/value pairs where key is package and value is version number</param>
         /// <returns>A PortingProjectFileResult object, representing the result of the porting operation</returns>
         List<PortingResult> ApplyProjectChanges(
-            List<string> projectPaths, string solutionPath, string targetFramework,
+            List<ProjectDetails> projects, string solutionPath, string targetFramework,
             Dictionary<string, Tuple<string, string>> upgradeVersions);
     }
 }

@@ -28,10 +28,10 @@ namespace PortingAssistant.Client.Porting
         /// <param name="upgradeVersions">List of key/value pairs where key is package and value is version number tuple<old, new></param>
         /// <returns>A PortingProjectFileResult object, representing the result of the porting operation</returns>
         public List<PortingResult> ApplyPortProjectFileChanges(
-            List<string> projectPaths, string solutionPath, string targetFramework,
+            List<ProjectDetails> projects, string solutionPath, string targetFramework,
             Dictionary<string, Tuple<string, string>> upgradeVersions)
         {
-            return _portingProjectFileHandler.ApplyProjectChanges(projectPaths, solutionPath, targetFramework, upgradeVersions);
+            return _portingProjectFileHandler.ApplyProjectChanges(projects, solutionPath, targetFramework, upgradeVersions);
         }
 
     }

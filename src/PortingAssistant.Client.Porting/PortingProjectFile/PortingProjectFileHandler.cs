@@ -35,31 +35,36 @@ namespace PortingAssistant.Client.PortingProjectFile
         /// <returns>A PortingProjectFileResult object, representing the result of the porting operation</returns>
         /// 
         public List<PortingResult> ApplyProjectChanges(
-            List<string> projectPaths, string solutionPath, string targetFramework,
+            List<ProjectDetails> projects, string solutionPath, string targetFramework,
             Dictionary<string, Tuple<string, string>> upgradeVersions)
         {
-            _logger.LogInformation("Applying porting changes to {0}", projectPaths);
+            _logger.LogInformation("Applying porting changes to {0}", projects.Select(p => p.ProjectFilePath).ToList());
 
             var results = new List<PortingResult>();
             List<PortCoreConfiguration> configs = new List<PortCoreConfiguration>();
 
-            projectPaths.ForEach((proj) =>
+            projects.ForEach((proj) =>
             {
+                var upgradePackages = upgradeVersions
+                    .Where(p => proj.PackageReferences
+                    .Exists(package => package.PackageId == p.Key))
+                    .ToDictionary(t => t.Key, t => t.Value);
+
                 configs.Add(new PortCoreConfiguration()
                 {
-                    ProjectPath = proj,
+                    ProjectPath = proj.ProjectFilePath,
                     UseDefaultRules = true,
-                    PackageReferences = upgradeVersions,
+                    PackageReferences = upgradePackages,
                     TargetVersions = new List<string> { targetFramework }
                 });
             });
 
-            var projectFilesNotFound = projectPaths.Where((path) => !File.Exists(path)).ToList();
-            projectFilesNotFound.ForEach((path) => results.Add(new PortingResult
+            var projectFilesNotFound = projects.Where((p) => !File.Exists(p.ProjectFilePath)).ToList();
+            projectFilesNotFound.ForEach((p) => results.Add(new PortingResult
             {
                 Message = "File not found.",
-                ProjectFile = path,
-                ProjectName = Path.GetFileNameWithoutExtension(path),
+                ProjectFile = p.ProjectFilePath,
+                ProjectName = Path.GetFileNameWithoutExtension(p.ProjectFilePath),
                 Success = false
             }));
 
@@ -70,10 +75,10 @@ namespace PortingAssistant.Client.PortingProjectFile
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Failed to port projects{projectPaths} with error: {ex}");
+                _logger.LogError($"Failed to port projects {projects.Select(p => p.ProjectFilePath).ToList()} with error: {ex}");
                 configs.ForEach(config =>
                 {
-                    if (!projectFilesNotFound.Contains(config.ProjectPath))
+                    if (!projectFilesNotFound.Exists(p => p.ProjectFilePath == config.ProjectPath))
                     {
                         results.Add(new PortingResult
                         {
@@ -88,14 +93,15 @@ namespace PortingAssistant.Client.PortingProjectFile
             }
 
             //TODO Return result from solution run
-            projectPaths.Where(p => !projectFilesNotFound.Contains(p)).ToList().ForEach((path) => results.Add(new PortingResult
-            {
-                ProjectFile = path,
-                ProjectName = Path.GetFileNameWithoutExtension(path),
-                Success = true
-            }));
+            projects.Where(p => !projectFilesNotFound.Exists(proj => proj.ProjectFilePath == p.ProjectFilePath))
+                .ToList().ForEach((p) => results.Add(new PortingResult
+                {
+                    ProjectFile = p.ProjectFilePath,
+                    ProjectName = Path.GetFileNameWithoutExtension(p.ProjectFilePath),
+                    Success = true
+                }));
 
-            _logger.LogInformation("Completed porting changes to {0}", projectPaths);
+            _logger.LogInformation("Completed porting changes to {0}", projects.Select(p => p.ProjectFilePath).ToList());
 
             return results;
         }

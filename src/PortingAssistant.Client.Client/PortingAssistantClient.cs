@@ -103,7 +103,7 @@ namespace PortingAssistant.Client.Client
                     .ToDictionary(t => t.Item1, t => t.Item2);
 
                 return _portingHandler.ApplyPortProjectFileChanges(
-                    request.ProjectPaths,
+                    request.Projects,
                     request.SolutionPath,
                     request.TargetFramework,
                     upgradeVersions);

@@ -53,7 +53,7 @@ namespace PortingAssistant.Client.CLI
                     var PortingRequest = new PortingRequest
                     {
 
-                        ProjectPaths = cli.PortingProjects,
+                        Projects = analyzeResults.Result.SolutionDetails.Projects.Where(p => cli.PortingProjects.Contains(p.ProjectFilePath)).ToList(),
                         SolutionPath = cli.SolutionPath,
                         TargetFramework = cli.Target.ToString(),
                         RecommendedActions = FilteredRecommendedActions.ToList()

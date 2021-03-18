@@ -155,6 +155,8 @@ namespace PortingAssistant.Client.NuGet
                         _logger.LogInformation($"Encountered {ex.GetType()} while downloading and parsing {url.Key} " +
                                               $"from {CompatibilityCheckerType}, but it was ignored. " +
                                               $"ErrorMessage: {ex.Message}.");
+                        // filter all 404 errors
+                        ex = null;
                     }
                     else
                     {
