@@ -6,6 +6,7 @@ namespace PortingAssistant.Client.Model
     {
         public string SolutionFile { get; set; }
         public string ProjectFile { get; set; }
+        public string ProjectGuid { get; set; }
         public List<string> Errors { get; set; }
         public List<SourceFileAnalysisResult> SourceFileAnalysisResults { get; set; }
     }
