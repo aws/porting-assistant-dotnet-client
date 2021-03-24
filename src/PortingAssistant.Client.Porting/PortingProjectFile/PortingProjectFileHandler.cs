@@ -43,7 +43,7 @@ namespace PortingAssistant.Client.PortingProjectFile
             var results = new List<PortingResult>();
             List<PortCoreConfiguration> configs = new List<PortCoreConfiguration>();
 
-            projects.ForEach((proj) =>
+            projects.Where(p => !p.IsBuildFailed).ToList().ForEach((proj) =>
             {
                 var upgradePackages = upgradeVersions
                     .Where(p => proj.PackageReferences
