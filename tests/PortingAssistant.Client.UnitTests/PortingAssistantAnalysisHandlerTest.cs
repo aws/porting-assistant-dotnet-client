@@ -91,6 +91,21 @@ namespace PortingAssistant.Client.Tests
                         }, task.Task }
                     };
                 });
+
+            _nuGetHandlerMock.Setup(handler => handler.GetAndCacheNugetPackages(It.IsAny<List<PackageVersionPair>>(), It.IsAny<string>()))
+                .Returns((List<PackageVersionPair> packageVersionPairs, string path) =>
+                {
+                    var task = new TaskCompletionSource<PackageDetails>();
+                    task.SetResult(_packageDetails);
+                    return new Dictionary<PackageVersionPair, Task<PackageDetails>>
+                    {
+                        {new PackageVersionPair{
+                            PackageId = "Newtonsoft.Json",
+                            Version = "11.0.1",
+                            PackageSourceType = PackageSourceType.NUGET
+                        }, task.Task }
+                    };
+                });
             _recommendationHandlerMock.Reset();
             _recommendationHandlerMock.Setup(handler => handler.GetApiRecommendation(It.IsAny<List<string>>()))
                 .Returns((List<string> packageVersionPairs) =>
@@ -186,6 +201,26 @@ namespace PortingAssistant.Client.Tests
                 var result = _analysisHandler.AnalyzeSolution(Path.Combine(_solutionFile, "Rand.sln"), _projectPaths);
                 Task.WaitAll(result);
             });
+        }
+
+        [Test]
+        public void AnalyzeFileSucceeds()
+        {
+            var filePath = Path.Combine(_solutionFile.Replace("\\SolutionWithApi.sln",""), "testproject", "Program.cs");
+            var projectPath = Path.Combine(_solutionFile.Replace("\\SolutionWithApi.sln", ""), "testproject", "testproject.csproj");
+
+            var result = _analysisHandler.AnalyzeSolutionIncremental(_solutionFile, _projectPaths);
+            
+            Task.WaitAll(result);
+
+            var existingAnalyzerResult = result.Result.analyzerResults;
+            var existingProjectActions = result.Result.projectActions;
+
+            var incrementalResult = _analysisHandler.AnalyzeFileIncremental(filePath, projectPath, _solutionFile,
+                existingAnalyzerResult, existingProjectActions);
+            Task.WaitAll(incrementalResult);
+
+            Assert.AreEqual(true, true);
         }
     }
 }

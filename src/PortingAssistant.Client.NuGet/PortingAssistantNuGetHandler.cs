@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using PortingAssistant.Client.Model;
+using PortingAssistant.Client.NuGet.Utils;
 
 namespace PortingAssistant.Client.NuGet
 {
@@ -21,6 +22,47 @@ namespace PortingAssistant.Client.NuGet
             _logger = logger;
             _compatibilityCheckers = compatibilityCheckers.OrderBy((c) => c.CompatibilityCheckerType);
             _compatibilityTaskCompletionSources = new ConcurrentDictionary<PackageVersionPair, TaskCompletionSource<PackageDetails>>();
+        }
+
+        public Dictionary<PackageVersionPair, Task<PackageDetails>> GetAndCacheNugetPackages(List<PackageVersionPair> packageVersions, string pathToSolution)
+        {
+            ContiniousAssessmentCache nugetCache = new ContiniousAssessmentCache(pathToSolution);
+
+            var tasks = packageVersions.Select(packageVersion =>
+            {
+                Task<PackageDetails> packageDetails;
+                if (nugetCache.IsPackageInFile(packageVersion))
+                {
+                    packageDetails = nugetCache.GetPackageDetailFromFile(packageVersion);
+                }
+                else
+                {
+                    var getNugetResult = GetNugetPackages(new List<PackageVersionPair> { packageVersion }, pathToSolution);
+                    packageDetails = getNugetResult[packageVersion];
+                    nugetCache.CachePackageDetailsToFile(packageVersion, packageDetails);
+                }
+
+                return new Tuple<PackageVersionPair, Task<PackageDetails>>(packageVersion, packageDetails);
+            }).ToDictionary(t => t.Item1, t => t.Item2);
+
+            return tasks;
+        }
+
+        public Dictionary<PackageVersionPair, Task<PackageDetails>> DownloadAndCacheNugetPackages(List<PackageVersionPair> packageVersions, string pathToSolution)
+        {
+            ContiniousAssessmentCache nugetCache = new ContiniousAssessmentCache(pathToSolution);
+
+            var tasks = packageVersions.Select(packageVersion =>
+            {
+                Task<PackageDetails> packageDetails;
+                var getNugetResult = GetNugetPackages(new List<PackageVersionPair> { packageVersion }, pathToSolution);
+                packageDetails = getNugetResult[packageVersion];
+                nugetCache.CachePackageDetailsToFile(packageVersion, packageDetails);
+
+                return new Tuple<PackageVersionPair, Task<PackageDetails>>(packageVersion, packageDetails);
+            }).ToDictionary(t => t.Item1, t => t.Item2);
+
+            return tasks;
         }
 
         public Dictionary<PackageVersionPair, Task<PackageDetails>> GetNugetPackages(List<PackageVersionPair> packageVersions, string pathToSolution)
