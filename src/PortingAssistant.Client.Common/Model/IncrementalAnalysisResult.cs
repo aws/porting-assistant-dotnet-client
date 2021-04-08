@@ -7,5 +7,6 @@ namespace PortingAssistant.Client.Model
     public class IncrementalAnalysisResult
     {
         public List<AnalyzerResult> analyzerResults { get; set; }
+        public Dictionary<string, ProjectActions> projectActions { get; set; }
     }
 }

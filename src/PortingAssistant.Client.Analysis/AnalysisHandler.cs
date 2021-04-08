@@ -13,6 +13,7 @@ using PortingAssistant.Client.Analysis.Utils;
 using PortingAssistant.Client.Model;
 using PortingAssistant.Client.NuGet;
 using AnalyzerConfiguration = Codelyzer.Analysis.AnalyzerConfiguration;
+using Microsoft.Build.Construction;
 
 namespace PortingAssistant.Client.Analysis
 {
@@ -30,63 +31,90 @@ namespace PortingAssistant.Client.Analysis
             _recommendationHandler = recommendationHandler;
         }
 
-        public async Task<IncrementalFileAnalysisResult> AnalyzeFileIncremental(string filePath, string project, string solutionFileName, List<AnalyzerResult> existingAnalyzerResults
+        public async Task<IncrementalFileAnalysisResult> AnalyzeFileIncremental(List<string> filePaths, string solutionFilePath, List<AnalyzerResult> existingAnalyzerResults
             , Dictionary<string, ProjectActions> existingProjectActions, string targetFramework = "netcoreapp3.1")
         {
-            if (existingAnalyzerResults == null)
+            try
             {
-                _logger.LogDebug("Existing Codelyzer result is null.");
-                return null;
+                if (existingAnalyzerResults == null)
+                {
+                    _logger.LogError("Existing Analyzer result is null.");
+                    return null;
+                }
+
+                var solution = SolutionFile.Parse(solutionFilePath);
+                List<SourceFileAnalysisResult> sourceFileAnalysisResults = new List<SourceFileAnalysisResult>();
+                Dictionary<string, ProjectActions> projectActionsDict = existingProjectActions;
+                List<AnalyzerResult> analyzerResults = existingAnalyzerResults;
+
+                foreach (string filePath in filePaths)
+                {
+                    var analyzerResult = existingAnalyzerResults
+                    .First(analyzerResults => analyzerResults
+                    .ProjectBuildResult.SourceFileBuildResults.Any(s => s.SourceFileFullPath == filePath));
+
+                    var project = analyzerResult.ProjectResult.ProjectFilePath;
+
+                    analyzerResults = await GetUpdatedAnalyzer(filePath, existingAnalyzerResults);
+
+                    analyzerResult = analyzerResults
+                    .First(analyzerResults => analyzerResults
+                    .ProjectBuildResult.SourceFileBuildResults.Any(s => s.SourceFileFullPath == filePath));
+
+                    var sourceFileResult = analyzerResult.ProjectResult.SourceFileResults.FirstOrDefault(sourceFile => sourceFile.FileFullPath == filePath);
+
+                    var sourceFileToInvocations = new[] { KeyValuePair.Create(sourceFileResult.FileFullPath, sourceFileResult.AllInvocationExpressions()) }
+                    .ToDictionary(p => p.Key, p => p.Value);
+
+                    var sourceFileToCodeEntityDetails = InvocationExpressionModelToInvocations.Convert(sourceFileToInvocations, analyzerResult);
+
+                    var namespaces = sourceFileToCodeEntityDetails.Aggregate(new HashSet<string>(), (agg, cur) =>
+                    {
+                        agg.UnionWith(cur.Value.Select(i => i.Namespace).Where(i => i != null));
+                        return agg;
+                    });
+
+                    var nugetPackages = analyzerResult.ProjectResult.ExternalReferences.NugetReferences
+                            .Select(r => InvocationExpressionModelToInvocations.ReferenceToPackageVersionPair(r))
+                            .ToHashSet();
+
+                    var subDependencies = analyzerResult.ProjectResult.ExternalReferences.NugetDependencies
+                        .Select(r => InvocationExpressionModelToInvocations.ReferenceToPackageVersionPair(r))
+                        .ToHashSet();
+
+                    var sdkPackages = namespaces.Select(n => new PackageVersionPair { PackageId = n, Version = "0.0.0", PackageSourceType = PackageSourceType.SDK });
+
+                    var allPackages = nugetPackages
+                        .Union(subDependencies)
+                        .Union(sdkPackages)
+                        .ToList();
+
+                    var packageResults = _handler.GetAndCacheNugetPackages(allPackages, solutionFilePath);
+                    var recommendationResults = _recommendationHandler.GetApiRecommendation(namespaces.ToList());
+
+                    var analysisActionsForFile = AnalyzeFileActions(project, analyzerResults, existingProjectActions, targetFramework, solutionFilePath, sourceFileResult.FileFullPath);
+                    var projectActions = analysisActionsForFile.FirstOrDefault(p => p.ProjectFile == project)?.ProjectActions ?? new ProjectActions();
+
+                    var portingActionResults = ProjectActionsToRecommendedActions.Convert(projectActions);
+
+                    var sourceFileAnalysisResult = InvocationExpressionModelToInvocations.AnalyzeResults(
+                        sourceFileToCodeEntityDetails, packageResults, recommendationResults, portingActionResults, targetFramework);
+
+                    sourceFileAnalysisResults.AddRange(sourceFileAnalysisResult);
+                    projectActionsDict[project] = projectActions;
+                }
+
+                return new IncrementalFileAnalysisResult()
+                {
+                    sourceFileAnalysisResults = sourceFileAnalysisResults,
+                    projectActions = projectActionsDict,
+                    analyzerResults = analyzerResults
+                };
             }
-            var analyzerResults = await GetUpdatedAnalyzer(filePath, existingAnalyzerResults);
-
-            var analyzerResult = analyzerResults.First(analyzerResults => analyzerResults.ProjectBuildResult.SourceFileBuildResults.Any(s => s.SourceFileFullPath == filePath));
-       
-            var sourceFileResult = analyzerResult.ProjectResult.SourceFileResults.FirstOrDefault(sourceFile => sourceFile.FileFullPath == filePath);
-
-            var sourceFileToInvocations = new[] { KeyValuePair.Create(sourceFileResult.FileFullPath, sourceFileResult.AllInvocationExpressions()) }
-            .ToDictionary(p => p.Key, p => p.Value);
-
-            var sourceFileToCodeEntityDetails = InvocationExpressionModelToInvocations.Convert(sourceFileToInvocations, analyzerResult);
-
-            var namespaces = sourceFileToCodeEntityDetails.Aggregate(new HashSet<string>(), (agg, cur) =>
+            finally
             {
-                agg.UnionWith(cur.Value.Select(i => i.Namespace).Where(i => i != null));
-                return agg;
-            });
-
-            var nugetPackages = analyzerResult.ProjectResult.ExternalReferences.NugetReferences
-                    .Select(r => InvocationExpressionModelToInvocations.ReferenceToPackageVersionPair(r))
-                    .ToHashSet();
-
-            var subDependencies = analyzerResult.ProjectResult.ExternalReferences.NugetDependencies
-                .Select(r => InvocationExpressionModelToInvocations.ReferenceToPackageVersionPair(r))
-                .ToHashSet();
-
-            var sdkPackages = namespaces.Select(n => new PackageVersionPair { PackageId = n, Version = "0.0.0", PackageSourceType = PackageSourceType.SDK });
-
-            var allPackages = nugetPackages
-                .Union(subDependencies)
-                .Union(sdkPackages)
-                .ToList();
-
-            var packageResults = _handler.GetAndCacheNugetPackages(allPackages, solutionFileName);
-            var recommendationResults = _recommendationHandler.GetApiRecommendation(namespaces.ToList());
-
-            var analysisActionsForFile = AnalyzeFileActions(project, analyzerResults, existingProjectActions, targetFramework, solutionFileName, sourceFileResult.FileFullPath);
-            var projectActionsForFile = analysisActionsForFile.FirstOrDefault(p => p.ProjectFile == project)?.ProjectActions ?? new ProjectActions();
-
-            var portingActionResults = ProjectActionsToRecommendedActions.Convert(projectActionsForFile);
-            
-            var sourceFileAnalysisResults = InvocationExpressionModelToInvocations.AnalyzeResults(
-                sourceFileToCodeEntityDetails, packageResults, recommendationResults, portingActionResults, targetFramework);
-
-            return new IncrementalFileAnalysisResult()
-            {
-                sourceFileAnalysisResults = sourceFileAnalysisResults,
-                projectActions = projectActionsForFile,
-                analyzerResults = analyzerResults
-            };
+                CommonUtils.RunGarbageCollection(_logger, "PortingAssistantAnalysisHandler.AnalyzeFileIncremental");
+            }
         }
 
         public async Task<IncrementalProjectAnalysisResultDict> AnalyzeSolutionIncremental(string solutionFilename, List<string> projects, 
@@ -135,7 +163,7 @@ namespace PortingAssistant.Client.Analysis
             }
             finally
             {
-                CommonUtils.RunGarbageCollection(_logger, "PortingAssistantAnalysisHandler.AnalyzeSolution");
+                CommonUtils.RunGarbageCollection(_logger, "PortingAssistantAnalysisHandler.AnalyzeSolutionIncremental");
             }
         }
 
@@ -157,7 +185,6 @@ namespace PortingAssistant.Client.Analysis
 
             var solutionPort = new SolutionPort(pathToSolution, analyzerResults, configs, _logger);
 
-            // Return sourceFileToInvocations for the file changed.
             return solutionPort.RunIncremental(existingProjectActions, updatedFiles).ProjectResults.ToList();
         }
 

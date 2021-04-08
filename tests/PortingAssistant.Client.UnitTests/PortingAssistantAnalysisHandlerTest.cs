@@ -204,10 +204,9 @@ namespace PortingAssistant.Client.Tests
         }
 
         [Test]
-        public void AnalyzeFileSucceeds()
+        public void AnalyzeSingleFileSucceeds()
         {
             var filePath = Path.Combine(_solutionFile.Replace("\\SolutionWithApi.sln",""), "testproject", "Program.cs");
-            var projectPath = Path.Combine(_solutionFile.Replace("\\SolutionWithApi.sln", ""), "testproject", "testproject.csproj");
 
             var result = _analysisHandler.AnalyzeSolutionIncremental(_solutionFile, _projectPaths);
             
@@ -216,11 +215,25 @@ namespace PortingAssistant.Client.Tests
             var existingAnalyzerResult = result.Result.analyzerResults;
             var existingProjectActions = result.Result.projectActions;
 
-            var incrementalResult = _analysisHandler.AnalyzeFileIncremental(filePath, projectPath, _solutionFile,
+            var incrementalResult = _analysisHandler.AnalyzeFileIncremental(new List<string> { filePath }, _solutionFile,
                 existingAnalyzerResult, existingProjectActions);
             Task.WaitAll(incrementalResult);
 
-            Assert.AreEqual(true, true);
+            var fileAnalysisResult = incrementalResult.Result;
+
+            var sourceFile = fileAnalysisResult.sourceFileAnalysisResults.Find(s => s.SourceFileName == "Program.cs");
+            Assert.NotNull(sourceFile);
+            Assert.NotNull(sourceFile.ApiAnalysisResults);
+
+            var apiAnalysisResult = sourceFile.ApiAnalysisResults.Find(r => r.CodeEntityDetails.OriginalDefinition == "Newtonsoft.Json.JsonConvert.SerializeObject(object)");
+            Assert.NotNull(apiAnalysisResult);
+
+            Assert.AreEqual("Newtonsoft.Json", apiAnalysisResult.CodeEntityDetails.Package.PackageId);
+            Assert.AreEqual("11.0.1", apiAnalysisResult.CodeEntityDetails.Package.Version);
+            Assert.AreEqual("Newtonsoft.Json.JsonConvert.SerializeObject(object)",
+                apiAnalysisResult.CodeEntityDetails.OriginalDefinition);
+            Assert.AreEqual(Compatibility.COMPATIBLE, apiAnalysisResult.CompatibilityResults.GetValueOrDefault(DEFAULT_TARGET).Compatibility);
+            Assert.AreEqual("12.0.3", apiAnalysisResult.Recommendations.RecommendedActions.First().Description);
         }
     }
 }

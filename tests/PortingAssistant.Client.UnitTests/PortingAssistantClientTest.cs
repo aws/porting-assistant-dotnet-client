@@ -16,6 +16,8 @@ using PortingAssistant.Client.Client.FileParser;
 using NuGet.Frameworks;
 using NuGet.Versioning;
 using PortingAssistant.Client.PortingProjectFile;
+using Codelyzer.Analysis;
+using CTA.Rules.Models;
 
 namespace PortingAssistant.Client.Tests
 {
@@ -188,6 +190,84 @@ namespace PortingAssistant.Client.Tests
                         return new KeyValuePair<string, ProjectAnalysisResult>(project, projectAnalysisResult);
                     }).ToDictionary(k => k.Key, v => v.Value));
                 });
+            _apiAnalysisHandlerMock.Setup(analyzer => analyzer.AnalyzeSolutionIncremental(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
+                .Returns((string solutionFilePath, List<string> projects, string targetFramework) =>
+                {
+                    return Task.Run(() =>
+                    {
+                        return new IncrementalProjectAnalysisResultDict
+                        {
+                            analyzerResults = new List<AnalyzerResult>(),
+                            projectActions = new Dictionary<string, ProjectActions>(),
+                            projectAnalysisResultDict = projects.Select(project =>
+                            {
+                                var package = new PackageVersionPair
+                                {
+                                    PackageId = "Newtonsoft.Json",
+                                    Version = "11.0.1"
+                                };
+                                var packageAnalysisResult = Task.Run(() => new PackageAnalysisResult
+                                {
+                                    PackageVersionPair = package,
+                                    CompatibilityResults = new Dictionary<string, CompatibilityResult>
+                                    {
+                                        {targetFramework, new CompatibilityResult{
+                                            Compatibility = Compatibility.COMPATIBLE,
+                                            CompatibleVersions = new List<string>
+                                            {
+                                                "12.0.3", "12.0.4"
+                                            }
+                                        }}
+                                    },
+                                    Recommendations = new PortingAssistant.Client.Model.Recommendations
+                                    {
+                                        RecommendedActions = new List<RecommendedAction>
+                                        {
+                                            new RecommendedAction
+                                            {
+                                                RecommendedActionType = RecommendedActionType.UpgradePackage,
+                                                Description = "12.0.3"
+                                            }
+                                        }
+                                    }
+                                });
+
+                                var projectAnalysisResult = new ProjectAnalysisResult
+                                {
+                                    ProjectName = Path.GetFileNameWithoutExtension(project),
+                                    ProjectFilePath = project,
+                                    PackageAnalysisResults = new Dictionary<PackageVersionPair, Task<PackageAnalysisResult>>
+                                    {
+                                        { package, packageAnalysisResult }
+                                    },
+                                    SourceFileAnalysisResults = new List<SourceFileAnalysisResult>
+                                    {
+                                        _sourceFileAnalysisResult
+                                    },
+                                    ProjectGuid = "xxx",
+                                    ProjectType = nameof(SolutionProjectType.KnownToBeMSBuildFormat)
+                                };
+
+                                return new KeyValuePair<string, ProjectAnalysisResult>(project, projectAnalysisResult);
+                            }).ToDictionary(k => k.Key, v => v.Value)
+                        };
+                    });
+                });
+            _apiAnalysisHandlerMock.Setup(analyzer => analyzer.AnalyzeFileIncremental(It.IsAny<List<string>>(), It.IsAny<string>(),
+                It.IsAny<List<AnalyzerResult>>(), It.IsAny<Dictionary<string, ProjectActions>>(), It.IsAny<string>()))
+                .Returns((List<string> filePaths, string solutionPath, List<AnalyzerResult> exisitingAnalyzerResults,
+                Dictionary<string, ProjectActions> existingProjectActions, string targetFramework) =>
+                {
+                    return Task.Run(() =>
+                    {
+                        return new IncrementalFileAnalysisResult
+                        {
+                            analyzerResults = exisitingAnalyzerResults,
+                            projectActions = existingProjectActions,
+                            sourceFileAnalysisResults = new List<SourceFileAnalysisResult> { _sourceFileAnalysisResult }
+                        };
+                    });
+                });
         }
 
         private List<ProjectDetails> GetProjects(string pathToSolution)
@@ -316,6 +396,29 @@ namespace PortingAssistant.Client.Tests
                 var result = _portingAssistantClient.AnalyzeSolutionAsync(testSolutionPath, new AnalyzerSettings());
                 result.Wait();
             });
+        }
+
+        [Test]
+        public void AnalyzeFileSucceedsTest()
+        {
+            var results = _portingAssistantClient.AnalyzeSolutionAsync(Path.Combine(_solutionFolder, "SolutionWithProjects.sln"), new AnalyzerSettings { TargetFramework = "netcoreapp3.1", ContiniousEnabled = true });
+            results.Wait();
+
+            var existingAnalyzerResults = results.Result.AnalyzerResults;
+            var exisitingProjectActions = results.Result.ProjectActions;
+
+            var fileResults = _portingAssistantClient.AnalyzeFileAsync(new List<string> { _sourceFileAnalysisResult.SourceFilePath }, _tmpSolutionFileName,
+                existingAnalyzerResults, exisitingProjectActions, new AnalyzerSettings { TargetFramework = "netcoreapp3.1", ContiniousEnabled = true });
+            fileResults.Wait();
+
+            var fileAnalyzerResult = fileResults.Result.analyzerResults;
+            var fileProjectActions = fileResults.Result.projectActions;
+            var fileSourceFileAnalysis = fileResults.Result.sourceFileAnalysisResults;
+
+            Assert.AreEqual(fileAnalyzerResult, existingAnalyzerResults);
+            Assert.AreEqual(fileProjectActions, exisitingProjectActions);
+            Assert.AreEqual(fileSourceFileAnalysis.Count, 1);
+            Assert.AreEqual(fileSourceFileAnalysis[0], _sourceFileAnalysisResult);
         }
     }
 }

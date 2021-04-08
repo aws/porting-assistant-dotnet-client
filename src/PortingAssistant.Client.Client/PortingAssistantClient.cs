@@ -7,7 +7,8 @@ using PortingAssistant.Client.Porting;
 using Microsoft.Build.Construction;
 using System.IO;
 using System.Threading.Tasks;
-
+using Codelyzer.Analysis;
+using CTA.Rules.Models;
 
 namespace PortingAssistant.Client.Client
 {
@@ -21,82 +22,6 @@ namespace PortingAssistant.Client.Client
         {
             _analysisHandler = AnalysisHandler;
             _portingHandler = portingHandler;
-        }
-
-        public async Task<IncrementalSolutionAnalysisResult> AnalyzeSolutionIncrementalAsync(string solutionFilePath, AnalyzerSettings settings)
-        {
-            try
-            {
-                var solution = SolutionFile.Parse(solutionFilePath);
-                var failedProjects = new List<string>();
-
-                var projects = solution.ProjectsInOrder.Where(p =>
-                    (p.ProjectType == SolutionProjectType.KnownToBeMSBuildFormat ||
-                    p.ProjectType == SolutionProjectType.WebProject) &&
-                    (settings.IgnoreProjects?.Contains(p.AbsolutePath) != true))
-                    .Select(p => p.AbsolutePath)
-                    .ToList();
-
-                var targetFramework = settings.TargetFramework ?? "netcoreapp3.1";
-
-                var incrementalSolutionAnalysisResult = await _analysisHandler.AnalyzeSolutionIncremental(solutionFilePath, projects, targetFramework);
-
-                var projectAnalysisResultsDict = incrementalSolutionAnalysisResult.projectAnalysisResultDict;
-
-                var projectAnalysisResults = projects.Select(p =>
-                {
-                    var projectAnalysisResult = projectAnalysisResultsDict.GetValueOrDefault(p, null);
-                    if (projectAnalysisResult != null)
-                    {
-                        if (projectAnalysisResult.IsBuildFailed)
-                        {
-                            failedProjects.Add(p);
-                        }
-                        return projectAnalysisResult;
-                    }
-                    return null;
-                }).Where(p => p != null).ToList();
-
-                var solutionDetails = new SolutionDetails
-                {
-                    SolutionName = Path.GetFileNameWithoutExtension(solutionFilePath),
-                    SolutionFilePath = solutionFilePath,
-                    Projects = projectAnalysisResults.ConvertAll(p => new ProjectDetails
-                    {
-                        PackageReferences = p.PackageReferences,
-                        ProjectFilePath = p.ProjectFilePath,
-                        ProjectGuid = p.ProjectGuid,
-                        ProjectName = p.ProjectName,
-                        ProjectReferences = p.ProjectReferences,
-                        ProjectType = p.ProjectType,
-                        TargetFrameworks = p.TargetFrameworks,
-                        IsBuildFailed = p.IsBuildFailed
-                    }),
-
-                    FailedProjects = failedProjects
-                };
-
-
-                var solutionAnalysisResult = new SolutionAnalysisResult
-                {
-                    FailedProjects = failedProjects,
-                    SolutionDetails = solutionDetails,
-                    ProjectAnalysisResults = projectAnalysisResults
-                };
-
-                return new IncrementalSolutionAnalysisResult()
-                {
-                    solutionAnalysisResult = solutionAnalysisResult,
-                    analyzerResults = incrementalSolutionAnalysisResult.analyzerResults,
-                    projectActions = incrementalSolutionAnalysisResult.projectActions
-                };
-
-            }
-            catch (Exception ex)
-            {
-                throw new PortingAssistantException($"Cannot Analyze solution {solutionFilePath}", ex);
-            }
-
         }
 
         public async Task<SolutionAnalysisResult> AnalyzeSolutionAsync(string solutionFilePath, AnalyzerSettings settings)
@@ -115,7 +40,19 @@ namespace PortingAssistant.Client.Client
 
                 var targetFramework = settings.TargetFramework ?? "netcoreapp3.1";
 
-                var projectAnalysisResultsDict = await _analysisHandler.AnalyzeSolution(solutionFilePath, projects, targetFramework);
+                Dictionary<string, ProjectAnalysisResult> projectAnalysisResultsDict;
+                List<AnalyzerResult> analyzerResults = null;
+                Dictionary<string, ProjectActions> projectActions = null;
+
+                if (settings.ContiniousEnabled)
+                {
+                    var incrementalSolutionResult = await _analysisHandler.AnalyzeSolutionIncremental(solutionFilePath, projects, targetFramework);
+                    projectAnalysisResultsDict = incrementalSolutionResult.projectAnalysisResultDict;
+                    analyzerResults = incrementalSolutionResult.analyzerResults;
+                    projectActions = incrementalSolutionResult.projectActions;
+                }
+                else
+                    projectAnalysisResultsDict = await _analysisHandler.AnalyzeSolution(solutionFilePath, projects, targetFramework);
 
                 var projectAnalysisResults = projects.Select(p =>
                 {
@@ -155,7 +92,9 @@ namespace PortingAssistant.Client.Client
                 {
                     FailedProjects = failedProjects,
                     SolutionDetails = solutionDetails,
-                    ProjectAnalysisResults = projectAnalysisResults
+                    ProjectAnalysisResults = projectAnalysisResults,
+                    AnalyzerResults = analyzerResults,
+                    ProjectActions = projectActions
                 };
 
             }
@@ -166,22 +105,13 @@ namespace PortingAssistant.Client.Client
 
         }
 
-        public async Task<IncrementalFileAnalysisResult> AnalyzeFileAsync(string filePath, string solutionFilePath, 
-            IncrementalSolutionAnalysisResult incrementalSolutionAnalysisResult, AnalyzerSettings settings)
+        public async Task<IncrementalFileAnalysisResult> AnalyzeFileAsync(List<string> filePaths, string solutionFilePath, 
+            List<AnalyzerResult> existingAnalyzerResults, Dictionary<string, ProjectActions> existingProjectActions, AnalyzerSettings settings)
         {
-            var solution = SolutionFile.Parse(solutionFilePath);
-
-            var analyzerResult = incrementalSolutionAnalysisResult.
-                analyzerResults
-                .First(analyzerResults => analyzerResults
-                .ProjectBuildResult.SourceFileBuildResults.Any(s => s.SourceFileFullPath == filePath));
-
-            var project = analyzerResult.ProjectResult.ProjectFilePath;
-
             var targetFramework = settings.TargetFramework ?? "netcoreapp3.1";
 
-            return await _analysisHandler.AnalyzeFileIncremental(filePath, project, solutionFilePath,
-                incrementalSolutionAnalysisResult.analyzerResults, incrementalSolutionAnalysisResult.projectActions, targetFramework);
+            return await _analysisHandler.AnalyzeFileIncremental(filePaths, solutionFilePath,
+                existingAnalyzerResults, existingProjectActions, targetFramework);
         }
 
         public List<PortingResult> ApplyPortingChanges(PortingRequest request)

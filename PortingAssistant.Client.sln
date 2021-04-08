@@ -18,7 +18,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PortingAssistant.Client.Int
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PortingAssistant.Client.UnitTests", "tests\PortingAssistant.Client.UnitTests\PortingAssistant.Client.UnitTests.csproj", "{DC046552-C0F6-475E-8593-3F81A7BCD47F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CTA.Rules.PortCore", "..\cta\src\CTA.Rules.PortCore\CTA.Rules.PortCore.csproj", "{C07438C8-0136-4E4C-A72C-3FF2ACC33EE6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CTA.Rules.PortCore", "..\cta\src\CTA.Rules.PortCore\CTA.Rules.PortCore.csproj", "{EF28A05B-BDF4-4C3B-9705-15572F2CE3BD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -58,10 +58,10 @@ Global
 		{DC046552-C0F6-475E-8593-3F81A7BCD47F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DC046552-C0F6-475E-8593-3F81A7BCD47F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DC046552-C0F6-475E-8593-3F81A7BCD47F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C07438C8-0136-4E4C-A72C-3FF2ACC33EE6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C07438C8-0136-4E4C-A72C-3FF2ACC33EE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C07438C8-0136-4E4C-A72C-3FF2ACC33EE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C07438C8-0136-4E4C-A72C-3FF2ACC33EE6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EF28A05B-BDF4-4C3B-9705-15572F2CE3BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF28A05B-BDF4-4C3B-9705-15572F2CE3BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF28A05B-BDF4-4C3B-9705-15572F2CE3BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF28A05B-BDF4-4C3B-9705-15572F2CE3BD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
