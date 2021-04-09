@@ -9,7 +9,6 @@
 		<ProjectReference Include="..\PortingAssistant.Client.Common\PortingAssistant.Client.Common.csproj" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="CTA.Rules.PortCore" Version="1.6.6" />
 		<PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
 	</ItemGroup>
 	<ItemGroup>
