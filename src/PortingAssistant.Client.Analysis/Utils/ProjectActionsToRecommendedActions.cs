@@ -23,7 +23,8 @@ namespace PortingAssistant.Client.Analysis.Utils
                         StartLinePosition = t.TextSpan.StartLinePosition
                     },
                     Description = t.Description,
-                    RecommendedActionType = RecommendedActionType.ReplaceNamespace
+                    RecommendedActionType = RecommendedActionType.ReplaceNamespace,
+                    TextChanges = t.TextChanges
                 }).ToHashSet();
 
                 return new Tuple<string, List<RecommendedAction>>(fileAction.FilePath, RecommendedActions.ToList());
