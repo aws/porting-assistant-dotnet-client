@@ -11,6 +11,7 @@ using System.IO.Compression;
 using Amazon.S3;
 using PortingAssistant.Client.Model;
 using PortingAssistant.Client.NuGet.Interfaces;
+using PortingAssistant.Client.NuGet.Utils;
 
 namespace PortingAssistant.Client.NuGet
 {
@@ -33,7 +34,7 @@ namespace PortingAssistant.Client.NuGet
 
         public Dictionary<PackageVersionPair, Task<PackageDetails>> Check(
             IEnumerable<PackageVersionPair> packageVersions,
-            string pathToSolution)
+            string pathToSolution, bool isIncremental = false, bool refresh = false)
         {
             var packagesToCheck = packageVersions;
 
@@ -57,7 +58,7 @@ namespace PortingAssistant.Client.NuGet
                     _semaphore.Wait();
                     try
                     {
-                        ProcessCompatibility(packagesToCheck, compatibilityTaskCompletionSources);
+                        ProcessCompatibility(packagesToCheck, compatibilityTaskCompletionSources, pathToSolution, isIncremental, refresh);
                     }
                     finally
                     {
@@ -70,7 +71,8 @@ namespace PortingAssistant.Client.NuGet
         }
 
         private async void ProcessCompatibility(IEnumerable<PackageVersionPair> packageVersions,
-            Dictionary<PackageVersionPair, TaskCompletionSource<PackageDetails>> compatibilityTaskCompletionSources)
+            Dictionary<PackageVersionPair, TaskCompletionSource<PackageDetails>> compatibilityTaskCompletionSources,
+            string pathToSolution, bool isIncremental, bool incrementalRefresh)
         {
             var packageVersionsFound = new HashSet<PackageVersionPair>();
             var packageVersionsWithErrors = new HashSet<PackageVersionPair>();
@@ -86,13 +88,26 @@ namespace PortingAssistant.Client.NuGet
 
                 try
                 {
-                    _logger.LogInformation("Downloading {0} from {1}", fileToDownload,
-                        CompatibilityCheckerType);
-                    using var stream = await _httpService.DownloadS3FileAsync(fileToDownload);
-                    using var gzipStream = new GZipStream(stream, CompressionMode.Decompress);
-                    using var streamReader = new StreamReader(gzipStream);
-                    var data = JsonConvert.DeserializeObject<PackageFromS3>(streamReader.ReadToEnd());
-                    var packageDetails = data.Package ?? data.Namespaces;
+                    PackageDetailsManager packageDetailsManager = new PackageDetailsManager(pathToSolution);
+                    PackageDetails packageDetails = null;
+
+                    if (isIncremental)
+                    {
+                        if (incrementalRefresh || !packageDetailsManager.IsPackageInFile(fileToDownload))
+                        {
+                            _logger.LogInformation("Downloading {0} from {1}", fileToDownload, CompatibilityCheckerType);
+                            packageDetails = await packageDetailsManager.GetPackageDetailFromS3(fileToDownload, _httpService);
+                            _logger.LogInformation("Caching {0} from {1} to Temp", fileToDownload, CompatibilityCheckerType);
+                            packageDetailsManager.CachePackageDetailsToFile(fileToDownload, packageDetails);
+                        }
+                        else
+                        {
+                            _logger.LogInformation("Fetching {0} from {1} from Temp", fileToDownload, CompatibilityCheckerType);
+                            packageDetails = await packageDetailsManager.GetPackageDetailFromFile(fileToDownload);
+                        }
+                    }
+                    else
+                        packageDetails = await packageDetailsManager.GetPackageDetailFromS3(fileToDownload, _httpService);
 
                     if (packageDetails.Name == null || !string.Equals(packageDetails.Name.Trim(),
                         packageToDownload.Trim(), StringComparison.CurrentCultureIgnoreCase))
@@ -173,7 +188,7 @@ namespace PortingAssistant.Client.NuGet
             return downloadFilePath;
         }
 
-        private class PackageFromS3
+        public class PackageFromS3
         {
             public PackageDetails Package { get; set; }
             public PackageDetails Namespaces { get; set; }

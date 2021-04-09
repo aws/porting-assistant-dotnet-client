@@ -77,23 +77,8 @@ namespace PortingAssistant.Client.Tests
 
             _nuGetHandlerMock.Reset();
 
-            _nuGetHandlerMock.Setup(handler => handler.GetNugetPackages(It.IsAny<List<PackageVersionPair>>(), It.IsAny<string>()))
-                .Returns((List<PackageVersionPair> packageVersionPairs, string path) =>
-                {
-                    var task = new TaskCompletionSource<PackageDetails>();
-                    task.SetResult(_packageDetails);
-                    return new Dictionary<PackageVersionPair, Task<PackageDetails>>
-                    {
-                        {new PackageVersionPair{
-                            PackageId = "Newtonsoft.Json",
-                            Version = "11.0.1",
-                            PackageSourceType = PackageSourceType.NUGET
-                        }, task.Task }
-                    };
-                });
-
-            _nuGetHandlerMock.Setup(handler => handler.GetAndCacheNugetPackages(It.IsAny<List<PackageVersionPair>>(), It.IsAny<string>()))
-                .Returns((List<PackageVersionPair> packageVersionPairs, string path) =>
+            _nuGetHandlerMock.Setup(handler => handler.GetNugetPackages(It.IsAny<List<PackageVersionPair>>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
+                .Returns((List<PackageVersionPair> packageVersionPairs, string path, bool isIncremental, bool incrementalRefresh) =>
                 {
                     var task = new TaskCompletionSource<PackageDetails>();
                     task.SetResult(_packageDetails);

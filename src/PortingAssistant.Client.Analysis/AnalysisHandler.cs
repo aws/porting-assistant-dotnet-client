@@ -89,7 +89,7 @@ namespace PortingAssistant.Client.Analysis
                         .Union(sdkPackages)
                         .ToList();
 
-                    var packageResults = _handler.GetAndCacheNugetPackages(allPackages, solutionFilePath);
+                    var packageResults = _handler.GetNugetPackages(allPackages, solutionFilePath, isIncremental: true, incrementalRefresh: false);
                     var recommendationResults = _recommendationHandler.GetApiRecommendation(namespaces.ToList());
 
                     var analysisActionsForFile = AnalyzeFileActions(project, analyzerResults, existingProjectActions, targetFramework, solutionFilePath, sourceFileResult.FileFullPath);
@@ -144,7 +144,7 @@ namespace PortingAssistant.Client.Analysis
                 var analyzerResult = analyzersTask;
 
                 var solutionAnalysisResult = projects
-                        .Select((project) => new KeyValuePair<string, ProjectAnalysisResult>(project, AnalyzeProject(project, analyzersTask, analysisActions, isIncremental: true, targetFramework)))
+                        .Select((project) => new KeyValuePair<string, ProjectAnalysisResult>(project, AnalyzeProject(project, solutionFilename, analyzersTask, analysisActions, isIncremental: true, targetFramework)))
                         .Where(p => p.Value != null)
                         .ToDictionary(p => p.Key, p => p.Value);
 
@@ -243,7 +243,7 @@ namespace PortingAssistant.Client.Analysis
                 var analysisActions = AnalyzeActions(projects, targetFramework, analyzersTask, solutionFilename);
 
                 return projects
-                        .Select((project) => new KeyValuePair<string, ProjectAnalysisResult>(project, AnalyzeProject(project, analyzersTask, analysisActions, isIncremental: false, targetFramework)))
+                        .Select((project) => new KeyValuePair<string, ProjectAnalysisResult>(project, AnalyzeProject(project, solutionFilename, analyzersTask, analysisActions, isIncremental: false, targetFramework)))
                         .Where(p => p.Value != null)
                         .ToDictionary(p => p.Key, p => p.Value);
             }
@@ -281,7 +281,7 @@ namespace PortingAssistant.Client.Analysis
         }
 
         private ProjectAnalysisResult AnalyzeProject(
-            string project, List<AnalyzerResult> analyzers, List<ProjectResult> analysisActions, bool isIncremental, string targetFramework = "netcoreapp3.1")
+            string project, string solutionFileName, List<AnalyzerResult> analyzers, List<ProjectResult> analysisActions, bool isIncremental = false, string targetFramework = "netcoreapp3.1")
         {
             try
             {
@@ -329,7 +329,13 @@ namespace PortingAssistant.Client.Analysis
                     .Union(sdkPackages)
                     .ToList();
 
-                var packageResults = _handler.GetNugetPackages(allPackages, null);
+                Dictionary<PackageVersionPair, Task<PackageDetails>> packageResults;
+
+                if (isIncremental)
+                    packageResults = _handler.GetNugetPackages(allPackages, solutionFileName, isIncremental: true, incrementalRefresh: true);
+                else
+                    packageResults = _handler.GetNugetPackages(allPackages, null, isIncremental: false, incrementalRefresh: false);
+
                 var recommendationResults = _recommendationHandler.GetApiRecommendation(namespaces.ToList());
 
                 var packageAnalysisResults = nugetPackages.Select(package =>

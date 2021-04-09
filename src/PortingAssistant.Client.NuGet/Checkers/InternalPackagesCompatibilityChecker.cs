@@ -32,7 +32,7 @@ namespace PortingAssistant.Client.NuGet
 
         public Dictionary<PackageVersionPair, Task<PackageDetails>> Check(
             IEnumerable<PackageVersionPair> packageVersions,
-            string pathToSolution)
+            string pathToSolution, bool isIncremental = false, bool incrementalRefresh = false)
         {
             var internalRepositories = GetInternalRepositories(pathToSolution);
             var internalPackages = GetInternalPackagesAsync(packageVersions.ToList(), internalRepositories).Result;

@@ -30,8 +30,8 @@ namespace PortingAssistant.Client.Tests
         public void SetUp()
         {
             _handler.Reset();
-            _handler.Setup(handler => handler.GetNugetPackages(It.IsAny<List<PackageVersionPair>>(), ""))
-                .Returns((List<PackageVersionPair> packages, string path) =>
+            _handler.Setup(handler => handler.GetNugetPackages(It.IsAny<List<PackageVersionPair>>(), "", It.IsAny<bool>(), It.IsAny<bool>()))
+                .Returns((List<PackageVersionPair> packages, string path, bool isIncremental, bool incrementalRefresh) =>
                 {
                     var task = new TaskCompletionSource<PackageDetails>();
                     task.SetResult(_packageDetails);

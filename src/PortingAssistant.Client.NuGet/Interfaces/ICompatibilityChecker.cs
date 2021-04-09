@@ -20,7 +20,9 @@ namespace PortingAssistant.Client.NuGet
         /// </summary>
         /// <param name="packageVersions">A collection of packages and their versions</param>
         /// <param name="pathToSolution">The solution to check</param>
+        /// <param name="isIncremental">If Check is part of incremental assessment, we will use Temp Directory Cache. Default to false</param>
+        /// <param name="incrementalRefresh">If Check should refresh Temp Directory Cache. Default to false.</param>
         /// <returns></returns>
-        public Dictionary<PackageVersionPair, Task<PackageDetails>> Check(IEnumerable<PackageVersionPair> packageVersions, string pathToSolution);
+        public Dictionary<PackageVersionPair, Task<PackageDetails>> Check(IEnumerable<PackageVersionPair> packageVersions, string pathToSolution, bool isIncremental = false, bool incrementalRefresh = false);
     }
 }

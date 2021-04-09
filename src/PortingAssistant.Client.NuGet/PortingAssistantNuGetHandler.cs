@@ -24,48 +24,8 @@ namespace PortingAssistant.Client.NuGet
             _compatibilityTaskCompletionSources = new ConcurrentDictionary<PackageVersionPair, TaskCompletionSource<PackageDetails>>();
         }
 
-        public Dictionary<PackageVersionPair, Task<PackageDetails>> GetAndCacheNugetPackages(List<PackageVersionPair> packageVersions, string pathToSolution)
-        {
-            ContiniousAssessmentCache nugetCache = new ContiniousAssessmentCache(pathToSolution);
-
-            var tasks = packageVersions.Select(packageVersion =>
-            {
-                Task<PackageDetails> packageDetails;
-                if (nugetCache.IsPackageInFile(packageVersion))
-                {
-                    packageDetails = nugetCache.GetPackageDetailFromFile(packageVersion);
-                }
-                else
-                {
-                    var getNugetResult = GetNugetPackages(new List<PackageVersionPair> { packageVersion }, pathToSolution);
-                    packageDetails = getNugetResult[packageVersion];
-                    nugetCache.CachePackageDetailsToFile(packageVersion, packageDetails);
-                }
-
-                return new Tuple<PackageVersionPair, Task<PackageDetails>>(packageVersion, packageDetails);
-            }).ToDictionary(t => t.Item1, t => t.Item2);
-
-            return tasks;
-        }
-
-        public Dictionary<PackageVersionPair, Task<PackageDetails>> DownloadAndCacheNugetPackages(List<PackageVersionPair> packageVersions, string pathToSolution)
-        {
-            ContiniousAssessmentCache nugetCache = new ContiniousAssessmentCache(pathToSolution);
-
-            var tasks = packageVersions.Select(packageVersion =>
-            {
-                Task<PackageDetails> packageDetails;
-                var getNugetResult = GetNugetPackages(new List<PackageVersionPair> { packageVersion }, pathToSolution);
-                packageDetails = getNugetResult[packageVersion];
-                nugetCache.CachePackageDetailsToFile(packageVersion, packageDetails);
-
-                return new Tuple<PackageVersionPair, Task<PackageDetails>>(packageVersion, packageDetails);
-            }).ToDictionary(t => t.Item1, t => t.Item2);
-
-            return tasks;
-        }
-
-        public Dictionary<PackageVersionPair, Task<PackageDetails>> GetNugetPackages(List<PackageVersionPair> packageVersions, string pathToSolution)
+        public Dictionary<PackageVersionPair, Task<PackageDetails>> GetNugetPackages(List<PackageVersionPair> packageVersions, string pathToSolution, 
+            bool isIncremental = false, bool incrementalRefresh = false )
         {
             var packageVersionsToQuery = new List<PackageVersionPair>();
             var tasks = packageVersions.Select(packageVersion =>
@@ -82,12 +42,12 @@ namespace PortingAssistant.Client.NuGet
             }).ToDictionary(t => t.Item1, t => t.Item2);
 
             _logger.LogInformation("Checking compatibility for {0} packages", packageVersionsToQuery.Count);
-            Process(packageVersionsToQuery, pathToSolution);
+            Process(packageVersionsToQuery, pathToSolution, isIncremental, incrementalRefresh);
 
             return tasks;
         }
 
-        private async void Process(List<PackageVersionPair> packageVersions, string pathToSolution)
+        private async void Process(List<PackageVersionPair> packageVersions, string pathToSolution, bool isIncremental = false, bool incrementalRefresh = false)
         {
             if (!packageVersions.Any())
             {
@@ -103,7 +63,7 @@ namespace PortingAssistant.Client.NuGet
             {
                 try
                 {
-                    var compatibilityResults = compatibilityChecker.Check(distinctPackageVersions, pathToSolution);
+                    var compatibilityResults = compatibilityChecker.Check(distinctPackageVersions, pathToSolution, isIncremental, incrementalRefresh);
                     await Task.WhenAll(compatibilityResults.Select(result =>
                     {
                         return result.Value.ContinueWith(task =>

@@ -316,7 +316,9 @@ namespace PortingAssistant.Client.Tests
             var checker = new Mock<ICompatibilityChecker>();
             checker.Setup(checker => checker.Check(
                 It.IsAny<List<PackageVersionPair>>(),
-                It.IsAny<string>()))
+                It.IsAny<string>(),
+                It.IsAny<bool>(),
+                It.IsAny<bool>()))
                 .Throws(new Exception("test"));
 
             _loggerMock = new Mock<ILogger<PortingAssistantNuGetHandler>>();
@@ -392,7 +394,7 @@ namespace PortingAssistant.Client.Tests
             {
               new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.3", PackageSourceType = PackageSourceType.NUGET }
             };
-            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
+            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"), false, false);
             Task.WaitAll(resultTasks.Values.ToArray());
 
             Assert.AreEqual(_packageDetails.Name, resultTasks.Values.First().Result.Name);
@@ -409,7 +411,7 @@ namespace PortingAssistant.Client.Tests
             {
               new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.3", PackageSourceType = PackageSourceType.SDK }
             };
-            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
+            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"), false, false);
             Task.WaitAll(resultTasks.Values.ToArray());
 
             Assert.AreEqual(_packageDetails.Name, resultTasks.Values.First().Result.Name);
@@ -426,7 +428,7 @@ namespace PortingAssistant.Client.Tests
             {
               new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.3", PackageSourceType = PackageSourceType.SDK }
             };
-            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
+            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"), false, false);
             Task.WaitAll(resultTasks.Values.ToArray());
 
             Assert.AreEqual(_packageDetails.Name, resultTasks.Values.First().Result.Name);
@@ -457,7 +459,7 @@ namespace PortingAssistant.Client.Tests
             {
               new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.3" }
             };
-            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
+            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"), false, false);
             Task.WaitAll(resultTasks.Values.ToArray());
 
             Assert.AreEqual(packages.First().PackageId, resultTasks.Values.First().Result.Name);
@@ -472,7 +474,7 @@ namespace PortingAssistant.Client.Tests
             {
               new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.2", PackageSourceType = PackageSourceType.NUGET }
             };
-            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
+            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"), false, false);
             Task.WaitAll(resultTasks.Values.ToArray());
 
             Assert.AreEqual(_packageDetails.Name, resultTasks.Values.First().Result.Name);
@@ -502,7 +504,7 @@ namespace PortingAssistant.Client.Tests
             {
               new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.2" }
             };
-            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
+            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"), false, false);
             Task.WaitAll(resultTasks.Values.ToArray());
 
             Assert.AreEqual(packages.First().PackageId, resultTasks.Values.First().Result.Name);
@@ -534,7 +536,7 @@ namespace PortingAssistant.Client.Tests
 
             Assert.Throws<AggregateException>(() =>
             {
-                var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
+                var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"), false, false);
                 Task.WaitAll(resultTasks.Values.ToArray());
             });
         }
@@ -564,7 +566,7 @@ namespace PortingAssistant.Client.Tests
 
             try
             {
-                var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
+                var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"), false, false);
                 Task.WaitAll(resultTasks.Values.ToArray());
             }
             catch (Exception)
@@ -572,7 +574,7 @@ namespace PortingAssistant.Client.Tests
 
             try
             {
-                var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
+                var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"), false, false);
                 Task.WaitAll(resultTasks.Values.ToArray());
             }
             catch (Exception)
@@ -590,7 +592,7 @@ namespace PortingAssistant.Client.Tests
               new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.3", PackageSourceType = PackageSourceType.NUGET },
               new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.4" , PackageSourceType = PackageSourceType.NUGET}
             };
-            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
+            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"), false, false);
             Task.WaitAll(resultTasks.Values.ToArray());
             _httpService.Verify(transfer => transfer.DownloadS3FileAsync(It.IsAny<string>()), Times.Exactly(1));
         }
@@ -605,12 +607,12 @@ namespace PortingAssistant.Client.Tests
               new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.4", PackageSourceType = PackageSourceType.NUGET }
             };
 
-            var resultTasks1 = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
-            var resultTasks2 = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
+            var resultTasks1 = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"), false, false);
+            var resultTasks2 = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"), false, false);
             Task.WaitAll(resultTasks1.Values.ToArray());
             Task.WaitAll(resultTasks2.Values.ToArray());
 
-            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
+            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"), false, false);
             Task.WaitAll(resultTasks.Values.ToArray());
 
             // Doesn't fire another request when requesting for same package.
@@ -684,7 +686,7 @@ namespace PortingAssistant.Client.Tests
             {
               new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.3" }
             };
-            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
+            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"), false, false);
             _loggerMock.Verify(_ => _.Log(
                 LogLevel.Error,
                 It.IsAny<EventId>(),
