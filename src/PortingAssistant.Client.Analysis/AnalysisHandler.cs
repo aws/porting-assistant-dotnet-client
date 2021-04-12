@@ -14,6 +14,7 @@ using PortingAssistant.Client.Model;
 using PortingAssistant.Client.NuGet;
 using AnalyzerConfiguration = Codelyzer.Analysis.AnalyzerConfiguration;
 using Microsoft.Build.Construction;
+using IDEProjectResult = Codelyzer.Analysis.Build.IDEProjectResult;
 
 namespace PortingAssistant.Client.Analysis
 {
@@ -31,6 +32,7 @@ namespace PortingAssistant.Client.Analysis
             _recommendationHandler = recommendationHandler;
         }
 
+        //TODO remove hardcoded value
         public async Task<IncrementalFileAnalysisResult> AnalyzeFileIncremental(List<string> filePaths, string solutionFilePath, List<AnalyzerResult> existingAnalyzerResults
             , Dictionary<string, ProjectActions> existingProjectActions, string targetFramework = "netcoreapp3.1")
         {
@@ -42,7 +44,7 @@ namespace PortingAssistant.Client.Analysis
                     return null;
                 }
 
-                var solution = SolutionFile.Parse(solutionFilePath);
+                //var solution = SolutionFile.Parse(solutionFilePath);
                 List<SourceFileAnalysisResult> sourceFileAnalysisResults = new List<SourceFileAnalysisResult>();
                 Dictionary<string, ProjectActions> projectActionsDict = existingProjectActions;
                 List<AnalyzerResult> analyzerResults = existingAnalyzerResults;
@@ -117,6 +119,31 @@ namespace PortingAssistant.Client.Analysis
             }
         }
 
+        //TODO remove hardcoded value
+        public async Task<IncrementalFileAnalysisResult> AnalyzeFileIncremental(List<string> filePaths, string solutionFilePath, List<string> preportReferences
+            , List<string> currentReferences,RootNodes projectRules, string targetFramework = "netcoreapp3.1")
+        {
+            try
+            {
+
+                string projectPath = GetProjectPath(filePaths.First());
+                var fileAnalysis = await AnalyzeProjectFiles(projectPath, filePaths , preportReferences, currentReferences);
+                var fileActions = await AnalyzeFileActionsIncremental(projectPath, projectRules, targetFramework, solutionFilePath, filePaths, fileAnalysis);
+
+                
+                return new IncrementalFileAnalysisResult()
+                {
+                    //sourceFileAnalysisResults = sourceFileAnalysisResults,
+                    //projectActions = projectActionsDict,
+                    //analyzerResults = analyzerResults
+                };
+            }
+            finally
+            {
+                CommonUtils.RunGarbageCollection(_logger, "PortingAssistantAnalysisHandler.AnalyzeFileIncremental");
+            }
+        }
+
         public async Task<IncrementalProjectAnalysisResultDict> AnalyzeSolutionIncremental(string solutionFilename, List<string> projects, 
             string targetFramework = "netcoreapp3.1")
         {
@@ -147,6 +174,7 @@ namespace PortingAssistant.Client.Analysis
                         .Select((project) => new KeyValuePair<string, ProjectAnalysisResult>(project, AnalyzeProject(project, solutionFilename, analyzersTask, analysisActions, isIncremental: true, targetFramework)))
                         .Where(p => p.Value != null)
                         .ToDictionary(p => p.Key, p => p.Value);
+
 
                 var projectActions = projects
                        .Select((project) => new KeyValuePair<string, ProjectActions>
@@ -185,7 +213,65 @@ namespace PortingAssistant.Client.Analysis
 
             var solutionPort = new SolutionPort(pathToSolution, analyzerResults, configs, _logger);
 
-            return solutionPort.RunIncremental(existingProjectActions, updatedFiles).ProjectResults.ToList();
+            //return solutionPort.RunIncremental(existingProjectActions, updatedFiles).ProjectResults.ToList();
+            return new List<ProjectResult>();
+        }
+
+        private async Task<List<IDEFileActions>> AnalyzeFileActionsIncremental(string project, RootNodes rootNodes,string targetFramework
+            , string pathToSolution, List<string> filePaths, IDEProjectResult projectResult)
+        {
+            List<PortCoreConfiguration> configs = new List<PortCoreConfiguration>();
+
+            PortCoreConfiguration projectConfiguration = new PortCoreConfiguration()
+            {
+                ProjectPath = project,
+                UseDefaultRules = true,
+                TargetVersions = new List<string> { targetFramework },
+                PortCode = false,
+                PortProject = false
+            };
+
+            //TODO Fix, this works for one project only
+            projectResult.ProjectPath = project;
+
+            configs.Add(projectConfiguration);
+
+            var solutionPort = new SolutionPort(pathToSolution, projectResult, configs);
+            return solutionPort.RunIncremental(rootNodes, filePaths);            
+        }
+
+        public async Task<IDEProjectResult> AnalyzeProjectFiles(string projectPath, List<string> filePaths, List<string> preportReferences, List<string> currentReferences)
+        {
+            try
+            {
+                var configuration = new AnalyzerConfiguration(LanguageOptions.CSharp)
+                {
+                    MetaDataSettings =
+                    {
+                        LiteralExpressions = true,
+                        MethodInvocations = true,
+                        ReferenceData = true,
+                        Annotations = true,
+                        DeclarationNodes = true,
+                        LoadBuildData = true,
+                        LocationData = true,
+                        InterfaceDeclarations = true
+                    }
+                };
+                var analyzer = CodeAnalyzerFactory.GetAnalyzer(configuration, _logger);
+                var ideProjectResult = await analyzer.AnalyzeFile(projectPath, filePaths, preportReferences, currentReferences);                
+                
+                return ideProjectResult;
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, "Error while analyzing files");
+            }
+            finally
+            {
+                CommonUtils.RunGarbageCollection(_logger, "PortingAssistantAnalysisHandler.AnalyzeFileIncremental");
+            }
+            return null;
         }
 
         public async Task<List<AnalyzerResult>> GetUpdatedAnalyzer(string filePath, List<AnalyzerResult> currAnalyzerResult)
@@ -216,6 +302,51 @@ namespace PortingAssistant.Client.Analysis
             {
                 CommonUtils.RunGarbageCollection(_logger, "PortingAssistantAnalysisHandler.AnalyzeFileIncremental");
             }
+        }
+
+        public async Task<IDEProjectResult> GetFileAnalysis(string filePath, List<string> preportReferences, List<string> currentReferences
+            , RootNodes solutionRules)
+        {
+            try
+            {
+                var configuration = new AnalyzerConfiguration(LanguageOptions.CSharp)
+                {
+                    MetaDataSettings =
+                    {
+                        LiteralExpressions = true,
+                        MethodInvocations = true,
+                        ReferenceData = true,
+                        Annotations = true,
+                        DeclarationNodes = true,
+                        LoadBuildData = true,
+                        LocationData = true,
+                        InterfaceDeclarations = true
+                    }
+                };
+                var analyzer = CodeAnalyzerFactory.GetAnalyzer(configuration, _logger);
+                var projectPath = GetProjectPath(filePath);
+                var ideProjectResult = await analyzer.AnalyzeFile(projectPath, new List<string> { filePath }, preportReferences, currentReferences);
+                return ideProjectResult;
+            }
+            finally
+            {
+                CommonUtils.RunGarbageCollection(_logger, "PortingAssistantAnalysisHandler.AnalyzeFileIncremental");
+            }
+        }
+
+        //TODO find project file. This is temporary and cannot be used as is
+        private string GetProjectPath(string filePath)
+        {
+            var currentDir = Path.GetDirectoryName(filePath);
+            var parentDir = Directory.GetParent(currentDir).FullName;
+
+            var currentFiles = Directory.EnumerateFiles(currentDir, "*.csproj");
+
+            if (!currentFiles.Any()) {
+                var parentFile = Directory.EnumerateFiles(parentDir, "*.csproj");
+                return parentFile.FirstOrDefault();
+            }
+            return currentFiles.FirstOrDefault();
         }
 
         public async Task<Dictionary<string, ProjectAnalysisResult>> AnalyzeSolution(
@@ -364,7 +495,9 @@ namespace PortingAssistant.Client.Analysis
                     Errors = analyzer.ProjectResult.BuildErrors,
                     ProjectGuid = analyzer.ProjectResult.ProjectGuid,
                     ProjectType = analyzer.ProjectResult.ProjectType,
-                    SourceFileAnalysisResults = SourceFileAnalysisResults
+                    SourceFileAnalysisResults = SourceFileAnalysisResults,
+                    MetaReferences = analyzer.ProjectBuildResult.Project.MetadataReferences.Select(m=>m.Display).ToList(),
+                    PreportMetaReferences = analyzer.ProjectBuildResult.PreportReferences
                 };
             }
             catch (Exception ex)

@@ -1,4 +1,4 @@
-﻿using Microsoft.CodeAnalysis.Text;
+﻿using CTA.Rules.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System;

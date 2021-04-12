@@ -114,6 +114,17 @@ namespace PortingAssistant.Client.Client
                 existingAnalyzerResults, existingProjectActions, targetFramework);
         }
 
+        public async Task<IncrementalFileAnalysisResult> AnalyzeFileAsync(List<string> filePaths, string solutionFilePath,
+    List<string> preportReferences, List<string> currentReferences, RootNodes rules, AnalyzerSettings settings)
+        {
+            var targetFramework = settings.TargetFramework ?? "netcoreapp3.1";
+
+            return await _analysisHandler.AnalyzeFileIncremental(filePaths, solutionFilePath,
+                preportReferences, currentReferences, rules, targetFramework);
+        }
+
+
+
         public List<PortingResult> ApplyPortingChanges(PortingRequest request)
         {
             try

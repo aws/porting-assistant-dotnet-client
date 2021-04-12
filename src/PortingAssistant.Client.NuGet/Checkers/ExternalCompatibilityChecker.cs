@@ -98,7 +98,8 @@ namespace PortingAssistant.Client.NuGet
                             _logger.LogInformation("Downloading {0} from {1}", fileToDownload, CompatibilityCheckerType);
                             packageDetails = await packageDetailsManager.GetPackageDetailFromS3(fileToDownload, _httpService);
                             _logger.LogInformation("Caching {0} from {1} to Temp", fileToDownload, CompatibilityCheckerType);
-                            packageDetailsManager.CachePackageDetailsToFile(fileToDownload, packageDetails);
+                            //TODO Fix this, not working
+                            //packageDetailsManager.CachePackageDetailsToFile(fileToDownload, packageDetails);
                         }
                         else
                         {
@@ -179,7 +180,7 @@ namespace PortingAssistant.Client.NuGet
                 case PackageSourceType.NUGET:
                     break;
                 case PackageSourceType.SDK:
-                    downloadFilePath = "namespaces/" + fileToDownload;
+                    downloadFilePath = Path.Combine("namespaces", fileToDownload);
                     break;
                 default:
                     break;

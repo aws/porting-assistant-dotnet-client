@@ -8,5 +8,7 @@ namespace PortingAssistant.Client.Model
         public List<string> Errors { get; set; }
         public List<SourceFileAnalysisResult> SourceFileAnalysisResults { get; set; }
         public Dictionary<PackageVersionPair, Task<PackageAnalysisResult>> PackageAnalysisResults { get; set; }
+        public List<string> PreportMetaReferences { get; set; }
+        public List<string> MetaReferences { get; set; }
     }
 }
