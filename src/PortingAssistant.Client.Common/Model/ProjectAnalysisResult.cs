@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using CTA.Rules.Models;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace PortingAssistant.Client.Model
@@ -10,5 +11,6 @@ namespace PortingAssistant.Client.Model
         public Dictionary<PackageVersionPair, Task<PackageAnalysisResult>> PackageAnalysisResults { get; set; }
         public List<string> PreportMetaReferences { get; set; }
         public List<string> MetaReferences { get; set; }
+        public RootNodes ProjectRules { get; set; }
     }
 }

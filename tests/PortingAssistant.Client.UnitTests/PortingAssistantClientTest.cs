@@ -253,6 +253,8 @@ namespace PortingAssistant.Client.Tests
                         };
                     });
                 });
+            //TODO update tests
+            /*
             _apiAnalysisHandlerMock.Setup(analyzer => analyzer.AnalyzeFileIncremental(It.IsAny<List<string>>(), It.IsAny<string>(),
                 It.IsAny<List<AnalyzerResult>>(), It.IsAny<Dictionary<string, ProjectActions>>(), It.IsAny<string>()))
                 .Returns((List<string> filePaths, string solutionPath, List<AnalyzerResult> exisitingAnalyzerResults,
@@ -268,6 +270,7 @@ namespace PortingAssistant.Client.Tests
                         };
                     });
                 });
+            */
         }
 
         private List<ProjectDetails> GetProjects(string pathToSolution)
@@ -407,8 +410,9 @@ namespace PortingAssistant.Client.Tests
             var existingAnalyzerResults = results.Result.AnalyzerResults;
             var exisitingProjectActions = results.Result.ProjectActions;
 
-            var fileResults = _portingAssistantClient.AnalyzeFileAsync(new List<string> { _sourceFileAnalysisResult.SourceFilePath }, _tmpSolutionFileName,
-                existingAnalyzerResults, exisitingProjectActions, new AnalyzerSettings { TargetFramework = "netcoreapp3.1", ContiniousEnabled = true });
+            //TODO update tests
+            var fileResults = _portingAssistantClient.AnalyzeFileAsync(_sourceFileAnalysisResult.SourceFilePath, "", _tmpSolutionFileName,
+                null, null, results.Result.ProjectAnalysisResults.First().ProjectRules, new AnalyzerSettings { TargetFramework = "netcoreapp3.1", ContiniousEnabled = true });
             fileResults.Wait();
 
             var fileAnalyzerResult = fileResults.Result.analyzerResults;

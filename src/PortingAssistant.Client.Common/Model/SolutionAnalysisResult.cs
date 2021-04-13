@@ -14,6 +14,5 @@ namespace PortingAssistant.Client.Model
         public List<string> Errors { get; set; } //Solution errors; solution file errors etc.
         public List<AnalyzerResult> AnalyzerResults { get; set; }
         public Dictionary<string, ProjectActions> ProjectActions { get; set; }
-        public RootNodes ProjectRules { get; set; }
     }
 }

@@ -120,15 +120,14 @@ namespace PortingAssistant.Client.Analysis
         }
 
         //TODO remove hardcoded value
-        public async Task<IncrementalFileAnalysisResult> AnalyzeFileIncremental(List<string> filePaths, string solutionFilePath, List<string> preportReferences
+        public async Task<IncrementalFileAnalysisResult> AnalyzeFileIncremental(string filePath, string projectFile, string solutionFilePath, List<string> preportReferences
             , List<string> currentReferences,RootNodes projectRules, string targetFramework = "netcoreapp3.1")
         {
             try
             {
 
-                string projectPath = GetProjectPath(filePaths.First());
-                var fileAnalysis = await AnalyzeProjectFiles(projectPath, filePaths , preportReferences, currentReferences);
-                var fileActions = await AnalyzeFileActionsIncremental(projectPath, projectRules, targetFramework, solutionFilePath, filePaths, fileAnalysis);
+                var fileAnalysis = await AnalyzeProjectFiles(projectFile, filePath , preportReferences, currentReferences);
+                var fileActions = await AnalyzeFileActionsIncremental(projectFile, projectRules, targetFramework, solutionFilePath, filePath, fileAnalysis);
 
                 
                 return new IncrementalFileAnalysisResult()
@@ -182,6 +181,7 @@ namespace PortingAssistant.Client.Analysis
                        .Where(p => p.Value != null)
                        .ToDictionary(p => p.Key, p => p.Value);
 
+
                 return new IncrementalProjectAnalysisResultDict()
                 {
                     projectAnalysisResultDict = solutionAnalysisResult,
@@ -218,7 +218,7 @@ namespace PortingAssistant.Client.Analysis
         }
 
         private async Task<List<IDEFileActions>> AnalyzeFileActionsIncremental(string project, RootNodes rootNodes,string targetFramework
-            , string pathToSolution, List<string> filePaths, IDEProjectResult projectResult)
+            , string pathToSolution, string filePath, IDEProjectResult projectResult)
         {
             List<PortCoreConfiguration> configs = new List<PortCoreConfiguration>();
 
@@ -237,10 +237,10 @@ namespace PortingAssistant.Client.Analysis
             configs.Add(projectConfiguration);
 
             var solutionPort = new SolutionPort(pathToSolution, projectResult, configs);
-            return solutionPort.RunIncremental(rootNodes, filePaths);            
+            return solutionPort.RunIncremental(rootNodes, filePath);            
         }
 
-        public async Task<IDEProjectResult> AnalyzeProjectFiles(string projectPath, List<string> filePaths, List<string> preportReferences, List<string> currentReferences)
+        public async Task<IDEProjectResult> AnalyzeProjectFiles(string projectPath, string filePath, List<string> preportReferences, List<string> currentReferences)
         {
             try
             {
@@ -259,7 +259,7 @@ namespace PortingAssistant.Client.Analysis
                     }
                 };
                 var analyzer = CodeAnalyzerFactory.GetAnalyzer(configuration, _logger);
-                var ideProjectResult = await analyzer.AnalyzeFile(projectPath, filePaths, preportReferences, currentReferences);                
+                var ideProjectResult = await analyzer.AnalyzeFile(projectPath, filePath, preportReferences, currentReferences);                
                 
                 return ideProjectResult;
             }
@@ -403,12 +403,14 @@ namespace PortingAssistant.Client.Analysis
                     ProjectPath = proj,
                     UseDefaultRules = true,
                     TargetVersions = new List<string> { targetFramework },
+                    PortCode = false,
+                    PortProject = false
                 };
 
                 configs.Add(projectConfiguration);
             }
             var solutionPort = new SolutionPort(pathToSolution, analyzerResults, configs, _logger);
-            return solutionPort.AnalysisRun().ProjectResults.ToList();
+            return solutionPort.Run().ProjectResults.ToList();
         }
 
         private ProjectAnalysisResult AnalyzeProject(
@@ -497,7 +499,8 @@ namespace PortingAssistant.Client.Analysis
                     ProjectType = analyzer.ProjectResult.ProjectType,
                     SourceFileAnalysisResults = SourceFileAnalysisResults,
                     MetaReferences = analyzer.ProjectBuildResult.Project.MetadataReferences.Select(m=>m.Display).ToList(),
-                    PreportMetaReferences = analyzer.ProjectBuildResult.PreportReferences
+                    PreportMetaReferences = analyzer.ProjectBuildResult.PreportReferences,
+                    ProjectRules = projectActions.ProjectRules
                 };
             }
             catch (Exception ex)

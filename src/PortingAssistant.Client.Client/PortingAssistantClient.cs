@@ -105,21 +105,21 @@ namespace PortingAssistant.Client.Client
 
         }
 
-        public async Task<IncrementalFileAnalysisResult> AnalyzeFileAsync(List<string> filePaths, string solutionFilePath, 
-            List<AnalyzerResult> existingAnalyzerResults, Dictionary<string, ProjectActions> existingProjectActions, AnalyzerSettings settings)
-        {
-            var targetFramework = settings.TargetFramework ?? "netcoreapp3.1";
+        //public async Task<IncrementalFileAnalysisResult> AnalyzeFileAsync(List<string> filePaths, string solutionFilePath, 
+        //    List<AnalyzerResult> existingAnalyzerResults, Dictionary<string, ProjectActions> existingProjectActions, AnalyzerSettings settings)
+        //{
+        //    var targetFramework = settings.TargetFramework ?? "netcoreapp3.1";
 
-            return await _analysisHandler.AnalyzeFileIncremental(filePaths, solutionFilePath,
-                existingAnalyzerResults, existingProjectActions, targetFramework);
-        }
+        //    return await _analysisHandler.AnalyzeFileIncremental(filePaths, solutionFilePath,
+        //        existingAnalyzerResults, existingProjectActions, targetFramework);
+        //}
 
-        public async Task<IncrementalFileAnalysisResult> AnalyzeFileAsync(List<string> filePaths, string solutionFilePath,
+        public async Task<IncrementalFileAnalysisResult> AnalyzeFileAsync(string filePath, string projectFile, string solutionFilePath,
     List<string> preportReferences, List<string> currentReferences, RootNodes rules, AnalyzerSettings settings)
         {
             var targetFramework = settings.TargetFramework ?? "netcoreapp3.1";
 
-            return await _analysisHandler.AnalyzeFileIncremental(filePaths, solutionFilePath,
+            return await _analysisHandler.AnalyzeFileIncremental(filePath, projectFile, solutionFilePath,
                 preportReferences, currentReferences, rules, targetFramework);
         }
 
