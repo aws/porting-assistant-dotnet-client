@@ -121,20 +121,74 @@ namespace PortingAssistant.Client.Analysis
 
         //TODO remove hardcoded value
         public async Task<IncrementalFileAnalysisResult> AnalyzeFileIncremental(string filePath, string projectFile, string solutionFilePath, List<string> preportReferences
-            , List<string> currentReferences,RootNodes projectRules, string targetFramework = "netcoreapp3.1")
+            , List<string> currentReferences,RootNodes projectRules, ExternalReferences externalReferences, string targetFramework = "netcoreapp3.1")
         {
             try
             {
 
+                List<SourceFileAnalysisResult> sourceFileAnalysisResults = new List<SourceFileAnalysisResult>();
+
                 var fileAnalysis = await AnalyzeProjectFiles(projectFile, filePath , preportReferences, currentReferences);
                 var fileActions = await AnalyzeFileActionsIncremental(projectFile, projectRules, targetFramework, solutionFilePath, filePath, fileAnalysis);
 
-                
+                var sourceFileResult = fileAnalysis.RootNodes.FirstOrDefault();
+
+                var sourceFileToInvocations = new[] { KeyValuePair.Create(sourceFileResult.FileFullPath, sourceFileResult.AllInvocationExpressions()) }
+                .ToDictionary(p => p.Key, p => p.Value);
+
+                var sourceFileToCodeEntityDetails = InvocationExpressionModelToInvocations.Convert(sourceFileToInvocations, externalReferences);
+
+                var namespaces = sourceFileToCodeEntityDetails.Aggregate(new HashSet<string>(), (agg, cur) =>
+                {
+                    agg.UnionWith(cur.Value.Select(i => i.Namespace).Where(i => i != null));
+                    return agg;
+                });
+
+                var nugetPackages = externalReferences?.NugetReferences
+                        .Select(r => InvocationExpressionModelToInvocations.ReferenceToPackageVersionPair(r))
+                        .ToHashSet();
+
+                var subDependencies = externalReferences?.NugetDependencies
+                    .Select(r => InvocationExpressionModelToInvocations.ReferenceToPackageVersionPair(r))
+                    .ToHashSet();
+
+                var sdkPackages = namespaces.Select(n => new PackageVersionPair { PackageId = n, Version = "0.0.0", PackageSourceType = PackageSourceType.SDK });
+
+                var allPackages = nugetPackages
+                    .Union(subDependencies)
+                    .Union(sdkPackages)
+                    .ToList();
+
+                var packageResults = _handler.GetNugetPackages(allPackages, solutionFilePath, isIncremental: true, incrementalRefresh: false);
+                var recommendationResults = _recommendationHandler.GetApiRecommendation(namespaces.ToList());
+
+                var portingActionResults = new Dictionary<string, List<RecommendedAction>>();
+
+                var recommendedActions = fileActions.Select(f => new RecommendedAction()
+                {
+                    Description = f.Description,
+                    RecommendedActionType = RecommendedActionType.ReplaceApi,
+                    TextSpan = new PortingAssistant.Client.Model.TextSpan()
+                    {
+                        StartCharPosition = f.TextSpan.StartCharPosition,
+                        EndCharPosition = f.TextSpan.EndCharPosition,
+                        StartLinePosition = f.TextSpan.StartLinePosition,
+                        EndLinePosition = f.TextSpan.EndLinePosition
+                    },
+                    TextChanges = f.TextChanges
+                }).ToHashSet().ToList();
+
+                portingActionResults.Add(filePath, recommendedActions);
+
+                var sourceFileAnalysisResult = InvocationExpressionModelToInvocations.AnalyzeResults(
+                    sourceFileToCodeEntityDetails, packageResults, recommendationResults, portingActionResults, targetFramework);
+
+                sourceFileAnalysisResults.AddRange(sourceFileAnalysisResult);
+
+
                 return new IncrementalFileAnalysisResult()
                 {
-                    //sourceFileAnalysisResults = sourceFileAnalysisResults,
-                    //projectActions = projectActionsDict,
-                    //analyzerResults = analyzerResults
+                    sourceFileAnalysisResults = sourceFileAnalysisResults
                 };
             }
             finally
@@ -500,7 +554,8 @@ namespace PortingAssistant.Client.Analysis
                     SourceFileAnalysisResults = SourceFileAnalysisResults,
                     MetaReferences = analyzer.ProjectBuildResult.Project.MetadataReferences.Select(m=>m.Display).ToList(),
                     PreportMetaReferences = analyzer.ProjectBuildResult.PreportReferences,
-                    ProjectRules = projectActions.ProjectRules
+                    ProjectRules = projectActions.ProjectRules,
+                    ExternalReferences = analyzer.ProjectResult.ExternalReferences
                 };
             }
             catch (Exception ex)

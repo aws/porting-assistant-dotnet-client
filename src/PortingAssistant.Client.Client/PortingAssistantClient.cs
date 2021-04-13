@@ -9,6 +9,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Codelyzer.Analysis;
 using CTA.Rules.Models;
+using Codelyzer.Analysis.Model;
 
 namespace PortingAssistant.Client.Client
 {
@@ -105,22 +106,13 @@ namespace PortingAssistant.Client.Client
 
         }
 
-        //public async Task<IncrementalFileAnalysisResult> AnalyzeFileAsync(List<string> filePaths, string solutionFilePath, 
-        //    List<AnalyzerResult> existingAnalyzerResults, Dictionary<string, ProjectActions> existingProjectActions, AnalyzerSettings settings)
-        //{
-        //    var targetFramework = settings.TargetFramework ?? "netcoreapp3.1";
-
-        //    return await _analysisHandler.AnalyzeFileIncremental(filePaths, solutionFilePath,
-        //        existingAnalyzerResults, existingProjectActions, targetFramework);
-        //}
-
         public async Task<IncrementalFileAnalysisResult> AnalyzeFileAsync(string filePath, string projectFile, string solutionFilePath,
-    List<string> preportReferences, List<string> currentReferences, RootNodes rules, AnalyzerSettings settings)
+    List<string> preportReferences, List<string> currentReferences, RootNodes rules, ExternalReferences externalReferences, AnalyzerSettings settings)
         {
             var targetFramework = settings.TargetFramework ?? "netcoreapp3.1";
 
             return await _analysisHandler.AnalyzeFileIncremental(filePath, projectFile, solutionFilePath,
-                preportReferences, currentReferences, rules, targetFramework);
+                preportReferences, currentReferences, rules, externalReferences, targetFramework);
         }
 
 

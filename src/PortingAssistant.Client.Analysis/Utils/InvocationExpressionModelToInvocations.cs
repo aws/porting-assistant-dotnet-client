@@ -27,7 +27,7 @@ namespace PortingAssistant.Client.Analysis.Utils
                 {
                     SourceFileName = Path.GetFileName(sourceFile.Key),
                     SourceFilePath = sourceFile.Key,
-                    RecommendedActions = portingActionResults.GetValueOrDefault(sourceFile.Key, new List<RecommendedAction>()),
+                    RecommendedActions = portingActionResults?.GetValueOrDefault(sourceFile.Key, new List<RecommendedAction>()),
                     ApiAnalysisResults = sourceFile.Value.Select(invocation =>
                     {
                         var package = invocation.Package;
@@ -83,7 +83,13 @@ namespace PortingAssistant.Client.Analysis.Utils
              Dictionary<string, UstList<InvocationExpression>> sourceFileToInvocations,
              AnalyzerResult analyzer)
         {
+            return Convert(sourceFileToInvocations, analyzer?.ProjectResult?.ExternalReferences);
+        }
 
+        public static Dictionary<string, List<CodeEntityDetails>> Convert(
+             Dictionary<string, UstList<InvocationExpression>> sourceFileToInvocations,
+             ExternalReferences externalReferences)
+        {
             return sourceFileToInvocations.Select(sourceFile =>
                 KeyValuePair.Create(
                     sourceFile.Key,
@@ -96,18 +102,18 @@ namespace PortingAssistant.Client.Analysis.Utils
                         }
 
                         // Check if invocation is from Nuget
-                        var potentialNugetPackage = analyzer?.ProjectResult?.ExternalReferences?.NugetReferences?.Find((n) =>
+                        var potentialNugetPackage = externalReferences?.NugetReferences?.Find((n) =>
                            n.AssemblyLocation?.EndsWith(invocation.Reference.Assembly + ".dll") == true || n.Identity.Equals(invocation.Reference.Assembly));
 
                         if (potentialNugetPackage == null)
                         {
-                            potentialNugetPackage = analyzer?.ProjectResult?.ExternalReferences?.NugetDependencies?.Find((n) =>
+                            potentialNugetPackage = externalReferences?.NugetDependencies?.Find((n) =>
                            n.AssemblyLocation?.EndsWith(invocation.Reference.Assembly + ".dll") == true || n.Identity.Equals(invocation.Reference.Assembly));
                         }
                         PackageVersionPair nugetPackage = ReferenceToPackageVersionPair(potentialNugetPackage);
 
                         // Check if invocation is from SDK
-                        var potentialSdk = analyzer?.ProjectResult?.ExternalReferences?.SdkReferences?.Find((s) =>
+                        var potentialSdk = externalReferences?.SdkReferences?.Find((s) =>
                             s.AssemblyLocation?.EndsWith(invocation.Reference.Assembly + ".dll") == true || s.Identity.Equals(invocation.Reference.Assembly));
                         PackageVersionPair sdk = ReferenceToPackageVersionPair(potentialSdk, PackageSourceType.SDK);
 
@@ -141,7 +147,6 @@ namespace PortingAssistant.Client.Analysis.Utils
             )
             .Where(p => p.Value.Count != 0)
             .ToDictionary(p => p.Key, p => p.Value);
-
         }
 
         public static CompatibilityResult GetCompatibilityResult(CompatibilityResult compatibilityResultWithPackage, CompatibilityResult compatibilityResultWithSdk)

@@ -412,7 +412,7 @@ namespace PortingAssistant.Client.Tests
 
             //TODO update tests
             var fileResults = _portingAssistantClient.AnalyzeFileAsync(_sourceFileAnalysisResult.SourceFilePath, "", _tmpSolutionFileName,
-                null, null, results.Result.ProjectAnalysisResults.First().ProjectRules, new AnalyzerSettings { TargetFramework = "netcoreapp3.1", ContiniousEnabled = true });
+                null, null, results.Result.ProjectAnalysisResults.First().ProjectRules, results.Result.ProjectAnalysisResults.First().ExternalReferences, new AnalyzerSettings { TargetFramework = "netcoreapp3.1", ContiniousEnabled = true });
             fileResults.Wait();
 
             var fileAnalyzerResult = fileResults.Result.analyzerResults;

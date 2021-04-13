@@ -1,4 +1,5 @@
-﻿using CTA.Rules.Models;
+﻿using Codelyzer.Analysis.Model;
+using CTA.Rules.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -12,5 +13,6 @@ namespace PortingAssistant.Client.Model
         public List<string> PreportMetaReferences { get; set; }
         public List<string> MetaReferences { get; set; }
         public RootNodes ProjectRules { get; set; }
+        public ExternalReferences ExternalReferences { get; set; }
     }
 }
