@@ -145,7 +145,6 @@ namespace PortingAssistant.Client.Analysis.Utils
                     .ToList()
                 )
             )
-            .Where(p => p.Value.Count != 0)
             .ToDictionary(p => p.Key, p => p.Value);
         }
 

@@ -9,11 +9,14 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="NuGet.Protocol" Version="5.7.0" />
+    <PackageReference Include="NuGet.Protocol" Version="5.9.0" />
     <PackageReference Include="semver" Version="2.0.6" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\cta\src\CTA.Rules.PortCore\CTA.Rules.PortCore.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.4.194" />
   </ItemGroup>
 </Project>

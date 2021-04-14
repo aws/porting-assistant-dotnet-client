@@ -27,9 +27,9 @@
       },
       "Nerdbank.GitVersioning": {
         "type": "Direct",
-        "requested": "[3.2.31, )",
-        "resolved": "3.2.31",
-        "contentHash": "19grBnpqHLxViOt1cwE+cI+brQ2swdm4gfM97P+9KbbgWGfXtdy4EmpVAkUZ3MgntFYYbUvfldM4pUOmks5q0w=="
+        "requested": "[3.4.194, )",
+        "resolved": "3.4.194",
+        "contentHash": "f4V2lLy9G0BnddqGhfaVa+dKsbu8iCiLiUARHKBo0l899MgJdRjVU2C7e29gHrZWxc2HZkq3aq28OHHK7q0/iQ=="
       },
       "Buildalyzer": {
         "type": "Transitive",
@@ -545,11 +545,10 @@
       },
       "NuGet.Protocol": {
         "type": "Transitive",
-        "resolved": "5.7.0",
-        "contentHash": "SYgadWJ5vYA8jDPV0IRhx+pv2xfXTwncy/4JvUCQBH8wuK3dIaQ8I6jL+Tm664sbQwxA4l7gZ+wnls55qbTyxA==",
+        "resolved": "5.9.0",
+        "contentHash": "u47alKAFzs5zV3n9u8SHNsG8LuaU5i+zT/z0MKEWOF5bW3sKdg6U0uENU3hhcqZ9W/H9zhObCu1mW5oGLr/70g==",
         "dependencies": {
-          "NuGet.Packaging": "5.7.0",
-          "System.Dynamic.Runtime": "4.3.0"
+          "NuGet.Packaging": "5.9.0"
         }
       },
       "NuGet.Versioning": {
@@ -1855,7 +1854,7 @@
           "CTA.Rules.PortCore": "1.0.0",
           "Microsoft.Extensions.Logging": "5.0.0",
           "Newtonsoft.Json": "12.0.3",
-          "NuGet.Protocol": "5.7.0",
+          "NuGet.Protocol": "5.9.0",
           "semver": "2.0.6"
         }
       }
