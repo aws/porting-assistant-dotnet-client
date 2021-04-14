@@ -14,9 +14,9 @@
       },
       "Nerdbank.GitVersioning": {
         "type": "Direct",
-        "requested": "[3.2.31, )",
-        "resolved": "3.2.31",
-        "contentHash": "19grBnpqHLxViOt1cwE+cI+brQ2swdm4gfM97P+9KbbgWGfXtdy4EmpVAkUZ3MgntFYYbUvfldM4pUOmks5q0w=="
+        "requested": "[3.4.194, )",
+        "resolved": "3.4.194",
+        "contentHash": "f4V2lLy9G0BnddqGhfaVa+dKsbu8iCiLiUARHKBo0l899MgJdRjVU2C7e29gHrZWxc2HZkq3aq28OHHK7q0/iQ=="
       },
       "Newtonsoft.Json": {
         "type": "Direct",
@@ -26,15 +26,15 @@
       },
       "AWSSDK.Core": {
         "type": "Transitive",
-        "resolved": "3.3.107.6",
-        "contentHash": "+nGXp68JPcOP0/HB2VSs5a4mvjNGc/1f2azCbCCT2iphbRbJGIZVV/B8TZ7ToS4sooQiMd0kfV0NFfyfSGLqLw=="
+        "resolved": "3.7.0.10",
+        "contentHash": "XIg3tsHLQwN1k/H2M/dUZa2hc+cUDoDJBZpppxX5XJ1vhvI/MhQR9PTBDM8rNenxTNmfLflruU51vamvzrBXeQ=="
       },
       "AWSSDK.S3": {
         "type": "Transitive",
-        "resolved": "3.3.111.7",
-        "contentHash": "j2ACIxqUdsQP78eyAtiAVLL5kcnrq6p1dsdy4fZwOurqHYS2AHre9cWfpFPaSnjJVh4rIsfDoW6MAKWZwut5AA==",
+        "resolved": "3.7.0.10",
+        "contentHash": "pkaBimX5l8uJfRU1wEv0JA2JFQ6IQX3y4PsL90t1QXiAtel/EZaXUhV9rN6udQPw3pI5qetjTty30apaaZnHTg==",
         "dependencies": {
-          "AWSSDK.Core": "[3.3.107.6, 3.4.0)"
+          "AWSSDK.Core": "[3.7.0.10, 3.8.0)"
         }
       },
       "Buildalyzer": {
@@ -314,12 +314,13 @@
       },
       "Microsoft.Extensions.Http": {
         "type": "Transitive",
-        "resolved": "3.1.8",
-        "contentHash": "GRkzBs2wJG6jTGqRrT8l/Sqk4MiO0yQltiekDNw/X7L2l5/gKSud/6Vcjb9b5SPtgn6lxcn8qCmfDtk2kP/cOw==",
+        "resolved": "5.0.0",
+        "contentHash": "kT1ijDKZuSUhBtYoC1sXrmVKP7mA08h9Xrsr4VrS/QOtiKCEtUTTd7dd3XI9dwAb46tZSak13q/zdIcr4jqbyg==",
         "dependencies": {
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "3.1.8",
-          "Microsoft.Extensions.Logging": "3.1.8",
-          "Microsoft.Extensions.Options": "3.1.8"
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "5.0.0",
+          "Microsoft.Extensions.Logging": "5.0.0",
+          "Microsoft.Extensions.Logging.Abstractions": "5.0.0",
+          "Microsoft.Extensions.Options": "5.0.0"
         }
       },
       "Microsoft.Extensions.Logging": {
@@ -568,11 +569,10 @@
       },
       "NuGet.Protocol": {
         "type": "Transitive",
-        "resolved": "5.7.0",
-        "contentHash": "SYgadWJ5vYA8jDPV0IRhx+pv2xfXTwncy/4JvUCQBH8wuK3dIaQ8I6jL+Tm664sbQwxA4l7gZ+wnls55qbTyxA==",
+        "resolved": "5.9.0",
+        "contentHash": "u47alKAFzs5zV3n9u8SHNsG8LuaU5i+zT/z0MKEWOF5bW3sKdg6U0uENU3hhcqZ9W/H9zhObCu1mW5oGLr/70g==",
         "dependencies": {
-          "NuGet.Packaging": "5.7.0",
-          "System.Dynamic.Runtime": "4.3.0"
+          "NuGet.Packaging": "5.9.0"
         }
       },
       "NuGet.Versioning": {
@@ -1878,18 +1878,18 @@
           "CTA.Rules.PortCore": "1.0.0",
           "Microsoft.Extensions.Logging": "5.0.0",
           "Newtonsoft.Json": "12.0.3",
-          "NuGet.Protocol": "5.7.0",
+          "NuGet.Protocol": "5.9.0",
           "semver": "2.0.6"
         }
       },
       "portingassistant.client.nuget": {
         "type": "Project",
         "dependencies": {
-          "AWSSDK.S3": "3.3.111.7",
-          "Microsoft.Extensions.Http": "3.1.8",
+          "AWSSDK.S3": "3.7.0.10",
+          "Microsoft.Extensions.Http": "5.0.0",
           "Microsoft.Extensions.Logging.Abstractions": "5.0.0",
           "Newtonsoft.Json": "13.0.1",
-          "NuGet.Protocol": "5.7.0",
+          "NuGet.Protocol": "5.9.0",
           "PortingAssistant.Client.Common": "1.0.0"
         }
       }
