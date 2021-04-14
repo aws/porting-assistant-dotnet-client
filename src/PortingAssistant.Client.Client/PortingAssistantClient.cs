@@ -134,6 +134,7 @@ namespace PortingAssistant.Client.Client
                     request.Projects,
                     request.SolutionPath,
                     request.TargetFramework,
+                    request.IncludeCodeFix,
                     upgradeVersions);
             }
             catch (Exception ex)
