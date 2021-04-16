@@ -184,7 +184,11 @@ namespace PortingAssistant.Client.Tests
                                 _sourceFileAnalysisResult
                             },
                             ProjectGuid = "xxx",
-                            ProjectType = nameof(SolutionProjectType.KnownToBeMSBuildFormat)
+                            ProjectType = nameof(SolutionProjectType.KnownToBeMSBuildFormat),
+                            PreportMetaReferences = new List<string> { },
+                            MetaReferences = new List<string> { },
+                            ExternalReferences = null,
+                            ProjectRules = null
                         };
 
                         return new KeyValuePair<string, ProjectAnalysisResult>(project, projectAnalysisResult);
@@ -253,24 +257,20 @@ namespace PortingAssistant.Client.Tests
                         };
                     });
                 });
-            //TODO update tests
-            /*
-            _apiAnalysisHandlerMock.Setup(analyzer => analyzer.AnalyzeFileIncremental(It.IsAny<List<string>>(), It.IsAny<string>(),
-                It.IsAny<List<AnalyzerResult>>(), It.IsAny<Dictionary<string, ProjectActions>>(), It.IsAny<string>()))
-                .Returns((List<string> filePaths, string solutionPath, List<AnalyzerResult> exisitingAnalyzerResults,
-                Dictionary<string, ProjectActions> existingProjectActions, string targetFramework) =>
+            _apiAnalysisHandlerMock.Setup(analyzer => analyzer.AnalyzeFileIncremental(It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>(), It.IsAny<RootNodes>(), It.IsAny<Codelyzer.Analysis.Model.ExternalReferences>(), 
+                It.IsAny<string>()))
+                .Returns((string filePath, string project, string solutionPath, List<string> preportReferences,
+                List<string> metaReferences, RootNodes projectRules, Codelyzer.Analysis.Model.ExternalReferences externalReferences, string targetFramework) =>
                 {
                     return Task.Run(() =>
                     {
                         return new IncrementalFileAnalysisResult
                         {
-                            analyzerResults = exisitingAnalyzerResults,
-                            projectActions = existingProjectActions,
                             sourceFileAnalysisResults = new List<SourceFileAnalysisResult> { _sourceFileAnalysisResult }
                         };
                     });
                 });
-            */
         }
 
         private List<ProjectDetails> GetProjects(string pathToSolution)
@@ -407,24 +407,20 @@ namespace PortingAssistant.Client.Tests
             var results = _portingAssistantClient.AnalyzeSolutionAsync(Path.Combine(_solutionFolder, "SolutionWithProjects.sln"), new AnalyzerSettings { TargetFramework = "netcoreapp3.1", ContiniousEnabled = true });
             results.Wait();
 
-            var existingAnalyzerResults = results.Result.AnalyzerResults;
-            var exisitingProjectActions = results.Result.ProjectActions;
+            var projectAnalysisResult = results.Result.ProjectAnalysisResults[0];
+            var preportReferences = projectAnalysisResult.PreportMetaReferences;
+            var metaReferences = projectAnalysisResult.MetaReferences;
+            var externalReferences = projectAnalysisResult.ExternalReferences;
+            var projectRules = projectAnalysisResult.ProjectRules;
 
-            //TODO update tests
-            /*
             var fileResults = _portingAssistantClient.AnalyzeFileAsync(_sourceFileAnalysisResult.SourceFilePath, "", _tmpSolutionFileName,
-                null, null, results.Result.ProjectAnalysisResults.First().ProjectRules, results.Result.ProjectAnalysisResults.First().ExternalReferences, new AnalyzerSettings { TargetFramework = "netcoreapp3.1", ContiniousEnabled = true });
+                preportReferences, metaReferences, projectRules, externalReferences, new AnalyzerSettings { TargetFramework = "netcoreapp3.1" });
             fileResults.Wait();
 
-            var fileAnalyzerResult = fileResults.Result.analyzerResults;
-            var fileProjectActions = fileResults.Result.projectActions;
             var fileSourceFileAnalysis = fileResults.Result.sourceFileAnalysisResults;
 
-            Assert.AreEqual(fileAnalyzerResult, existingAnalyzerResults);
-            Assert.AreEqual(fileProjectActions, exisitingProjectActions);
             Assert.AreEqual(fileSourceFileAnalysis.Count, 1);
             Assert.AreEqual(fileSourceFileAnalysis[0], _sourceFileAnalysisResult);
-            */
         }
     }
 }

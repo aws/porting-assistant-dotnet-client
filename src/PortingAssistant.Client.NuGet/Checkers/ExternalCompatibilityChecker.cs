@@ -4,11 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using Amazon.S3.Transfer;
 using System.IO;
-using System.IO.Compression;
-using Amazon.S3;
 using PortingAssistant.Client.Model;
 using PortingAssistant.Client.NuGet.Interfaces;
 using PortingAssistant.Client.NuGet.Utils;
@@ -98,8 +94,7 @@ namespace PortingAssistant.Client.NuGet
                             _logger.LogInformation("Downloading {0} from {1}", fileToDownload, CompatibilityCheckerType);
                             packageDetails = await packageDetailsManager.GetPackageDetailFromS3(fileToDownload, _httpService);
                             _logger.LogInformation("Caching {0} from {1} to Temp", fileToDownload, CompatibilityCheckerType);
-                            //TODO Fix this, not working
-                            //packageDetailsManager.CachePackageDetailsToFile(fileToDownload, packageDetails);
+                            packageDetailsManager.CachePackageDetailsToFile(fileToDownload, packageDetails);
                         }
                         else
                         {

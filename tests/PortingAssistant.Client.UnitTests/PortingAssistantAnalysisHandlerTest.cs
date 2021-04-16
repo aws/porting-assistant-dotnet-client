@@ -189,9 +189,10 @@ namespace PortingAssistant.Client.Tests
         }
 
         [Test]
-        public void AnalyzeSingleFileSucceeds()
+        public void AnalyzeFileSucceeds()
         {
             var filePath = Path.Combine(_solutionFile.Replace("\\SolutionWithApi.sln",""), "testproject", "Program.cs");
+            var projectPath = Path.Combine(_solutionFile.Replace("\\SolutionWithApi.sln", ""), "testproject", "testproject.csproj");
 
             var result = _analysisHandler.AnalyzeSolutionIncremental(_solutionFile, _projectPaths);
             
@@ -200,8 +201,14 @@ namespace PortingAssistant.Client.Tests
             var existingAnalyzerResult = result.Result.analyzerResults;
             var existingProjectActions = result.Result.projectActions;
 
-            var incrementalResult = _analysisHandler.AnalyzeFileIncremental(new List<string> { filePath }, _solutionFile,
-                existingAnalyzerResult, existingProjectActions);
+            var projectAnalysisResult = result.Result.projectAnalysisResultDict[projectPath];
+            var preportReferences = projectAnalysisResult.PreportMetaReferences;
+            var metaReferences = projectAnalysisResult.MetaReferences;
+            var externalReferences = projectAnalysisResult.ExternalReferences;
+            var projectRules = projectAnalysisResult.ProjectRules;
+
+            var incrementalResult = _analysisHandler.AnalyzeFileIncremental(filePath, projectPath, _solutionFile, preportReferences, metaReferences,
+                projectRules, externalReferences, "netcoreapp3.1");
             Task.WaitAll(incrementalResult);
 
             var fileAnalysisResult = incrementalResult.Result;
