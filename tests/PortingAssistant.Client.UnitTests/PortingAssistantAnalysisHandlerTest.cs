@@ -208,7 +208,7 @@ namespace PortingAssistant.Client.Tests
             var projectRules = projectAnalysisResult.ProjectRules;
 
             var incrementalResult = _analysisHandler.AnalyzeFileIncremental(filePath, projectPath, _solutionFile, preportReferences, metaReferences,
-                projectRules, externalReferences, "netcoreapp3.1");
+                projectRules, externalReferences, false, "netcoreapp3.1");
             Task.WaitAll(incrementalResult);
 
             var fileAnalysisResult = incrementalResult.Result;

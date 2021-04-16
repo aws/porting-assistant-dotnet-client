@@ -14,6 +14,8 @@ namespace PortingAssistant.Client.Client
         //    List<AnalyzerResult> existingAnalyzerResults, Dictionary<string, ProjectActions> existingProjectActions, AnalyzerSettings settings);
         Task<IncrementalFileAnalysisResult> AnalyzeFileAsync(string filePath, string projectFile, string solutionFilePath, 
             List<string> preportReferences, List<string> currentReferences, RootNodes rules, ExternalReferences externalReferences, AnalyzerSettings settings);
+        Task<IncrementalFileAnalysisResult> AnalyzeFileAsync(string filePath, string fileContent, string projectFile, string solutionFilePath,
+            List<string> preportReferences, List<string> currentReferences, RootNodes rules, ExternalReferences externalReferences, AnalyzerSettings settings);
         List<PortingResult> ApplyPortingChanges(PortingRequest request);
     }
 }

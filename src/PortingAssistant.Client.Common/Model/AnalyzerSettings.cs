@@ -10,5 +10,6 @@ namespace PortingAssistant.Client.Model
         public string TargetFramework { get; set; }
 
         public bool ContiniousEnabled { get; set; }
+        public bool ActionsOnly { get; set; }
     }
 }
