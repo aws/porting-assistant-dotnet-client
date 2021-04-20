@@ -10,14 +10,16 @@ using static PortingAssistant.Client.NuGet.ExternalCompatibilityChecker;
 
 namespace PortingAssistant.Client.NuGet.Utils
 {
-    class PackageDetailsManager
+    class PackageDetailsManager : IPackageDetailsManager
     {
-        private string _tempSolutionDirectory;
         private IFileSystem _fileSystem;
 
-        public PackageDetailsManager(string pathToSolution)
+        public PackageDetailsManager()
         {
             _fileSystem = new FileSystem();
+        }
+        public string GetTempDirectory(string pathToSolution)
+        {
             if (pathToSolution != null)
             {
                 string solutionId;
@@ -27,11 +29,13 @@ namespace PortingAssistant.Client.NuGet.Utils
                     byte[] hash = sha.ComputeHash(textData);
                     solutionId = BitConverter.ToString(hash);
                 }
-                _tempSolutionDirectory = Path.Combine(_fileSystem.GetTempPath(), solutionId);
+                var _tempSolutionDirectory = Path.Combine(_fileSystem.GetTempPath(), solutionId);
                 _tempSolutionDirectory = _tempSolutionDirectory.Replace("-", "");
+                return _tempSolutionDirectory;
             }
+            return null;
         }
-        public bool IsPackageInFile(string fileToDownload)
+        public bool IsPackageInFile(string fileToDownload, string _tempSolutionDirectory)
         {
             string filePath = Path.Combine(_tempSolutionDirectory, fileToDownload);
             return _fileSystem.FileExists(filePath);
@@ -45,7 +49,7 @@ namespace PortingAssistant.Client.NuGet.Utils
             var packageDetails = data.Package ?? data.Namespaces;
             return packageDetails;
         }
-        public async void CachePackageDetailsToFile(string fileName, PackageDetails packageDetail)
+        public async void CachePackageDetailsToFile(string fileName, PackageDetails packageDetail, string _tempSolutionDirectory)
         {
             if(!_fileSystem.DirectoryExists(_tempSolutionDirectory))
             {
@@ -58,7 +62,7 @@ namespace PortingAssistant.Client.NuGet.Utils
             using var streamWriter = new StreamWriter(gzipStream);
             await streamWriter.WriteAsync(data);
         }
-        public async Task<PackageDetails> GetPackageDetailFromFile(string fileToDownload)
+        public async Task<PackageDetails> GetPackageDetailFromFile(string fileToDownload, string _tempSolutionDirectory)
         {
             string filePath = Path.Combine(_tempSolutionDirectory, fileToDownload);
             using Stream compressedFileStream = _fileSystem.FileOpenRead(filePath);

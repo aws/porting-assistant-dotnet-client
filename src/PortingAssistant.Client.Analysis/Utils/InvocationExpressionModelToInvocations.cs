@@ -17,7 +17,8 @@ namespace PortingAssistant.Client.Analysis.Utils
             Dictionary<PackageVersionPair, Task<PackageDetails>> packageResults,
             Dictionary<string, Task<RecommendationDetails>> recommendationResults,
             Dictionary<string, List<RecommendedAction>> portingActionResults,
-            string targetFramework = "netcoreapp3.1"
+            string targetFramework = "netcoreapp3.1",
+            bool compatibleOnly = false
         )
         {
             var packageDetailsWithIndicesResults = ApiCompatiblity.PreProcessPackageDetails(packageResults);
@@ -49,13 +50,18 @@ namespace PortingAssistant.Client.Analysis.Utils
 
                         var compatibilityResult = GetCompatibilityResult(compatibilityResultWithPackage, compatibilityResultWithSdk);
 
+                        if(compatibleOnly)
+                        {
+                            if (!(compatibilityResult.Compatibility == Compatibility.INCOMPATIBLE))
+                                return null;
+                        }
+
                         var recommendationDetails = recommendationResults.GetValueOrDefault(invocation.Namespace, null);
                         var apiRecommendation = ApiCompatiblity.UpgradeStrategy(
                                                 compatibilityResult,
                                                 invocation.OriginalDefinition,
                                                 recommendationDetails,
                                                 targetFramework);
-
 
                         return new ApiAnalysisResult
                         {

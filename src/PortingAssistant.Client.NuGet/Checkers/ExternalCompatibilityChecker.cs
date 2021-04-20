@@ -15,6 +15,7 @@ namespace PortingAssistant.Client.NuGet
     {
         private readonly ILogger _logger;
         private readonly IHttpService _httpService;
+        private readonly IPackageDetailsManager _packageDetailsManager;
         private static readonly int _maxProcessConcurrency = 3;
         private static readonly SemaphoreSlim _semaphore = new SemaphoreSlim(_maxProcessConcurrency);
 
@@ -26,6 +27,7 @@ namespace PortingAssistant.Client.NuGet
         {
             _logger = logger;
             _httpService = httpService;
+            _packageDetailsManager = new PackageDetailsManager();
         }
 
         public Dictionary<PackageVersionPair, Task<PackageDetails>> Check(
@@ -84,26 +86,26 @@ namespace PortingAssistant.Client.NuGet
 
                 try
                 {
-                    PackageDetailsManager packageDetailsManager = new PackageDetailsManager(pathToSolution);
+                    string tempDirectoryPath = _packageDetailsManager.GetTempDirectory(pathToSolution);
                     PackageDetails packageDetails = null;
 
                     if (isIncremental)
                     {
-                        if (incrementalRefresh || !packageDetailsManager.IsPackageInFile(fileToDownload))
+                        if (incrementalRefresh || !_packageDetailsManager.IsPackageInFile(fileToDownload, tempDirectoryPath))
                         {
                             _logger.LogInformation("Downloading {0} from {1}", fileToDownload, CompatibilityCheckerType);
-                            packageDetails = await packageDetailsManager.GetPackageDetailFromS3(fileToDownload, _httpService);
+                            packageDetails = await _packageDetailsManager.GetPackageDetailFromS3(fileToDownload, _httpService);
                             _logger.LogInformation("Caching {0} from {1} to Temp", fileToDownload, CompatibilityCheckerType);
-                            packageDetailsManager.CachePackageDetailsToFile(fileToDownload, packageDetails);
+                            _packageDetailsManager.CachePackageDetailsToFile(fileToDownload, packageDetails, tempDirectoryPath);
                         }
                         else
                         {
                             _logger.LogInformation("Fetching {0} from {1} from Temp", fileToDownload, CompatibilityCheckerType);
-                            packageDetails = await packageDetailsManager.GetPackageDetailFromFile(fileToDownload);
+                            packageDetails = await _packageDetailsManager.GetPackageDetailFromFile(fileToDownload, tempDirectoryPath);
                         }
                     }
                     else
-                        packageDetails = await packageDetailsManager.GetPackageDetailFromS3(fileToDownload, _httpService);
+                        packageDetails = await _packageDetailsManager.GetPackageDetailFromS3(fileToDownload, _httpService);
 
                     if (packageDetails.Name == null || !string.Equals(packageDetails.Name.Trim(),
                         packageToDownload.Trim(), StringComparison.CurrentCultureIgnoreCase))

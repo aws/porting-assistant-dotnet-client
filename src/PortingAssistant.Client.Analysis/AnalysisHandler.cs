@@ -98,7 +98,7 @@ namespace PortingAssistant.Client.Analysis
                 portingActionResults.Add(filePath, recommendedActions);
 
                 var sourceFileAnalysisResult = InvocationExpressionModelToInvocations.AnalyzeResults(
-                    sourceFileToCodeEntityDetails, packageResults, recommendationResults, portingActionResults, targetFramework);
+                    sourceFileToCodeEntityDetails, packageResults, recommendationResults, portingActionResults, targetFramework, compatibleOnly: true);
 
                 //In case actions only, result will be empty, so we populate with actions
                 if(actionsOnly)
@@ -126,7 +126,6 @@ namespace PortingAssistant.Client.Analysis
             }
         }
 
-        //TODO remove hardcoded value
         public async Task<IncrementalFileAnalysisResult> AnalyzeFileIncremental(string filePath, string projectFile, string solutionFilePath, List<string> preportReferences
             , List<string> currentReferences, RootNodes projectRules, ExternalReferences externalReferences, bool actionsOnly, string targetFramework = "netcoreapp3.1")
         {
