@@ -216,10 +216,7 @@ namespace PortingAssistant.Client.Tests
             
             Task.WaitAll(result);
 
-            var existingAnalyzerResult = result.Result.analyzerResults;
-            var existingProjectActions = result.Result.projectActions;
-
-            var projectAnalysisResult = result.Result.projectAnalysisResultDict[projectPath];
+            var projectAnalysisResult = result.Result[projectPath];
             var preportReferences = projectAnalysisResult.PreportMetaReferences;
             var metaReferences = projectAnalysisResult.MetaReferences;
             var externalReferences = projectAnalysisResult.ExternalReferences;
@@ -231,7 +228,7 @@ namespace PortingAssistant.Client.Tests
 
             var fileAnalysisResult = incrementalResult.Result;
 
-            var sourceFile = fileAnalysisResult.sourceFileAnalysisResults.Find(s => s.SourceFileName == "Program.cs");
+            var sourceFile = fileAnalysisResult.Find(s => s.SourceFileName == "Program.cs");
             Assert.NotNull(sourceFile);
             Assert.IsEmpty(sourceFile.ApiAnalysisResults);
         }

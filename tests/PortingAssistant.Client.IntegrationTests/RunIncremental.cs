@@ -109,7 +109,7 @@ namespace PortingAssistant.Client.IntegrationTests
                 fileAnalysisResultTask.Wait();
             });
 
-            var sourceFileAnalysisResults = fileAnalysisResultTask.Result.sourceFileAnalysisResults;
+            var sourceFileAnalysisResults = fileAnalysisResultTask.Result;
 
             var homeController = sourceFileAnalysisResults.Find(s => s.SourceFileName == "HomeController.cs");
             Assert.AreEqual(Path.Combine(_tmpTestProjectsExtractionPath, "NetFrameworkExample",

@@ -31,7 +31,7 @@ namespace PortingAssistant.Client.Analysis
             _recommendationHandler = recommendationHandler;
         }
 
-        public async Task<IncrementalFileAnalysisResult> AnalyzeFileIncremental(string filePath, string fileContent, string projectFile, string solutionFilePath, List<string> preportReferences
+        public async Task<List<SourceFileAnalysisResult>> AnalyzeFileIncremental(string filePath, string fileContent, string projectFile, string solutionFilePath, List<string> preportReferences
             , List<string> currentReferences, RootNodes projectRules, ExternalReferences externalReferences, bool actionsOnly = false, bool compatibleOnly = false, string targetFramework = "netcoreapp3.1")
         {
             try
@@ -115,10 +115,7 @@ namespace PortingAssistant.Client.Analysis
                 sourceFileAnalysisResults.AddRange(sourceFileAnalysisResult);
 
 
-                return new IncrementalFileAnalysisResult()
-                {
-                    sourceFileAnalysisResults = sourceFileAnalysisResults
-                };
+                return sourceFileAnalysisResults;
             }
             finally
             {
@@ -126,14 +123,14 @@ namespace PortingAssistant.Client.Analysis
             }
         }
 
-        public async Task<IncrementalFileAnalysisResult> AnalyzeFileIncremental(string filePath, string projectFile, string solutionFilePath, List<string> preportReferences
+        public async Task<List<SourceFileAnalysisResult>> AnalyzeFileIncremental(string filePath, string projectFile, string solutionFilePath, List<string> preportReferences
             , List<string> currentReferences, RootNodes projectRules, ExternalReferences externalReferences, bool actionsOnly, bool compatibleOnly, string targetFramework = "netcoreapp3.1")
         {
             var fileContent = File.ReadAllText(filePath);
             return await AnalyzeFileIncremental(filePath, fileContent, projectFile, solutionFilePath, preportReferences, currentReferences, projectRules, externalReferences, actionsOnly, compatibleOnly, targetFramework);
         }
 
-        public async Task<IncrementalProjectAnalysisResultDict> AnalyzeSolutionIncremental(string solutionFilename, List<string> projects,
+        public async Task<Dictionary<string, ProjectAnalysisResult>> AnalyzeSolutionIncremental(string solutionFilename, List<string> projects,
             string targetFramework = "netcoreapp3.1")
         {
             try
@@ -172,12 +169,7 @@ namespace PortingAssistant.Client.Analysis
                        .ToDictionary(p => p.Key, p => p.Value);
 
 
-                return new IncrementalProjectAnalysisResultDict()
-                {
-                    projectAnalysisResultDict = solutionAnalysisResult,
-                    projectActions = projectActions,
-                    analyzerResults = analyzerResult
-                };
+                return solutionAnalysisResult;
             }
             finally
             {

@@ -46,12 +46,7 @@ namespace PortingAssistant.Client.Client
                 Dictionary<string, ProjectActions> projectActions = null;
 
                 if (settings.ContiniousEnabled)
-                {
-                    var incrementalSolutionResult = await _analysisHandler.AnalyzeSolutionIncremental(solutionFilePath, projects, targetFramework);
-                    projectAnalysisResultsDict = incrementalSolutionResult.projectAnalysisResultDict;
-                    analyzerResults = incrementalSolutionResult.analyzerResults;
-                    projectActions = incrementalSolutionResult.projectActions;
-                }
+                    projectAnalysisResultsDict = await _analysisHandler.AnalyzeSolutionIncremental(solutionFilePath, projects, targetFramework);
                 else
                     projectAnalysisResultsDict = await _analysisHandler.AnalyzeSolution(solutionFilePath, projects, targetFramework);
 
@@ -106,7 +101,7 @@ namespace PortingAssistant.Client.Client
 
         }
 
-        public async Task<IncrementalFileAnalysisResult> AnalyzeFileAsync(string filePath, string projectFile, string solutionFilePath,
+        public async Task<List<SourceFileAnalysisResult>> AnalyzeFileAsync(string filePath, string projectFile, string solutionFilePath,
     List<string> preportReferences, List<string> currentReferences, RootNodes rules, ExternalReferences externalReferences, AnalyzerSettings settings)
         {
             var targetFramework = settings.TargetFramework ?? "netcoreapp3.1";
@@ -114,7 +109,7 @@ namespace PortingAssistant.Client.Client
             return await _analysisHandler.AnalyzeFileIncremental(filePath, projectFile, solutionFilePath,
                 preportReferences, currentReferences, rules, externalReferences, settings.ActionsOnly, settings.CompatibleOnly, targetFramework);
         }
-        public async Task<IncrementalFileAnalysisResult> AnalyzeFileAsync(string filePath, string fileContent, string projectFile, string solutionFilePath,
+        public async Task<List<SourceFileAnalysisResult>> AnalyzeFileAsync(string filePath, string fileContent, string projectFile, string solutionFilePath,
             List<string> preportReferences, List<string> currentReferences, RootNodes rules, ExternalReferences externalReferences, AnalyzerSettings settings)
         {
             var targetFramework = settings.TargetFramework ?? "netcoreapp3.1";

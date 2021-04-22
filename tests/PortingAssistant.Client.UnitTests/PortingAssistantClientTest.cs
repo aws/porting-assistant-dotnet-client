@@ -199,62 +199,57 @@ namespace PortingAssistant.Client.Tests
                 {
                     return Task.Run(() =>
                     {
-                        return new IncrementalProjectAnalysisResultDict
+                        return projects.Select(project =>
                         {
-                            analyzerResults = new List<AnalyzerResult>(),
-                            projectActions = new Dictionary<string, ProjectActions>(),
-                            projectAnalysisResultDict = projects.Select(project =>
+                            var package = new PackageVersionPair
                             {
-                                var package = new PackageVersionPair
+                                PackageId = "Newtonsoft.Json",
+                                Version = "11.0.1"
+                            };
+                            var packageAnalysisResult = Task.Run(() => new PackageAnalysisResult
+                            {
+                                PackageVersionPair = package,
+                                CompatibilityResults = new Dictionary<string, CompatibilityResult>
                                 {
-                                    PackageId = "Newtonsoft.Json",
-                                    Version = "11.0.1"
-                                };
-                                var packageAnalysisResult = Task.Run(() => new PackageAnalysisResult
-                                {
-                                    PackageVersionPair = package,
-                                    CompatibilityResults = new Dictionary<string, CompatibilityResult>
-                                    {
-                                        {targetFramework, new CompatibilityResult{
-                                            Compatibility = Compatibility.COMPATIBLE,
-                                            CompatibleVersions = new List<string>
-                                            {
-                                                "12.0.3", "12.0.4"
-                                            }
-                                        }}
-                                    },
-                                    Recommendations = new PortingAssistant.Client.Model.Recommendations
-                                    {
-                                        RecommendedActions = new List<RecommendedAction>
+                                    {targetFramework, new CompatibilityResult{
+                                        Compatibility = Compatibility.COMPATIBLE,
+                                        CompatibleVersions = new List<string>
                                         {
-                                            new RecommendedAction
-                                            {
-                                                RecommendedActionType = RecommendedActionType.UpgradePackage,
-                                                Description = "12.0.3"
-                                            }
+                                            "12.0.3", "12.0.4"
+                                        }
+                                    }}
+                                },
+                                Recommendations = new PortingAssistant.Client.Model.Recommendations
+                                {
+                                    RecommendedActions = new List<RecommendedAction>
+                                    {
+                                        new RecommendedAction
+                                        {
+                                            RecommendedActionType = RecommendedActionType.UpgradePackage,
+                                            Description = "12.0.3"
                                         }
                                     }
-                                });
+                                }
+                            });
 
-                                var projectAnalysisResult = new ProjectAnalysisResult
+                            var projectAnalysisResult = new ProjectAnalysisResult
+                            {
+                                ProjectName = Path.GetFileNameWithoutExtension(project),
+                                ProjectFilePath = project,
+                                PackageAnalysisResults = new Dictionary<PackageVersionPair, Task<PackageAnalysisResult>>
                                 {
-                                    ProjectName = Path.GetFileNameWithoutExtension(project),
-                                    ProjectFilePath = project,
-                                    PackageAnalysisResults = new Dictionary<PackageVersionPair, Task<PackageAnalysisResult>>
-                                    {
-                                        { package, packageAnalysisResult }
-                                    },
-                                    SourceFileAnalysisResults = new List<SourceFileAnalysisResult>
-                                    {
-                                        _sourceFileAnalysisResult
-                                    },
-                                    ProjectGuid = "xxx",
-                                    ProjectType = nameof(SolutionProjectType.KnownToBeMSBuildFormat)
-                                };
+                                    { package, packageAnalysisResult }
+                                },
+                                SourceFileAnalysisResults = new List<SourceFileAnalysisResult>
+                                {
+                                    _sourceFileAnalysisResult
+                                },
+                                ProjectGuid = "xxx",
+                                ProjectType = nameof(SolutionProjectType.KnownToBeMSBuildFormat)
+                            };
 
-                                return new KeyValuePair<string, ProjectAnalysisResult>(project, projectAnalysisResult);
-                            }).ToDictionary(k => k.Key, v => v.Value)
-                        };
+                            return new KeyValuePair<string, ProjectAnalysisResult>(project, projectAnalysisResult);
+                        }).ToDictionary(k => k.Key, v => v.Value);
                     });
                 });
             _apiAnalysisHandlerMock.Setup(analyzer => analyzer.AnalyzeFileIncremental(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>(), 
@@ -267,10 +262,7 @@ namespace PortingAssistant.Client.Tests
                 {
                     return Task.Run(() =>
                     {
-                        return new IncrementalFileAnalysisResult
-                        {
-                            sourceFileAnalysisResults = new List<SourceFileAnalysisResult> { _sourceFileAnalysisResult }
-                        };
+                        return new List<SourceFileAnalysisResult> { _sourceFileAnalysisResult };
                     });
                 });
             _apiAnalysisHandlerMock.Setup(analyzer => analyzer.AnalyzeFileIncremental(It.IsAny<string>(), It.IsAny<string>(),
@@ -283,10 +275,7 @@ namespace PortingAssistant.Client.Tests
                 {
                     return Task.Run(() =>
                     {
-                        return new IncrementalFileAnalysisResult
-                        {
-                            sourceFileAnalysisResults = new List<SourceFileAnalysisResult> { _sourceFileAnalysisResult }
-                        };
+                        return new List<SourceFileAnalysisResult> { _sourceFileAnalysisResult };
                     });
                 });
         }
@@ -435,7 +424,7 @@ namespace PortingAssistant.Client.Tests
                 preportReferences, metaReferences, projectRules, externalReferences, new AnalyzerSettings { TargetFramework = "netcoreapp3.1" });
             fileResults.Wait();
 
-            var fileSourceFileAnalysis = fileResults.Result.sourceFileAnalysisResults;
+            var fileSourceFileAnalysis = fileResults.Result;
 
             Assert.AreEqual(fileSourceFileAnalysis.Count, 1);
             Assert.AreEqual(fileSourceFileAnalysis[0], _sourceFileAnalysisResult);
@@ -457,7 +446,7 @@ namespace PortingAssistant.Client.Tests
                 preportReferences, metaReferences, projectRules, externalReferences, new AnalyzerSettings { TargetFramework = "netcoreapp3.1" });
             fileResults.Wait();
 
-            var fileSourceFileAnalysis = fileResults.Result.sourceFileAnalysisResults;
+            var fileSourceFileAnalysis = fileResults.Result;
 
             Assert.AreEqual(fileSourceFileAnalysis.Count, 1);
             Assert.AreEqual(fileSourceFileAnalysis[0], _sourceFileAnalysisResult);
