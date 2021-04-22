@@ -260,9 +260,10 @@ namespace PortingAssistant.Client.Tests
             _apiAnalysisHandlerMock.Setup(analyzer => analyzer.AnalyzeFileIncremental(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>(), 
                 It.IsAny<List<string>>(), It.IsAny<RootNodes>(), It.IsAny<Codelyzer.Analysis.Model.ExternalReferences>(), 
                 It.IsAny<bool>(),
+                It.IsAny<bool>(),
                 It.IsAny<string>()))
                 .Returns((string filePath, string project, string solutionPath, List<string> preportReferences,
-                List<string> metaReferences, RootNodes projectRules, Codelyzer.Analysis.Model.ExternalReferences externalReferences, bool actionsOnly, string targetFramework) =>
+                List<string> metaReferences, RootNodes projectRules, Codelyzer.Analysis.Model.ExternalReferences externalReferences, bool actionsOnly, bool compatibleOnly, string targetFramework) =>
                 {
                     return Task.Run(() =>
                     {
@@ -275,9 +276,10 @@ namespace PortingAssistant.Client.Tests
             _apiAnalysisHandlerMock.Setup(analyzer => analyzer.AnalyzeFileIncremental(It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>(), It.IsAny<RootNodes>(), It.IsAny<Codelyzer.Analysis.Model.ExternalReferences>(),
                 It.IsAny<bool>(),
+                It.IsAny<bool>(),
                 It.IsAny<string>()))
                 .Returns((string filePath, string fileContents, string project, string solutionPath, List<string> preportReferences,
-                List<string> metaReferences, RootNodes projectRules, Codelyzer.Analysis.Model.ExternalReferences externalReferences, bool actionsOnly, string targetFramework) =>
+                List<string> metaReferences, RootNodes projectRules, Codelyzer.Analysis.Model.ExternalReferences externalReferences, bool actionsOnly, bool compatibleOnly, string targetFramework) =>
                 {
                     return Task.Run(() =>
                     {
@@ -420,7 +422,7 @@ namespace PortingAssistant.Client.Tests
         [Test]
         public void AnalyzeFileSucceedsTest()
         {
-            var results = _portingAssistantClient.AnalyzeSolutionAsync(Path.Combine(_solutionFolder, "SolutionWithProjects.sln"), new AnalyzerSettings { TargetFramework = "netcoreapp3.1", ContiniousEnabled = true });
+            var results = _portingAssistantClient.AnalyzeSolutionAsync(Path.Combine(_solutionFolder, "SolutionWithProjects.sln"), new AnalyzerSettings { TargetFramework = "netcoreapp3.1", ContiniousEnabled = true, CompatibleOnly = true });
             results.Wait();
 
             var projectAnalysisResult = results.Result.ProjectAnalysisResults[0];
@@ -442,7 +444,7 @@ namespace PortingAssistant.Client.Tests
         [Test]
         public void AnalyzeFileSucceedsTestWithFileContents()
         {
-            var results = _portingAssistantClient.AnalyzeSolutionAsync(Path.Combine(_solutionFolder, "SolutionWithProjects.sln"), new AnalyzerSettings { TargetFramework = "netcoreapp3.1", ContiniousEnabled = true });
+            var results = _portingAssistantClient.AnalyzeSolutionAsync(Path.Combine(_solutionFolder, "SolutionWithProjects.sln"), new AnalyzerSettings { TargetFramework = "netcoreapp3.1", ContiniousEnabled = true, CompatibleOnly = true });
             results.Wait();
 
             var projectAnalysisResult = results.Result.ProjectAnalysisResults[0];

@@ -226,7 +226,7 @@ namespace PortingAssistant.Client.Tests
             var projectRules = projectAnalysisResult.ProjectRules;
 
             var incrementalResult = _analysisHandler.AnalyzeFileIncremental(filePath, projectPath, _solutionFile, preportReferences, metaReferences,
-                projectRules, externalReferences, false, "netcoreapp3.1");
+                projectRules, externalReferences, false, true, "netcoreapp3.1");
             Task.WaitAll(incrementalResult);
 
             var fileAnalysisResult = incrementalResult.Result;
@@ -247,7 +247,7 @@ namespace PortingAssistant.Client.Tests
             Assert.Throws <System.AggregateException> (() =>
             {
                 var incrementalResult = analysisHandlerWithException.AnalyzeFileIncremental(filePath, "", "IncorrectPath", _solutionFile, new List<string>(), new List<string>(),
-                null, null, false, "netcoreapp3.1");
+                null, null, false, true, "netcoreapp3.1");
                 Task.WaitAll(incrementalResult);
                 _loggerMock.Verify(x => x.LogError(It.IsAny<Exception>(), "Error while analyzing files"), Times.Once);
             });

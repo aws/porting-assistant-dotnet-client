@@ -112,7 +112,7 @@ namespace PortingAssistant.Client.Client
             var targetFramework = settings.TargetFramework ?? "netcoreapp3.1";
 
             return await _analysisHandler.AnalyzeFileIncremental(filePath, projectFile, solutionFilePath,
-                preportReferences, currentReferences, rules, externalReferences, settings.ActionsOnly, targetFramework);
+                preportReferences, currentReferences, rules, externalReferences, settings.ActionsOnly, settings.CompatibleOnly, targetFramework);
         }
         public async Task<IncrementalFileAnalysisResult> AnalyzeFileAsync(string filePath, string fileContent, string projectFile, string solutionFilePath,
             List<string> preportReferences, List<string> currentReferences, RootNodes rules, ExternalReferences externalReferences, AnalyzerSettings settings)
@@ -120,7 +120,7 @@ namespace PortingAssistant.Client.Client
             var targetFramework = settings.TargetFramework ?? "netcoreapp3.1";
 
             return await _analysisHandler.AnalyzeFileIncremental(filePath, fileContent, projectFile, solutionFilePath,
-                preportReferences, currentReferences, rules, externalReferences, settings.ActionsOnly, targetFramework);
+                preportReferences, currentReferences, rules, externalReferences, settings.ActionsOnly, settings.CompatibleOnly, targetFramework);
         }
 
 

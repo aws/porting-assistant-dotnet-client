@@ -32,7 +32,7 @@ namespace PortingAssistant.Client.Analysis
         }
 
         public async Task<IncrementalFileAnalysisResult> AnalyzeFileIncremental(string filePath, string fileContent, string projectFile, string solutionFilePath, List<string> preportReferences
-            , List<string> currentReferences, RootNodes projectRules, ExternalReferences externalReferences, bool actionsOnly = false, string targetFramework = "netcoreapp3.1")
+            , List<string> currentReferences, RootNodes projectRules, ExternalReferences externalReferences, bool actionsOnly = false, bool compatibleOnly = false, string targetFramework = "netcoreapp3.1")
         {
             try
             {
@@ -98,7 +98,7 @@ namespace PortingAssistant.Client.Analysis
                 portingActionResults.Add(filePath, recommendedActions);
 
                 var sourceFileAnalysisResult = InvocationExpressionModelToInvocations.AnalyzeResults(
-                    sourceFileToCodeEntityDetails, packageResults, recommendationResults, portingActionResults, targetFramework, compatibleOnly: true);
+                    sourceFileToCodeEntityDetails, packageResults, recommendationResults, portingActionResults, targetFramework, compatibleOnly);
 
                 //In case actions only, result will be empty, so we populate with actions
                 if(actionsOnly)
@@ -127,10 +127,10 @@ namespace PortingAssistant.Client.Analysis
         }
 
         public async Task<IncrementalFileAnalysisResult> AnalyzeFileIncremental(string filePath, string projectFile, string solutionFilePath, List<string> preportReferences
-            , List<string> currentReferences, RootNodes projectRules, ExternalReferences externalReferences, bool actionsOnly, string targetFramework = "netcoreapp3.1")
+            , List<string> currentReferences, RootNodes projectRules, ExternalReferences externalReferences, bool actionsOnly, bool compatibleOnly, string targetFramework = "netcoreapp3.1")
         {
             var fileContent = File.ReadAllText(filePath);
-            return await AnalyzeFileIncremental(filePath, fileContent, projectFile, solutionFilePath, preportReferences, currentReferences, projectRules, externalReferences, actionsOnly, targetFramework);
+            return await AnalyzeFileIncremental(filePath, fileContent, projectFile, solutionFilePath, preportReferences, currentReferences, projectRules, externalReferences, actionsOnly, compatibleOnly, targetFramework);
         }
 
         public async Task<IncrementalProjectAnalysisResultDict> AnalyzeSolutionIncremental(string solutionFilename, List<string> projects,
