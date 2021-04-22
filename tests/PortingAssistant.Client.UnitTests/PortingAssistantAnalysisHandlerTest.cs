@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Build.Construction;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using PortingAssistant.Client.Analysis;
@@ -17,6 +18,7 @@ namespace PortingAssistant.Client.Tests
 
     public class PortingAssistantAnalysisHandlerTest
     {
+        private Mock<ILogger<PortingAssistantAnalysisHandler>> _loggerMock;
         private Mock<IPortingAssistantNuGetHandler> _nuGetHandlerMock;
         private Mock<IPortingAssistantRecommendationHandler> _recommendationHandlerMock;
         private PortingAssistantAnalysisHandler _analysisHandler;
@@ -98,6 +100,22 @@ namespace PortingAssistant.Client.Tests
                     return new Dictionary<string, Task<RecommendationDetails>>();
                 });
 
+        }
+
+        private IPortingAssistantAnalysisHandler GetPortingAssistantAnalysisHandlerWithException()
+        {
+            _loggerMock = new Mock<ILogger<PortingAssistantAnalysisHandler>>();
+
+            _loggerMock.Reset();
+
+            _loggerMock.Setup(_ => _.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsValueType>(),
+                It.IsAny<Exception>(),
+                (Func<It.IsValueType, Exception, string>)It.IsAny<object>()));
+
+            return new PortingAssistantAnalysisHandler(_loggerMock.Object, _nuGetHandlerMock.Object, _recommendationHandlerMock.Object);
         }
 
         private List<ProjectDetails> GetProjects(string pathToSolution)
@@ -206,9 +224,8 @@ namespace PortingAssistant.Client.Tests
             var metaReferences = projectAnalysisResult.MetaReferences;
             var externalReferences = projectAnalysisResult.ExternalReferences;
             var projectRules = projectAnalysisResult.ProjectRules;
-            var fileContents = File.ReadAllText(filePath);
 
-            var incrementalResult = _analysisHandler.AnalyzeFileIncremental(filePath, fileContents, projectPath, _solutionFile, preportReferences, metaReferences,
+            var incrementalResult = _analysisHandler.AnalyzeFileIncremental(filePath, projectPath, _solutionFile, preportReferences, metaReferences,
                 projectRules, externalReferences, false, "netcoreapp3.1");
             Task.WaitAll(incrementalResult);
 
@@ -217,6 +234,23 @@ namespace PortingAssistant.Client.Tests
             var sourceFile = fileAnalysisResult.sourceFileAnalysisResults.Find(s => s.SourceFileName == "Program.cs");
             Assert.NotNull(sourceFile);
             Assert.IsEmpty(sourceFile.ApiAnalysisResults);
+        }
+
+        [Test]
+        public void AnalyzeProjectFilesThrowsException()
+        {
+            var analysisHandlerWithException = GetPortingAssistantAnalysisHandlerWithException();
+
+            var filePath = Path.Combine(_solutionFile.Replace("\\SolutionWithApi.sln", ""), "testproject", "ProgramIncorrect.cs");
+            var projectPath = Path.Combine(_solutionFile.Replace("\\SolutionWithApi.sln", ""), "testproject", "testproject.csproj");
+
+            Assert.Throws <System.AggregateException> (() =>
+            {
+                var incrementalResult = analysisHandlerWithException.AnalyzeFileIncremental(filePath, "", "IncorrectPath", _solutionFile, new List<string>(), new List<string>(),
+                null, null, false, "netcoreapp3.1");
+                Task.WaitAll(incrementalResult);
+                _loggerMock.Verify(x => x.LogError(It.IsAny<Exception>(), "Error while analyzing files"), Times.Once);
+            });
         }
     }
 }

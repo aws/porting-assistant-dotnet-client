@@ -199,7 +199,6 @@ namespace PortingAssistant.Client.Analysis
                 PortProject = false
             };
 
-            //TODO Fix, this works for one project only
             projectResult.ProjectPath = project;
 
             configs.Add(projectConfiguration);
@@ -208,7 +207,7 @@ namespace PortingAssistant.Client.Analysis
             return solutionPort.RunIncremental(rootNodes, filePath);
         }
 
-        public async Task<IDEProjectResult> AnalyzeProjectFiles(string projectPath, string fileContent, string filePath, List<string> preportReferences, List<string> currentReferences)
+        private async Task<IDEProjectResult> AnalyzeProjectFiles(string projectPath, string fileContent, string filePath, List<string> preportReferences, List<string> currentReferences)
         {
             try
             {
