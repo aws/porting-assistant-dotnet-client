@@ -206,8 +206,9 @@ namespace PortingAssistant.Client.Tests
             var metaReferences = projectAnalysisResult.MetaReferences;
             var externalReferences = projectAnalysisResult.ExternalReferences;
             var projectRules = projectAnalysisResult.ProjectRules;
+            var fileContents = File.ReadAllText(filePath);
 
-            var incrementalResult = _analysisHandler.AnalyzeFileIncremental(filePath, projectPath, _solutionFile, preportReferences, metaReferences,
+            var incrementalResult = _analysisHandler.AnalyzeFileIncremental(filePath, fileContents, projectPath, _solutionFile, preportReferences, metaReferences,
                 projectRules, externalReferences, false, "netcoreapp3.1");
             Task.WaitAll(incrementalResult);
 
@@ -215,17 +216,7 @@ namespace PortingAssistant.Client.Tests
 
             var sourceFile = fileAnalysisResult.sourceFileAnalysisResults.Find(s => s.SourceFileName == "Program.cs");
             Assert.NotNull(sourceFile);
-            Assert.NotNull(sourceFile.ApiAnalysisResults);
-
-            var apiAnalysisResult = sourceFile.ApiAnalysisResults.Find(r => r.CodeEntityDetails.OriginalDefinition == "Newtonsoft.Json.JsonConvert.SerializeObject(object)");
-            Assert.NotNull(apiAnalysisResult);
-
-            Assert.AreEqual("Newtonsoft.Json", apiAnalysisResult.CodeEntityDetails.Package.PackageId);
-            Assert.AreEqual("11.0.1", apiAnalysisResult.CodeEntityDetails.Package.Version);
-            Assert.AreEqual("Newtonsoft.Json.JsonConvert.SerializeObject(object)",
-                apiAnalysisResult.CodeEntityDetails.OriginalDefinition);
-            Assert.AreEqual(Compatibility.COMPATIBLE, apiAnalysisResult.CompatibilityResults.GetValueOrDefault(DEFAULT_TARGET).Compatibility);
-            Assert.AreEqual("12.0.3", apiAnalysisResult.Recommendations.RecommendedActions.First().Description);
+            Assert.IsEmpty(sourceFile.ApiAnalysisResults);
         }
     }
 }

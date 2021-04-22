@@ -10,9 +10,10 @@ namespace PortingAssistant.Client.NuGet
 
         public ExternalPackagesCompatibilityChecker(
             IHttpService httpService,
-            ILogger<ExternalCompatibilityChecker> logger
+            ILogger<ExternalCompatibilityChecker> logger,
+            IFileSystem fileSystem = null
             )
-            : base(httpService, logger)
+            : base(httpService, logger, fileSystem)
         {
         }
     }

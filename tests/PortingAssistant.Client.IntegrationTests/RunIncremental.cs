@@ -83,7 +83,7 @@ namespace PortingAssistant.Client.IntegrationTests
             solutionAnalysisResultTask.Wait();
        
             var actualCachedPackages = Directory.GetFiles(_tmpSolutionDirectory);
-            Assert.AreEqual(actualCachedPackages.Length, 14);
+            Assert.AreEqual(actualCachedPackages.Length, 15);
         }
 
         [Test]

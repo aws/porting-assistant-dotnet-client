@@ -10,8 +10,6 @@ namespace PortingAssistant.Client.Client
     public interface IPortingAssistantClient
     {
         Task<SolutionAnalysisResult> AnalyzeSolutionAsync(string solutionFilePath, AnalyzerSettings settings);
-        //Task<IncrementalFileAnalysisResult> AnalyzeFileAsync(List<string> filePaths, string solutionFilePath,
-        //    List<AnalyzerResult> existingAnalyzerResults, Dictionary<string, ProjectActions> existingProjectActions, AnalyzerSettings settings);
         Task<IncrementalFileAnalysisResult> AnalyzeFileAsync(string filePath, string projectFile, string solutionFilePath, 
             List<string> preportReferences, List<string> currentReferences, RootNodes rules, ExternalReferences externalReferences, AnalyzerSettings settings);
         Task<IncrementalFileAnalysisResult> AnalyzeFileAsync(string filePath, string fileContent, string projectFile, string solutionFilePath,
