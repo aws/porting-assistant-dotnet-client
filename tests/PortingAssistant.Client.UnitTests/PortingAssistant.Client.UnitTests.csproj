@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -8,24 +8,24 @@
 
   <ItemGroup>
     <PackageReference Include="nunit" Version="3.13.1" />
-    <PackageReference Include="NUnit3TestAdapter" Version="3.17.0">
+    <PackageReference Include="NUnit3TestAdapter" Version="4.0.0-beta.2">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0-release-20210422-02" />
     <PackageReference Include="coverlet.collector" Version="3.0.3">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Moq" Version="4.16.1" />
-    <PackageReference Include="NuGet.Protocol" Version="5.9.0" />
+    <PackageReference Include="NuGet.Protocol" Version="5.10.0-preview.2.7185" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="Microsoft.Build" Version="16.9.0" />
     <PackageReference Include="DotnetHooks" Version="1.0.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0-preview.3.21201.4" />
   </ItemGroup>
 
   <ItemGroup>
@@ -39,5 +39,8 @@
     <ProjectReference Include="..\..\src\PortingAssistant.Client.Porting\PortingAssistant.Client.Porting.csproj" />
     <ProjectReference Include="..\..\src\PortingAssistant.Client.Analysis\PortingAssistant.Client.Analysis.csproj" />
     <ProjectReference Include="..\..\src\PortingAssistant.Client.Client\PortingAssistant.Client.Client.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Update="Microsoft.SourceLink.GitHub" Version="1.1.0-beta-20204-02" />
   </ItemGroup>
 </Project>

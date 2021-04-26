@@ -42,8 +42,6 @@ namespace PortingAssistant.Client.Client
                 var targetFramework = settings.TargetFramework ?? "netcoreapp3.1";
 
                 Dictionary<string, ProjectAnalysisResult> projectAnalysisResultsDict;
-                List<AnalyzerResult> analyzerResults = null;
-                Dictionary<string, ProjectActions> projectActions = null;
 
                 if (settings.ContiniousEnabled)
                     projectAnalysisResultsDict = await _analysisHandler.AnalyzeSolutionIncremental(solutionFilePath, projects, targetFramework);
@@ -88,9 +86,7 @@ namespace PortingAssistant.Client.Client
                 {
                     FailedProjects = failedProjects,
                     SolutionDetails = solutionDetails,
-                    ProjectAnalysisResults = projectAnalysisResults,
-                    AnalyzerResults = analyzerResults,
-                    ProjectActions = projectActions
+                    ProjectAnalysisResults = projectAnalysisResults
                 };
 
             }
