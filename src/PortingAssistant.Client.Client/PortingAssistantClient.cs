@@ -18,6 +18,8 @@ namespace PortingAssistant.Client.Client
         private readonly IPortingAssistantAnalysisHandler _analysisHandler;
         private readonly IPortingHandler _portingHandler;
 
+        private const string DEFAULT_TARGET = "netcoreapp3.1";
+
         public PortingAssistantClient(IPortingAssistantAnalysisHandler AnalysisHandler,
             IPortingHandler portingHandler)
         {
@@ -39,7 +41,7 @@ namespace PortingAssistant.Client.Client
                     .Select(p => p.AbsolutePath)
                     .ToList();
 
-                var targetFramework = settings.TargetFramework ?? "netcoreapp3.1";
+                var targetFramework = settings.TargetFramework ?? DEFAULT_TARGET;
 
                 Dictionary<string, ProjectAnalysisResult> projectAnalysisResultsDict;
 
@@ -100,7 +102,7 @@ namespace PortingAssistant.Client.Client
         public async Task<List<SourceFileAnalysisResult>> AnalyzeFileAsync(string filePath, string projectFile, string solutionFilePath,
     List<string> preportReferences, List<string> currentReferences, RootNodes rules, ExternalReferences externalReferences, AnalyzerSettings settings)
         {
-            var targetFramework = settings.TargetFramework ?? "netcoreapp3.1";
+            var targetFramework = settings.TargetFramework ?? DEFAULT_TARGET;
 
             return await _analysisHandler.AnalyzeFileIncremental(filePath, projectFile, solutionFilePath,
                 preportReferences, currentReferences, rules, externalReferences, settings.ActionsOnly, settings.CompatibleOnly, targetFramework);
@@ -108,7 +110,7 @@ namespace PortingAssistant.Client.Client
         public async Task<List<SourceFileAnalysisResult>> AnalyzeFileAsync(string filePath, string fileContent, string projectFile, string solutionFilePath,
             List<string> preportReferences, List<string> currentReferences, RootNodes rules, ExternalReferences externalReferences, AnalyzerSettings settings)
         {
-            var targetFramework = settings.TargetFramework ?? "netcoreapp3.1";
+            var targetFramework = settings.TargetFramework ?? DEFAULT_TARGET;
 
             return await _analysisHandler.AnalyzeFileIncremental(filePath, fileContent, projectFile, solutionFilePath,
                 preportReferences, currentReferences, rules, externalReferences, settings.ActionsOnly, settings.CompatibleOnly, targetFramework);

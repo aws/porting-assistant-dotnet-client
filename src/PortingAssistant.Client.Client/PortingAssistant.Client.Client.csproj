@@ -9,11 +9,11 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Build" Version="16.9.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0-preview.3.21201.4" />
-    <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="6.0.0-preview.3.21201.13" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0-preview.3.21201.4" />
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="6.0.0-preview.3.21201.4" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0-preview.3.21201.4" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="5.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
     <PackageReference Include="Polly.Extensions.Http" Version="3.0.0" />
   </ItemGroup>
   <ItemGroup>
@@ -23,7 +23,7 @@
     <ProjectReference Include="..\PortingAssistant.Client.Analysis\PortingAssistant.Client.Analysis.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Update="Microsoft.SourceLink.GitHub" Version="1.1.0-beta-20204-02" />
+    <PackageReference Update="Microsoft.SourceLink.GitHub" Version="1.0.0" />
     <PackageReference Update="Nerdbank.GitVersioning" Version="3.4.194" />
   </ItemGroup>
 </Project>

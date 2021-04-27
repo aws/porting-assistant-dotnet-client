@@ -4,25 +4,25 @@
     ".NETCoreApp,Version=v3.1": {
       "Microsoft.Extensions.Logging": {
         "type": "Direct",
-        "requested": "[6.0.0-preview.3.21201.4, )",
-        "resolved": "6.0.0-preview.3.21201.4",
-        "contentHash": "csJYue01C9HNHqKrNPSwcVORLiiDWaNIEk1/X/Y0IaK4PWheyhnEt3fKjTY7M4AGvFIyRcg+GtroungBsjw+kQ==",
+        "requested": "[5.0.0, )",
+        "resolved": "5.0.0",
+        "contentHash": "MgOwK6tPzB6YNH21wssJcw/2MKwee8b2gI7SllYfn6rvTpIrVvVS5HAjSU2vqSku1fwqRvWP0MdIi14qjd93Aw==",
         "dependencies": {
-          "Microsoft.Extensions.DependencyInjection": "6.0.0-preview.3.21201.4",
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "6.0.0-preview.3.21201.4",
-          "Microsoft.Extensions.Logging.Abstractions": "6.0.0-preview.3.21201.4",
-          "Microsoft.Extensions.Options": "6.0.0-preview.3.21201.4",
-          "System.Diagnostics.DiagnosticSource": "6.0.0-preview.3.21201.4"
+          "Microsoft.Extensions.DependencyInjection": "5.0.0",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "5.0.0",
+          "Microsoft.Extensions.Logging.Abstractions": "5.0.0",
+          "Microsoft.Extensions.Options": "5.0.0",
+          "System.Diagnostics.DiagnosticSource": "5.0.0"
         }
       },
       "Microsoft.SourceLink.GitHub": {
         "type": "Direct",
-        "requested": "[1.1.0-beta-20204-02, )",
-        "resolved": "1.1.0-beta-20204-02",
-        "contentHash": "nVB0LiCn+q0eprqpQ9BeZ6xMdIobiRTwZlrvyAYDv4Zprek5BUHJ8usXUEtJlCTqQYF5HvLgvwf361jCkhmXCg==",
+        "requested": "[1.0.0, )",
+        "resolved": "1.0.0",
+        "contentHash": "aZyGyGg2nFSxix+xMkPmlmZSsnGQ3w+mIG23LTxJZHN+GPwTQ5FpPgDo7RMOq+Kcf5D4hFWfXkGhoGstawX13Q==",
         "dependencies": {
-          "Microsoft.Build.Tasks.Git": "1.1.0-beta-20204-02",
-          "Microsoft.SourceLink.Common": "1.1.0-beta-20204-02"
+          "Microsoft.Build.Tasks.Git": "1.0.0",
+          "Microsoft.SourceLink.Common": "1.0.0"
         }
       },
       "Nerdbank.GitVersioning": {
@@ -337,8 +337,8 @@
       },
       "Microsoft.Build.Tasks.Git": {
         "type": "Transitive",
-        "resolved": "1.1.0-beta-20204-02",
-        "contentHash": "T7mMbmgoT3XXKrXbLeEj6D9fQLZDmF/T8W5NQsrlcfQ24nOLrkr1Cst9cmI44zIH16rIo+4ws0tEqUN+Jw5Iag=="
+        "resolved": "1.0.0",
+        "contentHash": "z2fpmmt+1Jfl+ZnBki9nSP08S1/tbEOxFdsK1rSR+LBehIJz1Xv9/6qOOoGNqlwnAGGVGis1Oj6S8Kt9COEYlQ=="
       },
       "Microsoft.Build.Utilities.Core": {
         "type": "Transitive",
@@ -482,16 +482,16 @@
       },
       "Microsoft.Extensions.DependencyInjection": {
         "type": "Transitive",
-        "resolved": "6.0.0-preview.3.21201.4",
-        "contentHash": "Tuo6NtJGx6WikJo64DTM9VlH9qn22/bQXyDxwB8XuAVlTH9YmyOmkwp07eMUqZmqcmp0zCDznHhYSkVg07x/hg==",
+        "resolved": "5.0.0",
+        "contentHash": "Rc2kb/p3Ze6cP6rhFC3PJRdWGbLvSHZc0ev7YlyeU6FmHciDMLrhoVoTUEzKPhN5ZjFgKF1Cf5fOz8mCMIkvpA==",
         "dependencies": {
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "6.0.0-preview.3.21201.4"
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "5.0.0"
         }
       },
       "Microsoft.Extensions.DependencyInjection.Abstractions": {
         "type": "Transitive",
-        "resolved": "6.0.0-preview.3.21201.4",
-        "contentHash": "8n0/hVU1spQjZrozbm3s2s/9aa9VAxFiKb0N6c49ksQYmoTaewDgtggoRFVlIjsIn3oN1OxSffLvUoeszrXC+g=="
+        "resolved": "5.0.0",
+        "contentHash": "ORj7Zh81gC69TyvmcUm9tSzytcy8AVousi+IVRAI8nLieQjOFryRusSFh7+aLk16FN9pQNqJAiMd7BTKINK0kA=="
       },
       "Microsoft.Extensions.DependencyModel": {
         "type": "Transitive",
@@ -507,8 +507,8 @@
       },
       "Microsoft.Extensions.Logging.Abstractions": {
         "type": "Transitive",
-        "resolved": "6.0.0-preview.3.21201.4",
-        "contentHash": "z/fBggs6BpeuUZFBYYmBx/8/wLVCNEo1zLvppcxAOvEHcmr8Bx2g/r168xWbYy/ifNthdVQq9dntz+5rW1oHhQ=="
+        "resolved": "5.0.0",
+        "contentHash": "NxP6ahFcBnnSfwNBi2KH2Oz8Xl5Sm2krjId/jRR3I7teFphwiUoUeZPwTNA21EX+5PtjqmyAvKaOeBXcJjcH/w=="
       },
       "Microsoft.Extensions.Logging.Configuration": {
         "type": "Transitive",
@@ -542,11 +542,11 @@
       },
       "Microsoft.Extensions.Options": {
         "type": "Transitive",
-        "resolved": "6.0.0-preview.3.21201.4",
-        "contentHash": "0s/vUPn/tPw84DQdUUPwytDFHw95HMaMqUG8IWpv4uUH40YkiuhO6pYDOnxYSQ7Kztm0JoQEQaXWnvcy04piKw==",
+        "resolved": "5.0.0",
+        "contentHash": "CBvR92TCJ5uBIdd9/HzDSrxYak+0W/3+yxrNg8Qm6Bmrkh5L+nu6m3WeazQehcZ5q1/6dDA7J5YdQjim0165zg==",
         "dependencies": {
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "6.0.0-preview.3.21201.4",
-          "Microsoft.Extensions.Primitives": "6.0.0-preview.3.21201.4"
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "5.0.0",
+          "Microsoft.Extensions.Primitives": "5.0.0"
         }
       },
       "Microsoft.Extensions.Options.ConfigurationExtensions": {
@@ -563,11 +563,8 @@
       },
       "Microsoft.Extensions.Primitives": {
         "type": "Transitive",
-        "resolved": "6.0.0-preview.3.21201.4",
-        "contentHash": "Guby+tFJu2EBsU164X5SvOwYST3/NmPSwihBrvc3lt/opnmB29BwwEjF3mpoGhulpafNUrAArRO34Cpl3WS9Fg==",
-        "dependencies": {
-          "System.Runtime.CompilerServices.Unsafe": "6.0.0-preview.3.21201.4"
-        }
+        "resolved": "5.0.0",
+        "contentHash": "cI/VWn9G1fghXrNDagX9nYaaB/nokkZn0HYAawGaELQrl8InSezfe9OnfPZLcJq3esXxygh3hkq2c3qoV3SDyQ=="
       },
       "Microsoft.NETCore.Platforms": {
         "type": "Transitive",
@@ -581,8 +578,8 @@
       },
       "Microsoft.SourceLink.Common": {
         "type": "Transitive",
-        "resolved": "1.1.0-beta-20204-02",
-        "contentHash": "3tLuYVu7iPSUGVgSygxZnN4q6ZdXFbKd2A/1Zgva5i6VMoVXoTJwggKVZTGyemlWriziOwY76I5MZI+vnJ8ztA=="
+        "resolved": "1.0.0",
+        "contentHash": "G8DuQY8/DK5NN+3jm5wcMcd9QYD90UV7MiLmdljSJixi3U/vNaeBKmmXUqI4DJCOeWizIUEh4ALhSt58mR+5eg=="
       },
       "Microsoft.Win32.Primitives": {
         "type": "Transitive",
@@ -713,50 +710,50 @@
       },
       "NuGet.Common": {
         "type": "Transitive",
-        "resolved": "5.10.0-preview.2.7185",
-        "contentHash": "O7i0rvsifbt6eA9lXBwreaoSPEU3JvcIc4wyxS5ZGQzSGtWlTKSunj82b7r6IYgoqrKPJVau6XXtVcwRwqcyTg==",
+        "resolved": "5.9.1",
+        "contentHash": "BRX0V8k8QXcEWL33V2HcBU1+eu/Qp5LDJlheYFSZ03hKjlHVHFfLquvUUYLgSNO7tiBxCFe7pTSgO4XanyzteQ==",
         "dependencies": {
-          "NuGet.Frameworks": "5.10.0-preview.2.7185"
+          "NuGet.Frameworks": "5.9.1"
         }
       },
       "NuGet.Configuration": {
         "type": "Transitive",
-        "resolved": "5.10.0-preview.2.7185",
-        "contentHash": "CVZhuRd6T8wl3XbcDsYTXsfLaAVT8Ddz9UMvd6PShE4o28EoQSo5vCyziJXEqjBq97grD9neLfMlWM3wE2ldpQ==",
+        "resolved": "5.9.1",
+        "contentHash": "dpjLDYEuhR1J8L3s9c1qVHEBaWqFI2/x3qRmhqVYDLB5B9ETVe1jVkxLkFQreQVgh+N5cVgtZWx1jGuArj7QaQ==",
         "dependencies": {
-          "NuGet.Common": "5.10.0-preview.2.7185",
+          "NuGet.Common": "5.9.1",
           "System.Security.Cryptography.ProtectedData": "4.4.0"
         }
       },
       "NuGet.Frameworks": {
         "type": "Transitive",
-        "resolved": "5.10.0-preview.2.7185",
-        "contentHash": "0gyha/hN9/JSIl1QvXaMv+UvUWsiOMkNMBu2yYpFuPJpgefH5ghBlYfXJzRGVKfXmRjAd+SjAzIhRJTe850HDw=="
+        "resolved": "5.9.1",
+        "contentHash": "LuJA875MQpPMdik6KUsDUnEDSXWX+T/sExFikA0A5zGFkEW37weP5b6NxljWlrw4UNOWTgmTeumm802Jwz20sw=="
       },
       "NuGet.Packaging": {
         "type": "Transitive",
-        "resolved": "5.10.0-preview.2.7185",
-        "contentHash": "lYUT5pePPoBT7w+TJOcVKxZfNTeui+KlBsbgB/4yvN2n9075cAKw9/4WLYoDyJcoSGeZU6mUiRhcweYR/ODTNA==",
+        "resolved": "5.9.1",
+        "contentHash": "deaGBf7KGllJxXZ0u2gQkoQuvMhbJhntUwJZcmlA5fZdAhw6SsDgaRG0bW4x4dX4K09Bxqhh8pfow/0AP0ke7Q==",
         "dependencies": {
           "Newtonsoft.Json": "9.0.1",
-          "NuGet.Configuration": "5.10.0-preview.2.7185",
-          "NuGet.Versioning": "5.10.0-preview.2.7185",
+          "NuGet.Configuration": "5.9.1",
+          "NuGet.Versioning": "5.9.1",
           "System.Security.Cryptography.Cng": "5.0.0",
           "System.Security.Cryptography.Pkcs": "5.0.0"
         }
       },
       "NuGet.Protocol": {
         "type": "Transitive",
-        "resolved": "5.10.0-preview.2.7185",
-        "contentHash": "IpHYsA2zDbbL4HEKW89lwd+8K7+n/AeRYL4ybEA3pNbpjJDy9xUJCANrKT3DWUCvpf6eYz+Hljcnm9eN5AG5DA==",
+        "resolved": "5.9.1",
+        "contentHash": "0FeZZ5Qd6I2Qfr5qtNk0YUQwisttMHvCgE1MfC9viib7zuSZmTfUskl34d9w5mUZLAKl764AXxCNklgQHL0NzA==",
         "dependencies": {
-          "NuGet.Packaging": "5.10.0-preview.2.7185"
+          "NuGet.Packaging": "5.9.1"
         }
       },
       "NuGet.Versioning": {
         "type": "Transitive",
-        "resolved": "5.10.0-preview.2.7185",
-        "contentHash": "QBcA97NNeXaZvrYELx8WN4entJQwEEq83Mtcj6Oftlf4Ja0v1cNgQNxuK9n9Ze4TvjdXKdV88mtB53rcuo5wDQ=="
+        "resolved": "5.9.1",
+        "contentHash": "I/2Z/dAcV6tz8Bri9lYbcMoq6R9J1J8Vv23gDCAnWjwrIdwunhmnWgiZx/b7cmlEXaD1r0kxen18fXYoyqs4rg=="
       },
       "runtime.debian.8-x64.runtime.native.System.Security.Cryptography.OpenSsl": {
         "type": "Transitive",
@@ -1064,11 +1061,8 @@
       },
       "System.Diagnostics.DiagnosticSource": {
         "type": "Transitive",
-        "resolved": "6.0.0-preview.3.21201.4",
-        "contentHash": "aBUH3HaI/nKoj8Y6Jw842PyQErOzHI4oS8pfTtdegsGrqb4R96uNCyr62iVCGCn58K4UqFSgYgVniOrgOaB4WA==",
-        "dependencies": {
-          "System.Runtime.CompilerServices.Unsafe": "6.0.0-preview.3.21201.4"
-        }
+        "resolved": "5.0.0",
+        "contentHash": "tCQTzPsGZh/A9LhhA6zrqCRV4hOHsK90/G7q3Khxmn6tnB1PuNU0cRaKANP2AWcF9bn0zsuOoZOSrHuJk6oNBA=="
       },
       "System.Diagnostics.Tools": {
         "type": "Transitive",
@@ -1494,8 +1488,8 @@
       },
       "System.Runtime.CompilerServices.Unsafe": {
         "type": "Transitive",
-        "resolved": "6.0.0-preview.3.21201.4",
-        "contentHash": "Ca5NW4+2C30qV+V5qt+uUje+bJkJsUwSGy07K2P/VamY1+ot5zIvzB9fJtiFFR3uZaEPLozoNw+rXX2Iaf5hXw=="
+        "resolved": "4.7.1",
+        "contentHash": "zOHkQmzPCn5zm/BH+cxC1XbUS3P4Yoi3xzW7eRgVpDR2tPGSzyMZ17Ig1iRkfJuY0nhxkQQde8pgePNiA7z7TQ=="
       },
       "System.Runtime.Extensions": {
         "type": "Transitive",
@@ -1888,8 +1882,8 @@
         "type": "Project",
         "dependencies": {
           "CTA.Rules.PortCore": "1.7.14-alpha-g0443de9d79",
-          "Microsoft.Extensions.Logging": "6.0.0-preview.3.21201.4",
-          "NuGet.Protocol": "5.10.0-preview.2.7185",
+          "Microsoft.Extensions.Logging": "5.0.0",
+          "NuGet.Protocol": "5.9.1",
           "semver": "2.0.6"
         }
       }
