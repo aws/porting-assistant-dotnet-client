@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using CTA.Rules.Models;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,8 @@ namespace PortingAssistant.Client.Model
         public string Description { get; set; }
         public TextSpan TextSpan { get; set; }
         public List<string> TargetCPU { get; set; }
+
+        public IList<TextChange> TextChanges { get; set; }
 
         public override bool Equals(object obj)
         {

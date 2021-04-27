@@ -4,13 +4,13 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using Amazon.S3.Transfer;
 using System.IO;
-using System.IO.Compression;
-using Amazon.S3;
 using PortingAssistant.Client.Model;
 using PortingAssistant.Client.NuGet.Interfaces;
+using PortingAssistant.Client.NuGet.Utils;
+using System.IO.Compression;
+using Newtonsoft.Json;
+using System.Security.Cryptography;
 
 namespace PortingAssistant.Client.NuGet
 {
@@ -18,6 +18,7 @@ namespace PortingAssistant.Client.NuGet
     {
         private readonly ILogger _logger;
         private readonly IHttpService _httpService;
+        private readonly IFileSystem _fileSystem;
         private static readonly int _maxProcessConcurrency = 3;
         private static readonly SemaphoreSlim _semaphore = new SemaphoreSlim(_maxProcessConcurrency);
 
@@ -25,15 +26,20 @@ namespace PortingAssistant.Client.NuGet
 
         public ExternalCompatibilityChecker(
             IHttpService httpService,
-            ILogger<ExternalCompatibilityChecker> logger)
+            ILogger<ExternalCompatibilityChecker> logger,
+            IFileSystem fileSystem = null)
         {
             _logger = logger;
             _httpService = httpService;
+            if (fileSystem != null)
+                _fileSystem = fileSystem;
+            else
+                _fileSystem = new FileSystem();
         }
 
         public Dictionary<PackageVersionPair, Task<PackageDetails>> Check(
             IEnumerable<PackageVersionPair> packageVersions,
-            string pathToSolution)
+            string pathToSolution, bool isIncremental = false, bool refresh = false)
         {
             var packagesToCheck = packageVersions;
 
@@ -57,7 +63,7 @@ namespace PortingAssistant.Client.NuGet
                     _semaphore.Wait();
                     try
                     {
-                        ProcessCompatibility(packagesToCheck, compatibilityTaskCompletionSources);
+                        ProcessCompatibility(packagesToCheck, compatibilityTaskCompletionSources, pathToSolution, isIncremental, refresh);
                     }
                     finally
                     {
@@ -70,7 +76,8 @@ namespace PortingAssistant.Client.NuGet
         }
 
         private async void ProcessCompatibility(IEnumerable<PackageVersionPair> packageVersions,
-            Dictionary<PackageVersionPair, TaskCompletionSource<PackageDetails>> compatibilityTaskCompletionSources)
+            Dictionary<PackageVersionPair, TaskCompletionSource<PackageDetails>> compatibilityTaskCompletionSources,
+            string pathToSolution, bool isIncremental, bool incrementalRefresh)
         {
             var packageVersionsFound = new HashSet<PackageVersionPair>();
             var packageVersionsWithErrors = new HashSet<PackageVersionPair>();
@@ -86,13 +93,26 @@ namespace PortingAssistant.Client.NuGet
 
                 try
                 {
-                    _logger.LogInformation("Downloading {0} from {1}", fileToDownload,
-                        CompatibilityCheckerType);
-                    using var stream = await _httpService.DownloadS3FileAsync(fileToDownload);
-                    using var gzipStream = new GZipStream(stream, CompressionMode.Decompress);
-                    using var streamReader = new StreamReader(gzipStream);
-                    var data = JsonConvert.DeserializeObject<PackageFromS3>(streamReader.ReadToEnd());
-                    var packageDetails = data.Package ?? data.Namespaces;
+                    string tempDirectoryPath = GetTempDirectory(pathToSolution);
+                    PackageDetails packageDetails = null;
+
+                    if (isIncremental)
+                    {
+                        if (incrementalRefresh || !IsPackageInFile(fileToDownload, tempDirectoryPath))
+                        {
+                            _logger.LogInformation("Downloading {0} from {1}", fileToDownload, CompatibilityCheckerType);
+                            packageDetails = await GetPackageDetailFromS3(fileToDownload, _httpService);
+                            _logger.LogInformation("Caching {0} from {1} to Temp", fileToDownload, CompatibilityCheckerType);
+                            CachePackageDetailsToFile(fileToDownload, packageDetails, tempDirectoryPath);
+                        }
+                        else
+                        {
+                            _logger.LogInformation("Fetching {0} from {1} from Temp", fileToDownload, CompatibilityCheckerType);
+                            packageDetails = GetPackageDetailFromFile(fileToDownload, tempDirectoryPath);
+                        }
+                    }
+                    else
+                        packageDetails = await GetPackageDetailFromS3(fileToDownload, _httpService);
 
                     if (packageDetails.Name == null || !string.Equals(packageDetails.Name.Trim(),
                         packageToDownload.Trim(), StringComparison.CurrentCultureIgnoreCase))
@@ -164,7 +184,7 @@ namespace PortingAssistant.Client.NuGet
                 case PackageSourceType.NUGET:
                     break;
                 case PackageSourceType.SDK:
-                    downloadFilePath = "namespaces/" + fileToDownload;
+                    downloadFilePath = Path.Combine("namespaces", fileToDownload);
                     break;
                 default:
                     break;
@@ -173,10 +193,64 @@ namespace PortingAssistant.Client.NuGet
             return downloadFilePath;
         }
 
-        private class PackageFromS3
+        public class PackageFromS3
         {
             public PackageDetails Package { get; set; }
             public PackageDetails Namespaces { get; set; }
+        }
+
+        public string GetTempDirectory(string pathToSolution)
+        {
+            if (pathToSolution != null)
+            {
+                string solutionId;
+                using (var sha = new SHA256Managed())
+                {
+                    byte[] textData = System.Text.Encoding.UTF8.GetBytes(pathToSolution);
+                    byte[] hash = sha.ComputeHash(textData);
+                    solutionId = BitConverter.ToString(hash);
+                }
+                var tempSolutionDirectory = Path.Combine(_fileSystem.GetTempPath(), solutionId);
+                tempSolutionDirectory = tempSolutionDirectory.Replace("-", "");
+                return tempSolutionDirectory;
+            }
+            return null;
+        }
+        public bool IsPackageInFile(string fileToDownload, string _tempSolutionDirectory)
+        {
+            string filePath = Path.Combine(_tempSolutionDirectory, fileToDownload);
+            return _fileSystem.FileExists(filePath);
+        }
+        public async Task<PackageDetails> GetPackageDetailFromS3(string fileToDownload, IHttpService httpService)
+        {
+            using var stream = await httpService.DownloadS3FileAsync(fileToDownload);
+            using var gzipStream = new GZipStream(stream, CompressionMode.Decompress);
+            using var streamReader = new StreamReader(gzipStream);
+            var data = JsonConvert.DeserializeObject<PackageFromS3>(streamReader.ReadToEnd());
+            var packageDetails = data.Package ?? data.Namespaces;
+            return packageDetails;
+        }
+        public async void CachePackageDetailsToFile(string fileName, PackageDetails packageDetail, string _tempSolutionDirectory)
+        {
+            if (!_fileSystem.DirectoryExists(_tempSolutionDirectory))
+            {
+                _fileSystem.CreateDirectory(_tempSolutionDirectory);
+            }
+            string filePath = Path.Combine(_tempSolutionDirectory, fileName);
+            var data = JsonConvert.SerializeObject(packageDetail);
+            using Stream compressedFileStream = _fileSystem.FileOpenWrite(filePath);
+            using var gzipStream = new GZipStream(compressedFileStream, CompressionMode.Compress);
+            using var streamWriter = new StreamWriter(gzipStream);
+            await streamWriter.WriteAsync(data);
+        }
+        public PackageDetails GetPackageDetailFromFile(string fileToDownload, string _tempSolutionDirectory)
+        {
+            string filePath = Path.Combine(_tempSolutionDirectory, fileToDownload);
+            using var compressedFileStream = _fileSystem.FileOpenRead(filePath);
+            using var gzipStream = new GZipStream(compressedFileStream, CompressionMode.Decompress);
+            using var streamReader = new StreamReader(gzipStream);
+            var data = JsonConvert.DeserializeObject<PackageDetails>(streamReader.ReadToEnd());
+            return data;
         }
     }
 }

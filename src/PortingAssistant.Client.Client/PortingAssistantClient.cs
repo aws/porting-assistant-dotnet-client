@@ -7,6 +7,9 @@ using PortingAssistant.Client.Porting;
 using Microsoft.Build.Construction;
 using System.IO;
 using System.Threading.Tasks;
+using Codelyzer.Analysis;
+using CTA.Rules.Models;
+using Codelyzer.Analysis.Model;
 
 namespace PortingAssistant.Client.Client
 {
@@ -14,6 +17,8 @@ namespace PortingAssistant.Client.Client
     {
         private readonly IPortingAssistantAnalysisHandler _analysisHandler;
         private readonly IPortingHandler _portingHandler;
+
+        private const string DEFAULT_TARGET = "netcoreapp3.1";
 
         public PortingAssistantClient(IPortingAssistantAnalysisHandler AnalysisHandler,
             IPortingHandler portingHandler)
@@ -36,9 +41,14 @@ namespace PortingAssistant.Client.Client
                     .Select(p => p.AbsolutePath)
                     .ToList();
 
-                var targetFramework = settings.TargetFramework ?? "netcoreapp3.1";
+                var targetFramework = settings.TargetFramework ?? DEFAULT_TARGET;
 
-                var projectAnalysisResultsDict = await _analysisHandler.AnalyzeSolution(solutionFilePath, projects, targetFramework);
+                Dictionary<string, ProjectAnalysisResult> projectAnalysisResultsDict;
+
+                if (settings.ContiniousEnabled)
+                    projectAnalysisResultsDict = await _analysisHandler.AnalyzeSolutionIncremental(solutionFilePath, projects, targetFramework);
+                else
+                    projectAnalysisResultsDict = await _analysisHandler.AnalyzeSolution(solutionFilePath, projects, targetFramework);
 
                 var projectAnalysisResults = projects.Select(p =>
                 {
@@ -89,6 +99,25 @@ namespace PortingAssistant.Client.Client
 
         }
 
+        public async Task<List<SourceFileAnalysisResult>> AnalyzeFileAsync(string filePath, string projectFile, string solutionFilePath,
+    List<string> preportReferences, List<string> currentReferences, RootNodes rules, ExternalReferences externalReferences, AnalyzerSettings settings)
+        {
+            var targetFramework = settings.TargetFramework ?? DEFAULT_TARGET;
+
+            return await _analysisHandler.AnalyzeFileIncremental(filePath, projectFile, solutionFilePath,
+                preportReferences, currentReferences, rules, externalReferences, settings.ActionsOnly, settings.CompatibleOnly, targetFramework);
+        }
+        public async Task<List<SourceFileAnalysisResult>> AnalyzeFileAsync(string filePath, string fileContent, string projectFile, string solutionFilePath,
+            List<string> preportReferences, List<string> currentReferences, RootNodes rules, ExternalReferences externalReferences, AnalyzerSettings settings)
+        {
+            var targetFramework = settings.TargetFramework ?? DEFAULT_TARGET;
+
+            return await _analysisHandler.AnalyzeFileIncremental(filePath, fileContent, projectFile, solutionFilePath,
+                preportReferences, currentReferences, rules, externalReferences, settings.ActionsOnly, settings.CompatibleOnly, targetFramework);
+        }
+
+
+
         public List<PortingResult> ApplyPortingChanges(PortingRequest request)
         {
             try
@@ -106,6 +135,7 @@ namespace PortingAssistant.Client.Client
                     request.Projects,
                     request.SolutionPath,
                     request.TargetFramework,
+                    request.IncludeCodeFix,
                     upgradeVersions);
             }
             catch (Exception ex)

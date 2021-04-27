@@ -13,6 +13,7 @@ using PortingAssistant.Client.Analysis.Utils;
 using PortingAssistant.Client.Model;
 using PortingAssistant.Client.NuGet;
 using AnalyzerConfiguration = Codelyzer.Analysis.AnalyzerConfiguration;
+using IDEProjectResult = Codelyzer.Analysis.Build.IDEProjectResult;
 
 namespace PortingAssistant.Client.Analysis
 {
@@ -22,6 +23,8 @@ namespace PortingAssistant.Client.Analysis
         private readonly IPortingAssistantNuGetHandler _handler;
         private readonly IPortingAssistantRecommendationHandler _recommendationHandler;
 
+        private const string DEFAULT_TARGET = "netcoreapp3.1";
+
         public PortingAssistantAnalysisHandler(ILogger<PortingAssistantAnalysisHandler> logger,
             IPortingAssistantNuGetHandler handler, IPortingAssistantRecommendationHandler recommendationHandler)
         {
@@ -30,8 +33,210 @@ namespace PortingAssistant.Client.Analysis
             _recommendationHandler = recommendationHandler;
         }
 
+        public async Task<List<SourceFileAnalysisResult>> AnalyzeFileIncremental(string filePath, string fileContent, string projectFile, string solutionFilePath, List<string> preportReferences
+            , List<string> currentReferences, RootNodes projectRules, ExternalReferences externalReferences, bool actionsOnly = false, bool compatibleOnly = false, string targetFramework = DEFAULT_TARGET)
+        {
+            try
+            {
+                List<SourceFileAnalysisResult> sourceFileAnalysisResults = new List<SourceFileAnalysisResult>();
+
+                var fileAnalysis = await AnalyzeProjectFiles(projectFile, fileContent, filePath, preportReferences, currentReferences);
+                var fileActions = AnalyzeFileActionsIncremental(projectFile, projectRules, targetFramework, solutionFilePath, filePath, fileAnalysis);
+
+                var sourceFileResult = fileAnalysis.RootNodes.FirstOrDefault();
+
+                Dictionary<string, List<CodeEntityDetails>> sourceFileToCodeEntityDetails = new Dictionary<string, List<CodeEntityDetails>>();
+                Dictionary<string, Task<RecommendationDetails>> recommendationResults = new Dictionary<string, Task<RecommendationDetails>>();
+                Dictionary<PackageVersionPair, Task<PackageDetails>> packageResults = new Dictionary<PackageVersionPair, Task<PackageDetails>>();
+
+                if (!actionsOnly)
+                {
+                    var sourceFileToInvocations = new[] { KeyValuePair.Create(sourceFileResult.FileFullPath, sourceFileResult.AllInvocationExpressions()) }
+                    .ToDictionary(p => p.Key, p => p.Value);
+
+                    sourceFileToCodeEntityDetails = InvocationExpressionModelToInvocations.Convert(sourceFileToInvocations, externalReferences);
+
+                    var namespaces = sourceFileToCodeEntityDetails.Aggregate(new HashSet<string>(), (agg, cur) =>
+                    {
+                        agg.UnionWith(cur.Value.Select(i => i.Namespace).Where(i => i != null));
+                        return agg;
+                    });
+
+                    var nugetPackages = externalReferences?.NugetReferences
+                            .Select(r => InvocationExpressionModelToInvocations.ReferenceToPackageVersionPair(r))
+                            .ToHashSet();
+
+                    var subDependencies = externalReferences?.NugetDependencies
+                        .Select(r => InvocationExpressionModelToInvocations.ReferenceToPackageVersionPair(r))
+                        .ToHashSet();
+
+                    var sdkPackages = namespaces.Select(n => new PackageVersionPair { PackageId = n, Version = "0.0.0", PackageSourceType = PackageSourceType.SDK });
+
+                    var allPackages = nugetPackages
+                        .Union(subDependencies)
+                        .Union(sdkPackages)
+                        .ToList();
+
+                    packageResults = _handler.GetNugetPackages(allPackages, solutionFilePath, isIncremental: true, incrementalRefresh: false);
+                    recommendationResults = _recommendationHandler.GetApiRecommendation(namespaces.ToList());
+                }
+
+                var portingActionResults = new Dictionary<string, List<RecommendedAction>>();
+
+                var recommendedActions = fileActions.Select(f => new RecommendedAction()
+                {
+                    Description = f.Description,
+                    RecommendedActionType = RecommendedActionType.ReplaceApi,
+                    TextSpan = new Model.TextSpan()
+                    {
+                        StartCharPosition = f.TextSpan.StartCharPosition,
+                        EndCharPosition = f.TextSpan.EndCharPosition,
+                        StartLinePosition = f.TextSpan.StartLinePosition,
+                        EndLinePosition = f.TextSpan.EndLinePosition
+                    },
+                    TextChanges = f.TextChanges
+                }).ToHashSet().ToList();
+
+                portingActionResults.Add(filePath, recommendedActions);
+
+                var sourceFileAnalysisResult = InvocationExpressionModelToInvocations.AnalyzeResults(
+                    sourceFileToCodeEntityDetails, packageResults, recommendationResults, portingActionResults, targetFramework, compatibleOnly);
+
+                //In case actions only, result will be empty, so we populate with actions
+                if(actionsOnly)
+                {
+                    sourceFileAnalysisResult.Add(new SourceFileAnalysisResult()
+                    {
+                        SourceFileName = Path.GetFileName(filePath),
+                        SourceFilePath = filePath,
+                        RecommendedActions = recommendedActions,
+                        ApiAnalysisResults = new List<ApiAnalysisResult>()
+                    });
+                }
+
+                sourceFileAnalysisResults.AddRange(sourceFileAnalysisResult);
+
+
+                return sourceFileAnalysisResults;
+            }
+            finally
+            {
+                CommonUtils.RunGarbageCollection(_logger, "PortingAssistantAnalysisHandler.AnalyzeFileIncremental");
+            }
+        }
+
+        public async Task<List<SourceFileAnalysisResult>> AnalyzeFileIncremental(string filePath, string projectFile, string solutionFilePath, List<string> preportReferences
+            , List<string> currentReferences, RootNodes projectRules, ExternalReferences externalReferences, bool actionsOnly, bool compatibleOnly, string targetFramework = DEFAULT_TARGET)
+        {
+            var fileContent = File.ReadAllText(filePath);
+            return await AnalyzeFileIncremental(filePath, fileContent, projectFile, solutionFilePath, preportReferences, currentReferences, projectRules, externalReferences, actionsOnly, compatibleOnly, targetFramework);
+        }
+
+        public async Task<Dictionary<string, ProjectAnalysisResult>> AnalyzeSolutionIncremental(string solutionFilename, List<string> projects,
+            string targetFramework = DEFAULT_TARGET)
+        {
+            try
+            {
+                var configuration = new AnalyzerConfiguration(LanguageOptions.CSharp)
+                {
+                    MetaDataSettings =
+                    {
+                        LiteralExpressions = true,
+                        MethodInvocations = true,
+                        ReferenceData = true,
+                        Annotations = true,
+                        DeclarationNodes = true,
+                        LoadBuildData = true,
+                        LocationData = true,
+                        InterfaceDeclarations = true
+                    }
+                };
+                var analyzer = CodeAnalyzerFactory.GetAnalyzer(configuration, _logger);
+                var analyzersTask = await analyzer.AnalyzeSolution(solutionFilename);
+
+                var analysisActions = AnalyzeActions(projects, targetFramework, analyzersTask, solutionFilename);
+
+                var analyzerResult = analyzersTask;
+
+                var solutionAnalysisResult = projects
+                        .Select((project) => new KeyValuePair<string, ProjectAnalysisResult>(project, AnalyzeProject(project, solutionFilename, analyzersTask, analysisActions, isIncremental: true, targetFramework)))
+                        .Where(p => p.Value != null)
+                        .ToDictionary(p => p.Key, p => p.Value);
+
+
+                var projectActions = projects
+                       .Select((project) => new KeyValuePair<string, ProjectActions>
+                       (project, analysisActions.FirstOrDefault(p => p.ProjectFile == project)?.ProjectActions ?? new ProjectActions()))
+                       .Where(p => p.Value != null)
+                       .ToDictionary(p => p.Key, p => p.Value);
+
+
+                return solutionAnalysisResult;
+            }
+            finally
+            {
+                CommonUtils.RunGarbageCollection(_logger, "PortingAssistantAnalysisHandler.AnalyzeSolutionIncremental");
+            }
+        }
+
+        private List<IDEFileActions> AnalyzeFileActionsIncremental(string project, RootNodes rootNodes, string targetFramework
+            , string pathToSolution, string filePath, IDEProjectResult projectResult)
+        {
+            List<PortCoreConfiguration> configs = new List<PortCoreConfiguration>();
+
+            PortCoreConfiguration projectConfiguration = new PortCoreConfiguration()
+            {
+                ProjectPath = project,
+                UseDefaultRules = true,
+                TargetVersions = new List<string> { targetFramework },
+                PortCode = false,
+                PortProject = false
+            };
+
+            projectResult.ProjectPath = project;
+
+            configs.Add(projectConfiguration);
+
+            var solutionPort = new SolutionPort(pathToSolution, projectResult, configs);
+            return solutionPort.RunIncremental(rootNodes, filePath);
+        }
+
+        private async Task<IDEProjectResult> AnalyzeProjectFiles(string projectPath, string fileContent, string filePath, List<string> preportReferences, List<string> currentReferences)
+        {
+            try
+            {
+                var configuration = new AnalyzerConfiguration(LanguageOptions.CSharp)
+                {
+                    MetaDataSettings =
+                    {
+                        LiteralExpressions = true,
+                        MethodInvocations = true,
+                        ReferenceData = true,
+                        Annotations = true,
+                        DeclarationNodes = true,
+                        LoadBuildData = true,
+                        LocationData = true,
+                        InterfaceDeclarations = true
+                    }
+                };
+                var analyzer = CodeAnalyzerFactory.GetAnalyzer(configuration, _logger);                
+                var ideProjectResult = await analyzer.AnalyzeFile(projectPath, filePath, fileContent, preportReferences, currentReferences);
+
+                return ideProjectResult;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while analyzing files");
+            }
+            finally
+            {
+                CommonUtils.RunGarbageCollection(_logger, "PortingAssistantAnalysisHandler.AnalyzeFileIncremental");
+            }
+            return null;
+        }
+
         public async Task<Dictionary<string, ProjectAnalysisResult>> AnalyzeSolution(
-            string solutionFilename, List<string> projects, string targetFramework = "netcoreapp3.1")
+            string solutionFilename, List<string> projects, string targetFramework = DEFAULT_TARGET)
         {
             try
             {
@@ -55,7 +260,7 @@ namespace PortingAssistant.Client.Analysis
                 var analysisActions = AnalyzeActions(projects, targetFramework, analyzersTask, solutionFilename);
 
                 return projects
-                        .Select((project) => new KeyValuePair<string, ProjectAnalysisResult>(project, AnalyzeProject(project, analyzersTask, analysisActions, targetFramework)))
+                        .Select((project) => new KeyValuePair<string, ProjectAnalysisResult>(project, AnalyzeProject(project, solutionFilename, analyzersTask, analysisActions, isIncremental: false, targetFramework)))
                         .Where(p => p.Value != null)
                         .ToDictionary(p => p.Key, p => p.Value);
             }
@@ -84,20 +289,22 @@ namespace PortingAssistant.Client.Analysis
                     ProjectPath = proj,
                     UseDefaultRules = true,
                     TargetVersions = new List<string> { targetFramework },
+                    PortCode = false,
+                    PortProject = false
                 };
 
                 configs.Add(projectConfiguration);
             }
             var solutionPort = new SolutionPort(pathToSolution, analyzerResults, configs, _logger);
-            return solutionPort.AnalysisRun().ProjectResults.ToList();
+            return solutionPort.Run().ProjectResults.ToList();
         }
 
         private ProjectAnalysisResult AnalyzeProject(
-            string project, List<AnalyzerResult> analyzers, List<ProjectResult> analysisActions, string targetFramework = "netcoreapp3.1")
+            string project, string solutionFileName, List<AnalyzerResult> analyzers, List<ProjectResult> analysisActions, bool isIncremental = false, string targetFramework = DEFAULT_TARGET)
         {
             try
             {
-                using var analyzer = analyzers.Find((a) => a.ProjectResult?.ProjectFilePath != null &&
+                var analyzer = analyzers.Find((a) => a.ProjectResult?.ProjectFilePath != null &&
                     a.ProjectResult.ProjectFilePath.Equals(project));
 
                 var projectActions = analysisActions.FirstOrDefault(p => p.ProjectFile == project)?.ProjectActions ?? new ProjectActions();
@@ -110,7 +317,7 @@ namespace PortingAssistant.Client.Analysis
 
                 var sourceFileToInvocations = analyzer.ProjectResult.SourceFileResults.Select((sourceFile) =>
                 {
-                    var invocationsInSourceFile = sourceFile.AllInvocationExpressions();
+                    var invocationsInSourceFile = sourceFile.AllInvocationExpressions() ?? new UstList<InvocationExpression>();
                     _logger.LogInformation("API: SourceFile {0} has {1} invocations pre-filter", sourceFile.FileFullPath, invocationsInSourceFile.Count());
                     return KeyValuePair.Create(sourceFile.FileFullPath, invocationsInSourceFile);
                 }).ToDictionary(p => p.Key, p => p.Value);
@@ -141,7 +348,13 @@ namespace PortingAssistant.Client.Analysis
                     .Union(sdkPackages)
                     .ToList();
 
-                var packageResults = _handler.GetNugetPackages(allPackages, null);
+                Dictionary<PackageVersionPair, Task<PackageDetails>> packageResults;
+
+                if (isIncremental)
+                    packageResults = _handler.GetNugetPackages(allPackages, solutionFileName, isIncremental: true, incrementalRefresh: true);
+                else
+                    packageResults = _handler.GetNugetPackages(allPackages, null, isIncremental: false, incrementalRefresh: false);
+
                 var recommendationResults = _recommendationHandler.GetApiRecommendation(namespaces.ToList());
 
                 var packageAnalysisResults = nugetPackages.Select(package =>
@@ -170,7 +383,11 @@ namespace PortingAssistant.Client.Analysis
                     Errors = analyzer.ProjectResult.BuildErrors,
                     ProjectGuid = analyzer.ProjectResult.ProjectGuid,
                     ProjectType = analyzer.ProjectResult.ProjectType,
-                    SourceFileAnalysisResults = SourceFileAnalysisResults
+                    SourceFileAnalysisResults = SourceFileAnalysisResults,
+                    MetaReferences = analyzer.ProjectBuildResult.Project.MetadataReferences.Select(m => m.Display).ToList(),
+                    PreportMetaReferences = analyzer.ProjectBuildResult.PreportReferences,
+                    ProjectRules = projectActions.ProjectRules,
+                    ExternalReferences = analyzer.ProjectResult.ExternalReferences
                 };
             }
             catch (Exception ex)

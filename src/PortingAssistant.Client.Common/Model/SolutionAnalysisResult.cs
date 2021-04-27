@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Codelyzer.Analysis;
+using CTA.Rules.Models;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace PortingAssistant.Client.Model

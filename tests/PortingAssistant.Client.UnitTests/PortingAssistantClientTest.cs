@@ -16,6 +16,8 @@ using PortingAssistant.Client.Client.FileParser;
 using NuGet.Frameworks;
 using NuGet.Versioning;
 using PortingAssistant.Client.PortingProjectFile;
+using Codelyzer.Analysis;
+using CTA.Rules.Models;
 
 namespace PortingAssistant.Client.Tests
 {
@@ -98,7 +100,7 @@ namespace PortingAssistant.Client.Tests
             foreach (var fileInfo in files)
             {
                 string tempPath = Path.Combine(destDirName, fileInfo.Name);
-                fileInfo.CopyTo(tempPath, false);
+                fileInfo.CopyTo(tempPath, true);
             }
 
             if (copySubDirs)
@@ -182,11 +184,99 @@ namespace PortingAssistant.Client.Tests
                                 _sourceFileAnalysisResult
                             },
                             ProjectGuid = "xxx",
-                            ProjectType = nameof(SolutionProjectType.KnownToBeMSBuildFormat)
+                            ProjectType = nameof(SolutionProjectType.KnownToBeMSBuildFormat),
+                            PreportMetaReferences = new List<string> { },
+                            MetaReferences = new List<string> { },
+                            ExternalReferences = null,
+                            ProjectRules = null
                         };
 
                         return new KeyValuePair<string, ProjectAnalysisResult>(project, projectAnalysisResult);
                     }).ToDictionary(k => k.Key, v => v.Value));
+                });
+            _apiAnalysisHandlerMock.Setup(analyzer => analyzer.AnalyzeSolutionIncremental(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
+                .Returns((string solutionFilePath, List<string> projects, string targetFramework) =>
+                {
+                    return Task.Run(() =>
+                    {
+                        return projects.Select(project =>
+                        {
+                            var package = new PackageVersionPair
+                            {
+                                PackageId = "Newtonsoft.Json",
+                                Version = "11.0.1"
+                            };
+                            var packageAnalysisResult = Task.Run(() => new PackageAnalysisResult
+                            {
+                                PackageVersionPair = package,
+                                CompatibilityResults = new Dictionary<string, CompatibilityResult>
+                                {
+                                    {targetFramework, new CompatibilityResult{
+                                        Compatibility = Compatibility.COMPATIBLE,
+                                        CompatibleVersions = new List<string>
+                                        {
+                                            "12.0.3", "12.0.4"
+                                        }
+                                    }}
+                                },
+                                Recommendations = new PortingAssistant.Client.Model.Recommendations
+                                {
+                                    RecommendedActions = new List<RecommendedAction>
+                                    {
+                                        new RecommendedAction
+                                        {
+                                            RecommendedActionType = RecommendedActionType.UpgradePackage,
+                                            Description = "12.0.3"
+                                        }
+                                    }
+                                }
+                            });
+
+                            var projectAnalysisResult = new ProjectAnalysisResult
+                            {
+                                ProjectName = Path.GetFileNameWithoutExtension(project),
+                                ProjectFilePath = project,
+                                PackageAnalysisResults = new Dictionary<PackageVersionPair, Task<PackageAnalysisResult>>
+                                {
+                                    { package, packageAnalysisResult }
+                                },
+                                SourceFileAnalysisResults = new List<SourceFileAnalysisResult>
+                                {
+                                    _sourceFileAnalysisResult
+                                },
+                                ProjectGuid = "xxx",
+                                ProjectType = nameof(SolutionProjectType.KnownToBeMSBuildFormat)
+                            };
+
+                            return new KeyValuePair<string, ProjectAnalysisResult>(project, projectAnalysisResult);
+                        }).ToDictionary(k => k.Key, v => v.Value);
+                    });
+                });
+            _apiAnalysisHandlerMock.Setup(analyzer => analyzer.AnalyzeFileIncremental(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>(), 
+                It.IsAny<List<string>>(), It.IsAny<RootNodes>(), It.IsAny<Codelyzer.Analysis.Model.ExternalReferences>(), 
+                It.IsAny<bool>(),
+                It.IsAny<bool>(),
+                It.IsAny<string>()))
+                .Returns((string filePath, string project, string solutionPath, List<string> preportReferences,
+                List<string> metaReferences, RootNodes projectRules, Codelyzer.Analysis.Model.ExternalReferences externalReferences, bool actionsOnly, bool compatibleOnly, string targetFramework) =>
+                {
+                    return Task.Run(() =>
+                    {
+                        return new List<SourceFileAnalysisResult> { _sourceFileAnalysisResult };
+                    });
+                });
+            _apiAnalysisHandlerMock.Setup(analyzer => analyzer.AnalyzeFileIncremental(It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<List<string>>(), It.IsAny<RootNodes>(), It.IsAny<Codelyzer.Analysis.Model.ExternalReferences>(),
+                It.IsAny<bool>(),
+                It.IsAny<bool>(),
+                It.IsAny<string>()))
+                .Returns((string filePath, string fileContents, string project, string solutionPath, List<string> preportReferences,
+                List<string> metaReferences, RootNodes projectRules, Codelyzer.Analysis.Model.ExternalReferences externalReferences, bool actionsOnly, bool compatibleOnly, string targetFramework) =>
+                {
+                    return Task.Run(() =>
+                    {
+                        return new List<SourceFileAnalysisResult> { _sourceFileAnalysisResult };
+                    });
                 });
         }
 
@@ -317,5 +407,50 @@ namespace PortingAssistant.Client.Tests
                 result.Wait();
             });
         }
+
+        [Test]
+        public void AnalyzeFileSucceedsTest()
+        {
+            var results = _portingAssistantClient.AnalyzeSolutionAsync(Path.Combine(_solutionFolder, "SolutionWithProjects.sln"), new AnalyzerSettings { TargetFramework = "netcoreapp3.1", ContiniousEnabled = true, CompatibleOnly = true });
+            results.Wait();
+
+            var projectAnalysisResult = results.Result.ProjectAnalysisResults[0];
+            var preportReferences = projectAnalysisResult.PreportMetaReferences;
+            var metaReferences = projectAnalysisResult.MetaReferences;
+            var externalReferences = projectAnalysisResult.ExternalReferences;
+            var projectRules = projectAnalysisResult.ProjectRules;
+
+            var fileResults = _portingAssistantClient.AnalyzeFileAsync(_sourceFileAnalysisResult.SourceFilePath, "", _tmpSolutionFileName,
+                preportReferences, metaReferences, projectRules, externalReferences, new AnalyzerSettings { TargetFramework = "netcoreapp3.1" });
+            fileResults.Wait();
+
+            var fileSourceFileAnalysis = fileResults.Result;
+
+            Assert.AreEqual(fileSourceFileAnalysis.Count, 1);
+            Assert.AreEqual(fileSourceFileAnalysis[0], _sourceFileAnalysisResult);
+        }
+
+        [Test]
+        public void AnalyzeFileSucceedsTestWithFileContents()
+        {
+            var results = _portingAssistantClient.AnalyzeSolutionAsync(Path.Combine(_solutionFolder, "SolutionWithProjects.sln"), new AnalyzerSettings { TargetFramework = "netcoreapp3.1", ContiniousEnabled = true, CompatibleOnly = true });
+            results.Wait();
+
+            var projectAnalysisResult = results.Result.ProjectAnalysisResults[0];
+            var preportReferences = projectAnalysisResult.PreportMetaReferences;
+            var metaReferences = projectAnalysisResult.MetaReferences;
+            var externalReferences = projectAnalysisResult.ExternalReferences;
+            var projectRules = projectAnalysisResult.ProjectRules;
+
+            var fileResults = _portingAssistantClient.AnalyzeFileAsync(_sourceFileAnalysisResult.SourceFilePath, "", "", _tmpSolutionFileName,
+                preportReferences, metaReferences, projectRules, externalReferences, new AnalyzerSettings { TargetFramework = "netcoreapp3.1" });
+            fileResults.Wait();
+
+            var fileSourceFileAnalysis = fileResults.Result;
+
+            Assert.AreEqual(fileSourceFileAnalysis.Count, 1);
+            Assert.AreEqual(fileSourceFileAnalysis[0], _sourceFileAnalysisResult);
+        }
+
     }
 }

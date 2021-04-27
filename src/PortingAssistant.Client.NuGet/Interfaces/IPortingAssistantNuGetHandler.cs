@@ -6,6 +6,6 @@ namespace PortingAssistant.Client.NuGet
 {
     public interface IPortingAssistantNuGetHandler
     {
-        public Dictionary<PackageVersionPair, Task<PackageDetails>> GetNugetPackages(List<PackageVersionPair> nugetPackages, string pathToSolution);
+        public Dictionary<PackageVersionPair, Task<PackageDetails>> GetNugetPackages(List<PackageVersionPair> nugetPackages, string pathToSolution, bool isIncremental, bool incrementalRefresh);
     }
 }

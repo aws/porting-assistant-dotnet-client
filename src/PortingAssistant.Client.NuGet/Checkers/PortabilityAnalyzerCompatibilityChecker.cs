@@ -51,7 +51,7 @@ namespace PortingAssistant.Client.NuGet
         /// <returns>The results of the compatibility check</returns>
         public Dictionary<PackageVersionPair, Task<PackageDetails>> Check(
             IEnumerable<PackageVersionPair> packageVersions,
-            string pathToSolution)
+            string pathToSolution, bool isIncremental, bool incrementalRefresh)
         {
             var compatibilityTaskCompletionSources = new Dictionary<PackageVersionPair, TaskCompletionSource<PackageDetails>>();
 
