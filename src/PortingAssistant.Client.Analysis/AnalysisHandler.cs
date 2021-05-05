@@ -103,7 +103,7 @@ namespace PortingAssistant.Client.Analysis
                     sourceFileToCodeEntityDetails, packageResults, recommendationResults, portingActionResults, targetFramework, compatibleOnly);
 
                 //In case actions only, result will be empty, so we populate with actions
-                if(actionsOnly)
+                if (actionsOnly)
                 {
                     sourceFileAnalysisResult.Add(new SourceFileAnalysisResult()
                     {
@@ -219,7 +219,7 @@ namespace PortingAssistant.Client.Analysis
                         InterfaceDeclarations = true
                     }
                 };
-                var analyzer = CodeAnalyzerFactory.GetAnalyzer(configuration, _logger);                
+                var analyzer = CodeAnalyzerFactory.GetAnalyzer(configuration, _logger);
                 var ideProjectResult = await analyzer.AnalyzeFile(projectPath, filePath, fileContent, preportReferences, currentReferences);
 
                 return ideProjectResult;
@@ -379,7 +379,7 @@ namespace PortingAssistant.Client.Analysis
                     PackageReferences = nugetPackages.ToList(),
                     ProjectReferences = analyzer.ProjectResult.ExternalReferences.ProjectReferences.ConvertAll(p => new ProjectReference { ReferencePath = p.AssemblyLocation }),
                     PackageAnalysisResults = packageAnalysisResults,
-                    IsBuildFailed = analyzer.ProjectResult.IsBuildFailed(),
+                    IsBuildFailed = analyzer.ProjectResult.IsBuildFailed() || analyzer.ProjectBuildResult.IsSyntaxAnalysis,
                     Errors = analyzer.ProjectResult.BuildErrors,
                     ProjectGuid = analyzer.ProjectResult.ProjectGuid,
                     ProjectType = analyzer.ProjectResult.ProjectType,
