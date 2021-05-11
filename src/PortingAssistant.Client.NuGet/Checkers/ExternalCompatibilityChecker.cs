@@ -114,8 +114,8 @@ namespace PortingAssistant.Client.NuGet
                     else
                         packageDetails = await GetPackageDetailFromS3(fileToDownload, _httpService);
 
-                    if (packageDetails.Name == null || !string.Equals(packageDetails.Name.Trim(),
-                        packageToDownload.Trim(), StringComparison.CurrentCultureIgnoreCase))
+                    if (packageDetails.Name == null || !string.Equals(packageDetails.Name.Trim().ToLower(),
+                        packageToDownload.Trim().ToLower(), StringComparison.OrdinalIgnoreCase))
                     {
                         throw new PackageDownloadMismatchException(
                             actualPackage: packageDetails.Name,
