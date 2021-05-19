@@ -13,7 +13,7 @@ namespace PortingAssistantExtensionTelemetry
 
         public static void Builder(ILogger logger, string filePath)
         {
-            if (_fs == null && _fs == null)
+            if (_fs == null && _logger == null)
             {
                 _logger = logger;
                 _fs = new FileStream(filePath, FileMode.Append, FileAccess.ReadWrite, FileShare.Read);
