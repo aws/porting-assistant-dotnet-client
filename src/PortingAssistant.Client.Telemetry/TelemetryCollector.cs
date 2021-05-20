@@ -24,7 +24,7 @@ namespace PortingAssistantExtensionTelemetry
         {
             var AppData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             var metricsFilePath = Path.Combine(AppData, "logs", "metrics.metrics");
-            _fs = new FileStream(metricsFilePath, FileMode.Append, FileAccess.ReadWrite, FileShare.Read);
+            _fs = new FileStream(metricsFilePath, FileMode.Append);
             var outputTemplate = "[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] {SourceContext}: {Message:lj}{NewLine}{Exception}";
             var logConfiguration = new LoggerConfiguration().Enrich.FromLogContext()
             .MinimumLevel.Warning()
