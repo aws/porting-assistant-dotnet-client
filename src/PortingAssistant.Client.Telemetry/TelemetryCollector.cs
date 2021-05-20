@@ -2,21 +2,23 @@
 using Serilog;
 using System;
 using System.IO;
+using System.Threading;
 using ILogger = Serilog.ILogger;
 
 namespace PortingAssistantExtensionTelemetry
 {
     public static class TelemetryCollector
     {
-        private static FileStream _fs;
+        private static string _filePath;
         private static ILogger _logger;
+        private static ReaderWriterLockSlim _readWriteLock = new ReaderWriterLockSlim();
 
         public static void Builder(ILogger logger, string filePath)
         {
-            if (_fs == null && _logger == null)
+            if (_logger == null && _filePath == null)
             {
                 _logger = logger;
-                _fs = new FileStream(filePath, FileMode.Append);
+                _filePath = filePath;
             }
         }
 
@@ -24,11 +26,11 @@ namespace PortingAssistantExtensionTelemetry
         {
             var AppData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             var metricsFilePath = Path.Combine(AppData, "logs", "metrics.metrics");
-            _fs = new FileStream(metricsFilePath, FileMode.Append);
+            _filePath = metricsFilePath;
             var outputTemplate = "[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] {SourceContext}: {Message:lj}{NewLine}{Exception}";
             var logConfiguration = new LoggerConfiguration().Enrich.FromLogContext()
             .MinimumLevel.Warning()
-            .WriteTo.RollingFile(
+            .WriteTo.File(
                 Path.Combine(AppData, "logs", "metrics.log"),
                 outputTemplate: outputTemplate);
             _logger = logConfiguration.CreateLogger();
@@ -36,30 +38,28 @@ namespace PortingAssistantExtensionTelemetry
 
         private static void WriteToFile(string content)
         {
+            _readWriteLock.EnterWriteLock();
             try
             {
-                if (_fs == null)
+                if (_filePath == null)
                 {
                     ConfigureDefault();
                 }
-                lock (_fs)
+                using (StreamWriter sw = File.AppendText(_filePath))
                 {
-                    using (var file = new StreamWriter(_fs))
-                    {
-                        file.WriteLine(content);
-                    }
+                    sw.WriteLine(content);
+                    sw.Close();
                 }
             }
             catch (Exception ex)
             {
                 _logger.Error("Failed to write to the metrics file with error", ex);
             }
-        }
-
-        public static void Dispose()
-        {
-            if (_fs != null)
-                _fs.Dispose();
+            finally
+            {
+                // Release lock
+                _readWriteLock.ExitWriteLock();
+            }
         }
 
         public static void Collect<T>(T t)
