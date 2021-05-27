@@ -137,20 +137,7 @@ namespace PortingAssistant.Client.Analysis
         {
             try
             {
-                var configuration = new AnalyzerConfiguration(LanguageOptions.CSharp)
-                {
-                    MetaDataSettings =
-                    {
-                        LiteralExpressions = true,
-                        MethodInvocations = true,
-                        ReferenceData = true,
-                        Annotations = true,
-                        DeclarationNodes = true,
-                        LoadBuildData = true,
-                        LocationData = true,
-                        InterfaceDeclarations = true
-                    }
-                };
+                var configuration = GetAnalyzerConfiguration();
                 var analyzer = CodeAnalyzerFactory.GetAnalyzer(configuration, _logger);
                 var analyzersTask = await analyzer.AnalyzeSolution(solutionFilename);
 
@@ -240,20 +227,7 @@ namespace PortingAssistant.Client.Analysis
         {
             try
             {
-                var configuration = new AnalyzerConfiguration(LanguageOptions.CSharp)
-                {
-                    MetaDataSettings =
-                    {
-                        LiteralExpressions = true,
-                        MethodInvocations = true,
-                        ReferenceData = true,
-                        Annotations = true,
-                        DeclarationNodes = true,
-                        LoadBuildData = true,
-                        LocationData = true,
-                        InterfaceDeclarations = true
-                    }
-                };
+                var configuration = GetAnalyzerConfiguration();
                 var analyzer = CodeAnalyzerFactory.GetAnalyzer(configuration, _logger);
                 var analyzersTask = await analyzer.AnalyzeSolution(solutionFilename);
 
@@ -408,6 +382,25 @@ namespace PortingAssistant.Client.Analysis
                     SourceFileAnalysisResults = new List<SourceFileAnalysisResult>()
                 };
             }
+        }
+
+        private AnalyzerConfiguration GetAnalyzerConfiguration()
+        {
+            return new AnalyzerConfiguration(LanguageOptions.CSharp)
+            {
+                MetaDataSettings =
+                    {
+                        LiteralExpressions = true,
+                        MethodInvocations = true,
+                        ReferenceData = true,
+                        Annotations = true,
+                        DeclarationNodes = true,
+                        LoadBuildData = true,
+                        LocationData = true,
+                        InterfaceDeclarations = true
+                    },
+                ConcurrentThreads = 1
+            };
         }
     }
 }
