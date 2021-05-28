@@ -123,7 +123,7 @@ namespace PortingAssistant.Client.Client.Reports
             try
             {
                 await File.WriteAllTextAsync(FilePath, JsonConvert.SerializeObject(obj, Formatting.Indented));
-                _logger.LogInformation("file generated at ", FilePath);
+                _logger.LogInformation("file generated at: {0}", FilePath);
                 return true;
             }
             catch (Exception ex)

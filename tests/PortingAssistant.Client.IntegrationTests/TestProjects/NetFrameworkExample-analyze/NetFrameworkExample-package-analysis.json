@@ -1,0 +1,420 @@
+[
+  {
+    "PackageVersionPair": {
+      "PackageId": "Antlr",
+      "Version": "3.5.0.2",
+      "PackageSourceType": "NUGET"
+    },
+    "CompatibilityResults": {
+      "netcoreapp3.1": {
+        "Compatibility": "INCOMPATIBLE",
+        "CompatibleVersions": []
+      }
+    },
+    "Recommendations": {
+      "RecommendedActions": [
+        {
+          "PackageId": "Antlr",
+          "Version": null,
+          "TargetVersions": null,
+          "RecommendedActionType": "UpgradePackage",
+          "Description": null,
+          "TextSpan": null,
+          "TargetCPU": null,
+          "TextChanges": null
+        }
+      ]
+    }
+  },
+  {
+    "PackageVersionPair": {
+      "PackageId": "bootstrap",
+      "Version": "3.4.1",
+      "PackageSourceType": "NUGET"
+    },
+    "CompatibilityResults": {
+      "netcoreapp3.1": {
+        "Compatibility": "COMPATIBLE",
+        "CompatibleVersions": [
+          "4.0.0-alpha",
+          "4.0.0-alpha2",
+          "4.0.0-alpha3",
+          "4.0.0-alpha4",
+          "4.0.0-alpha5",
+          "4.0.0-alpha6",
+          "4.0.0-beta",
+          "4.0.0-beta2",
+          "4.0.0-beta3",
+          "4.0.0",
+          "4.1.0",
+          "4.1.1-contentFiles",
+          "4.1.1",
+          "4.1.2",
+          "4.1.3",
+          "4.2.1",
+          "4.3.1",
+          "4.4.0",
+          "4.4.1-content-files",
+          "4.4.1-contentFiles",
+          "4.4.1",
+          "4.5.0",
+          "4.5.1",
+          "4.5.2",
+          "4.5.3",
+          "5.0.0-alpha1",
+          "5.0.0-alpha2",
+          "5.0.0-alpha3"
+        ]
+      }
+    },
+    "Recommendations": {
+      "RecommendedActions": [
+        {
+          "PackageId": "bootstrap",
+          "Version": null,
+          "TargetVersions": null,
+          "RecommendedActionType": "UpgradePackage",
+          "Description": "4.0.0-alpha",
+          "TextSpan": null,
+          "TargetCPU": null,
+          "TextChanges": null
+        }
+      ]
+    }
+  },
+  {
+    "PackageVersionPair": {
+      "PackageId": "Microsoft.CodeDom.Providers.DotNetCompilerPlatform",
+      "Version": "2.0.1",
+      "PackageSourceType": "NUGET"
+    },
+    "CompatibilityResults": {
+      "netcoreapp3.1": {
+        "Compatibility": "COMPATIBLE",
+        "CompatibleVersions": []
+      }
+    },
+    "Recommendations": {
+      "RecommendedActions": [
+        {
+          "PackageId": "Microsoft.CodeDom.Providers.DotNetCompilerPlatform",
+          "Version": null,
+          "TargetVersions": null,
+          "RecommendedActionType": "UpgradePackage",
+          "Description": null,
+          "TextSpan": null,
+          "TargetCPU": null,
+          "TextChanges": null
+        }
+      ]
+    }
+  },
+  {
+    "PackageVersionPair": {
+      "PackageId": "Microsoft.jQuery.Unobtrusive.Validation",
+      "Version": "3.2.11",
+      "PackageSourceType": "NUGET"
+    },
+    "CompatibilityResults": {
+      "netcoreapp3.1": {
+        "Compatibility": "COMPATIBLE",
+        "CompatibleVersions": []
+      }
+    },
+    "Recommendations": {
+      "RecommendedActions": [
+        {
+          "PackageId": "Microsoft.jQuery.Unobtrusive.Validation",
+          "Version": null,
+          "TargetVersions": null,
+          "RecommendedActionType": "UpgradePackage",
+          "Description": null,
+          "TextSpan": null,
+          "TargetCPU": null,
+          "TextChanges": null
+        }
+      ]
+    }
+  },
+  {
+    "PackageVersionPair": {
+      "PackageId": "jQuery",
+      "Version": "3.4.1",
+      "PackageSourceType": "NUGET"
+    },
+    "CompatibilityResults": {
+      "netcoreapp3.1": {
+        "Compatibility": "COMPATIBLE",
+        "CompatibleVersions": [
+          "3.5.0",
+          "3.5.0.1",
+          "3.5.1"
+        ]
+      }
+    },
+    "Recommendations": {
+      "RecommendedActions": [
+        {
+          "PackageId": "jQuery",
+          "Version": null,
+          "TargetVersions": null,
+          "RecommendedActionType": "UpgradePackage",
+          "Description": "3.5.0",
+          "TextSpan": null,
+          "TargetCPU": null,
+          "TextChanges": null
+        }
+      ]
+    }
+  },
+  {
+    "PackageVersionPair": {
+      "PackageId": "Microsoft.Web.Infrastructure",
+      "Version": "1.0.0",
+      "PackageSourceType": "NUGET"
+    },
+    "CompatibilityResults": {
+      "netcoreapp3.1": {
+        "Compatibility": "INCOMPATIBLE",
+        "CompatibleVersions": []
+      }
+    },
+    "Recommendations": {
+      "RecommendedActions": [
+        {
+          "PackageId": "Microsoft.Web.Infrastructure",
+          "Version": null,
+          "TargetVersions": null,
+          "RecommendedActionType": "UpgradePackage",
+          "Description": null,
+          "TextSpan": null,
+          "TargetCPU": null,
+          "TextChanges": null
+        }
+      ]
+    }
+  },
+  {
+    "PackageVersionPair": {
+      "PackageId": "Newtonsoft.Json",
+      "Version": "12.0.2",
+      "PackageSourceType": "NUGET"
+    },
+    "CompatibilityResults": {
+      "netcoreapp3.1": {
+        "Compatibility": "COMPATIBLE",
+        "CompatibleVersions": [
+          "12.0.3-beta1",
+          "12.0.3-beta2",
+          "12.0.3"
+        ]
+      }
+    },
+    "Recommendations": {
+      "RecommendedActions": [
+        {
+          "PackageId": "Newtonsoft.Json",
+          "Version": null,
+          "TargetVersions": null,
+          "RecommendedActionType": "UpgradePackage",
+          "Description": "12.0.3-beta1",
+          "TextSpan": null,
+          "TargetCPU": null,
+          "TextChanges": null
+        }
+      ]
+    }
+  },
+  {
+    "PackageVersionPair": {
+      "PackageId": "Modernizr",
+      "Version": "2.8.3",
+      "PackageSourceType": "NUGET"
+    },
+    "CompatibilityResults": {
+      "netcoreapp3.1": {
+        "Compatibility": "COMPATIBLE",
+        "CompatibleVersions": []
+      }
+    },
+    "Recommendations": {
+      "RecommendedActions": [
+        {
+          "PackageId": "Modernizr",
+          "Version": null,
+          "TargetVersions": null,
+          "RecommendedActionType": "UpgradePackage",
+          "Description": null,
+          "TextSpan": null,
+          "TargetCPU": null,
+          "TextChanges": null
+        }
+      ]
+    }
+  },
+  {
+    "PackageVersionPair": {
+      "PackageId": "WebGrease",
+      "Version": "1.6.0",
+      "PackageSourceType": "NUGET"
+    },
+    "CompatibilityResults": {
+      "netcoreapp3.1": {
+        "Compatibility": "INCOMPATIBLE",
+        "CompatibleVersions": []
+      }
+    },
+    "Recommendations": {
+      "RecommendedActions": [
+        {
+          "PackageId": "WebGrease",
+          "Version": null,
+          "TargetVersions": null,
+          "RecommendedActionType": "UpgradePackage",
+          "Description": null,
+          "TextSpan": null,
+          "TargetCPU": null,
+          "TextChanges": null
+        }
+      ]
+    }
+  },
+  {
+    "PackageVersionPair": {
+      "PackageId": "jQuery.Validation",
+      "Version": "1.17.0",
+      "PackageSourceType": "NUGET"
+    },
+    "CompatibilityResults": {
+      "netcoreapp3.1": {
+        "Compatibility": "COMPATIBLE",
+        "CompatibleVersions": [
+          "1.19.1",
+          "1.19.2"
+        ]
+      }
+    },
+    "Recommendations": {
+      "RecommendedActions": [
+        {
+          "PackageId": "jQuery.Validation",
+          "Version": null,
+          "TargetVersions": null,
+          "RecommendedActionType": "UpgradePackage",
+          "Description": "1.19.1",
+          "TextSpan": null,
+          "TargetCPU": null,
+          "TextChanges": null
+        }
+      ]
+    }
+  },
+  {
+    "PackageVersionPair": {
+      "PackageId": "Microsoft.AspNet.Mvc",
+      "Version": "5.2.7",
+      "PackageSourceType": "NUGET"
+    },
+    "CompatibilityResults": {
+      "netcoreapp3.1": {
+        "Compatibility": "INCOMPATIBLE",
+        "CompatibleVersions": []
+      }
+    },
+    "Recommendations": {
+      "RecommendedActions": [
+        {
+          "PackageId": "Microsoft.AspNet.Mvc",
+          "Version": null,
+          "TargetVersions": null,
+          "RecommendedActionType": "UpgradePackage",
+          "Description": null,
+          "TextSpan": null,
+          "TargetCPU": null,
+          "TextChanges": null
+        }
+      ]
+    }
+  },
+  {
+    "PackageVersionPair": {
+      "PackageId": "Microsoft.AspNet.Razor",
+      "Version": "3.2.7",
+      "PackageSourceType": "NUGET"
+    },
+    "CompatibilityResults": {
+      "netcoreapp3.1": {
+        "Compatibility": "INCOMPATIBLE",
+        "CompatibleVersions": []
+      }
+    },
+    "Recommendations": {
+      "RecommendedActions": [
+        {
+          "PackageId": "Microsoft.AspNet.Razor",
+          "Version": null,
+          "TargetVersions": null,
+          "RecommendedActionType": "UpgradePackage",
+          "Description": null,
+          "TextSpan": null,
+          "TargetCPU": null,
+          "TextChanges": null
+        }
+      ]
+    }
+  },
+  {
+    "PackageVersionPair": {
+      "PackageId": "Microsoft.AspNet.Web.Optimization",
+      "Version": "1.1.3",
+      "PackageSourceType": "NUGET"
+    },
+    "CompatibilityResults": {
+      "netcoreapp3.1": {
+        "Compatibility": "INCOMPATIBLE",
+        "CompatibleVersions": []
+      }
+    },
+    "Recommendations": {
+      "RecommendedActions": [
+        {
+          "PackageId": "Microsoft.AspNet.Web.Optimization",
+          "Version": null,
+          "TargetVersions": null,
+          "RecommendedActionType": "UpgradePackage",
+          "Description": null,
+          "TextSpan": null,
+          "TargetCPU": null,
+          "TextChanges": null
+        }
+      ]
+    }
+  },
+  {
+    "PackageVersionPair": {
+      "PackageId": "Microsoft.AspNet.WebPages",
+      "Version": "3.2.7",
+      "PackageSourceType": "NUGET"
+    },
+    "CompatibilityResults": {
+      "netcoreapp3.1": {
+        "Compatibility": "INCOMPATIBLE",
+        "CompatibleVersions": []
+      }
+    },
+    "Recommendations": {
+      "RecommendedActions": [
+        {
+          "PackageId": "Microsoft.AspNet.WebPages",
+          "Version": null,
+          "TargetVersions": null,
+          "RecommendedActionType": "UpgradePackage",
+          "Description": null,
+          "TextSpan": null,
+          "TargetCPU": null,
+          "TextChanges": null
+        }
+      ]
+    }
+  }
+]

@@ -18,12 +18,14 @@
     <PackageReference Include="nunit" Version="3.13.2" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0" />
+	<PackageReference Include="JsonDiffPatch.Net" Version="2.3.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\PortingAssistant.Client.Common\PortingAssistant.Client.Common.csproj" />
     <ProjectReference Include="..\..\src\PortingAssistant.Client.Client\PortingAssistant.Client.Client.csproj" />
+	  <ProjectReference Include="..\..\src\PortingAssistant.Client\PortingAssistant.Client.CLI.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -37,6 +39,15 @@
     <None Update="TestProjects\NetFrameworkExample.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+	<None Update="TestProjects\NetFrameworkExample-ported.zip">
+		<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="TestProjects\NetFrameworkExample-analyze\NetFrameworkExample-api-analysis.json">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="TestProjects\NetFrameworkExample-analyze\NetFrameworkExample-package-analysis.json">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
   </ItemGroup>
 
   <ItemGroup>
