@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package awsassessmentanalysis;
+
+option java_package = "com.amazon.awsassessment.analysis";
+option csharp_namespace = "com.amazon.awsassessment.analysis.io";
+
+import "V2.proto";
+
+message SourceCodeAnalyzerInput {
+  oneof content {
+    SourceCodeAnalyzerInputV2 inputV2 = 1;
+  }
+}
+
+message SourceCodeAnalyzerOutput {
+  oneof content {
+    SourceCodeAnalyzerOutputV2 outputV2 = 1;
+  }
+}
+
+message ResourceAnalyzerInput {
+  oneof content {
+    ResourceAnalyzerInputV2 inputV2 = 1;
+  }
+}
+
+message ResourceAnalyzerOutput {
+  oneof content {
+    ResourceAnalyzerOutputV2 outputV2 = 1;
+  }
+}

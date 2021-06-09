@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using PortingAssistant.Client.Client;
@@ -36,7 +37,8 @@ namespace PortingAssistant.Client.CLI
                 analyzeResults.Wait();
                 if (analyzeResults.IsCompletedSuccessfully)
                 {
-                    reportExporter.GenerateJsonReport(analyzeResults.Result, cli.OutputPath);
+                    //reportExporter.GenerateJsonReport(analyzeResults.Result, cli.OutputPath);
+                    reportExporter.GenerateProtoReport(analyzeResults.Result, Path.Combine(cli.OutputPath, "test.data"));
                 }
                 else
                 {

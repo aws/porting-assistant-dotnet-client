@@ -1,0 +1,248 @@
+syntax = "proto3";
+
+package awsassessmentanalysis;
+
+option java_package = "com.amazon.awsassessment.analysis";
+option csharp_namespace = "com.amazon.awsassessment.analysis.v2";
+
+message SourceCodeAnalyzerInputV2 {
+  string absoluteProjectFilePath = 1;                               // [Required] The absolute file path of the project being analyzed.
+  string absoluteOutputFilePath = 2;                                // [Required] The absolute file path for the analysis output.
+  string absoluteOutputInsightsFilePath = 3;                        // [Required] The absolute file path for the analysis insights output.
+  repeated SourceCodeAnalyzerInputEntry metadataEntries = 4;        // [Optional] List of metadata entries.
+
+  message SourceCodeAnalyzerInputEntry {
+    SourceCodeAnalyzerInputKey key = 1;
+    ObjectType type = 2;                        // [Required] Object, Array, Map
+    string name = 3;                            // Name associated in case of Map
+    string value = 4;                           // [Required] Value associated with this entry
+    string delimiter = 5;                       // Used to concatenate elements into the `value` string in case of array.
+    string context = 6;                         // [Optional] Used to represent hierarchical data
+
+    enum SourceCodeAnalyzerInputKey {
+      DEFAULT_SOURCE_CODE_ANALYZER_INPUT_KEY = 0;   // We do not use this, as default values are omitted in certain languages.
+      ABSOLUTE_CONFIG_FILE_PATH = 1;                // Absolute file path for any config settings needed by the analyzer.
+      ABSOLUTE_ANTIPATTERN_FILE_PATH = 2;           // Absolute file path which contains all the antipatterns needed by the analyzer.
+      CONNECTOR_VERSION = 3;                        // The version of the connector that's sending in the request.
+    }
+  }
+}
+
+message SourceCodeAnalyzerOutputV2 {
+  AnalyzerId id = 1;                                            // [Optional] Unique ID assigned to each analyzer. Ex: "PortingAssistant"
+  Status status = 2;                                            // [Required] The status of their current analysis output.
+  SourceCodeAnalyzerSummary summary = 3;                        // [Required] The summary of the current analysis data.
+  repeated AntipatternInstance instances = 4;                   // [Optional] List of antipatterns found during code analysis.
+  repeated SourceCodeAnalyzerOutputEntry metadataEntries = 5;   // [Optional] List of metadata entries.
+
+  message AnalyzerId {
+    string value = 1;
+  }
+
+  message SourceCodeAnalyzerSummary {
+    ProgrammingLanguage language = 1;                       // [Required] Programming language.
+    int32 numberOfLines = 2;                                // [Optional] Number of lines analyzed.
+    int32 numberOfClasses = 3;                              // [Optional] Number of classes analyzed.
+    int32 numberOfFiles = 4;                                // [Optional] Number of files in the application.
+    int32 numberOfMethods = 5;                              // [Optional] Number of methods in the application.
+    int32 numberOfImports = 6;                              // [Optional] Number of imports in the application.
+  }
+
+  message SourceCodeAnalyzerOutputEntry {
+    SourceCodeAnalyzerOutputKey key = 1;                  // [Required] Key identifying this entry
+    ObjectType type = 2;                            // [Required] Object, Array, Map
+    string name = 3;                                // Name associated in case of Map
+    string value = 4;                               // [Required] Value associated with this entry
+    string delimiter = 5;                           // Used to concatenate elements into the `value` string in case of array.
+    string context = 6;                             // [Optional] Used to represent hierarchical data
+
+    enum SourceCodeAnalyzerOutputKey {
+      DEFAULT_SOURCE_CODE_ANALYZER_OUTPUT_KEY = 0;  // We do not use this, as default values are omitted in certain languages.
+      ANALYSIS_ID = 1;                              // [Optional] Unique Identifier for this analysis run.
+      ANALYZER_VERSION = 2;                         // [Optional] The version of the analyzer generating this payload.
+    }
+  }
+}
+
+message ResourceAnalyzerInputV2 {
+  string absoluteOutputFilePath = 1;                        // [Required] The absolute file path for the analysis output.
+  string absoluteOutputInsightsFilePath = 2;                // [Required] The absolute file path for the analysis insights output.
+  repeated ResourceAnalyzerInputEntry metadataEntries = 3;  // [Optional] List of metadata entries.
+
+  message ResourceAnalyzerInputEntry {
+    ResourceAnalyzerInputKey key = 1;
+    ObjectType type = 2;                        // [Required] Object, Array, Map
+    string name = 3;                            // Name associated in case of Map
+    string value = 4;                           // [Required] Value associated with this entry
+    string delimiter = 5;                       // Used to concatenate elements into the `value` string in case of array.
+    string context = 6;                         // [Optional] Used to represent hierarchical data
+
+    enum ResourceAnalyzerInputKey {
+      DEFAULT_RUNTIME_ANALYZER_INPUT_KEY = 0;   // We do not use this, as default values are omitted in certain languages.
+      ABSOLUTE_CONFIG_FILE_PATH = 1;            // Absolute file path for any config settings needed by the analyzer.
+      CONNECTOR_VERSION = 2;                    // The version of the connector that's sending in the request.
+      APPLICATION_ID = 3;                       // The application ID being analyzed.
+      SERVER_ID = 4;                            // The server ID being analyzed.
+    }
+  }
+}
+
+message ResourceAnalyzerOutputV2 {
+  Status status = 1;                                          // [Required] Status of the analysis response.
+  repeated AntipatternInstance instances = 2;                 // [Optional] For analyzers to send antipatterns.
+  repeated ResourceAnalyzerOutputEntry metadataEntries = 3;   // [Required] Analyzer results as metadata entries.
+
+  message ResourceAnalyzerOutputEntry {
+    ResourceAnalyzerOutputKey key = 1;           // [Required] Key identifying this entry
+    ObjectType type = 2;                        // [Required] Object, Array, Map
+    string name = 3;                            // Name associated in case of Map
+    string value = 4;                           // [Required] Value associated with this entry
+    string delimiter = 5;                       // Used to concatenate elements into the `value` string in case of array.
+    string context = 6;                         // [Optional] Used to represent hierarchical data
+
+    // Keys identifying the data entries to be passed in from analyzers.
+    enum ResourceAnalyzerOutputKey {
+      DEFAULT_RESOURCE_ANALYZER_OUTPUT_KEY = 0;  // We do not use this, as default values are omitted in certain languages.
+      APPLICATION_ID = 1;
+      APPLICATION_TYPE = 2;
+      APPLICATION_NAME = 3;
+      PROCESS_ID = 4;
+      JDK_VERSION = 5;
+      USER_ID = 6;
+      GROUP_ID = 7;
+      COMMANDS = 8;
+      OS_NAME = 9;
+      OS_NAME_PRETTY = 10;
+      OS_VERSION = 11;
+      OS_VERSION_PRETTY = 12;
+      TCP_PORT = 13;
+      UDP_PORT = 14;
+      APPLICATION_PROPERTY = 15;
+      ENVIRONMENT_VARIABLE = 16;
+      FILE_DESCRIPTOR = 17;
+      DEPENDENCY_LIST = 18;
+      DEPENDENCY = 19;
+      RUNTIME_ID = 20;
+      OS_TYPE = 21;
+      APP_ARCHITECTURE = 22;
+      DISK_PARITION_STYLE = 23;
+      APP_OS_DRIVER = 24;
+      OS_VERSION_MAJOR = 25;
+      OS_VERSION_MINOR = 26;
+      OS_VERSION_BUILD_NUMBER = 27;
+      OS_SERVICE_PACK = 28;
+      FILE_SYSTEM_TYPE = 29;
+      CPU_COUNT = 30;
+      CPU_SPEED = 31;
+      CPU_ARCHITECTURE = 32;
+      KERNEL_FULL_VERSION = 33;
+      KERNEL_MAJOR_VERSION = 34;
+      KERNEL_MINOR_VERSION = 35;
+      KERNEL_PATCH_VERSION = 36;
+      KERNEL_SUFFIX = 37;
+      BOOTABLE_MBR = 38;
+      GRUB_BOOTLADER = 39;
+      TOTAL_NETWORK_INTERFACES = 40;
+      VOLUME_SIZE = 41;
+      VOLUME_FREE_SPACE = 42;
+      APPLICATION_GUID = 43;
+      DLL_LIST = 44;
+      IP_TYPE = 45;
+      ROOT_VOLUME_SIZE = 46;
+      ROOT_VOLUME_FREE_SPACE = 47;
+      ROOT_FILE_SYSTEM_TYPE = 48;
+      APPLICATION_COMMAND_LINE_ARGUMENTS = 49;
+      APPLICATION_DESCRIPTION = 50;
+      APPLICATION_EXE_PATH = 51;
+      APPLICATION_CAPTION = 52;
+      APPLICATION_VERSION = 53;
+      OS_DOT_NET_FRAMEWORK_VERSION_LATEST = 54;
+      DATABASE_TYPE = 55;
+      DATABASE_VERSION = 56;
+      DATABASE_EDITION = 57;
+      DATABASE_NAME = 58;
+      DATABASE_FULL_VERSION = 59;
+      DATABASE_MAJOR_VERSION = 60;
+      DATABASE_MINOR_VERSION = 61;
+      DATABASE_PATCH_VERSION = 62;
+      DATABASE_SUFFIX = 63;
+      ANALYZER_VERSION = 64;
+      SUMMARY_DATA_MAP = 65;
+      SOURCE_DATABASE = 66;
+      TARGET_DATABASE = 67;
+    }
+  }
+}
+
+// Metrics collected during analysis.
+message Insights {
+  repeated InsightsObject absoluteMetricObjects = 1;    // [Optional] List of metric resource paths to be consumed and uploaded by Optimus.
+  repeated InsightsObject absoluteLogObjects = 2;       // [Optional] List of log resource paths to be consumed and uploaded by Optimus.
+
+  message InsightsObject {
+    string absoluteObjectPath = 1;
+    InsightsObjectType objectType = 2;
+
+    enum InsightsObjectType {
+      DEFAULT_INSIGHTS_OBJECT_TYPE = 0;
+      FOLDER = 1;
+      FILE = 2;
+    }
+  }
+}
+
+enum AntipatternType {
+  DEFAULT_ANTIPATTERN_TYPE = 0;
+  SOURCE_CODE_ANALYSIS_ANTIPATTERN = 1;
+  RESOURCE_ANALYSIS_ANTIPATTERN = 2;
+}
+
+message AntipatternLocation {
+  string resourceName = 1;            // [Required] The name of the resource where the antipattern exists.
+  int32 startCharPosition = 2;        // [Optional] The starting character position within the resource denoting the antipattern.
+  int32 endCharPosition = 3;          // [Optional] The ending character position within the resource denoting the antipattern.
+  int32 startLinePosition = 4;        // [Optional] The starting line position within the resource denoting the antipattern.
+  int32 endLinePosition = 5;          // [Optional] The ending line position within the resource denoting the antipattern.
+}
+
+enum Severity {
+  DEFAULT_SEVERITY = 0;
+  LOW = 1;
+  MEDIUM = 2;
+  CRITICAL = 3;
+}
+
+message AntipatternInstance {
+  string antipatternName  = 1;                           // [Required] A name describing the antipattern.
+  AntipatternType antipatternType = 2;                   // [Required] A type describing the antipattern. Ex: Source Code, Runtime, etc.
+  repeated AntipatternDetails antipatternDetails = 3;    // [Required] An object describing the properties of this antipattern instance.
+
+  message AntipatternDetails {
+    AntipatternLocation antipatternLocation = 1;  // [Required] The location of the antipattern.
+    Severity severity = 2;                        // [Optional] Analyzers may choose to provide feedback on the severity of fixing this antipattern instance.
+    Recommendation recommendation = 3;            // [Optional] Analyzers may choose to provide a recommendation of steps to take in order to fix this antipattern instance.
+  }
+
+  message Recommendation {
+    string description = 1;
+  }
+}
+
+enum Status {
+  DEFAULT_STATUS = 0;         // We do not use this, as default values are omitted in certain languages.
+  SUCCESS = 1;
+  FAILURE = 2;
+}
+
+enum ObjectType {
+  DEFAULT_OBJECT_TYPE = 0;    // We do not use this, as default values are omitted in certain languages.
+  OBJECT = 1;                 // An object with key/value.
+  LIST = 2;                   // A list with key/value/delimiter.
+  MAP = 3;                    // A map with key/name/value.
+}
+
+enum ProgrammingLanguage {
+  DEFAULT_LANGUAGE = 0;       // We do not use this, as default values are omitted in certain languages.
+  JAVA = 1;
+  CSHARP = 2;
+}
