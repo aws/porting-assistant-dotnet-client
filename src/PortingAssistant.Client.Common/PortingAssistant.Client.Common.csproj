@@ -8,7 +8,7 @@
     <Folder Include="Utils\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="CTA.Rules.PortCore" Version="1.7.22-alpha-ga9389cf2cf" />
+    <PackageReference Include="CTA.Rules.PortCore" Version="1.7.46" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="NuGet.Protocol" Version="5.9.1" />
     <PackageReference Include="semver" Version="2.0.6" />
