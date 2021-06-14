@@ -62,17 +62,14 @@ namespace PortingAssistant.Client.Client.Reports
                     projectAnalysResult.PackageAnalysisResults.ToList()
                     .ForEach(p =>
                     {
-                        p.Value.ContinueWith(result =>
+                        if (p.Value.IsCompletedSuccessfully)
                         {
-                            if (result.IsCompletedSuccessfully)
-                            {
-                                packageAnalysisResults.Add(result.Result);
-                            }
-                            else
-                            {
-                                packageAnalysisResultErrors.Add(p.Key, result.Exception.Message);
-                            }
-                        });
+                            packageAnalysisResults.Add(p.Value.Result);
+                        }
+                        else
+                        {
+                            packageAnalysisResultErrors.Add(p.Key, p.Value.Exception.Message);
+                        };
                     });
 
                     //project apis analsis result
