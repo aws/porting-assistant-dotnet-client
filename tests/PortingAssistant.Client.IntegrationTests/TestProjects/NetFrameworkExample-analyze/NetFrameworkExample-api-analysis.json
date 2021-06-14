@@ -452,7 +452,7 @@
           ],
           "TextChanges": [
             {
-              "NewText": "using Microsoft.AspNetCore.Mvc;\r\n",
+              "NewText": "using Microsoft.AspNetCore.Mvc;\r\n\r\nnamespace NetFrameworkExample\r\n{\r\n    public class FilterConfig\r\n    {\r\n        public static void RegisterGlobalFilters(GlobalFilterCollection filters)\r\n        {\r\n            filters.Add(new HandleErrorAttribute());\r\n        }\r\n    }\r\n}",
               "FileLinePositionSpan": {
                 "Path": "C:\\Users\\Administrator\\Documents\\workplace\\test-project\\NetFrameworkExample\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\FilterConfig.cs",
                 "HasMappedPath": false,
@@ -461,7 +461,7 @@
                   "Character": 0
                 },
                 "EndLinePosition": {
-                  "Line": 2,
+                  "Line": 13,
                   "Character": 0
                 },
                 "Span": {
@@ -470,7 +470,7 @@
                     "Character": 0
                   },
                   "End": {
-                    "Line": 2,
+                    "Line": 13,
                     "Character": 0
                   }
                 },
@@ -478,25 +478,25 @@
               }
             },
             {
-              "NewText": "",
+              "NewText": "using Microsoft.AspNetCore.Mvc;\r\n\r\nnamespace NetFrameworkExample\r\n{\r\n    public class MvcApplication : System.Web.HttpApplication\r\n    {\r\n        protected void Application_Start()\r\n        {\r\n            AreaRegistration.RegisterAllAreas();\r\n            FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);\r\n            RouteConfig.RegisterRoutes(RouteTable.Routes);\r\n            BundleConfig.RegisterBundles(BundleTable.Bundles);\r\n        }\r\n    }\r\n}",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\Administrator\\Documents\\workplace\\test-project\\NetFrameworkExample\\NetFrameworkExample\\NetFrameworkExample\\Controllers\\HomeController.cs",
+                "Path": "C:\\Users\\Administrator\\Documents\\workplace\\test-project\\NetFrameworkExample\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
                 "HasMappedPath": false,
                 "StartLinePosition": {
-                  "Line": 4,
+                  "Line": 7,
                   "Character": 0
                 },
                 "EndLinePosition": {
-                  "Line": 5,
+                  "Line": 21,
                   "Character": 0
                 },
                 "Span": {
                   "Start": {
-                    "Line": 4,
+                    "Line": 7,
                     "Character": 0
                   },
                   "End": {
-                    "Line": 5,
+                    "Line": 21,
                     "Character": 0
                   }
                 },
@@ -504,7 +504,7 @@
               }
             },
             {
-              "NewText": "",
+              "NewText": "\r\nnamespace NetFrameworkExample\r\n{\r\n    public class FilterConfig\r\n    {\r\n        public static void RegisterGlobalFilters(GlobalFilterCollection filters)\r\n        {\r\n            filters.Add(new HandleErrorAttribute());\r\n        }\r\n    }\r\n}",
               "FileLinePositionSpan": {
                 "Path": "C:\\Users\\Administrator\\Documents\\workplace\\test-project\\NetFrameworkExample\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\FilterConfig.cs",
                 "HasMappedPath": false,
@@ -513,7 +513,7 @@
                   "Character": 0
                 },
                 "EndLinePosition": {
-                  "Line": 2,
+                  "Line": 13,
                   "Character": 0
                 },
                 "Span": {
@@ -522,7 +522,7 @@
                     "Character": 0
                   },
                   "End": {
-                    "Line": 2,
+                    "Line": 13,
                     "Character": 0
                   }
                 },
@@ -530,7 +530,33 @@
               }
             },
             {
-              "NewText": "",
+              "NewText": "\r\nnamespace NetFrameworkExample.Controllers\r\n{\r\n    public class HomeController : Controller\r\n    {\r\n        public ActionResult Index()\r\n        {\r\n            return View();\r\n        }\r\n\r\n        public ActionResult About()\r\n        {\r\n            ViewBag.Message = \"Your application description page.\";\r\n            return View();\r\n        }\r\n\r\n        public ActionResult Contact()\r\n        {\r\n            ViewBag.Message = \"Your contact page.\";",
+              "FileLinePositionSpan": {
+                "Path": "C:\\Users\\Administrator\\Documents\\workplace\\test-project\\NetFrameworkExample\\NetFrameworkExample\\NetFrameworkExample\\Controllers\\HomeController.cs",
+                "HasMappedPath": false,
+                "StartLinePosition": {
+                  "Line": 4,
+                  "Character": 0
+                },
+                "EndLinePosition": {
+                  "Line": 25,
+                  "Character": 0
+                },
+                "Span": {
+                  "Start": {
+                    "Line": 4,
+                    "Character": 0
+                  },
+                  "End": {
+                    "Line": 25,
+                    "Character": 0
+                  }
+                },
+                "IsValid": true
+              }
+            },
+            {
+              "NewText": "Optimization;\r\nusing System.Web.Routing;\r\n\r\nnamespace NetFrameworkExample\r\n{\r\n    public class MvcApplication : System.Web.HttpApplication\r\n    {\r\n        protected void Application_Start()\r\n        {\r\n            AreaRegistration.RegisterAllAreas();\r\n            FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);\r\n            RouteConfig.RegisterRoutes(RouteTable.Routes);\r\n            BundleConfig.RegisterBundles(BundleTable.Bundles);\r\n        }\r\n    }\r\n}",
               "FileLinePositionSpan": {
                 "Path": "C:\\Users\\Administrator\\Documents\\workplace\\test-project\\NetFrameworkExample\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
                 "HasMappedPath": false,
@@ -539,8 +565,8 @@
                   "Character": 17
                 },
                 "EndLinePosition": {
-                  "Line": 5,
-                  "Character": 17
+                  "Line": 21,
+                  "Character": 0
                 },
                 "Span": {
                   "Start": {
@@ -548,15 +574,15 @@
                     "Character": 17
                   },
                   "End": {
-                    "Line": 5,
-                    "Character": 17
+                    "Line": 21,
+                    "Character": 0
                   }
                 },
                 "IsValid": true
               }
             },
             {
-              "NewText": "",
+              "NewText": "Routing;\r\n\r\nnamespace NetFrameworkExample\r\n{\r\n    public class RouteConfig\r\n    {\r\n        public static void RegisterRoutes(RouteCollection routes)\r\n        {\r\n            routes.IgnoreRoute(\"{resource}.axd/{*pathInfo}\");\r\n            routes.MapRoute(name: \"Default\", url: \"{controller}/{action}/{id}\", defaults: new\r\n            {\r\n            controller = \"Home\", action = \"Index\", id = UrlParameter.Optional\r\n            }\r\n\r\n            );\r\n        }\r\n    }\r\n}",
               "FileLinePositionSpan": {
                 "Path": "C:\\Users\\Administrator\\Documents\\workplace\\test-project\\NetFrameworkExample\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\RouteConfig.cs",
                 "HasMappedPath": false,
@@ -565,8 +591,8 @@
                   "Character": 17
                 },
                 "EndLinePosition": {
-                  "Line": 5,
-                  "Character": 17
+                  "Line": 23,
+                  "Character": 0
                 },
                 "Span": {
                   "Start": {
@@ -574,8 +600,8 @@
                     "Character": 17
                   },
                   "End": {
-                    "Line": 5,
-                    "Character": 17
+                    "Line": 23,
+                    "Character": 0
                   }
                 },
                 "IsValid": true
@@ -637,7 +663,7 @@
             "TextSpan": {
               "StartCharPosition": 13,
               "EndCharPosition": 14,
-              "StartLinePosition": 15,
+              "StartLinePosition": 16,
               "EndLinePosition": 20
             },
             "Package": {
@@ -684,7 +710,7 @@
           ],
           "TextChanges": [
             {
-              "NewText": "using Microsoft.AspNetCore.Mvc;\r\n",
+              "NewText": "using Microsoft.AspNetCore.Mvc;\r\n\r\nnamespace NetFrameworkExample\r\n{\r\n    public class FilterConfig\r\n    {\r\n        public static void RegisterGlobalFilters(GlobalFilterCollection filters)\r\n        {\r\n            filters.Add(new HandleErrorAttribute());\r\n        }\r\n    }\r\n}",
               "FileLinePositionSpan": {
                 "Path": "C:\\Users\\Administrator\\Documents\\workplace\\test-project\\NetFrameworkExample\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\FilterConfig.cs",
                 "HasMappedPath": false,
@@ -693,7 +719,7 @@
                   "Character": 0
                 },
                 "EndLinePosition": {
-                  "Line": 2,
+                  "Line": 13,
                   "Character": 0
                 },
                 "Span": {
@@ -702,7 +728,7 @@
                     "Character": 0
                   },
                   "End": {
-                    "Line": 2,
+                    "Line": 13,
                     "Character": 0
                   }
                 },
@@ -710,25 +736,25 @@
               }
             },
             {
-              "NewText": "",
+              "NewText": "using Microsoft.AspNetCore.Mvc;\r\n\r\nnamespace NetFrameworkExample\r\n{\r\n    public class MvcApplication : System.Web.HttpApplication\r\n    {\r\n        protected void Application_Start()\r\n        {\r\n            AreaRegistration.RegisterAllAreas();\r\n            FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);\r\n            RouteConfig.RegisterRoutes(RouteTable.Routes);\r\n            BundleConfig.RegisterBundles(BundleTable.Bundles);\r\n        }\r\n    }\r\n}",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\Administrator\\Documents\\workplace\\test-project\\NetFrameworkExample\\NetFrameworkExample\\NetFrameworkExample\\Controllers\\HomeController.cs",
+                "Path": "C:\\Users\\Administrator\\Documents\\workplace\\test-project\\NetFrameworkExample\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
                 "HasMappedPath": false,
                 "StartLinePosition": {
-                  "Line": 4,
+                  "Line": 7,
                   "Character": 0
                 },
                 "EndLinePosition": {
-                  "Line": 5,
+                  "Line": 21,
                   "Character": 0
                 },
                 "Span": {
                   "Start": {
-                    "Line": 4,
+                    "Line": 7,
                     "Character": 0
                   },
                   "End": {
-                    "Line": 5,
+                    "Line": 21,
                     "Character": 0
                   }
                 },
@@ -736,7 +762,7 @@
               }
             },
             {
-              "NewText": "",
+              "NewText": "\r\nnamespace NetFrameworkExample\r\n{\r\n    public class FilterConfig\r\n    {\r\n        public static void RegisterGlobalFilters(GlobalFilterCollection filters)\r\n        {\r\n            filters.Add(new HandleErrorAttribute());\r\n        }\r\n    }\r\n}",
               "FileLinePositionSpan": {
                 "Path": "C:\\Users\\Administrator\\Documents\\workplace\\test-project\\NetFrameworkExample\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\FilterConfig.cs",
                 "HasMappedPath": false,
@@ -745,7 +771,7 @@
                   "Character": 0
                 },
                 "EndLinePosition": {
-                  "Line": 2,
+                  "Line": 13,
                   "Character": 0
                 },
                 "Span": {
@@ -754,7 +780,7 @@
                     "Character": 0
                   },
                   "End": {
-                    "Line": 2,
+                    "Line": 13,
                     "Character": 0
                   }
                 },
@@ -762,7 +788,33 @@
               }
             },
             {
-              "NewText": "",
+              "NewText": "\r\nnamespace NetFrameworkExample.Controllers\r\n{\r\n    public class HomeController : Controller\r\n    {\r\n        public ActionResult Index()\r\n        {\r\n            return View();\r\n        }\r\n\r\n        public ActionResult About()\r\n        {\r\n            ViewBag.Message = \"Your application description page.\";\r\n            return View();\r\n        }\r\n\r\n        public ActionResult Contact()\r\n        {\r\n            ViewBag.Message = \"Your contact page.\";",
+              "FileLinePositionSpan": {
+                "Path": "C:\\Users\\Administrator\\Documents\\workplace\\test-project\\NetFrameworkExample\\NetFrameworkExample\\NetFrameworkExample\\Controllers\\HomeController.cs",
+                "HasMappedPath": false,
+                "StartLinePosition": {
+                  "Line": 4,
+                  "Character": 0
+                },
+                "EndLinePosition": {
+                  "Line": 25,
+                  "Character": 0
+                },
+                "Span": {
+                  "Start": {
+                    "Line": 4,
+                    "Character": 0
+                  },
+                  "End": {
+                    "Line": 25,
+                    "Character": 0
+                  }
+                },
+                "IsValid": true
+              }
+            },
+            {
+              "NewText": "Optimization;\r\nusing System.Web.Routing;\r\n\r\nnamespace NetFrameworkExample\r\n{\r\n    public class MvcApplication : System.Web.HttpApplication\r\n    {\r\n        protected void Application_Start()\r\n        {\r\n            AreaRegistration.RegisterAllAreas();\r\n            FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);\r\n            RouteConfig.RegisterRoutes(RouteTable.Routes);\r\n            BundleConfig.RegisterBundles(BundleTable.Bundles);\r\n        }\r\n    }\r\n}",
               "FileLinePositionSpan": {
                 "Path": "C:\\Users\\Administrator\\Documents\\workplace\\test-project\\NetFrameworkExample\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
                 "HasMappedPath": false,
@@ -771,8 +823,8 @@
                   "Character": 17
                 },
                 "EndLinePosition": {
-                  "Line": 5,
-                  "Character": 17
+                  "Line": 21,
+                  "Character": 0
                 },
                 "Span": {
                   "Start": {
@@ -780,15 +832,15 @@
                     "Character": 17
                   },
                   "End": {
-                    "Line": 5,
-                    "Character": 17
+                    "Line": 21,
+                    "Character": 0
                   }
                 },
                 "IsValid": true
               }
             },
             {
-              "NewText": "",
+              "NewText": "Routing;\r\n\r\nnamespace NetFrameworkExample\r\n{\r\n    public class RouteConfig\r\n    {\r\n        public static void RegisterRoutes(RouteCollection routes)\r\n        {\r\n            routes.IgnoreRoute(\"{resource}.axd/{*pathInfo}\");\r\n            routes.MapRoute(name: \"Default\", url: \"{controller}/{action}/{id}\", defaults: new\r\n            {\r\n            controller = \"Home\", action = \"Index\", id = UrlParameter.Optional\r\n            }\r\n\r\n            );\r\n        }\r\n    }\r\n}",
               "FileLinePositionSpan": {
                 "Path": "C:\\Users\\Administrator\\Documents\\workplace\\test-project\\NetFrameworkExample\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\RouteConfig.cs",
                 "HasMappedPath": false,
@@ -797,8 +849,8 @@
                   "Character": 17
                 },
                 "EndLinePosition": {
-                  "Line": 5,
-                  "Character": 17
+                  "Line": 23,
+                  "Character": 0
                 },
                 "Span": {
                   "Start": {
@@ -806,8 +858,8 @@
                     "Character": 17
                   },
                   "End": {
-                    "Line": 5,
-                    "Character": 17
+                    "Line": 23,
+                    "Character": 0
                   }
                 },
                 "IsValid": true
@@ -869,8 +921,8 @@
             "TextSpan": {
               "StartCharPosition": 20,
               "EndCharPosition": 26,
-              "StartLinePosition": 19,
-              "EndLinePosition": 19
+              "StartLinePosition": 20,
+              "EndLinePosition": 20
             },
             "Package": {
               "PackageId": "System.Web.Mvc",
@@ -907,8 +959,8 @@
             "TextSpan": {
               "StartCharPosition": 20,
               "EndCharPosition": 26,
-              "StartLinePosition": 25,
-              "EndLinePosition": 25
+              "StartLinePosition": 27,
+              "EndLinePosition": 27
             },
             "Package": {
               "PackageId": "System.Web.Mvc",
@@ -954,7 +1006,7 @@
           ],
           "TextChanges": [
             {
-              "NewText": "using Microsoft.AspNetCore.Mvc;\r\n",
+              "NewText": "using Microsoft.AspNetCore.Mvc;\r\n\r\nnamespace NetFrameworkExample\r\n{\r\n    public class FilterConfig\r\n    {\r\n        public static void RegisterGlobalFilters(GlobalFilterCollection filters)\r\n        {\r\n            filters.Add(new HandleErrorAttribute());\r\n        }\r\n    }\r\n}",
               "FileLinePositionSpan": {
                 "Path": "C:\\Users\\Administrator\\Documents\\workplace\\test-project\\NetFrameworkExample\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\FilterConfig.cs",
                 "HasMappedPath": false,
@@ -963,7 +1015,7 @@
                   "Character": 0
                 },
                 "EndLinePosition": {
-                  "Line": 2,
+                  "Line": 13,
                   "Character": 0
                 },
                 "Span": {
@@ -972,7 +1024,7 @@
                     "Character": 0
                   },
                   "End": {
-                    "Line": 2,
+                    "Line": 13,
                     "Character": 0
                   }
                 },
@@ -980,25 +1032,25 @@
               }
             },
             {
-              "NewText": "",
+              "NewText": "using Microsoft.AspNetCore.Mvc;\r\n\r\nnamespace NetFrameworkExample\r\n{\r\n    public class MvcApplication : System.Web.HttpApplication\r\n    {\r\n        protected void Application_Start()\r\n        {\r\n            AreaRegistration.RegisterAllAreas();\r\n            FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);\r\n            RouteConfig.RegisterRoutes(RouteTable.Routes);\r\n            BundleConfig.RegisterBundles(BundleTable.Bundles);\r\n        }\r\n    }\r\n}",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\Administrator\\Documents\\workplace\\test-project\\NetFrameworkExample\\NetFrameworkExample\\NetFrameworkExample\\Controllers\\HomeController.cs",
+                "Path": "C:\\Users\\Administrator\\Documents\\workplace\\test-project\\NetFrameworkExample\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
                 "HasMappedPath": false,
                 "StartLinePosition": {
-                  "Line": 4,
+                  "Line": 7,
                   "Character": 0
                 },
                 "EndLinePosition": {
-                  "Line": 5,
+                  "Line": 21,
                   "Character": 0
                 },
                 "Span": {
                   "Start": {
-                    "Line": 4,
+                    "Line": 7,
                     "Character": 0
                   },
                   "End": {
-                    "Line": 5,
+                    "Line": 21,
                     "Character": 0
                   }
                 },
@@ -1006,7 +1058,7 @@
               }
             },
             {
-              "NewText": "",
+              "NewText": "\r\nnamespace NetFrameworkExample\r\n{\r\n    public class FilterConfig\r\n    {\r\n        public static void RegisterGlobalFilters(GlobalFilterCollection filters)\r\n        {\r\n            filters.Add(new HandleErrorAttribute());\r\n        }\r\n    }\r\n}",
               "FileLinePositionSpan": {
                 "Path": "C:\\Users\\Administrator\\Documents\\workplace\\test-project\\NetFrameworkExample\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\FilterConfig.cs",
                 "HasMappedPath": false,
@@ -1015,7 +1067,7 @@
                   "Character": 0
                 },
                 "EndLinePosition": {
-                  "Line": 2,
+                  "Line": 13,
                   "Character": 0
                 },
                 "Span": {
@@ -1024,7 +1076,7 @@
                     "Character": 0
                   },
                   "End": {
-                    "Line": 2,
+                    "Line": 13,
                     "Character": 0
                   }
                 },
@@ -1032,7 +1084,33 @@
               }
             },
             {
-              "NewText": "",
+              "NewText": "\r\nnamespace NetFrameworkExample.Controllers\r\n{\r\n    public class HomeController : Controller\r\n    {\r\n        public ActionResult Index()\r\n        {\r\n            return View();\r\n        }\r\n\r\n        public ActionResult About()\r\n        {\r\n            ViewBag.Message = \"Your application description page.\";\r\n            return View();\r\n        }\r\n\r\n        public ActionResult Contact()\r\n        {\r\n            ViewBag.Message = \"Your contact page.\";",
+              "FileLinePositionSpan": {
+                "Path": "C:\\Users\\Administrator\\Documents\\workplace\\test-project\\NetFrameworkExample\\NetFrameworkExample\\NetFrameworkExample\\Controllers\\HomeController.cs",
+                "HasMappedPath": false,
+                "StartLinePosition": {
+                  "Line": 4,
+                  "Character": 0
+                },
+                "EndLinePosition": {
+                  "Line": 25,
+                  "Character": 0
+                },
+                "Span": {
+                  "Start": {
+                    "Line": 4,
+                    "Character": 0
+                  },
+                  "End": {
+                    "Line": 25,
+                    "Character": 0
+                  }
+                },
+                "IsValid": true
+              }
+            },
+            {
+              "NewText": "Optimization;\r\nusing System.Web.Routing;\r\n\r\nnamespace NetFrameworkExample\r\n{\r\n    public class MvcApplication : System.Web.HttpApplication\r\n    {\r\n        protected void Application_Start()\r\n        {\r\n            AreaRegistration.RegisterAllAreas();\r\n            FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);\r\n            RouteConfig.RegisterRoutes(RouteTable.Routes);\r\n            BundleConfig.RegisterBundles(BundleTable.Bundles);\r\n        }\r\n    }\r\n}",
               "FileLinePositionSpan": {
                 "Path": "C:\\Users\\Administrator\\Documents\\workplace\\test-project\\NetFrameworkExample\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
                 "HasMappedPath": false,
@@ -1041,8 +1119,8 @@
                   "Character": 17
                 },
                 "EndLinePosition": {
-                  "Line": 5,
-                  "Character": 17
+                  "Line": 21,
+                  "Character": 0
                 },
                 "Span": {
                   "Start": {
@@ -1050,15 +1128,15 @@
                     "Character": 17
                   },
                   "End": {
-                    "Line": 5,
-                    "Character": 17
+                    "Line": 21,
+                    "Character": 0
                   }
                 },
                 "IsValid": true
               }
             },
             {
-              "NewText": "",
+              "NewText": "Routing;\r\n\r\nnamespace NetFrameworkExample\r\n{\r\n    public class RouteConfig\r\n    {\r\n        public static void RegisterRoutes(RouteCollection routes)\r\n        {\r\n            routes.IgnoreRoute(\"{resource}.axd/{*pathInfo}\");\r\n            routes.MapRoute(name: \"Default\", url: \"{controller}/{action}/{id}\", defaults: new\r\n            {\r\n            controller = \"Home\", action = \"Index\", id = UrlParameter.Optional\r\n            }\r\n\r\n            );\r\n        }\r\n    }\r\n}",
               "FileLinePositionSpan": {
                 "Path": "C:\\Users\\Administrator\\Documents\\workplace\\test-project\\NetFrameworkExample\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\RouteConfig.cs",
                 "HasMappedPath": false,
@@ -1067,8 +1145,8 @@
                   "Character": 17
                 },
                 "EndLinePosition": {
-                  "Line": 5,
-                  "Character": 17
+                  "Line": 23,
+                  "Character": 0
                 },
                 "Span": {
                   "Start": {
@@ -1076,8 +1154,8 @@
                     "Character": 17
                   },
                   "End": {
-                    "Line": 5,
-                    "Character": 17
+                    "Line": 23,
+                    "Character": 0
                   }
                 },
                 "IsValid": true
@@ -1148,7 +1226,7 @@
           ],
           "TextChanges": [
             {
-              "NewText": "using Microsoft.AspNetCore.Mvc;\r\n",
+              "NewText": "using Microsoft.AspNetCore.Mvc;\r\n\r\nnamespace NetFrameworkExample\r\n{\r\n    public class FilterConfig\r\n    {\r\n        public static void RegisterGlobalFilters(GlobalFilterCollection filters)\r\n        {\r\n            filters.Add(new HandleErrorAttribute());\r\n        }\r\n    }\r\n}",
               "FileLinePositionSpan": {
                 "Path": "C:\\Users\\Administrator\\Documents\\workplace\\test-project\\NetFrameworkExample\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\FilterConfig.cs",
                 "HasMappedPath": false,
@@ -1157,7 +1235,7 @@
                   "Character": 0
                 },
                 "EndLinePosition": {
-                  "Line": 2,
+                  "Line": 13,
                   "Character": 0
                 },
                 "Span": {
@@ -1166,7 +1244,7 @@
                     "Character": 0
                   },
                   "End": {
-                    "Line": 2,
+                    "Line": 13,
                     "Character": 0
                   }
                 },
@@ -1174,25 +1252,25 @@
               }
             },
             {
-              "NewText": "",
+              "NewText": "using Microsoft.AspNetCore.Mvc;\r\n\r\nnamespace NetFrameworkExample\r\n{\r\n    public class MvcApplication : System.Web.HttpApplication\r\n    {\r\n        protected void Application_Start()\r\n        {\r\n            AreaRegistration.RegisterAllAreas();\r\n            FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);\r\n            RouteConfig.RegisterRoutes(RouteTable.Routes);\r\n            BundleConfig.RegisterBundles(BundleTable.Bundles);\r\n        }\r\n    }\r\n}",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\Administrator\\Documents\\workplace\\test-project\\NetFrameworkExample\\NetFrameworkExample\\NetFrameworkExample\\Controllers\\HomeController.cs",
+                "Path": "C:\\Users\\Administrator\\Documents\\workplace\\test-project\\NetFrameworkExample\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
                 "HasMappedPath": false,
                 "StartLinePosition": {
-                  "Line": 4,
+                  "Line": 7,
                   "Character": 0
                 },
                 "EndLinePosition": {
-                  "Line": 5,
+                  "Line": 21,
                   "Character": 0
                 },
                 "Span": {
                   "Start": {
-                    "Line": 4,
+                    "Line": 7,
                     "Character": 0
                   },
                   "End": {
-                    "Line": 5,
+                    "Line": 21,
                     "Character": 0
                   }
                 },
@@ -1200,7 +1278,7 @@
               }
             },
             {
-              "NewText": "",
+              "NewText": "\r\nnamespace NetFrameworkExample\r\n{\r\n    public class FilterConfig\r\n    {\r\n        public static void RegisterGlobalFilters(GlobalFilterCollection filters)\r\n        {\r\n            filters.Add(new HandleErrorAttribute());\r\n        }\r\n    }\r\n}",
               "FileLinePositionSpan": {
                 "Path": "C:\\Users\\Administrator\\Documents\\workplace\\test-project\\NetFrameworkExample\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\FilterConfig.cs",
                 "HasMappedPath": false,
@@ -1209,7 +1287,7 @@
                   "Character": 0
                 },
                 "EndLinePosition": {
-                  "Line": 2,
+                  "Line": 13,
                   "Character": 0
                 },
                 "Span": {
@@ -1218,7 +1296,7 @@
                     "Character": 0
                   },
                   "End": {
-                    "Line": 2,
+                    "Line": 13,
                     "Character": 0
                   }
                 },
@@ -1226,7 +1304,33 @@
               }
             },
             {
-              "NewText": "",
+              "NewText": "\r\nnamespace NetFrameworkExample.Controllers\r\n{\r\n    public class HomeController : Controller\r\n    {\r\n        public ActionResult Index()\r\n        {\r\n            return View();\r\n        }\r\n\r\n        public ActionResult About()\r\n        {\r\n            ViewBag.Message = \"Your application description page.\";\r\n            return View();\r\n        }\r\n\r\n        public ActionResult Contact()\r\n        {\r\n            ViewBag.Message = \"Your contact page.\";",
+              "FileLinePositionSpan": {
+                "Path": "C:\\Users\\Administrator\\Documents\\workplace\\test-project\\NetFrameworkExample\\NetFrameworkExample\\NetFrameworkExample\\Controllers\\HomeController.cs",
+                "HasMappedPath": false,
+                "StartLinePosition": {
+                  "Line": 4,
+                  "Character": 0
+                },
+                "EndLinePosition": {
+                  "Line": 25,
+                  "Character": 0
+                },
+                "Span": {
+                  "Start": {
+                    "Line": 4,
+                    "Character": 0
+                  },
+                  "End": {
+                    "Line": 25,
+                    "Character": 0
+                  }
+                },
+                "IsValid": true
+              }
+            },
+            {
+              "NewText": "Optimization;\r\nusing System.Web.Routing;\r\n\r\nnamespace NetFrameworkExample\r\n{\r\n    public class MvcApplication : System.Web.HttpApplication\r\n    {\r\n        protected void Application_Start()\r\n        {\r\n            AreaRegistration.RegisterAllAreas();\r\n            FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);\r\n            RouteConfig.RegisterRoutes(RouteTable.Routes);\r\n            BundleConfig.RegisterBundles(BundleTable.Bundles);\r\n        }\r\n    }\r\n}",
               "FileLinePositionSpan": {
                 "Path": "C:\\Users\\Administrator\\Documents\\workplace\\test-project\\NetFrameworkExample\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
                 "HasMappedPath": false,
@@ -1235,8 +1339,8 @@
                   "Character": 17
                 },
                 "EndLinePosition": {
-                  "Line": 5,
-                  "Character": 17
+                  "Line": 21,
+                  "Character": 0
                 },
                 "Span": {
                   "Start": {
@@ -1244,15 +1348,15 @@
                     "Character": 17
                   },
                   "End": {
-                    "Line": 5,
-                    "Character": 17
+                    "Line": 21,
+                    "Character": 0
                   }
                 },
                 "IsValid": true
               }
             },
             {
-              "NewText": "",
+              "NewText": "Routing;\r\n\r\nnamespace NetFrameworkExample\r\n{\r\n    public class RouteConfig\r\n    {\r\n        public static void RegisterRoutes(RouteCollection routes)\r\n        {\r\n            routes.IgnoreRoute(\"{resource}.axd/{*pathInfo}\");\r\n            routes.MapRoute(name: \"Default\", url: \"{controller}/{action}/{id}\", defaults: new\r\n            {\r\n            controller = \"Home\", action = \"Index\", id = UrlParameter.Optional\r\n            }\r\n\r\n            );\r\n        }\r\n    }\r\n}",
               "FileLinePositionSpan": {
                 "Path": "C:\\Users\\Administrator\\Documents\\workplace\\test-project\\NetFrameworkExample\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\RouteConfig.cs",
                 "HasMappedPath": false,
@@ -1261,8 +1365,8 @@
                   "Character": 17
                 },
                 "EndLinePosition": {
-                  "Line": 5,
-                  "Character": 17
+                  "Line": 23,
+                  "Character": 0
                 },
                 "Span": {
                   "Start": {
@@ -1270,8 +1374,8 @@
                     "Character": 17
                   },
                   "End": {
-                    "Line": 5,
-                    "Character": 17
+                    "Line": 23,
+                    "Character": 0
                   }
                 },
                 "IsValid": true
