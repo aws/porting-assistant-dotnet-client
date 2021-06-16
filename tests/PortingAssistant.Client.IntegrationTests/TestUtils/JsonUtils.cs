@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using JsonDiffPatchDotNet;
 using System.Linq;
 
 namespace PortingAssistant.Client.IntegrationTests.TestUtils

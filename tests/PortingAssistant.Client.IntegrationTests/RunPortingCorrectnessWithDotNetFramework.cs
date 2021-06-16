@@ -9,6 +9,7 @@ namespace PortingAssistant.Client.IntegrationTests
 {
     public class RunPortingCorrectnessWithDotNetFrameworkTests
     {
+        private string testDirectoryRoot;
         private string tmpTestFixturePath;
         private string expectedPortedTestSolutionExtractionPath;
         private string actualTestSolutionExtractionPath;
@@ -17,6 +18,7 @@ namespace PortingAssistant.Client.IntegrationTests
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
+            testDirectoryRoot = TestContext.CurrentContext.TestDirectory;
             tmpTestFixturePath = Path.GetFullPath(Path.Combine(
                 Path.GetTempPath(),
                 Path.GetRandomFileName()));
@@ -28,7 +30,7 @@ namespace PortingAssistant.Client.IntegrationTests
             Directory.CreateDirectory(
                 expectedPortedTestSolutionExtractionPath);
             string expectedTestProjectZipPath = Path.Combine(
-                TestContext.CurrentContext.TestDirectory,
+                testDirectoryRoot,
                 "TestProjects",
                 "NetFrameworkExample-ported.zip");
             using (ZipArchive archive = ZipFile.Open(
@@ -39,11 +41,10 @@ namespace PortingAssistant.Client.IntegrationTests
             }
 
             // Extract the test project that will be ported during the test
-            actualTestSolutionExtractionPath = Path.Combine(
-                tmpTestFixturePath, "actual");
+            actualTestSolutionExtractionPath = tmpTestFixturePath;
             Directory.CreateDirectory(actualTestSolutionExtractionPath);
             string actualTestProjectZipPath = Path.Combine(
-                TestContext.CurrentContext.TestDirectory,
+                testDirectoryRoot,
                 "TestProjects",
                 "NetFrameworkExample.zip");
             using (ZipArchive archive = ZipFile.Open(
@@ -71,9 +72,10 @@ namespace PortingAssistant.Client.IntegrationTests
                 actualTestSolutionExtractionPath,
                 "NetFrameworkExample");
             string[] filesToIgnore = {
-                //Ignore PortSolutionResult.txt because it contains
-                //solution path which is different between baseline
-                //ported solution and actual test solution
+                //Ignore PortSolutionResult.txt and NetFrameworkExample.csproj
+                // because it contains solution path which is different between
+                // baseline ported solution and actual test solution
+                "NetFrameworkExample.csproj",
                 "PortSolutionResult.txt",
                 "NetFrameworkExample\\bin",
                 "NetFrameworkExample\\obj"
@@ -99,10 +101,11 @@ namespace PortingAssistant.Client.IntegrationTests
 
             ProcessStartInfo startInfo = new ProcessStartInfo(
                 "PortingAssistant.Client.CLI.exe");
-            startInfo.WorkingDirectory = TestContext.CurrentContext.TestDirectory;
+            startInfo.WorkingDirectory = testDirectoryRoot;
             startInfo.CreateNoWindow = false;
             startInfo.UseShellExecute = false;
             startInfo.RedirectStandardOutput = true;
+            startInfo.RedirectStandardError = true;
             startInfo.WindowStyle = ProcessWindowStyle.Hidden;
             startInfo.Arguments = "-s " + actualTestSolutionPath
                 + " " + "-o " + actualAnalysisResultRootDir
@@ -114,8 +117,8 @@ namespace PortingAssistant.Client.IntegrationTests
                 // Call WaitForExit and then the using statement will close.
                 using (Process exeProcess = Process.Start(startInfo))
                 {
-                    string output = exeProcess.StandardOutput.ReadToEnd();
-                    Console.WriteLine(output);
+                    Console.WriteLine(exeProcess.StandardOutput.ReadToEnd());
+                    Console.WriteLine(exeProcess.StandardError.ReadToEnd());
                     exeProcess.WaitForExit();
                 }
             }

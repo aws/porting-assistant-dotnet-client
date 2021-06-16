@@ -9,6 +9,7 @@ namespace PortingAssistant.Client.IntegrationTests
 {
     public class RunAnalysisCorrectnessWithDotNetFrameworkTests
     {
+        private string testDirectoryRoot;
         private string tmpTestProjectsExtractionPath;
         private string testSolutionPath;
         private string expectedAnalysisResultRootDir;
@@ -18,15 +19,16 @@ namespace PortingAssistant.Client.IntegrationTests
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
+            testDirectoryRoot = TestContext.CurrentContext.TestDirectory;
             expectedAnalysisResultRootDir = Path.Combine(
-                TestContext.CurrentContext.TestDirectory, "TestProjects");
+                testDirectoryRoot, "TestProjects");
 
             tmpTestProjectsExtractionPath = Path.GetFullPath(Path.Combine(
                 Path.GetTempPath(),
                 Path.GetRandomFileName()));
             Directory.CreateDirectory(tmpTestProjectsExtractionPath);
             string testProjectZipPath = Path.Combine(
-                TestContext.CurrentContext.TestDirectory,
+                testDirectoryRoot,
                 "TestProjects",
                 "NetFrameworkExample.zip");
             using (ZipArchive archive = ZipFile.Open(
@@ -51,20 +53,21 @@ namespace PortingAssistant.Client.IntegrationTests
         [Test]
         public void FrameworkProjectAnalysisProduceExpectedJsonResult()
         {
-            RunCLI();
+            RunCLIToAnalyzeSolution();
             Assert.IsTrue(Directory.Exists(Path.Combine(
                 actualAnalysisResultRootDir, "NetFrameworkExample-analyze")));
             CompareAnalysisResult();
         }
 
-        private void RunCLI()
+        private void RunCLIToAnalyzeSolution()
         {
             ProcessStartInfo startInfo = new ProcessStartInfo(
                 "PortingAssistant.Client.CLI.exe");
-            startInfo.WorkingDirectory = TestContext.CurrentContext.TestDirectory;
+            startInfo.WorkingDirectory = testDirectoryRoot;
             startInfo.CreateNoWindow = false;
             startInfo.UseShellExecute = false;
             startInfo.RedirectStandardOutput = true;
+            startInfo.RedirectStandardError = true;
             startInfo.WindowStyle = ProcessWindowStyle.Hidden;
             startInfo.Arguments = "-s " + testSolutionPath + " -o " + actualAnalysisResultRootDir;
 
@@ -74,8 +77,8 @@ namespace PortingAssistant.Client.IntegrationTests
                 // Call WaitForExit and then the using statement will close.
                 using (Process exeProcess = Process.Start(startInfo))
                 {
-                    string output = exeProcess.StandardOutput.ReadToEnd();
-                    Console.WriteLine(output);
+                    Console.WriteLine(exeProcess.StandardOutput.ReadToEnd());
+                    Console.WriteLine(exeProcess.StandardError.ReadToEnd());
                     exeProcess.WaitForExit();
                 }
             }
