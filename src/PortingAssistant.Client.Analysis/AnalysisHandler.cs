@@ -9,6 +9,7 @@ using Codelyzer.Analysis;
 using Codelyzer.Analysis.Common;
 using Codelyzer.Analysis.Model;
 using Microsoft.Extensions.Logging;
+using PortingAssistant.Client.Common.Utils;
 using PortingAssistant.Client.Analysis.Utils;
 using PortingAssistant.Client.Model;
 using PortingAssistant.Client.NuGet;
@@ -160,6 +161,12 @@ namespace PortingAssistant.Client.Analysis
 
                 return solutionAnalysisResult;
             }
+            catch (OutOfMemoryException e)
+            {
+                _logger.LogError("Analyze solution {0} with error {1}", solutionFilename, e);
+                MemoryUtils.LogMemoryConsumption(_logger);
+                throw e;
+            }
             finally
             {
                 CommonUtils.RunGarbageCollection(_logger, "PortingAssistantAnalysisHandler.AnalyzeSolutionIncremental");
@@ -237,6 +244,12 @@ namespace PortingAssistant.Client.Analysis
                         .Select((project) => new KeyValuePair<string, ProjectAnalysisResult>(project, AnalyzeProject(project, solutionFilename, analyzersTask, analysisActions, isIncremental: false, targetFramework)))
                         .Where(p => p.Value != null)
                         .ToDictionary(p => p.Key, p => p.Value);
+            }
+            catch (OutOfMemoryException e)
+            {
+                _logger.LogError("Analyze solution {0} with error {1}", solutionFilename, e);
+                MemoryUtils.LogMemoryConsumption(_logger);
+                throw e;
             }
             finally
             {

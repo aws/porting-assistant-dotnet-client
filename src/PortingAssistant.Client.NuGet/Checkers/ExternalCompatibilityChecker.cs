@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using System.IO;
+using PortingAssistant.Client.Common.Utils;
 using PortingAssistant.Client.Model;
 using PortingAssistant.Client.NuGet.Interfaces;
 using PortingAssistant.Client.NuGet.Utils;
@@ -130,6 +131,11 @@ namespace PortingAssistant.Client.NuGet
                             packageVersionsFound.Add(packageVersion);
                         }
                     }
+                }
+                catch (OutOfMemoryException ex)
+                {
+                    _logger.LogError("Failed when downloading and parsing {0} from {1}, {2}", fileToDownload, CompatibilityCheckerType, ex);
+                    MemoryUtils.LogMemoryConsumption(_logger);
                 }
                 catch (Exception ex)
                 {
