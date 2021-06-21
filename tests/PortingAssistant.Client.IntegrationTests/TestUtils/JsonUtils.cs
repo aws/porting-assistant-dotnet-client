@@ -23,16 +23,10 @@ namespace PortingAssistant.Client.IntegrationTests.TestUtils
                 RemoveProperties(jObject2, propertiesToBeRemoved);
             }
 
-            Console.WriteLine("---------JSON OBJECT 1-----------");
-            Console.WriteLine(jObject1.ToString());
-            Console.WriteLine("---------JSON OBJECT 2-----------");
-            Console.WriteLine(jObject2.ToString());
-
             JObject patch = FindJsonDiff(jObject1, jObject2);
             Console.WriteLine("---------DIFF-----------");
             Console.WriteLine(patch.ToString());
             return patch.Count == 0;
-            //return JToken.DeepEquals(jObject1, jObject2);
         }
 
         public static JObject FindJsonDiff(this JToken Current, JToken Model)

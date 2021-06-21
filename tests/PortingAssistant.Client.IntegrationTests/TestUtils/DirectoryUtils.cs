@@ -15,9 +15,15 @@ namespace PortingAssistant.Client.IntegrationTests.TestUtils
 
             // Take a snapshot of the file system.  
             IEnumerable<FileInfo> list1 = dir1.GetFiles(
-                "*.*", SearchOption.AllDirectories).Where(x => !filesToIgnore.Any(s => x.FullName.Contains(s))).ToList<FileInfo>();
+                "*.*", SearchOption.AllDirectories)
+                .Where(x => !filesToIgnore.Any(s => x.FullName.Contains(s)))
+                .OrderBy(e => e.Name)
+                .ToList<FileInfo>();
             IEnumerable<FileInfo> list2 = dir2.GetFiles(
-                "*.*", SearchOption.AllDirectories).Where(x => !filesToIgnore.Any(s => x.FullName.Contains(s))).ToList<FileInfo>();
+                "*.*", SearchOption.AllDirectories)
+                .Where(x => !filesToIgnore.Any(s => x.FullName.Contains(s)))
+                .OrderBy(e => e.Name)
+                .ToList<FileInfo>();
 
             Console.WriteLine("---------FILES IN DIR 1-----------");
             PrintFileInfos(list1);
@@ -27,13 +33,13 @@ namespace PortingAssistant.Client.IntegrationTests.TestUtils
             // This query determines whether the two folders contain  
             // identical file lists, based on the custom file comparer  
             // that is defined in the FileCompare class.
-            return list1.SequenceEqual(list2, new FileCompare());
+            return Enumerable.SequenceEqual(list1, list2, new FileCompare());
 
         }
 
         static void PrintFileInfos(IEnumerable<FileInfo> fis)
         {
-            foreach(FileInfo fi in fis) 
+            foreach (FileInfo fi in fis)
             {
                 Console.WriteLine("{0} | {1}", fi.Name, fi.Length);
             }

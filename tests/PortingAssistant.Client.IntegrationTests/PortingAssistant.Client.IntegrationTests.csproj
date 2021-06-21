@@ -24,7 +24,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\PortingAssistant.Client.Common\PortingAssistant.Client.Common.csproj" />
     <ProjectReference Include="..\..\src\PortingAssistant.Client.Client\PortingAssistant.Client.Client.csproj" />
-	  <ProjectReference Include="..\..\src\PortingAssistant.Client\PortingAssistant.Client.CLI.csproj" />
+    <ProjectReference Include="..\..\src\PortingAssistant.Client\PortingAssistant.Client.CLI.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -38,15 +38,15 @@
     <None Update="TestProjects\NetFrameworkExample.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-	<None Update="TestProjects\NetFrameworkExample-ported.zip">
-		<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	</None>
-	<None Update="TestProjects\NetFrameworkExample-analyze\NetFrameworkExample-api-analysis.json">
-	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	</None>
-	<None Update="TestProjects\NetFrameworkExample-analyze\NetFrameworkExample-package-analysis.json">
-	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	</None>
+    <None Update="TestProjects\NetFrameworkExample-ported.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestProjects\NetFrameworkExample-analyze\NetFrameworkExample-api-analysis.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestProjects\NetFrameworkExample-analyze\NetFrameworkExample-package-analysis.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>

@@ -77,7 +77,6 @@ namespace PortingAssistant.Client.IntegrationTests
                 // Call WaitForExit and then the using statement will close.
                 using (Process exeProcess = Process.Start(startInfo))
                 {
-                    Console.WriteLine(exeProcess.StandardOutput.ReadToEnd());
                     Console.WriteLine(exeProcess.StandardError.ReadToEnd());
                     exeProcess.WaitForExit();
                 }

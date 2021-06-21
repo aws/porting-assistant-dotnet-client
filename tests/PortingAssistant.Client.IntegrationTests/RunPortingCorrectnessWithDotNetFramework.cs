@@ -77,6 +77,7 @@ namespace PortingAssistant.Client.IntegrationTests
                 // baseline ported solution and actual test solution
                 "NetFrameworkExample.csproj",
                 "PortSolutionResult.txt",
+                "PortSolutionResult.json",
                 "NetFrameworkExample\\bin",
                 "NetFrameworkExample\\obj"
             };
@@ -117,7 +118,6 @@ namespace PortingAssistant.Client.IntegrationTests
                 // Call WaitForExit and then the using statement will close.
                 using (Process exeProcess = Process.Start(startInfo))
                 {
-                    Console.WriteLine(exeProcess.StandardOutput.ReadToEnd());
                     Console.WriteLine(exeProcess.StandardError.ReadToEnd());
                     exeProcess.WaitForExit();
                 }
