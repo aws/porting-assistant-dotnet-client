@@ -3,9 +3,9 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
-
+	
   <ItemGroup>
-    <Folder Include="Utils\" />
+	<Folder Include="Utils\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CTA.Rules.PortCore" Version="1.7.22-alpha-ga9389cf2cf" />
@@ -13,6 +13,7 @@
     <PackageReference Include="NuGet.Protocol" Version="5.9.1" />
     <PackageReference Include="semver" Version="2.0.6" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
+    <PackageReference Include="System.IO.FileSystem.AccessControl" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Update="Microsoft.SourceLink.GitHub" Version="1.0.0" />

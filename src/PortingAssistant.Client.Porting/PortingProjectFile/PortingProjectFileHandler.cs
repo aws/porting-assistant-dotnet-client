@@ -55,9 +55,12 @@ namespace PortingAssistant.Client.PortingProjectFile
             bool includeCodeFix,
             Dictionary<string, Tuple<string, string>> upgradeVersions)
         {
+            var (projectsWithAccess, noAccessPortingResults) = VerifyFileAccess(projects, solutionPath);
+            projects = projectsWithAccess;
             _logger.LogInformation("Applying porting changes to {0}", projects.Select(p => p.ProjectFilePath).ToList());
 
             var results = new List<PortingResult>();
+            results.AddRange(noAccessPortingResults);
             List<PortCoreConfiguration> configs = new List<PortCoreConfiguration>();
 
             projects.Where(p => !p.IsBuildFailed).ToList().ForEach((proj) =>
@@ -122,6 +125,41 @@ namespace PortingAssistant.Client.PortingProjectFile
             _logger.LogInformation("Completed porting changes to {0}", projects.Select(p => p.ProjectFilePath).ToList());
 
             return results;
+        }
+
+        /// <summary>
+        /// Checks solution and project folders to make sure we have write access
+        /// </summary>
+        /// <param name="projects">List of projects to check for write access</param>
+        /// <param name="solutionPath">Path to solution file</param>
+        /// <returns>
+        /// Valid projects with access, Porting result for projects without access
+        /// </returns>
+        private (List<ProjectDetails>, List<PortingResult>) VerifyFileAccess(List<ProjectDetails> projects, string solutionPath)
+        {
+            var noAccessPortingResults = new List<PortingResult>();
+            var projectsWithAccess = new List<ProjectDetails>();
+
+            foreach (ProjectDetails project in projects)
+            {
+                string result = Common.Utils.FileSystem.CheckWriteAccessForDirectory(Path.GetDirectoryName(project.ProjectFilePath));
+                if (string.IsNullOrEmpty(result))
+                {
+                    projectsWithAccess.Add(project);
+                }
+                else
+                {
+                    noAccessPortingResults.Add(new PortingResult
+                    {
+                        Success = false,
+                        ProjectFile = project.ProjectFilePath,
+                        ProjectName = project.ProjectName,
+                        Message = $"Application does not have write access to ${result} in project {project.ProjectName}",
+                        Exception = new UnauthorizedAccessException()
+                    });
+                }
+            }
+            return (projectsWithAccess, noAccessPortingResults);
         }
     }
 }
