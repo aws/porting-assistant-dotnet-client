@@ -51,8 +51,7 @@ namespace PortingAssistant.Client.Analysis
 
                 if (!actionsOnly)
                 {
-                    var sourceFileToInvocations = new[] { KeyValuePair.Create(sourceFileResult.FileFullPath, sourceFileResult.AllInvocationExpressions()) }
-                    .ToDictionary(p => p.Key, p => p.Value);
+                    var sourceFileToInvocations = new[] { SourceFileToCodeTokens(sourceFileResult) }.ToDictionary(result => result.Key, result => result.Value);
 
                     sourceFileToCodeEntityDetails = InvocationExpressionModelToInvocations.Convert(sourceFileToInvocations, externalReferences);
 
@@ -273,6 +272,18 @@ namespace PortingAssistant.Client.Analysis
             return solutionPort.Run().ProjectResults.ToList();
         }
 
+        private KeyValuePair<string, UstList<UstNode>> SourceFileToCodeTokens(RootUstNode sourceFile)
+        {
+            var allNodes = new UstList<UstNode>();
+            allNodes.AddRange(sourceFile.AllInvocationExpressions());
+            allNodes.AddRange(sourceFile.AllAnnotations());
+            allNodes.AddRange(sourceFile.AllDeclarationNodes());
+            allNodes.AddRange(sourceFile.AllStructDeclarations());
+            allNodes.AddRange(sourceFile.AllEnumDeclarations());
+
+            return KeyValuePair.Create(sourceFile.FileFullPath, allNodes);
+        }
+
         private ProjectAnalysisResult AnalyzeProject(
             string project, string solutionFileName, List<AnalyzerResult> analyzers, List<ProjectResult> analysisActions, bool isIncremental = false, string targetFramework = DEFAULT_TARGET)
         {
@@ -289,6 +300,11 @@ namespace PortingAssistant.Client.Analysis
                     return null;
                 }
 
+                var sourceFileToCodeTokens = analyzer.ProjectResult.SourceFileResults.Select((sourceFile) =>
+                {
+                    return SourceFileToCodeTokens(sourceFile);
+                }).ToDictionary(p => p.Key, p => p.Value);
+
                 var sourceFileToInvocations = analyzer.ProjectResult.SourceFileResults.Select((sourceFile) =>
                 {
                     var invocationsInSourceFile = sourceFile.AllInvocationExpressions() ?? new UstList<InvocationExpression>();
@@ -296,7 +312,7 @@ namespace PortingAssistant.Client.Analysis
                     return KeyValuePair.Create(sourceFile.FileFullPath, invocationsInSourceFile);
                 }).ToDictionary(p => p.Key, p => p.Value);
 
-                var sourceFileToCodeEntityDetails = InvocationExpressionModelToInvocations.Convert(sourceFileToInvocations, analyzer);
+                var sourceFileToCodeEntityDetails = InvocationExpressionModelToInvocations.Convert(sourceFileToCodeTokens, analyzer);                
 
                 var namespaces = sourceFileToCodeEntityDetails.Aggregate(new HashSet<string>(), (agg, cur) =>
                 {
@@ -342,7 +358,6 @@ namespace PortingAssistant.Client.Analysis
 
                 var SourceFileAnalysisResults = InvocationExpressionModelToInvocations.AnalyzeResults(
                     sourceFileToCodeEntityDetails, packageResults, recommendationResults, portingActionResults, targetFramework);
-
 
 
                 return new ProjectAnalysisResult

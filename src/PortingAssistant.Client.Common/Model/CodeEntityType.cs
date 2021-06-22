@@ -7,6 +7,11 @@ namespace PortingAssistant.Client.Model
         Class,
         Method,
         InstanceAttribute,
-        ClassAttribute
+        ClassAttribute,
+        Annotation,
+        Declaration,
+        Using,
+        Enum,
+        Struct
     }
 }

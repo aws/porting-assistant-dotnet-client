@@ -86,72 +86,142 @@ namespace PortingAssistant.Client.Analysis.Utils
         }
 
         public static Dictionary<string, List<CodeEntityDetails>> Convert(
-             Dictionary<string, UstList<InvocationExpression>> sourceFileToInvocations,
+             Dictionary<string, UstList<UstNode>> sourceFileToInvocations,
              AnalyzerResult analyzer)
         {
             return Convert(sourceFileToInvocations, analyzer?.ProjectResult?.ExternalReferences);
         }
 
         public static Dictionary<string, List<CodeEntityDetails>> Convert(
-             Dictionary<string, UstList<InvocationExpression>> sourceFileToInvocations,
+             Dictionary<string, UstList<UstNode>> sourceFileToInvocations,
              ExternalReferences externalReferences)
         {
             return sourceFileToInvocations.Select(sourceFile =>
-                KeyValuePair.Create(
-                    sourceFile.Key,
-                    sourceFile.Value.Select(invocation =>
+            {
+                return KeyValuePair.Create(sourceFile.Key, sourceFile.Value.Select(node =>
+                {
+                    if (node is InvocationExpression invocationExpression)
                     {
-                        var assemblyLength = invocation.Reference?.Assembly?.Length;
-                        if (assemblyLength == null || assemblyLength == 0)
-                        {
-                            return null;
-                        }
+                        return Convert(invocationExpression, externalReferences);
+                    }
+                    else if (node is DeclarationNode declarationNode)
+                    {
+                        return Convert(declarationNode, externalReferences);
+                    }
+                    else if (node is Annotation annotation)
+                    {
+                        return Convert(annotation, externalReferences);
+                    }
+                    else if (node is StructDeclaration structDeclaration)
+                    {
+                        return Convert(structDeclaration, externalReferences);
+                    }
+                    else if (node is EnumDeclaration enumDeclaration)
+                    {
+                        return Convert(enumDeclaration, externalReferences);
+                    }
 
-                        // Check if invocation is from Nuget
-                        var potentialNugetPackage = externalReferences?.NugetReferences?.Find((n) =>
-                           n.AssemblyLocation?.EndsWith(invocation.Reference.Assembly + ".dll") == true || n.Identity.Equals(invocation.Reference.Assembly));
+                    return null;
+                }).Where(result => result != null).ToList());
+            }).ToDictionary(result => result.Key, result => result.Value);
+        }
 
-                        if (potentialNugetPackage == null)
-                        {
-                            potentialNugetPackage = externalReferences?.NugetDependencies?.Find((n) =>
-                           n.AssemblyLocation?.EndsWith(invocation.Reference.Assembly + ".dll") == true || n.Identity.Equals(invocation.Reference.Assembly));
-                        }
-                        PackageVersionPair nugetPackage = ReferenceToPackageVersionPair(potentialNugetPackage);
+        public static CodeEntityDetails Convert(InvocationExpression node, ExternalReferences externalReferences)
+        {
+            return CreateCodeEntityDetails(node.MethodName, node.SemanticNamespace, node.SemanticMethodSignature, node.SemanticOriginalDefinition, CodeEntityType.Method, node, node.Reference, externalReferences);         
+        }
 
-                        // Check if invocation is from SDK
-                        var potentialSdk = externalReferences?.SdkReferences?.Find((s) =>
-                            s.AssemblyLocation?.EndsWith(invocation.Reference.Assembly + ".dll") == true || s.Identity.Equals(invocation.Reference.Assembly));
-                        PackageVersionPair sdk = ReferenceToPackageVersionPair(potentialSdk, PackageSourceType.SDK);
+        public static CodeEntityDetails Convert(DeclarationNode node, ExternalReferences externalReferences)
+        {
+            return CreateCodeEntityDetails(node.Identifier, node.Reference.Namespace, node.Identifier, node.Identifier, CodeEntityType.Declaration, node, node.Reference, externalReferences);
+        }
 
-                        // If both nuget package and sdk are null, this invocation is from an internal project. Skip it.
-                        if (nugetPackage == null && sdk == null)
-                        {
-                            return null;
-                        }
+        public static CodeEntityDetails Convert(Annotation node, ExternalReferences externalReferences)
+        {
+            return CreateCodeEntityDetails(node.Identifier, node.Reference.Namespace, node.Identifier, node.Identifier, CodeEntityType.Annotation, node, node.Reference, externalReferences);
+        }
 
-                        // Otherwise return the invocation
-                        return new CodeEntityDetails
-                        {
-                            Name = invocation.MethodName,
-                            Namespace = invocation.SemanticNamespace,
-                            Signature = invocation.SemanticMethodSignature,
-                            OriginalDefinition = invocation.SemanticOriginalDefinition,
-                            TextSpan = new TextSpan
-                            {
-                                StartCharPosition = invocation.TextSpan?.StartCharPosition,
-                                EndCharPosition = invocation.TextSpan?.EndCharPosition,
-                                StartLinePosition = invocation.TextSpan?.StartLinePosition,
-                                EndLinePosition = invocation.TextSpan?.EndLinePosition
-                            },
-                            // If we found an matching sdk assembly, assume the code is using the sdk.
-                            Package = sdk ?? nugetPackage,
-                        };
-                    })
-                    .Where(invocation => invocation != null)
-                    .ToList()
-                )
-            )
-            .ToDictionary(p => p.Key, p => p.Value);
+        public static CodeEntityDetails Convert(EnumDeclaration node,ExternalReferences externalReferences)
+        {
+            return CreateCodeEntityDetails(node.Identifier, node.Reference.Namespace, node.Identifier, node.Identifier, CodeEntityType.Enum, node, node.Reference, externalReferences);         
+        }
+
+        public static CodeEntityDetails Convert(StructDeclaration node, ExternalReferences externalReferences)
+        {
+            return CreateCodeEntityDetails(node.Identifier, node.Reference.Namespace, node.Identifier, node.Identifier, CodeEntityType.Struct, node, node.Reference, externalReferences);
+        }
+
+        private static CodeEntityDetails CreateCodeEntityDetails(string name, 
+            string @namespace, 
+            string signature, 
+            string originalDefinition, 
+            CodeEntityType codeEntityType, 
+            UstNode ustNode,
+            Reference reference,
+            ExternalReferences externalReferences)
+        {
+            var package = GetPackageVersionPair(reference, externalReferences);
+
+            if (package == null) return null;
+
+            // Otherwise return the invocation
+            return CreateCodeEntity(name, @namespace, signature, package, originalDefinition,
+                codeEntityType, ustNode);
+        }
+
+
+        private static CodeEntityDetails CreateCodeEntity(string name, 
+            string @namespace, 
+            string signature, 
+            PackageVersionPair package, 
+            string originalDefinition, 
+            CodeEntityType codeEntityType, 
+            UstNode ustNode)
+        {
+            return new CodeEntityDetails
+            {
+                Name = name,
+                Namespace = @namespace,
+                Signature = signature,
+                OriginalDefinition = originalDefinition,
+                CodeEntityType = codeEntityType,
+                TextSpan = new TextSpan
+                {
+                    StartCharPosition = ustNode.TextSpan?.StartCharPosition,
+                    EndCharPosition = ustNode.TextSpan?.EndCharPosition,
+                    StartLinePosition = ustNode.TextSpan?.StartLinePosition,
+                    EndLinePosition = ustNode.TextSpan?.EndLinePosition
+                },
+                // If we found an matching sdk assembly, assume the code is using the sdk.
+                Package = package,
+            };
+        }
+
+        private static PackageVersionPair GetPackageVersionPair(Reference reference, ExternalReferences externalReferences)
+        {
+            var assemblyLength = reference?.Assembly?.Length;
+            if (assemblyLength == null || assemblyLength == 0)
+            {
+                return null;
+            }
+
+            // Check if invocation is from Nuget
+            var potentialNugetPackage = externalReferences?.NugetReferences?.Find((n) =>
+               n.AssemblyLocation?.EndsWith(reference.Assembly + ".dll") == true || n.Identity.Equals(reference.Assembly));
+
+            if (potentialNugetPackage == null)
+            {
+                potentialNugetPackage = externalReferences?.NugetDependencies?.Find((n) =>
+               n.AssemblyLocation?.EndsWith(reference.Assembly + ".dll") == true || n.Identity.Equals(reference.Assembly));
+            }
+            PackageVersionPair nugetPackage = ReferenceToPackageVersionPair(potentialNugetPackage);
+
+            // Check if invocation is from SDK
+            var potentialSdk = externalReferences?.SdkReferences?.Find((s) =>
+                s.AssemblyLocation?.EndsWith(reference.Assembly + ".dll") == true || s.Identity.Equals(reference.Assembly));
+            PackageVersionPair sdk = ReferenceToPackageVersionPair(potentialSdk, PackageSourceType.SDK);
+
+            return sdk ?? nugetPackage;
         }
 
         public static CompatibilityResult GetCompatibilityResult(CompatibilityResult compatibilityResultWithPackage, CompatibilityResult compatibilityResultWithSdk)
