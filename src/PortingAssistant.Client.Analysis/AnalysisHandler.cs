@@ -138,6 +138,7 @@ namespace PortingAssistant.Client.Analysis
         {
             try
             {
+                MemoryUtils.LogSolutiontSize(_logger, solutionFilename);
                 var configuration = GetAnalyzerConfiguration();
                 var analyzer = CodeAnalyzerFactory.GetAnalyzer(configuration, _logger);
                 var analyzersTask = await analyzer.AnalyzeSolution(solutionFilename);
@@ -234,6 +235,7 @@ namespace PortingAssistant.Client.Analysis
         {
             try
             {
+                MemoryUtils.LogSolutiontSize(_logger, solutionFilename);
                 var configuration = GetAnalyzerConfiguration();
                 var analyzer = CodeAnalyzerFactory.GetAnalyzer(configuration, _logger);
                 var analyzersTask = await analyzer.AnalyzeSolution(solutionFilename);

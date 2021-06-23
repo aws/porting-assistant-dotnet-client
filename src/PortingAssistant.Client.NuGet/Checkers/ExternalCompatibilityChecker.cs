@@ -135,6 +135,7 @@ namespace PortingAssistant.Client.NuGet
                 catch (OutOfMemoryException ex)
                 {
                     _logger.LogError("Failed when downloading and parsing {0} from {1}, {2}", fileToDownload, CompatibilityCheckerType, ex);
+                    MemoryUtils.LogSolutiontSize(_logger, pathToSolution);
                     MemoryUtils.LogMemoryConsumption(_logger);
                 }
                 catch (Exception ex)
