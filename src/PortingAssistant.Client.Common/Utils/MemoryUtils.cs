@@ -42,7 +42,7 @@ namespace PortingAssistant.Client.Common.Utils
             var size = solutionDir.EnumerateFiles(
                 "*.cs", SearchOption.AllDirectories).Sum(fi => fi.Length);
             logger.LogInformation(
-                "Total size for {} in bytes: {0}",
+                "Total size for {0} in bytes: {1}",
                 SolutionPath, size);
         }
     }
