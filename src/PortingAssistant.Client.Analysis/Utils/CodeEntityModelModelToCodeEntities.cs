@@ -10,10 +10,10 @@ using TextSpan = PortingAssistant.Client.Model.TextSpan;
 
 namespace PortingAssistant.Client.Analysis.Utils
 {
-    public static class InvocationExpressionModelToInvocations
+    public static class CodeEntityModelModelToCodeEntities
     {
         public static List<SourceFileAnalysisResult> AnalyzeResults(
-            Dictionary<string, List<CodeEntityDetails>> sourceFileToInvocations,
+            Dictionary<string, List<CodeEntityDetails>> sourceFileToCodeEntities,
             Dictionary<PackageVersionPair, Task<PackageDetails>> packageResults,
             Dictionary<string, Task<RecommendationDetails>> recommendationResults,
             Dictionary<string, List<RecommendedAction>> portingActionResults,
@@ -22,30 +22,45 @@ namespace PortingAssistant.Client.Analysis.Utils
         )
         {
             var packageDetailsWithIndicesResults = ApiCompatiblity.PreProcessPackageDetails(packageResults);
-            return sourceFileToInvocations.Select(sourceFile =>
+            return sourceFileToCodeEntities.Select(sourceFile =>
             {
                 return new SourceFileAnalysisResult
                 {
                     SourceFileName = Path.GetFileName(sourceFile.Key),
                     SourceFilePath = sourceFile.Key,
                     RecommendedActions = portingActionResults?.GetValueOrDefault(sourceFile.Key, new List<RecommendedAction>()),
-                    ApiAnalysisResults = sourceFile.Value.Select(invocation =>
+                    ApiAnalysisResults = sourceFile.Value.Select(codeEntity =>
                     {
-                        var package = invocation.Package;
-                        var sdkpackage = new PackageVersionPair { PackageId = invocation.Namespace, Version = "0.0.0", PackageSourceType = PackageSourceType.SDK };
+                        var package = codeEntity.Package;
+
+                        //A code entity with no reference data. This can be any error in the code
+                        if (package == null)
+                        {
+                            return new ApiAnalysisResult
+                            {
+                                CodeEntityDetails = codeEntity,
+                                CompatibilityResults = new Dictionary<string, CompatibilityResult>
+                            {
+                                { targetFramework, new CompatibilityResult() { Compatibility = Compatibility.UNKNOWN } }
+                            },
+                                Recommendations = new PortingAssistant.Client.Model.Recommendations
+                                {
+                                    RecommendedActions = new List<RecommendedAction>()
+                                }
+                            };
+                        }
+                        var sdkpackage = new PackageVersionPair { PackageId = codeEntity.Namespace, Version = "0.0.0", PackageSourceType = PackageSourceType.SDK };
 
                         // check result with nuget package
                         var packageDetails = packageDetailsWithIndicesResults.GetValueOrDefault(package, null);
                         var compatibilityResultWithPackage = ApiCompatiblity.GetCompatibilityResult(packageDetails,
-                                                 invocation.OriginalDefinition,
-                                                 invocation.Package.Version,
+                                                 codeEntity,
                                                  targetFramework);
 
                         // potential check with namespace
                         var sdkpackageDetails = packageDetailsWithIndicesResults.GetValueOrDefault(sdkpackage, null);
                         var compatibilityResultWithSdk = ApiCompatiblity.GetCompatibilityResult(sdkpackageDetails,
-                                                 invocation.OriginalDefinition,
-                                                 invocation.Package.Version,
+                                                 codeEntity,
                                                  targetFramework);
 
                         var compatibilityResult = GetCompatibilityResult(compatibilityResultWithPackage, compatibilityResultWithSdk);
@@ -56,16 +71,16 @@ namespace PortingAssistant.Client.Analysis.Utils
                                 return null;
                         }
 
-                        var recommendationDetails = recommendationResults.GetValueOrDefault(invocation.Namespace, null);
+                        var recommendationDetails = recommendationResults.GetValueOrDefault(codeEntity.Namespace, null);
                         var apiRecommendation = ApiCompatiblity.UpgradeStrategy(
                                                 compatibilityResult,
-                                                invocation.OriginalDefinition,
+                                                codeEntity.OriginalDefinition,
                                                 recommendationDetails,
                                                 targetFramework);
 
                         return new ApiAnalysisResult
                         {
-                            CodeEntityDetails = invocation,
+                            CodeEntityDetails = codeEntity,
                             CompatibilityResults = new Dictionary<string, CompatibilityResult>
                             {
                                 { targetFramework, compatibilityResult}
@@ -78,7 +93,7 @@ namespace PortingAssistant.Client.Analysis.Utils
                                 }
                             }
                         };
-                    }).Where(invocation => invocation != null)
+                    }).Where(codeEntity => codeEntity != null)
                     .ToList()
                 };
             }
@@ -86,17 +101,17 @@ namespace PortingAssistant.Client.Analysis.Utils
         }
 
         public static Dictionary<string, List<CodeEntityDetails>> Convert(
-             Dictionary<string, UstList<UstNode>> sourceFileToInvocations,
+             Dictionary<string, UstList<UstNode>> sourceFileToCodeEntities,
              AnalyzerResult analyzer)
         {
-            return Convert(sourceFileToInvocations, analyzer?.ProjectResult?.ExternalReferences);
+            return Convert(sourceFileToCodeEntities, analyzer?.ProjectResult?.ExternalReferences);
         }
 
         public static Dictionary<string, List<CodeEntityDetails>> Convert(
-             Dictionary<string, UstList<UstNode>> sourceFileToInvocations,
+             Dictionary<string, UstList<UstNode>> sourceFileToCodeEntities,
              ExternalReferences externalReferences)
         {
-            return sourceFileToInvocations.Select(sourceFile =>
+            return sourceFileToCodeEntities.Select(sourceFile =>
             {
                 return KeyValuePair.Create(sourceFile.Key, sourceFile.Value.Select(node =>
                 {
@@ -162,11 +177,23 @@ namespace PortingAssistant.Client.Analysis.Utils
         {
             var package = GetPackageVersionPair(reference, externalReferences);
 
-            if (package == null) return null;
+            if (package == null)
+            {
+                //If any of these values are populated, this is an internal reference. If they are all null, this is a code entity with no references
+                if(reference.Assembly != null 
+                    || reference.Namespace != null 
+                    || reference.AssemblySymbol != null 
+                    || reference.Version != null 
+                    || reference.AssemblyLocation != null
+                    || !string.IsNullOrEmpty(@namespace))
+                {
+                    return null;
+                }    
+            }
 
-            // Otherwise return the invocation
+            // Otherwise return the code entity
             return CreateCodeEntity(name, @namespace, signature, package, originalDefinition,
-                codeEntityType, ustNode);
+                codeEntityType, ustNode); 
         }
 
 
@@ -205,7 +232,7 @@ namespace PortingAssistant.Client.Analysis.Utils
                 return null;
             }
 
-            // Check if invocation is from Nuget
+            // Check if code entity is from Nuget
             var potentialNugetPackage = externalReferences?.NugetReferences?.Find((n) =>
                n.AssemblyLocation?.EndsWith(reference.Assembly + ".dll") == true || n.Identity.Equals(reference.Assembly));
 
@@ -216,7 +243,7 @@ namespace PortingAssistant.Client.Analysis.Utils
             }
             PackageVersionPair nugetPackage = ReferenceToPackageVersionPair(potentialNugetPackage);
 
-            // Check if invocation is from SDK
+            // Check if code entity is from SDK
             var potentialSdk = externalReferences?.SdkReferences?.Find((s) =>
                 s.AssemblyLocation?.EndsWith(reference.Assembly + ".dll") == true || s.Identity.Equals(reference.Assembly));
             PackageVersionPair sdk = ReferenceToPackageVersionPair(potentialSdk, PackageSourceType.SDK);

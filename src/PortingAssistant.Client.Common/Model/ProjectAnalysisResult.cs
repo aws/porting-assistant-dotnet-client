@@ -1,5 +1,6 @@
 ﻿using Codelyzer.Analysis.Model;
 using CTA.Rules.Models;
+using PortingAssistant.Client.Common.Model;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -14,5 +15,6 @@ namespace PortingAssistant.Client.Model
         public List<string> MetaReferences { get; set; }
         public RootNodes ProjectRules { get; set; }
         public ExternalReferences ExternalReferences { get; set; }
+        public ProjectCompatibilityResult ProjectCompatibilityResult { get; set; }
     }
 }

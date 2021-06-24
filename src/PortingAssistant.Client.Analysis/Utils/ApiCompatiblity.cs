@@ -14,6 +14,48 @@ namespace PortingAssistant.Client.Analysis.Utils
             RecommendedActionType = RecommendedActionType.NoRecommendation
         };
 
+        public static CompatibilityResult GetCompatibilityResult(PackageDetailsWithApiIndices package, CodeEntityDetails codeEntityDetails, string target = "netcoreapp3.1", bool checkLesserPackage = false)
+        {
+            //If invocation, we will try to find it in a later package
+            if (codeEntityDetails.CodeEntityType == CodeEntityType.Method)
+            {
+                return GetCompatibilityResult(package, codeEntityDetails.OriginalDefinition, codeEntityDetails.Package.Version, target, checkLesserPackage);
+            }
+            //If another node type, we will not try to find it. Compatibility will be based on the package compatiblity
+            else
+            {
+                var compatiblityResult = new CompatibilityResult
+                {
+                    Compatibility = Compatibility.UNKNOWN,
+                    CompatibleVersions = new List<string>()
+                };
+
+                if (package == null || !NuGetVersion.TryParse(codeEntityDetails.Package.Version, out var targetversion))
+                {
+                    return compatiblityResult;
+                }
+
+                if (package.PackageDetails.IsDeprecated)
+                {
+                    compatiblityResult.Compatibility = Compatibility.DEPRECATED;
+                    return compatiblityResult;
+                }
+
+                //For other code entities, we just need to check if the package has a compatible target:
+                if (package.PackageDetails.Targets.ContainsKey(target))
+                {
+                    compatiblityResult.Compatibility = Compatibility.COMPATIBLE;
+                    return compatiblityResult;
+                } else
+                {
+                    compatiblityResult.Compatibility = Compatibility.INCOMPATIBLE;
+                }
+                
+                return compatiblityResult;
+            }
+        }
+
+
         public static CompatibilityResult GetCompatibilityResult(PackageDetailsWithApiIndices package, string apiMethodSignature, string version, string target = "netcoreapp3.1", bool checkLesserPackage = false)
         {
 
