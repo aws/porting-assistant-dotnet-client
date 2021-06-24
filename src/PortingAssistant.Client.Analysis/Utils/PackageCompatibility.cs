@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using PortingAssistant.Client.Common.Utils;
 using PortingAssistant.Client.Model;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
@@ -105,6 +106,16 @@ namespace PortingAssistant.Client.Analysis.Utils
                         return version.CompareTo(semversion) >= 0;
                     }) ? Compatibility.COMPATIBLE : Compatibility.INCOMPATIBLE,
                     CompatibleVersions = compatibleVersions
+                };
+            }
+            catch (OutOfMemoryException e)
+            {
+                _logger.LogError("parse package version {0} {1} with error {2}", packageVersionPair.PackageId, packageVersionPair.Version, e);
+                MemoryUtils.LogMemoryConsumption(_logger);
+                return new CompatibilityResult
+                {
+                    Compatibility = Compatibility.UNKNOWN,
+                    CompatibleVersions = new List<string>()
                 };
             }
             catch (Exception e)

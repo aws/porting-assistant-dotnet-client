@@ -10,3 +10,4 @@ commit-hook-tests/
 .idea/
 
 dist/
+**/launchSettings.json
