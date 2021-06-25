@@ -142,7 +142,7 @@ namespace PortingAssistant.Client.PortingProjectFile
 
             foreach (ProjectDetails project in projects)
             {
-                string result = Common.Utils.FileSystem.CheckWriteAccessForDirectory(Path.GetDirectoryName(project.ProjectFilePath));
+                string result = Common.Utils.FileSystemAccess.CheckWriteAccessForDirectory(Path.GetDirectoryName(project.ProjectFilePath));
                 if (string.IsNullOrEmpty(result))
                 {
                     projectsWithAccess.Add(project);

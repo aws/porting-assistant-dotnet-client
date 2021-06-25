@@ -1,14 +1,11 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Security.Principal;
-using System.Collections.Generic;
 using System.Security.AccessControl;
-using PortingAssistant.Client.Model;
 
 namespace PortingAssistant.Client.Common.Utils
 {
-    public static class FileSystem
+    public static class FileSystemAccess
     {
         /// <summary>
         /// Checks directory and all content for write access
