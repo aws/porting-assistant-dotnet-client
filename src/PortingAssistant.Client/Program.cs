@@ -5,6 +5,12 @@ using System.Linq;
 using Microsoft.Extensions.Logging;
 using PortingAssistant.Client.Client;
 using PortingAssistant.Client.Model;
+using Google.Protobuf;
+using com.amazon.awsassessment.analysis.v2;
+using static com.amazon.awsassessment.analysis.v2.SourceCodeAnalyzerOutputV2.Types;
+using static com.amazon.awsassessment.analysis.v2.AntipatternInstance.Types;
+using static com.amazon.awsassessment.analysis.v2.SourceCodeAnalyzerOutputV2.Types.SourceCodeAnalyzerOutputEntry.Types;
+using com.amazon.awsassessment.analysis.io;
 
 namespace PortingAssistant.Client.CLI
 
@@ -22,6 +28,16 @@ namespace PortingAssistant.Client.CLI
                 var portingAssistantBuilder = PortingAssistantBuilder.Build(configuration, logConfig => logConfig.AddConsole());
                 var portingAssistantClient = portingAssistantBuilder.GetPortingAssistant();
                 var reportExporter = portingAssistantBuilder.GetReportExporter();
+                var protoInput = new SourceCodeAnalyzerInput();
+                var isProto = cli.ProtoFilePath != null;
+                if (isProto)
+                {
+                    using (var input = File.OpenRead(cli.ProtoFilePath))
+                    {
+                        protoInput = SourceCodeAnalyzerInput.Parser.ParseFrom(input);
+                    }
+                }
+
                 var solutionSettings = cli.IgnoreProjects != null && cli.IgnoreProjects.Count != 0 ?
                         new AnalyzerSettings
                         {
@@ -33,12 +49,20 @@ namespace PortingAssistant.Client.CLI
                             TargetFramework = cli.Target
                         };
 
-                var analyzeResults = portingAssistantClient.AnalyzeSolutionAsync(cli.SolutionPath, solutionSettings);
+                var solutionPath = isProto ? protoInput.InputV2.AbsoluteProjectFilePath : cli.SolutionPath;
+                var outputPath = isProto ? protoInput.InputV2.AbsoluteOutputFilePath : cli.OutputPath;
+                var analyzeResults = portingAssistantClient.AnalyzeSolutionAsync(solutionPath, solutionSettings);
                 analyzeResults.Wait();
                 if (analyzeResults.IsCompletedSuccessfully)
                 {
-                    //reportExporter.GenerateJsonReport(analyzeResults.Result, cli.OutputPath);
-                    reportExporter.GenerateProtoReport(analyzeResults.Result, Path.Combine(cli.OutputPath, "test.data"));
+                    if (isProto)
+                    {
+                        reportExporter.GenerateProtoReport(analyzeResults.Result, Path.Combine(outputPath, "result.data"));
+                    }
+                    else
+                    {
+                        reportExporter.GenerateJsonReport(analyzeResults.Result, outputPath);
+                    }
                 }
                 else
                 {

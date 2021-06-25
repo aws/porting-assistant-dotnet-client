@@ -36,10 +36,7 @@ namespace PortingAssistant.Client.Client.Reports
                 Status = Status.Failure,
             };
 
-            var output = new SourceCodeAnalyzerOutput
-            {
-                OutputV2 = outputV2,
-            };
+            var output = new SourceCodeAnalyzerOutput();
 
             var analysisSummary = new SourceCodeAnalyzerSummary
             {
@@ -103,7 +100,7 @@ namespace PortingAssistant.Client.Client.Reports
                         {
                             AntipatternLocation = new AntipatternLocation
                             {
-                                ResourceName = packageAnalysisResult.PackageVersionPair.PackageId + packageAnalysisResult.PackageVersionPair.Version
+                                ResourceName = packageAnalysisResult.PackageVersionPair.PackageId + "-" + packageAnalysisResult.PackageVersionPair.Version
                             },
                             Severity = compatibility == null ? Severity.Critical : compatibility.Compatibility == Compatibility.COMPATIBLE ? Severity.Low : Severity.Critical,
                             Recommendation = new Recommendation
@@ -199,6 +196,7 @@ namespace PortingAssistant.Client.Client.Reports
                 using (var outfile = File.Create(outputPath))
                 {
                     outputV2.Status = Status.Success;
+                    output.OutputV2 = outputV2;
                     output.WriteTo(outfile);
                 }
 
@@ -209,6 +207,7 @@ namespace PortingAssistant.Client.Client.Reports
                 using (var outfile = File.Create(outputPath))
                 {
                     outputV2.Status = Status.Failure;
+                    output.OutputV2 = outputV2;
                     output.WriteTo(outfile);
                 }
                 return false;
