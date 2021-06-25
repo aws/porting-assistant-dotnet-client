@@ -7,47 +7,32 @@ using PortingAssistant.Client.IntegrationTests.TestUtils;
 
 namespace PortingAssistant.Client.IntegrationTests
 {
-    public class RunAnalysisCorrectnessWithDotNetFrameworkTests
+    public class RunAnalysisCorrectnessWithDotNetFrameworkTests : CorrectnessTestBase
     {
-        private string testDirectoryRoot;
-        private string tmpTestProjectsExtractionPath;
         private string testSolutionPath;
         private string expectedAnalysisResultRootDir;
         private string actualAnalysisResultRootDir;
 
 
         [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public override void OneTimeSetUp()
         {
-            testDirectoryRoot = TestContext.CurrentContext.TestDirectory;
+            base.OneTimeSetUp();
+
             expectedAnalysisResultRootDir = Path.Combine(
                 testDirectoryRoot, "TestProjects");
 
-            tmpTestProjectsExtractionPath = Path.GetFullPath(Path.Combine(
-                Path.GetTempPath(),
-                Path.GetRandomFileName()));
-            Directory.CreateDirectory(tmpTestProjectsExtractionPath);
-            string testProjectZipPath = Path.Combine(
-                testDirectoryRoot,
-                "TestProjects",
-                "NetFrameworkExample.zip");
             using (ZipArchive archive = ZipFile.Open(
                 testProjectZipPath, ZipArchiveMode.Read))
             {
-                archive.ExtractToDirectory(tmpTestProjectsExtractionPath);
+                archive.ExtractToDirectory(tmpTestFixturePath);
             }
 
-            actualAnalysisResultRootDir = tmpTestProjectsExtractionPath;
+            actualAnalysisResultRootDir = tmpTestFixturePath;
             testSolutionPath = Path.Combine(
-                tmpTestProjectsExtractionPath,
+                tmpTestFixturePath,
                 "NetFrameworkExample",
                 "NetFrameworkExample.sln");
-        }
-
-        [OneTimeTearDown]
-        public void Cleanup()
-        {
-            Directory.Delete(tmpTestProjectsExtractionPath, true);
         }
 
         [Test]
@@ -102,7 +87,7 @@ namespace PortingAssistant.Client.IntegrationTests
                 "NetFrameworkExample-package-analysis.json");
             string[] propertiesToBeRemovedInPackageAnalysisResult = { };
             Assert.IsTrue(JsonUtils.AreTwoJsonFilesEqual(
-                expectedPackageAnalysisPath, actualPackageAnalysisPath, 
+                expectedPackageAnalysisPath, actualPackageAnalysisPath,
                 propertiesToBeRemovedInPackageAnalysisResult));
 
             string expectedApiAnalysisPath = Path.Combine(

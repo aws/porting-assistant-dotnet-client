@@ -7,22 +7,16 @@ using PortingAssistant.Client.IntegrationTests.TestUtils;
 
 namespace PortingAssistant.Client.IntegrationTests
 {
-    public class RunPortingCorrectnessWithDotNetFrameworkTests
+    public class RunPortingCorrectnessWithDotNetFrameworkTests : CorrectnessTestBase
     {
-        private string testDirectoryRoot;
-        private string tmpTestFixturePath;
         private string expectedPortedTestSolutionExtractionPath;
         private string actualTestSolutionExtractionPath;
 
 
         [OneTimeSetUp]
-        public void OneTimeSetUp()
+        public override void OneTimeSetUp()
         {
-            testDirectoryRoot = TestContext.CurrentContext.TestDirectory;
-            tmpTestFixturePath = Path.GetFullPath(Path.Combine(
-                Path.GetTempPath(),
-                Path.GetRandomFileName()));
-            Directory.CreateDirectory(tmpTestFixturePath);
+            base.OneTimeSetUp();
 
             // Extract the baseline ported project
             expectedPortedTestSolutionExtractionPath = Path.Combine(
@@ -43,12 +37,8 @@ namespace PortingAssistant.Client.IntegrationTests
             // Extract the test project that will be ported during the test
             actualTestSolutionExtractionPath = tmpTestFixturePath;
             Directory.CreateDirectory(actualTestSolutionExtractionPath);
-            string actualTestProjectZipPath = Path.Combine(
-                testDirectoryRoot,
-                "TestProjects",
-                "NetFrameworkExample.zip");
             using (ZipArchive archive = ZipFile.Open(
-                actualTestProjectZipPath, ZipArchiveMode.Read))
+                testProjectZipPath, ZipArchiveMode.Read))
             {
                 archive.ExtractToDirectory(
                     actualTestSolutionExtractionPath);
