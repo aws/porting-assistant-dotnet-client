@@ -11,42 +11,6 @@ namespace PortingAssistant.Client.Common.Utils
     public static class FileSystem
     {
         /// <summary>
-        /// Checks solution and project folders to make sure we have write access
-        /// </summary>
-        /// <param name="projectPaths">List of project file paths</param>
-        /// <param name="solutionPath">Solution file path</param>
-        /// <returns>
-        /// (ProjectsWithoutAccess, ProjectsWithAccess)
-        /// If solution folder has no access, treats all projects as if no write access
-        /// </returns>
-        public static (List<string>, List<string>) VerifyFileAccess(List<string> projectPaths, string solutionPath)
-        {
-            var projectsWithoutAccess = new List<string>();
-            var projectsWithAccess = new List<string>();
-
-            // Check Solution Path
-            if (!HaveDirectoryWriteAccess(Path.GetDirectoryName(solutionPath)))
-            {
-                return (projectPaths, projectsWithAccess);
-            }
-            // Check Projects
-            foreach (string project in projectPaths)
-            {
-                string projectFolderPath = Path.GetDirectoryName(project);
-                // assuming that a project doesn't exist in the root directory so won't be null
-                if (CheckWriteAccessForDirectory(projectFolderPath))
-                {
-                    projectsWithAccess.Add(project);
-                }
-                else
-                {
-                    projectsWithoutAccess.Add(project);
-                }
-            }
-            return (projectsWithoutAccess, projectsWithAccess);
-        }
-
-        /// <summary>
         /// Checks directory and all content for write access
         /// </summary>
         /// <param name="path">Directory path</param>
@@ -69,7 +33,7 @@ namespace PortingAssistant.Client.Common.Utils
                     return subDirectory;
                 }
                 string result = CheckWriteAccessForDirectory(subDirectory);
-                if (result != string.Empty)
+                if (!string.IsNullOrEmpty(result))
                 {
                     return result;
                 }
