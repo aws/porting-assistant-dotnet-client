@@ -62,17 +62,14 @@ namespace PortingAssistant.Client.Client.Reports
                     projectAnalysResult.PackageAnalysisResults.ToList()
                     .ForEach(p =>
                     {
-                        p.Value.ContinueWith(result =>
+                        if (p.Value.IsCompletedSuccessfully)
                         {
-                            if (result.IsCompletedSuccessfully)
-                            {
-                                packageAnalysisResults.Add(result.Result);
-                            }
-                            else
-                            {
-                                packageAnalysisResultErrors.Add(p.Key, result.Exception.Message);
-                            }
-                        });
+                            packageAnalysisResults.Add(p.Value.Result);
+                        }
+                        else
+                        {
+                            packageAnalysisResultErrors.Add(p.Key, p.Value.Exception.Message);
+                        };
                     });
 
                     //project apis analsis result
@@ -123,7 +120,7 @@ namespace PortingAssistant.Client.Client.Reports
             try
             {
                 await File.WriteAllTextAsync(FilePath, JsonConvert.SerializeObject(obj, Formatting.Indented));
-                _logger.LogInformation("file generated at ", FilePath);
+                _logger.LogInformation("file generated at: {0}", FilePath);
                 return true;
             }
             catch (Exception ex)
