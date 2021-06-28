@@ -40,10 +40,12 @@ namespace PortingAssistant.Client.Analysis.Utils
                             {
                                 CodeEntityDetails = codeEntity,
                                 CompatibilityResults = new Dictionary<string, CompatibilityResult>
-                            {
-                                { targetFramework, new CompatibilityResult() { Compatibility = Compatibility.UNKNOWN } }
-                            },
-                                Recommendations = new PortingAssistant.Client.Model.Recommendations
+                                {
+                                    {
+                                        targetFramework, new CompatibilityResult() { Compatibility = Compatibility.UNKNOWN }
+                                    }
+                                },
+                                Recommendations = new Model.Recommendations
                                 {
                                     RecommendedActions = new List<RecommendedAction>()
                                 }
@@ -53,30 +55,21 @@ namespace PortingAssistant.Client.Analysis.Utils
 
                         // check result with nuget package
                         var packageDetails = packageDetailsWithIndicesResults.GetValueOrDefault(package, null);
-                        var compatibilityResultWithPackage = ApiCompatiblity.GetCompatibilityResult(packageDetails,
-                                                 codeEntity,
-                                                 targetFramework);
+                        var compatibilityResultWithPackage = ApiCompatiblity.GetCompatibilityResult(packageDetails, codeEntity, targetFramework);
 
                         // potential check with namespace
                         var sdkpackageDetails = packageDetailsWithIndicesResults.GetValueOrDefault(sdkpackage, null);
-                        var compatibilityResultWithSdk = ApiCompatiblity.GetCompatibilityResult(sdkpackageDetails,
-                                                 codeEntity,
-                                                 targetFramework);
-
+                        var compatibilityResultWithSdk = ApiCompatiblity.GetCompatibilityResult(sdkpackageDetails, codeEntity, targetFramework);
                         var compatibilityResult = GetCompatibilityResult(compatibilityResultWithPackage, compatibilityResultWithSdk);
 
-                        if(compatibleOnly)
+                        if (compatibleOnly)
                         {
                             if (!(compatibilityResult.Compatibility == Compatibility.INCOMPATIBLE))
                                 return null;
                         }
 
                         var recommendationDetails = recommendationResults.GetValueOrDefault(codeEntity.Namespace, null);
-                        var apiRecommendation = ApiCompatiblity.UpgradeStrategy(
-                                                compatibilityResult,
-                                                codeEntity.OriginalDefinition,
-                                                recommendationDetails,
-                                                targetFramework);
+                        var apiRecommendation = ApiCompatiblity.UpgradeStrategy(compatibilityResult, codeEntity.OriginalDefinition, recommendationDetails, targetFramework);
 
                         return new ApiAnalysisResult
                         {
@@ -85,7 +78,7 @@ namespace PortingAssistant.Client.Analysis.Utils
                             {
                                 { targetFramework, compatibilityResult}
                             },
-                            Recommendations = new PortingAssistant.Client.Model.Recommendations
+                            Recommendations = new Model.Recommendations
                             {
                                 RecommendedActions = new List<RecommendedAction>
                                 {
@@ -143,7 +136,7 @@ namespace PortingAssistant.Client.Analysis.Utils
 
         public static CodeEntityDetails Convert(InvocationExpression node, ExternalReferences externalReferences)
         {
-            return CreateCodeEntityDetails(node.MethodName, node.SemanticNamespace, node.SemanticMethodSignature, node.SemanticOriginalDefinition, CodeEntityType.Method, node, node.Reference, externalReferences);         
+            return CreateCodeEntityDetails(node.MethodName, node.SemanticNamespace, node.SemanticMethodSignature, node.SemanticOriginalDefinition, CodeEntityType.Method, node, node.Reference, externalReferences);
         }
 
         public static CodeEntityDetails Convert(DeclarationNode node, ExternalReferences externalReferences)
@@ -156,9 +149,9 @@ namespace PortingAssistant.Client.Analysis.Utils
             return CreateCodeEntityDetails(node.Identifier, node.Reference.Namespace, node.Identifier, node.Identifier, CodeEntityType.Annotation, node, node.Reference, externalReferences);
         }
 
-        public static CodeEntityDetails Convert(EnumDeclaration node,ExternalReferences externalReferences)
+        public static CodeEntityDetails Convert(EnumDeclaration node, ExternalReferences externalReferences)
         {
-            return CreateCodeEntityDetails(node.Identifier, node.Reference.Namespace, node.Identifier, node.Identifier, CodeEntityType.Enum, node, node.Reference, externalReferences);         
+            return CreateCodeEntityDetails(node.Identifier, node.Reference.Namespace, node.Identifier, node.Identifier, CodeEntityType.Enum, node, node.Reference, externalReferences);
         }
 
         public static CodeEntityDetails Convert(StructDeclaration node, ExternalReferences externalReferences)
@@ -166,11 +159,12 @@ namespace PortingAssistant.Client.Analysis.Utils
             return CreateCodeEntityDetails(node.Identifier, node.Reference.Namespace, node.Identifier, node.Identifier, CodeEntityType.Struct, node, node.Reference, externalReferences);
         }
 
-        private static CodeEntityDetails CreateCodeEntityDetails(string name, 
-            string @namespace, 
-            string signature, 
-            string originalDefinition, 
-            CodeEntityType codeEntityType, 
+        private static CodeEntityDetails CreateCodeEntityDetails(
+            string name,
+            string @namespace,
+            string signature,
+            string originalDefinition,
+            CodeEntityType codeEntityType,
             UstNode ustNode,
             Reference reference,
             ExternalReferences externalReferences)
@@ -180,29 +174,29 @@ namespace PortingAssistant.Client.Analysis.Utils
             if (package == null)
             {
                 //If any of these values are populated, this is an internal reference. If they are all null, this is a code entity with no references
-                if(reference.Assembly != null 
-                    || reference.Namespace != null 
-                    || reference.AssemblySymbol != null 
-                    || reference.Version != null 
+                if (reference.Assembly != null
+                    || reference.Namespace != null
+                    || reference.AssemblySymbol != null
+                    || reference.Version != null
                     || reference.AssemblyLocation != null
                     || !string.IsNullOrEmpty(@namespace))
                 {
                     return null;
-                }    
+                }
             }
 
             // Otherwise return the code entity
             return CreateCodeEntity(name, @namespace, signature, package, originalDefinition,
-                codeEntityType, ustNode); 
+                codeEntityType, ustNode);
         }
 
 
-        private static CodeEntityDetails CreateCodeEntity(string name, 
-            string @namespace, 
-            string signature, 
-            PackageVersionPair package, 
-            string originalDefinition, 
-            CodeEntityType codeEntityType, 
+        private static CodeEntityDetails CreateCodeEntity(string name,
+            string @namespace,
+            string signature,
+            PackageVersionPair package,
+            string originalDefinition,
+            CodeEntityType codeEntityType,
             UstNode ustNode)
         {
             return new CodeEntityDetails
@@ -277,8 +271,8 @@ namespace PortingAssistant.Client.Analysis.Utils
 
                 case Compatibility.UNKNOWN:
                     if (compatibilityResultWithSdk.Compatibility == Compatibility.COMPATIBLE ||
-                        compatibilityResultWithSdk.Compatibility == Compatibility.INCOMPATIBLE
-                        || compatibilityResultWithSdk.Compatibility == Compatibility.DEPRECATED)
+                        compatibilityResultWithSdk.Compatibility == Compatibility.INCOMPATIBLE || 
+                        compatibilityResultWithSdk.Compatibility == Compatibility.DEPRECATED)
                     {
                         compatiblityResult = compatibilityResultWithSdk;
                     }

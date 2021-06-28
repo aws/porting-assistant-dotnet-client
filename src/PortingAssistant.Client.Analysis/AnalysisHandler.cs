@@ -63,7 +63,7 @@ namespace PortingAssistant.Client.Analysis
                     });
 
                     var nugetPackages = externalReferences?.NugetReferences
-                            .Select(r => CodeEntityModelToCodeEntities.ReferenceToPackageVersionPair(r))
+                            .Select(r => CodeEntityModelToCodeEntities.ReferenceToPackageVersionPair(r))?
                             .ToHashSet();
 
                     var subDependencies = externalReferences?.NugetDependencies
@@ -400,8 +400,6 @@ namespace PortingAssistant.Client.Analysis
             var projectCompatibilityResult = new ProjectCompatibilityResult() { IsPorted = isPorted, ProjectPath = projectPath };
 
             sourceFileAnalysisResults.ForEach(SourceFileAnalysisResult => {
-                _logger.LogInformation(SourceFileAnalysisResult.SourceFilePath);
-
                 SourceFileAnalysisResult.ApiAnalysisResults.ForEach(apiAnalysisResult =>
                 {
                     var currentEntity = projectCompatibilityResult.CodeEntityCompatibilityResults.First(r => r.CodeEntityType == apiAnalysisResult.CodeEntityDetails.CodeEntityType);
