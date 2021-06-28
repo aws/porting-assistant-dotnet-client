@@ -144,8 +144,8 @@ namespace PortingAssistant.Client.PortingProjectFile
 
             foreach (ProjectDetails project in projects)
             {
-                string result = Common.Utils.FileSystemAccess.CheckWriteAccessForDirectory(Path.GetDirectoryName(project.ProjectFilePath));
-                if (string.IsNullOrEmpty(result))
+                List<string> result = Common.Utils.FileSystemAccess.CheckWriteAccessForDirectory(Path.GetDirectoryName(project.ProjectFilePath));
+                if (result.Count == 0)
                 {
                     projectsWithAccess.Add(project);
                 }
@@ -156,7 +156,7 @@ namespace PortingAssistant.Client.PortingProjectFile
                         Success = false,
                         ProjectFile = project.ProjectFilePath,
                         ProjectName = project.ProjectName,
-                        Message = $"Application does not have write access to ${result} in project {project.ProjectName}",
+                        Message = $"Application does not have write access to items: ${string.Join(", ", result)}",
                         Exception = new UnauthorizedAccessException()
                     });
                 }

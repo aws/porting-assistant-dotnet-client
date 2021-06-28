@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Security.Principal;
 using System.Security.AccessControl;
@@ -12,30 +12,25 @@ namespace PortingAssistant.Client.Common.Utils
         /// </summary>
         /// <param name="path">Directory path</param>
         /// <returns>First file/directory with no write access found if any, blank if all contents have access</returns>
-        public static string CheckWriteAccessForDirectory(string path)
+        public static List<string> CheckWriteAccessForDirectory(string path)
         {
+            var result = new List<string>();
             foreach (string file in Directory.GetFiles(path))
             {
                 if (!HaveFileWriteAccess(file))
                 {
-                    Console.WriteLine($"File {file} does not have write access");
-                    return file;
+                    result.Add(file);
                 }
             }
             foreach (string subDirectory in Directory.GetDirectories(path))
             {
                 if (!HaveDirectoryWriteAccess(subDirectory))
                 {
-                    Console.WriteLine($"Directory {subDirectory} does not have write access");
-                    return subDirectory;
+                    result.Add(subDirectory);
                 }
-                string result = CheckWriteAccessForDirectory(subDirectory);
-                if (!string.IsNullOrEmpty(result))
-                {
-                    return result;
-                }
+                result.AddRange(CheckWriteAccessForDirectory(subDirectory));
             }
-            return "";
+            return result;
         }
 
         private static bool HaveFileWriteAccess(string path)
