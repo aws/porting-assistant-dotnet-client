@@ -10,7 +10,7 @@ using TextSpan = PortingAssistant.Client.Model.TextSpan;
 
 namespace PortingAssistant.Client.Analysis.Utils
 {
-    public static class CodeEntityModelModelToCodeEntities
+    public static class CodeEntityModelToCodeEntities
     {
         public static List<SourceFileAnalysisResult> AnalyzeResults(
             Dictionary<string, List<CodeEntityDetails>> sourceFileToCodeEntities,

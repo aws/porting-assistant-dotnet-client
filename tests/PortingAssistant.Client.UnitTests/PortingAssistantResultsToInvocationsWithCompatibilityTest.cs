@@ -123,7 +123,7 @@ namespace PortingAssistant.Client.Tests
                 }
             };
 
-            var result = CodeEntityModelModelToCodeEntities.AnalyzeResults(
+            var result = CodeEntityModelToCodeEntities.AnalyzeResults(
                 sourceFileToInvocations, packageResults, recommendationResults, new Dictionary<string, List<RecommendedAction>>());
 
             Assert.AreEqual(1, result.First().ApiAnalysisResults.Count);
@@ -145,7 +145,7 @@ namespace PortingAssistant.Client.Tests
                 }
             };
 
-            var result = CodeEntityModelModelToCodeEntities.AnalyzeResults(
+            var result = CodeEntityModelToCodeEntities.AnalyzeResults(
                 sourceFileToInvocations, new Dictionary<PackageVersionPair, Task<PackageDetails>>(), recommendationResults, new Dictionary<string, List<RecommendedAction>>());
 
             Assert.AreEqual(1, result.First().ApiAnalysisResults.Count);
@@ -189,7 +189,7 @@ namespace PortingAssistant.Client.Tests
                 ProjectBuildResult = null
             };
 
-            var result = CodeEntityModelModelToCodeEntities.Convert(
+            var result = CodeEntityModelToCodeEntities.Convert(
                 sourceFileToInvocations, project);
 
             Assert.AreEqual(1, result["file1"].Count);
@@ -237,7 +237,7 @@ namespace PortingAssistant.Client.Tests
                 ProjectBuildResult = null
             };
 
-            var result = CodeEntityModelModelToCodeEntities.Convert(
+            var result = CodeEntityModelToCodeEntities.Convert(
                 sourceFileToInvocations, project);
 
             Assert.AreEqual(1, result["file1"].Count);
@@ -285,7 +285,7 @@ namespace PortingAssistant.Client.Tests
                 ProjectBuildResult = null
             };
 
-            var result = CodeEntityModelModelToCodeEntities.Convert(
+            var result = CodeEntityModelToCodeEntities.Convert(
                 sourceFileToInvocations, project);
 
             Assert.AreEqual(1, result["file1"].Count);
@@ -332,7 +332,7 @@ namespace PortingAssistant.Client.Tests
                 ProjectBuildResult = null
             };
 
-            var result = CodeEntityModelModelToCodeEntities.Convert(
+            var result = CodeEntityModelToCodeEntities.Convert(
                 sourceFileToInvocations, project);
 
             Assert.AreEqual(1, result["file1"].Count);

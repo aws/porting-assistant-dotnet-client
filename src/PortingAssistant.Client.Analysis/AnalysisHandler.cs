@@ -54,7 +54,7 @@ namespace PortingAssistant.Client.Analysis
                 {
                     var sourceFileToInvocations = new[] { SourceFileToCodeTokens(sourceFileResult) }.ToDictionary(result => result.Key, result => result.Value);
 
-                    sourceFileToCodeEntityDetails = CodeEntityModelModelToCodeEntities.Convert(sourceFileToInvocations, externalReferences);
+                    sourceFileToCodeEntityDetails = CodeEntityModelToCodeEntities.Convert(sourceFileToInvocations, externalReferences);
 
                     var namespaces = sourceFileToCodeEntityDetails.Aggregate(new HashSet<string>(), (agg, cur) =>
                     {
@@ -63,11 +63,11 @@ namespace PortingAssistant.Client.Analysis
                     });
 
                     var nugetPackages = externalReferences?.NugetReferences
-                            .Select(r => CodeEntityModelModelToCodeEntities.ReferenceToPackageVersionPair(r))
+                            .Select(r => CodeEntityModelToCodeEntities.ReferenceToPackageVersionPair(r))
                             .ToHashSet();
 
                     var subDependencies = externalReferences?.NugetDependencies
-                        .Select(r => CodeEntityModelModelToCodeEntities.ReferenceToPackageVersionPair(r))
+                        .Select(r => CodeEntityModelToCodeEntities.ReferenceToPackageVersionPair(r))
                         .ToHashSet();
 
                     var sdkPackages = namespaces.Select(n => new PackageVersionPair { PackageId = n, Version = "0.0.0", PackageSourceType = PackageSourceType.SDK });
@@ -99,7 +99,7 @@ namespace PortingAssistant.Client.Analysis
 
                 portingActionResults.Add(filePath, recommendedActions);
 
-                var sourceFileAnalysisResult = CodeEntityModelModelToCodeEntities.AnalyzeResults(
+                var sourceFileAnalysisResult = CodeEntityModelToCodeEntities.AnalyzeResults(
                     sourceFileToCodeEntityDetails, packageResults, recommendationResults, portingActionResults, targetFramework, compatibleOnly);
 
                 //In case actions only, result will be empty, so we populate with actions
@@ -306,7 +306,7 @@ namespace PortingAssistant.Client.Analysis
                     return SourceFileToCodeTokens(sourceFile);
                 }).ToDictionary(p => p.Key, p => p.Value);
 
-                var sourceFileToCodeEntityDetails = CodeEntityModelModelToCodeEntities.Convert(sourceFileToCodeTokens, analyzer);                
+                var sourceFileToCodeEntityDetails = CodeEntityModelToCodeEntities.Convert(sourceFileToCodeTokens, analyzer);                
 
                 var namespaces = sourceFileToCodeEntityDetails.Aggregate(new HashSet<string>(), (agg, cur) =>
                 {
@@ -318,11 +318,11 @@ namespace PortingAssistant.Client.Analysis
                     new List<string> { analyzer.ProjectResult.TargetFramework } : analyzer.ProjectResult.TargetFrameworks;
 
                 var nugetPackages = analyzer.ProjectResult.ExternalReferences.NugetReferences
-                    .Select(r => CodeEntityModelModelToCodeEntities.ReferenceToPackageVersionPair(r))
+                    .Select(r => CodeEntityModelToCodeEntities.ReferenceToPackageVersionPair(r))
                     .ToHashSet();
 
                 var subDependencies = analyzer.ProjectResult.ExternalReferences.NugetDependencies
-                    .Select(r => CodeEntityModelModelToCodeEntities.ReferenceToPackageVersionPair(r))
+                    .Select(r => CodeEntityModelToCodeEntities.ReferenceToPackageVersionPair(r))
                     .ToHashSet();
 
                 var sdkPackages = namespaces.Select(n => new PackageVersionPair { PackageId = n, Version = "0.0.0", PackageSourceType = PackageSourceType.SDK });
@@ -350,7 +350,7 @@ namespace PortingAssistant.Client.Analysis
 
                 var portingActionResults = ProjectActionsToRecommendedActions.Convert(projectActions);
 
-                var SourceFileAnalysisResults = CodeEntityModelModelToCodeEntities.AnalyzeResults(
+                var SourceFileAnalysisResults = CodeEntityModelToCodeEntities.AnalyzeResults(
                     sourceFileToCodeEntityDetails, packageResults, recommendationResults, portingActionResults, targetFramework);
 
                 var compatibilityResults = GenerateCompatibilityResults(SourceFileAnalysisResults, analyzer.ProjectResult.ProjectFilePath, analyzer.ProjectBuildResult?.PrePortCompilation != null);
@@ -411,7 +411,7 @@ namespace PortingAssistant.Client.Analysis
                     {
                         currentEntity.Actions++;
                     }
-                    var compatibility = apiAnalysisResult.CompatibilityResults.First().Value.Compatibility;
+                    var compatibility = apiAnalysisResult.CompatibilityResults?.FirstOrDefault().Value?.Compatibility;
                     if (compatibility == Compatibility.COMPATIBLE)
                     {
                         currentEntity.Compatible++;
@@ -428,6 +428,10 @@ namespace PortingAssistant.Client.Analysis
                     else if (compatibility == Compatibility.DEPRECATED)
                     {
                         currentEntity.Deprecated++;
+                    }
+                    else
+                    {
+                        currentEntity.Unknown++;
                     }
                 });
             });

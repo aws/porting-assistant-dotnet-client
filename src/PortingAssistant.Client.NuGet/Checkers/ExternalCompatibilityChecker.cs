@@ -232,11 +232,10 @@ namespace PortingAssistant.Client.NuGet
         }
         public async void CachePackageDetailsToFile(string fileName, PackageDetails packageDetail, string _tempSolutionDirectory)
         {
-            if (!_fileSystem.DirectoryExists(_tempSolutionDirectory))
-            {
-                _fileSystem.CreateDirectory(_tempSolutionDirectory);
-            }
             string filePath = Path.Combine(_tempSolutionDirectory, fileName);
+            //Create directory will automatically create directory, if it doesn't exist
+            _fileSystem.CreateDirectory(Path.GetDirectoryName(filePath));
+
             var data = JsonConvert.SerializeObject(packageDetail);
             using Stream compressedFileStream = _fileSystem.FileOpenWrite(filePath);
             using var gzipStream = new GZipStream(compressedFileStream, CompressionMode.Compress);
