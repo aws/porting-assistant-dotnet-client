@@ -11,7 +11,7 @@ namespace PortingAssistant.Client.Common.Utils
         /// Checks directory and all content for write access
         /// </summary>
         /// <param name="path">Directory path</param>
-        /// <returns>First file/directory with no write access found if any, blank if all contents have access</returns>
+        /// <returns>List of items without write access</returns>
         public static List<string> CheckWriteAccessForDirectory(string path)
         {
             var result = new List<string>();
