@@ -55,14 +55,25 @@ namespace PortingAssistant.Client.PortingProjectFile
             bool includeCodeFix,
             Dictionary<string, Tuple<string, string>> upgradeVersions)
         {
+            var results = new List<PortingResult>();
+
+            var projectFilesNotFound = projects.Where((p) => !File.Exists(p.ProjectFilePath)).ToList();
+            projectFilesNotFound.ForEach((p) => results.Add(new PortingResult
+            {
+                Message = "File not found.",
+                ProjectFile = p.ProjectFilePath,
+                ProjectName = Path.GetFileNameWithoutExtension(p.ProjectFilePath),
+                Success = false
+            }));
+            projects = projects.Where((p) => File.Exists(p.ProjectFilePath)).ToList();
+
             var (projectsWithAccess, noAccessPortingResults) = VerifyFileAccess(projects, solutionPath);
+            results.AddRange(noAccessPortingResults);
             projects = projectsWithAccess;
+
             _logger.LogInformation("Applying porting changes to {0}", projects.Select(p => p.ProjectFilePath).ToList());
 
-            var results = new List<PortingResult>();
-            results.AddRange(noAccessPortingResults);
             List<PortCoreConfiguration> configs = new List<PortCoreConfiguration>();
-
             projects.Where(p => !p.IsBuildFailed).ToList().ForEach((proj) =>
             {
                 var upgradePackages = upgradeVersions
@@ -79,15 +90,6 @@ namespace PortingAssistant.Client.PortingProjectFile
                     PortCode = includeCodeFix
                 });
             });
-
-            var projectFilesNotFound = projects.Where((p) => !File.Exists(p.ProjectFilePath)).ToList();
-            projectFilesNotFound.ForEach((p) => results.Add(new PortingResult
-            {
-                Message = "File not found.",
-                ProjectFile = p.ProjectFilePath,
-                ProjectName = Path.GetFileNameWithoutExtension(p.ProjectFilePath),
-                Success = false
-            }));
 
             try
             {
