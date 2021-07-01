@@ -171,7 +171,7 @@ namespace PortingAssistant.Client.IntegrationTests
                 "NetFrameworkExample", "App_Start", "BundleConfig.cs"), bundlerConfigFile.SourceFilePath);
             var apiAnalysisResult = bundlerConfigFile.ApiAnalysisResults.Find(r => r.CodeEntityDetails.OriginalDefinition
                 == "System.Web.Optimization.BundleCollection.Add(System.Web.Optimization.Bundle)");
-            Assert.AreEqual(CodeEntityType.Namespace, apiAnalysisResult.CodeEntityDetails.CodeEntityType);
+            Assert.AreEqual(CodeEntityType.Method, apiAnalysisResult.CodeEntityDetails.CodeEntityType);
             Assert.AreEqual("Add", apiAnalysisResult.CodeEntityDetails.Name);
             Assert.AreEqual("System.Web.Optimization", apiAnalysisResult.CodeEntityDetails.Namespace);
             Assert.AreEqual("System.Web.Optimization.BundleCollection.Add(System.Web.Optimization.Bundle)",
@@ -187,7 +187,7 @@ namespace PortingAssistant.Client.IntegrationTests
 
             apiAnalysisResult = bundlerConfigFile.ApiAnalysisResults.Find(r => r.CodeEntityDetails.OriginalDefinition
                 == "System.Web.Optimization.Bundle.Include(string, params System.Web.Optimization.IItemTransform[])");
-            Assert.AreEqual(CodeEntityType.Namespace, apiAnalysisResult.CodeEntityDetails.CodeEntityType);
+            Assert.AreEqual(CodeEntityType.Method, apiAnalysisResult.CodeEntityDetails.CodeEntityType);
             Assert.AreEqual("Include", apiAnalysisResult.CodeEntityDetails.Name);
             Assert.AreEqual("System.Web.Optimization", apiAnalysisResult.CodeEntityDetails.Namespace);
             Assert.AreEqual("System.Web.Optimization.Bundle.Include(string, params System.Web.Optimization.IItemTransform[])",
@@ -208,7 +208,7 @@ namespace PortingAssistant.Client.IntegrationTests
 
             apiAnalysisResult = routeConfigFile.ApiAnalysisResults.Find(r => r.CodeEntityDetails.OriginalDefinition
                 == "System.Web.Routing.RouteCollection.IgnoreRoute(string)");
-            Assert.AreEqual(CodeEntityType.Namespace, apiAnalysisResult.CodeEntityDetails.CodeEntityType);
+            Assert.AreEqual(CodeEntityType.Method, apiAnalysisResult.CodeEntityDetails.CodeEntityType);
             Assert.AreEqual("IgnoreRoute", apiAnalysisResult.CodeEntityDetails.Name);
             Assert.AreEqual("System.Web.Mvc", apiAnalysisResult.CodeEntityDetails.Namespace);
             Assert.AreEqual("System.Web.Routing.RouteCollection.IgnoreRoute(string)",
@@ -224,7 +224,7 @@ namespace PortingAssistant.Client.IntegrationTests
 
             apiAnalysisResult = routeConfigFile.ApiAnalysisResults.Find(r => r.CodeEntityDetails.OriginalDefinition
                 == "System.Web.Routing.RouteCollection.MapRoute(string, string, object)");
-            Assert.AreEqual(CodeEntityType.Namespace, apiAnalysisResult.CodeEntityDetails.CodeEntityType);
+            Assert.AreEqual(CodeEntityType.Method, apiAnalysisResult.CodeEntityDetails.CodeEntityType);
             Assert.AreEqual("MapRoute", apiAnalysisResult.CodeEntityDetails.Name);
             Assert.AreEqual("System.Web.Mvc", apiAnalysisResult.CodeEntityDetails.Namespace);
             Assert.AreEqual("System.Web.Routing.RouteCollection.MapRoute(string, string, object)",
@@ -244,7 +244,7 @@ namespace PortingAssistant.Client.IntegrationTests
 
             apiAnalysisResult = homeController.ApiAnalysisResults.Find(r => r.CodeEntityDetails.OriginalDefinition
                 == "System.Web.Mvc.Controller.View()");
-            Assert.AreEqual(CodeEntityType.Namespace, apiAnalysisResult.CodeEntityDetails.CodeEntityType);
+            Assert.AreEqual(CodeEntityType.Method, apiAnalysisResult.CodeEntityDetails.CodeEntityType);
             Assert.AreEqual("View", apiAnalysisResult.CodeEntityDetails.Name);
             Assert.AreEqual("System.Web.Mvc", apiAnalysisResult.CodeEntityDetails.Namespace);
             Assert.AreEqual("System.Web.Mvc.Controller.View()",apiAnalysisResult.CodeEntityDetails.OriginalDefinition);

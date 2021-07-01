@@ -118,7 +118,7 @@ namespace PortingAssistant.Client.IntegrationTests
             var apiAnalysisResult = homeController.ApiAnalysisResults.Find(r => r.CodeEntityDetails.OriginalDefinition
                 == "System.Web.Mvc.Controller.View()");
 
-            Assert.AreEqual(CodeEntityType.Namespace, apiAnalysisResult.CodeEntityDetails.CodeEntityType);
+            Assert.AreEqual(CodeEntityType.Method, apiAnalysisResult.CodeEntityDetails.CodeEntityType);
             Assert.AreEqual("View", apiAnalysisResult.CodeEntityDetails.Name);
             Assert.AreEqual("System.Web.Mvc", apiAnalysisResult.CodeEntityDetails.Namespace);
             Assert.AreEqual("System.Web.Mvc.Controller.View()", apiAnalysisResult.CodeEntityDetails.OriginalDefinition);

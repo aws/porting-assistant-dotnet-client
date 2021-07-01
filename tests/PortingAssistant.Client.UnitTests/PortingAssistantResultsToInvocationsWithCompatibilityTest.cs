@@ -107,6 +107,7 @@ namespace PortingAssistant.Client.Tests
                 Version = "11.0.1"
             },
             TextSpan = new TextSpan(),
+            CodeEntityType = CodeEntityType.Method
         };
 
         [Test]
@@ -122,7 +123,7 @@ namespace PortingAssistant.Client.Tests
                 }
             };
 
-            var result = InvocationExpressionModelToInvocations.AnalyzeResults(
+            var result = CodeEntityModelToCodeEntities.AnalyzeResults(
                 sourceFileToInvocations, packageResults, recommendationResults, new Dictionary<string, List<RecommendedAction>>());
 
             Assert.AreEqual(1, result.First().ApiAnalysisResults.Count);
@@ -144,7 +145,7 @@ namespace PortingAssistant.Client.Tests
                 }
             };
 
-            var result = InvocationExpressionModelToInvocations.AnalyzeResults(
+            var result = CodeEntityModelToCodeEntities.AnalyzeResults(
                 sourceFileToInvocations, new Dictionary<PackageVersionPair, Task<PackageDetails>>(), recommendationResults, new Dictionary<string, List<RecommendedAction>>());
 
             Assert.AreEqual(1, result.First().ApiAnalysisResults.Count);
@@ -157,10 +158,10 @@ namespace PortingAssistant.Client.Tests
         [Test]
         public void NormalCaseTest()
         {
-            var sourceFileToInvocations = new Dictionary<string, UstList<InvocationExpression>>
+            var sourceFileToInvocations = new Dictionary<string, UstList<UstNode>>
              {
                  {
-                     "file1", new UstList<InvocationExpression>
+                     "file1", new UstList<UstNode>
                      {
                          new MockInvocationExpressionModel("definition", "namespace", "test")
                      }
@@ -188,7 +189,7 @@ namespace PortingAssistant.Client.Tests
                 ProjectBuildResult = null
             };
 
-            var result = InvocationExpressionModelToInvocations.Convert(
+            var result = CodeEntityModelToCodeEntities.Convert(
                 sourceFileToInvocations, project);
 
             Assert.AreEqual(1, result["file1"].Count);
@@ -199,10 +200,10 @@ namespace PortingAssistant.Client.Tests
         [Test]
         public void MultipleNuget()
         {
-            var sourceFileToInvocations = new Dictionary<string, UstList<InvocationExpression>>
+            var sourceFileToInvocations = new Dictionary<string, UstList<UstNode>>
             {
                 {
-                    "file1", new UstList<InvocationExpression>
+                    "file1", new UstList<UstNode>
                     {
                         new MockInvocationExpressionModel("Newtonsoft.Json.JsonConvert.SerializeObject(object)", "namespace.namespace2.namespace3", "test")
                     }
@@ -236,7 +237,7 @@ namespace PortingAssistant.Client.Tests
                 ProjectBuildResult = null
             };
 
-            var result = InvocationExpressionModelToInvocations.Convert(
+            var result = CodeEntityModelToCodeEntities.Convert(
                 sourceFileToInvocations, project);
 
             Assert.AreEqual(1, result["file1"].Count);
@@ -247,10 +248,10 @@ namespace PortingAssistant.Client.Tests
         [Test]
         public void NugetDependencies()
         {
-            var sourceFileToInvocations = new Dictionary<string, UstList<InvocationExpression>>
+            var sourceFileToInvocations = new Dictionary<string, UstList<UstNode>>
              {
                  {
-                     "file1", new UstList<InvocationExpression>
+                     "file1", new UstList<UstNode>
                      {
                          new MockInvocationExpressionModel("definition", "namespace.namespace2.namespace3", "test")
                      }
@@ -284,7 +285,7 @@ namespace PortingAssistant.Client.Tests
                 ProjectBuildResult = null
             };
 
-            var result = InvocationExpressionModelToInvocations.Convert(
+            var result = CodeEntityModelToCodeEntities.Convert(
                 sourceFileToInvocations, project);
 
             Assert.AreEqual(1, result["file1"].Count);
@@ -294,10 +295,10 @@ namespace PortingAssistant.Client.Tests
         [Test]
         public void BadVersion()
         {
-            var sourceFileToInvocations = new Dictionary<string, UstList<InvocationExpression>>
+            var sourceFileToInvocations = new Dictionary<string, UstList<UstNode>>
              {
                  {
-                     "file1", new UstList<InvocationExpression>
+                     "file1", new UstList<UstNode>
                      {
                          new MockInvocationExpressionModel("definition", "namespace.namespace2.namespace3", "namespace2")
                      }
@@ -331,7 +332,7 @@ namespace PortingAssistant.Client.Tests
                 ProjectBuildResult = null
             };
 
-            var result = InvocationExpressionModelToInvocations.Convert(
+            var result = CodeEntityModelToCodeEntities.Convert(
                 sourceFileToInvocations, project);
 
             Assert.AreEqual(1, result["file1"].Count);

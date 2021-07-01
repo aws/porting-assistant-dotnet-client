@@ -171,7 +171,7 @@ namespace PortingAssistant.Client.IntegrationTests
                 "src", "Startup.cs"), startupFile.SourceFilePath);
             var apiAnalysisResult = startupFile.ApiAnalysisResults.Find(r => r.CodeEntityDetails.OriginalDefinition
                 == "Microsoft.Extensions.Hosting.IHostEnvironment.IsDevelopment()");
-            Assert.AreEqual(CodeEntityType.Namespace, apiAnalysisResult.CodeEntityDetails.CodeEntityType);
+            Assert.AreEqual(CodeEntityType.Method, apiAnalysisResult.CodeEntityDetails.CodeEntityType);
             Assert.AreEqual("IsDevelopment", apiAnalysisResult.CodeEntityDetails.Name);
             Assert.AreEqual("Microsoft.Extensions.Hosting", apiAnalysisResult.CodeEntityDetails.Namespace);
             Assert.AreEqual("Microsoft.Extensions.Hosting.IHostEnvironment.IsDevelopment()",
@@ -187,7 +187,7 @@ namespace PortingAssistant.Client.IntegrationTests
 
             apiAnalysisResult = startupFile.ApiAnalysisResults.Find(r => r.CodeEntityDetails.OriginalDefinition
                 == "Microsoft.AspNetCore.Builder.IApplicationBuilder.UseBrowserLink()");
-            Assert.AreEqual(CodeEntityType.Namespace, apiAnalysisResult.CodeEntityDetails.CodeEntityType);
+            Assert.AreEqual(CodeEntityType.Method, apiAnalysisResult.CodeEntityDetails.CodeEntityType);
             Assert.AreEqual("UseBrowserLink", apiAnalysisResult.CodeEntityDetails.Name);
             Assert.AreEqual("Microsoft.AspNetCore.Builder", apiAnalysisResult.CodeEntityDetails.Namespace);
             Assert.AreEqual("Microsoft.AspNetCore.Builder.IApplicationBuilder.UseBrowserLink()",
@@ -203,7 +203,7 @@ namespace PortingAssistant.Client.IntegrationTests
 
             apiAnalysisResult = startupFile.ApiAnalysisResults.Find(r => r.CodeEntityDetails.Package.PackageId == "WebOptimizer.Core" && 
                 r.CodeEntityDetails.Signature == "Microsoft.AspNetCore.Builder.IApplicationBuilder.UseWebOptimizer()");
-            Assert.AreEqual(CodeEntityType.Namespace, apiAnalysisResult.CodeEntityDetails.CodeEntityType);
+            Assert.AreEqual(CodeEntityType.Method, apiAnalysisResult.CodeEntityDetails.CodeEntityType);
             Assert.AreEqual("UseWebOptimizer", apiAnalysisResult.CodeEntityDetails.Name);
             Assert.AreEqual("Microsoft.AspNetCore.Builder", apiAnalysisResult.CodeEntityDetails.Namespace);
             Assert.AreEqual("Microsoft.AspNetCore.Builder.IApplicationBuilder.UseWebOptimizer()",
@@ -218,7 +218,7 @@ namespace PortingAssistant.Client.IntegrationTests
             Assert.Null(apiAnalysisResult.Recommendations.RecommendedActions.First().Description);
 
             apiAnalysisResult = startupFile.ApiAnalysisResults.Find(r => r.CodeEntityDetails.Signature == "Microsoft.AspNetCore.Builder.IApplicationBuilder.UseWebMarkupMin()");
-            Assert.AreEqual(CodeEntityType.Namespace, apiAnalysisResult.CodeEntityDetails.CodeEntityType);
+            Assert.AreEqual(CodeEntityType.Method, apiAnalysisResult.CodeEntityDetails.CodeEntityType);
             Assert.AreEqual("UseWebMarkupMin", apiAnalysisResult.CodeEntityDetails.Name);
             Assert.AreEqual("WebMarkupMin.AspNetCore2", apiAnalysisResult.CodeEntityDetails.Namespace);
             Assert.AreEqual("Microsoft.AspNetCore.Builder.IApplicationBuilder.UseWebMarkupMin()",
@@ -239,7 +239,7 @@ namespace PortingAssistant.Client.IntegrationTests
 
             apiAnalysisResult = blogController.ApiAnalysisResults.Find(r => r.CodeEntityDetails.Signature
                 == "System.Threading.Tasks.Task<Miniblog.Core.Models.Post?>.ConfigureAwait(bool)");
-            Assert.AreEqual(CodeEntityType.Namespace, apiAnalysisResult.CodeEntityDetails.CodeEntityType);
+            Assert.AreEqual(CodeEntityType.Method, apiAnalysisResult.CodeEntityDetails.CodeEntityType);
             Assert.AreEqual("ConfigureAwait", apiAnalysisResult.CodeEntityDetails.Name);
             Assert.AreEqual("System.Threading.Tasks", apiAnalysisResult.CodeEntityDetails.Namespace);
             Assert.AreEqual("System.Threading.Tasks.Task<TResult>.ConfigureAwait(bool)",
@@ -255,7 +255,7 @@ namespace PortingAssistant.Client.IntegrationTests
 
             apiAnalysisResult = blogController.ApiAnalysisResults.Find(r => r.CodeEntityDetails.Signature
                 == "System.Collections.Generic.ICollection<Miniblog.Core.Models.Comment>.Add(Miniblog.Core.Models.Comment)");
-            Assert.AreEqual(CodeEntityType.Namespace, apiAnalysisResult.CodeEntityDetails.CodeEntityType);
+            Assert.AreEqual(CodeEntityType.Method, apiAnalysisResult.CodeEntityDetails.CodeEntityType);
             Assert.AreEqual("Add", apiAnalysisResult.CodeEntityDetails.Name);
             Assert.AreEqual("System.Collections.Generic", apiAnalysisResult.CodeEntityDetails.Namespace);
             Assert.AreEqual("System.Collections.Generic.ICollection<T>.Add(T)",
@@ -275,7 +275,7 @@ namespace PortingAssistant.Client.IntegrationTests
 
             apiAnalysisResult = accountController.ApiAnalysisResults.Find(r => r.CodeEntityDetails.Signature
                 == "Microsoft.AspNetCore.Mvc.Controller.View()");
-            Assert.AreEqual(CodeEntityType.Namespace, apiAnalysisResult.CodeEntityDetails.CodeEntityType);
+            Assert.AreEqual(CodeEntityType.Method, apiAnalysisResult.CodeEntityDetails.CodeEntityType);
             Assert.AreEqual("View", apiAnalysisResult.CodeEntityDetails.Name);
             Assert.AreEqual("Microsoft.AspNetCore.Mvc", apiAnalysisResult.CodeEntityDetails.Namespace);
             Assert.AreEqual("Microsoft.AspNetCore.Mvc.Controller.View()", apiAnalysisResult.CodeEntityDetails.OriginalDefinition);
