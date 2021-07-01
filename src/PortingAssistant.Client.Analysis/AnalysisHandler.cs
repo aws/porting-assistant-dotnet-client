@@ -62,11 +62,11 @@ namespace PortingAssistant.Client.Analysis
                         return agg;
                     });
 
-                    var nugetPackages = externalReferences?.NugetReferences
+                    var nugetPackages = externalReferences?.NugetReferences?
                             .Select(r => CodeEntityModelToCodeEntities.ReferenceToPackageVersionPair(r))?
                             .ToHashSet();
 
-                    var subDependencies = externalReferences?.NugetDependencies
+                    var subDependencies = externalReferences?.NugetDependencies?
                         .Select(r => CodeEntityModelToCodeEntities.ReferenceToPackageVersionPair(r))
                         .ToHashSet();
 
