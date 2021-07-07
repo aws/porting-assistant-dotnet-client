@@ -45,12 +45,6 @@ namespace PortingAssistant.Client.IntegrationTests
             }
         }
 
-        [OneTimeTearDown]
-        public void Cleanup()
-        {
-            Directory.Delete(tmpTestFixturePath, true);
-        }
-
         [Test]
         public void PortingFrameworkProjectProducesExpectedPortedProject()
         {
