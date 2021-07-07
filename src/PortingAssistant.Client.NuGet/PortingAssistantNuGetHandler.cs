@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using PortingAssistant.Client.Common.Utils;
 using PortingAssistant.Client.Model;
-using PortingAssistant.Client.NuGet.Utils;
 
 namespace PortingAssistant.Client.NuGet
 {
@@ -27,6 +27,8 @@ namespace PortingAssistant.Client.NuGet
         public Dictionary<PackageVersionPair, Task<PackageDetails>> GetNugetPackages(List<PackageVersionPair> packageVersions, string pathToSolution, 
             bool isIncremental = false, bool incrementalRefresh = false )
         {
+            _logger.LogInformation("Memory usage before GetNugetPackages: ");
+            MemoryUtils.LogMemoryConsumption(_logger);
             var packageVersionsToQuery = new List<PackageVersionPair>();
             var tasks = packageVersions.Select(packageVersion =>
             {
@@ -44,6 +46,8 @@ namespace PortingAssistant.Client.NuGet
             _logger.LogInformation("Checking compatibility for {0} packages", packageVersionsToQuery.Count);
             Process(packageVersionsToQuery, pathToSolution, isIncremental, incrementalRefresh);
 
+            _logger.LogInformation("Memory usage after GetNugetPackages: ");
+            MemoryUtils.LogMemoryConsumption(_logger);
             return tasks;
         }
 

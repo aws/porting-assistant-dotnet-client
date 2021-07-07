@@ -35,6 +35,23 @@ namespace PortingAssistant.Client.Analysis
             _recommendationHandler = recommendationHandler;
         }
 
+        private async Task<List<AnalyzerResult>> RunCoderlyzerAnalysis(string solutionFilename)
+        {
+            MemoryUtils.LogSystemInfo(_logger);
+            MemoryUtils.LogSolutiontSize(_logger, solutionFilename);
+            _logger.LogInformation("Memory usage before RunCoderlyzerAnalysis: ");
+            MemoryUtils.LogMemoryConsumption(_logger);
+
+            var configuration = GetAnalyzerConfiguration();
+            var analyzer = CodeAnalyzerFactory.GetAnalyzer(configuration, _logger);
+            var analyzerResults = await analyzer.AnalyzeSolution(solutionFilename);
+
+            _logger.LogInformation("Memory usage after RunCoderlyzerAnalysis: ");
+            MemoryUtils.LogMemoryConsumption(_logger);
+
+            return analyzerResults;
+        }
+
         public async Task<List<SourceFileAnalysisResult>> AnalyzeFileIncremental(string filePath, string fileContent, string projectFile, string solutionFilePath, List<string> preportReferences
             , List<string> currentReferences, RootNodes projectRules, ExternalReferences externalReferences, bool actionsOnly = false, bool compatibleOnly = false, string targetFramework = DEFAULT_TARGET)
         {
@@ -79,6 +96,7 @@ namespace PortingAssistant.Client.Analysis
                         .ToList();
 
                     packageResults = _handler.GetNugetPackages(allPackages, solutionFilePath, isIncremental: true, incrementalRefresh: false);
+
                     recommendationResults = _recommendationHandler.GetApiRecommendation(namespaces.ToList());
                 }
 
@@ -133,25 +151,19 @@ namespace PortingAssistant.Client.Analysis
             return await AnalyzeFileIncremental(filePath, fileContent, projectFile, solutionFilePath, preportReferences, currentReferences, projectRules, externalReferences, actionsOnly, compatibleOnly, targetFramework);
         }
 
-        public async Task<Dictionary<string, ProjectAnalysisResult>> AnalyzeSolutionIncremental(string solutionFilename, List<string> projects,
-            string targetFramework = DEFAULT_TARGET)
+        public async Task<Dictionary<string, ProjectAnalysisResult>> AnalyzeSolutionIncremental(
+            string solutionFilename, List<string> projects, string targetFramework = DEFAULT_TARGET)
         {
             try
             {
-                MemoryUtils.LogSolutiontSize(_logger, solutionFilename);
-                var configuration = GetAnalyzerConfiguration();
-                var analyzer = CodeAnalyzerFactory.GetAnalyzer(configuration, _logger);
-                var analyzersTask = await analyzer.AnalyzeSolution(solutionFilename);
+                var analyzerResults = await RunCoderlyzerAnalysis(solutionFilename);
 
-                var analysisActions = AnalyzeActions(projects, targetFramework, analyzersTask, solutionFilename);
+                var analysisActions = AnalyzeActions(projects, targetFramework, analyzerResults, solutionFilename);
 
-                var analyzerResult = analyzersTask;
-
-                var solutionAnalysisResult = projects
-                        .Select((project) => new KeyValuePair<string, ProjectAnalysisResult>(project, AnalyzeProject(project, solutionFilename, analyzersTask, analysisActions, isIncremental: true, targetFramework)))
-                        .Where(p => p.Value != null)
-                        .ToDictionary(p => p.Key, p => p.Value);
-
+                var solutionAnalysisResult = AnalyzeProjects(
+                    solutionFilename, projects,
+                    analyzerResults, analysisActions,
+                    isIncremental: true, targetFramework);
 
                 var projectActions = projects
                        .Select((project) => new KeyValuePair<string, ProjectActions>
@@ -235,17 +247,16 @@ namespace PortingAssistant.Client.Analysis
         {
             try
             {
-                MemoryUtils.LogSolutiontSize(_logger, solutionFilename);
-                var configuration = GetAnalyzerConfiguration();
-                var analyzer = CodeAnalyzerFactory.GetAnalyzer(configuration, _logger);
-                var analyzersTask = await analyzer.AnalyzeSolution(solutionFilename);
+                var analyzerResults = await RunCoderlyzerAnalysis(solutionFilename);
 
-                var analysisActions = AnalyzeActions(projects, targetFramework, analyzersTask, solutionFilename);
+                var analysisActions = AnalyzeActions(projects, targetFramework, analyzerResults, solutionFilename);
 
-                return projects
-                        .Select((project) => new KeyValuePair<string, ProjectAnalysisResult>(project, AnalyzeProject(project, solutionFilename, analyzersTask, analysisActions, isIncremental: false, targetFramework)))
-                        .Where(p => p.Value != null)
-                        .ToDictionary(p => p.Key, p => p.Value);
+                var solutionAnalysisResult = AnalyzeProjects(
+                    solutionFilename, projects,
+                    analyzerResults, analysisActions,
+                    isIncremental: false, targetFramework);
+
+                return solutionAnalysisResult;
             }
             catch (OutOfMemoryException e)
             {
@@ -262,6 +273,9 @@ namespace PortingAssistant.Client.Analysis
 
         private List<ProjectResult> AnalyzeActions(List<string> projects, string targetFramework, List<AnalyzerResult> analyzerResults, string pathToSolution)
         {
+            _logger.LogInformation("Memory Consumption before AnalyzeActions: ");
+            MemoryUtils.LogMemoryConsumption(_logger);
+
             List<PortCoreConfiguration> configs = new List<PortCoreConfiguration>();
 
             var anaylyzedProjects = projects.Where(p =>
@@ -285,7 +299,12 @@ namespace PortingAssistant.Client.Analysis
                 configs.Add(projectConfiguration);
             }
             var solutionPort = new SolutionPort(pathToSolution, analyzerResults, configs, _logger);
-            return solutionPort.Run().ProjectResults.ToList();
+            var projectResults = solutionPort.Run().ProjectResults.ToList();
+
+            _logger.LogInformation("Memory Consumption after AnalyzeActions: ");
+            MemoryUtils.LogMemoryConsumption(_logger);
+
+            return projectResults;
         }
 
         private KeyValuePair<string, UstList<UstNode>> SourceFileToCodeTokens(RootUstNode sourceFile)
@@ -298,6 +317,33 @@ namespace PortingAssistant.Client.Analysis
             allNodes.AddRange(sourceFile.AllEnumDeclarations());
 
             return KeyValuePair.Create(sourceFile.FileFullPath, allNodes);
+        }
+
+        private Dictionary<string, ProjectAnalysisResult> AnalyzeProjects(
+            string solutionFileName,
+            List<string> projects,
+            List<AnalyzerResult> analyzerResult,
+            List<ProjectResult> analysisActions,
+            bool isIncremental = false,
+            string targetFramework = DEFAULT_TARGET)
+        {
+            _logger.LogInformation("Memory Consumption before AnalyzeProjects: ");
+            MemoryUtils.LogMemoryConsumption(_logger);
+
+            var results = projects
+                        .Select((project) => new KeyValuePair<string, ProjectAnalysisResult>(
+                            project,
+                            AnalyzeProject(
+                                project, solutionFileName,
+                                analyzerResult, analysisActions,
+                                isIncremental, targetFramework)))
+                        .Where(p => p.Value != null)
+                        .ToDictionary(p => p.Key, p => p.Value);
+
+            _logger.LogInformation("Memory Consumption after AnalyzeProjects: ");
+            MemoryUtils.LogMemoryConsumption(_logger);
+
+            return results;
         }
 
         private ProjectAnalysisResult AnalyzeProject(
