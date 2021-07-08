@@ -277,6 +277,15 @@
           "CTA.Rules.RuleFiles": "1.8.4-alpha-g90cdd7a307"
         }
       },
+      "Google.Protobuf": {
+        "type": "Transitive",
+        "resolved": "3.17.3",
+        "contentHash": "vBUga9diexJgv9JPNYcs9AZ/5rPKpPCPSWqcqevF6e9KKzv0JwQdz58dSb7nm1xWeeCVB/Umr03cQ5ulF1RNLw==",
+        "dependencies": {
+          "System.Memory": "4.5.3",
+          "System.Runtime.CompilerServices.Unsafe": "4.5.2"
+        }
+      },
       "Humanizer.Core": {
         "type": "Transitive",
         "resolved": "2.2.0",
@@ -1906,6 +1915,7 @@
         "type": "Project",
         "dependencies": {
           "CTA.Rules.PortCore": "1.8.4-alpha-g90cdd7a307",
+          "Google.Protobuf": "3.17.3",
           "Microsoft.Extensions.Logging": "5.0.0",
           "Newtonsoft.Json": "13.0.1",
           "NuGet.Protocol": "5.9.1",

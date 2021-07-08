@@ -8,5 +8,6 @@ namespace PortingAssistant.Client.Client.Reports
     {
         bool GenerateJsonReport(List<PortingResult> portingResults, string SolutionName, string outputFolder);
         bool GenerateJsonReport(SolutionAnalysisResult solutionAnalysisResult, string outputFolder);
+        bool GenerateProtoReport(SolutionAnalysisResult solutionAnalysisResult, string outputPath);
     }
 }

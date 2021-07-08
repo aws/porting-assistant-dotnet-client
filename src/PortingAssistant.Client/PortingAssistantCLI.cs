@@ -10,12 +10,15 @@ namespace PortingAssistant.Client.CLI
 
     class Options
     {
-        [Option('s', "solution-path", Required = true, HelpText = "Solution file path to be analyzed")]
+        [Option('b', "protobuf-path", Required = false, HelpText = "Proto file path to be used")]
+        public string ProtoFilePath { get; set; }
+
+        [Option('s', "solution-path", Required = false, HelpText = "Solution file path to be analyzed")]
         public string SolutionPath { get; set; }
 
         public string PortingProjectPath { get; set; }
 
-        [Option('o', "output-path", Required = true, HelpText = "output folder.")]
+        [Option('o', "output-path", Required = false, HelpText = "output folder.")]
         public string OutputPath { get; set; }
 
         [Option('t', "target", Required = false, Default = "netcoreapp3.1", HelpText = "Target framework: net5.0,  netcoreapp3.1 or netstandard2.1, by default is netcoreapp3.1")]
@@ -44,6 +47,7 @@ namespace PortingAssistant.Client.CLI
 
     public class PortingAssistantCLI
     {
+        public string ProtoFilePath;
         public string SolutionPath;
         public string OutputPath;
         public List<string> IgnoreProjects;
@@ -52,25 +56,39 @@ namespace PortingAssistant.Client.CLI
 
         public void HandleCommand(String[] args)
         {
-            var TargetFrameworks = new HashSet<string>{ "net5.0",  "netcoreapp3.1", "netstandard2.1"};
+            var TargetFrameworks = new HashSet<string> { "net5.0", "netcoreapp3.1", "netstandard2.1" };
 
             Parser.Default.ParseArguments<Options>(args)
                 .WithNotParsed(HandleParseError)
                 .WithParsed(o =>
                 {
-                    if (string.IsNullOrEmpty(o.SolutionPath) || !File.Exists(o.SolutionPath) || !o.SolutionPath.EndsWith(".sln") )
+                    if (o.ProtoFilePath != null)
                     {
-                        Console.WriteLine("Invalid command, please provide valid solution path");
+                        ProtoFilePath = o.ProtoFilePath;
+                    }
+
+                    if ((string.IsNullOrEmpty(o.ProtoFilePath) || !File.Exists(o.ProtoFilePath)) && (string.IsNullOrEmpty(o.SolutionPath) || !File.Exists(o.SolutionPath) || !o.SolutionPath.EndsWith(".sln")))
+                    {
+                        Console.WriteLine("Invalid command, please provide valid solution path or proto file path");
                         Environment.Exit(-1);
                     }
-                    SolutionPath = o.SolutionPath;
 
-                    if (string.IsNullOrEmpty(o.OutputPath) || !Directory.Exists(o.OutputPath))
+                    if (o.SolutionPath != null)
+                    {
+                        SolutionPath = o.SolutionPath;
+                    }
+
+
+                    if ((string.IsNullOrEmpty(o.ProtoFilePath) || !File.Exists(o.ProtoFilePath)) && (string.IsNullOrEmpty(o.OutputPath) || !Directory.Exists(o.OutputPath)))
                     {
                         Console.WriteLine("Invalid output path " + OutputPath);
                         Environment.Exit(-1);
                     }
-                    OutputPath = o.OutputPath;
+
+                    if (o.OutputPath != null)
+                    {
+                        OutputPath = o.OutputPath;
+                    }
 
                     if (!TargetFrameworks.Contains(o.Target.ToLower()))
                     {
