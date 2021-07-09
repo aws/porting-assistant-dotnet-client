@@ -55,11 +55,25 @@ namespace PortingAssistant.Client.PortingProjectFile
             bool includeCodeFix,
             Dictionary<string, Tuple<string, string>> upgradeVersions)
         {
+            var results = new List<PortingResult>();
+
+            var projectFilesNotFound = projects.Where((p) => !File.Exists(p.ProjectFilePath)).ToList();
+            projectFilesNotFound.ForEach((p) => results.Add(new PortingResult
+            {
+                Message = "File not found.",
+                ProjectFile = p.ProjectFilePath,
+                ProjectName = Path.GetFileNameWithoutExtension(p.ProjectFilePath),
+                Success = false
+            }));
+            projects = projects.Where((p) => File.Exists(p.ProjectFilePath)).ToList();
+
+            var (projectsWithAccess, noAccessPortingResults) = VerifyFileAccess(projects, solutionPath);
+            results.AddRange(noAccessPortingResults);
+            projects = projectsWithAccess;
+
             _logger.LogInformation("Applying porting changes to {0}", projects.Select(p => p.ProjectFilePath).ToList());
 
-            var results = new List<PortingResult>();
             List<PortCoreConfiguration> configs = new List<PortCoreConfiguration>();
-
             projects.Where(p => !p.IsBuildFailed).ToList().ForEach((proj) =>
             {
                 var upgradePackages = upgradeVersions
@@ -76,15 +90,6 @@ namespace PortingAssistant.Client.PortingProjectFile
                     PortCode = includeCodeFix
                 });
             });
-
-            var projectFilesNotFound = projects.Where((p) => !File.Exists(p.ProjectFilePath)).ToList();
-            projectFilesNotFound.ForEach((p) => results.Add(new PortingResult
-            {
-                Message = "File not found.",
-                ProjectFile = p.ProjectFilePath,
-                ProjectName = Path.GetFileNameWithoutExtension(p.ProjectFilePath),
-                Success = false
-            }));
 
             try
             {
@@ -122,6 +127,41 @@ namespace PortingAssistant.Client.PortingProjectFile
             _logger.LogInformation("Completed porting changes to {0}", projects.Select(p => p.ProjectFilePath).ToList());
 
             return results;
+        }
+
+        /// <summary>
+        /// Checks solution and project folders to make sure we have write access
+        /// </summary>
+        /// <param name="projects">List of projects to check for write access</param>
+        /// <param name="solutionPath">Path to solution file</param>
+        /// <returns>
+        /// Valid projects with access, Porting result for projects without access
+        /// </returns>
+        private (List<ProjectDetails>, List<PortingResult>) VerifyFileAccess(List<ProjectDetails> projects, string solutionPath)
+        {
+            var noAccessPortingResults = new List<PortingResult>();
+            var projectsWithAccess = new List<ProjectDetails>();
+
+            foreach (ProjectDetails project in projects)
+            {
+                List<string> result = Common.Utils.FileSystemAccess.CheckWriteAccessForDirectory(Path.GetDirectoryName(project.ProjectFilePath));
+                if (result.Count == 0)
+                {
+                    projectsWithAccess.Add(project);
+                }
+                else
+                {
+                    noAccessPortingResults.Add(new PortingResult
+                    {
+                        Success = false,
+                        ProjectFile = project.ProjectFilePath,
+                        ProjectName = project.ProjectName,
+                        Message = $"Application does not have write access to items: ${string.Join(", ", result)}",
+                        Exception = new UnauthorizedAccessException()
+                    });
+                }
+            }
+            return (projectsWithAccess, noAccessPortingResults);
         }
     }
 }
