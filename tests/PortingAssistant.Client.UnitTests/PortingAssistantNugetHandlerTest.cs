@@ -800,7 +800,7 @@ namespace PortingAssistant.Client.Tests
                 It.IsAny<EventId>(),
                 It.IsAny<It.IsValueType>(),
                 It.IsAny<Exception>(),
-                (Func<It.IsValueType, Exception, string>)It.IsAny<object>()), Times.Once);
+                (Func<It.IsValueType, Exception, string>)It.IsAny<object>()), Times.Exactly(13));
 
             repositories = GetInternalRepositoryThrowsException(new AggregateException());
             result = checker.GetInternalPackagesAsync(packages, repositories);
