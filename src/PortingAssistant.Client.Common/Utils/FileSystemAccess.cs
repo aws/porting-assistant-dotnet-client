@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Security.Principal;
-using System.Security.AccessControl;
+using System.Linq;
 
 namespace PortingAssistant.Client.Common.Utils
 {
     public static class FileSystemAccess
     {
+        private static string[] fileTypesToCheck = { ".csproj", ".cs" };
+
         /// <summary>
         /// Checks directory and all content for write access
         /// </summary>
@@ -14,17 +15,12 @@ namespace PortingAssistant.Client.Common.Utils
         /// <returns>List of items without write access</returns>
         public static List<string> CheckWriteAccessForDirectory(string path)
         {
-            var result = new List<string>();
-            foreach (string file in Directory.GetFiles(path))
-            {
-                if (!HaveFileWriteAccess(file))
-                {
-                    result.Add(file);
-                }
-            }
+            var result = (Directory.GetFiles(path)
+                .Where(file => fileTypesToCheck.Contains(Path.GetExtension(file)))
+                .Where(file => !CanWriteFile(file))).ToList();
             foreach (string subDirectory in Directory.GetDirectories(path))
             {
-                if (!HaveDirectoryWriteAccess(subDirectory))
+                if (!CanWriteToDirectory(subDirectory))
                 {
                     result.Add(subDirectory);
                 }
@@ -33,46 +29,33 @@ namespace PortingAssistant.Client.Common.Utils
             return result;
         }
 
-        private static bool HaveFileWriteAccess(string path)
+        private static bool CanWriteFile(string path)
         {
-            var fileInfo = new FileInfo(path);
-            FileSecurity accessControl = fileInfo.GetAccessControl();
-            AuthorizationRuleCollection rules = accessControl.GetAccessRules(true, true, typeof(SecurityIdentifier));
-            return CheckAuthorizationRules(rules);
-        }
-
-        private static bool HaveDirectoryWriteAccess(string path)
-        {
-            var directoryInfo = new DirectoryInfo(path);
-            DirectorySecurity accessControl = directoryInfo.GetAccessControl();
-            AuthorizationRuleCollection rules = accessControl.GetAccessRules(true, true, typeof(SecurityIdentifier));
-            return CheckAuthorizationRules(rules);
-        }
-
-        // Checks rules for write permission
-        private static bool CheckAuthorizationRules(AuthorizationRuleCollection rules)
-        {
-            bool hasAllowWrite = false;
-            bool hasDenyWrite = false;
-
-            var identity = WindowsIdentity.GetCurrent();
-
-            foreach (AuthorizationRule rule in rules)
+            try
             {
-                if (identity.User.Equals(rule.IdentityReference) || identity.Groups.Contains(rule.IdentityReference))
-                {
-                    var filesystemAccessRule = (FileSystemAccessRule)rule;
-                    if ((filesystemAccessRule.FileSystemRights & FileSystemRights.Write) > 0 && filesystemAccessRule.AccessControlType != AccessControlType.Deny)
-                    {
-                        hasAllowWrite = true;
-                    }
-                    else if ((filesystemAccessRule.FileSystemRights & FileSystemRights.Write) > 0 && filesystemAccessRule.AccessControlType == AccessControlType.Deny)
-                    {
-                        hasDenyWrite = true;
-                    }
-                }
+                using var fs = File.Open(path, FileMode.Open);
+                return true;
             }
-            return hasAllowWrite && !hasDenyWrite;
+            catch (System.UnauthorizedAccessException e)
+            {
+                return false;
+            }
+        }
+
+        private static bool CanWriteToDirectory(string path)
+        {
+            try
+            {
+                using FileStream fs = File.Create(
+                    Path.Combine(path, Path.GetRandomFileName()), 
+                    1, 
+                    FileOptions.DeleteOnClose);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }
