@@ -116,7 +116,7 @@ namespace PortingAssistant.Client.PortingProjectFile
             }
 
             //TODO Return result from solution run
-            projects.Where(p => !projectFilesNotFound.Exists(proj => proj.ProjectFilePath == p.ProjectFilePath))
+            projects.Where(p => !projectFilesNotFound.Exists(proj => proj.ProjectFilePath == p.ProjectFilePath) && !p.IsBuildFailed)
                 .ToList().ForEach((p) => results.Add(new PortingResult
                 {
                     ProjectFile = p.ProjectFilePath,
