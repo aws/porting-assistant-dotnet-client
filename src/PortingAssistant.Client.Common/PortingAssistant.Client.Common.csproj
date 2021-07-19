@@ -3,10 +3,6 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Folder Include="Utils\" />
-  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CTA.Rules.PortCore" Version="1.8.4-alpha-g90cdd7a307" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
