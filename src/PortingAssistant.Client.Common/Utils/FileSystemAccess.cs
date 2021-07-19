@@ -32,48 +32,53 @@ namespace PortingAssistant.Client.Common.Utils
         /// <summary>
         /// Checks csproj and at least one .cs file is writeable
         /// </summary>
-        /// <param name="path">Project file path</param>
+        /// <param name="projectFilePath">Project file path</param>
         /// <returns>True if csproj and at least one .cs file is writeable</returns>
-        public static bool CheckWriteAccessForProject(string path)
+        public static bool CheckWriteAccessForProject(string projectFilePath)
         {
-            return CanWriteFile(path) &&
-                 DirectoryHasWriteableCSharpFile(Path.GetDirectoryName(path));
+            return CanWriteFile(projectFilePath) &&
+                 DirectoryHasWriteableCSharpFile(Path.GetDirectoryName(projectFilePath));
         }
 
         private static bool DirectoryHasWriteableCSharpFile(string directoryPath)
         {
+            if (string.IsNullOrEmpty(directoryPath))
+            {
+                return false;
+            }
+
             bool fileFound = Directory.GetFiles(directoryPath)
                 .Where(file => Path.GetExtension(file) == ".cs")
-                .Any(file => !CanWriteFile(file));
+                .Any(file => CanWriteFile(file));
 
             return fileFound || 
                 Directory.GetDirectories(directoryPath).Any(subDirectory => DirectoryHasWriteableCSharpFile(subDirectory));
         }
 
-        private static bool CanWriteFile(string path)
+        private static bool CanWriteFile(string filePath)
         {
             try
             {
-                using var fs = File.Open(path, FileMode.Open);
-                return true;
+                using var fs = File.Open(filePath, FileMode.Open, FileAccess.Write);
+                return fs.CanWrite;
             }
-            catch (System.UnauthorizedAccessException e)
+            catch (System.UnauthorizedAccessException)
             {
                 return false;
             }
         }
 
-        private static bool CanWriteToDirectory(string path)
+        private static bool CanWriteToDirectory(string directoryPath)
         {
             try
             {
                 using FileStream fs = File.Create(
-                    Path.Combine(path, Path.GetRandomFileName()), 
+                    Path.Combine(directoryPath, Path.GetRandomFileName()), 
                     1, 
                     FileOptions.DeleteOnClose);
                 return true;
             }
-            catch
+            catch (System.UnauthorizedAccessException)
             {
                 return false;
             }
