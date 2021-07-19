@@ -67,7 +67,7 @@ namespace PortingAssistant.Client.PortingProjectFile
             }));
             projects = projects.Where((p) => File.Exists(p.ProjectFilePath)).ToList();
 
-            var (projectsWithAccess, noAccessPortingResults) = VerifyFileAccess(projects, solutionPath);
+            var (projectsWithAccess, noAccessPortingResults) = VerifyFileAccess(projects);
             results.AddRange(noAccessPortingResults);
             projects = projectsWithAccess;
 
@@ -130,22 +130,20 @@ namespace PortingAssistant.Client.PortingProjectFile
         }
 
         /// <summary>
-        /// Checks solution and project folders to make sure we have write access
+        /// Checks projects to make sure we have access to the project file and at least one csharp file
         /// </summary>
         /// <param name="projects">List of projects to check for write access</param>
-        /// <param name="solutionPath">Path to solution file</param>
         /// <returns>
         /// Valid projects with access, Porting result for projects without access
         /// </returns>
-        private (List<ProjectDetails>, List<PortingResult>) VerifyFileAccess(List<ProjectDetails> projects, string solutionPath)
+        private (List<ProjectDetails>, List<PortingResult>) VerifyFileAccess(List<ProjectDetails> projects)
         {
             var noAccessPortingResults = new List<PortingResult>();
             var projectsWithAccess = new List<ProjectDetails>();
 
             foreach (ProjectDetails project in projects)
             {
-                List<string> result = Common.Utils.FileSystemAccess.CheckWriteAccessForDirectory(Path.GetDirectoryName(project.ProjectFilePath));
-                if (result.Count == 0)
+                if (Common.Utils.FileSystemAccess.CheckWriteAccessForProject(project.ProjectFilePath))
                 {
                     projectsWithAccess.Add(project);
                 }
@@ -156,7 +154,7 @@ namespace PortingAssistant.Client.PortingProjectFile
                         Success = false,
                         ProjectFile = project.ProjectFilePath,
                         ProjectName = project.ProjectName,
-                        Message = $"Application does not have write access to items: ${string.Join(", ", result)}",
+                        Message = $"Application does not have write access to project: ${project.ProjectName}",
                         Exception = new UnauthorizedAccessException()
                     });
                 }

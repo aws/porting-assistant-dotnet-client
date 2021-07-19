@@ -6,7 +6,7 @@ namespace PortingAssistant.Client.Common.Utils
 {
     public static class FileSystemAccess
     {
-        private static string[] fileTypesToCheck = { ".csproj", ".cs" };
+        private static readonly string[] fileTypesToCheck = { ".csproj", ".cs" };
 
         /// <summary>
         /// Checks directory and all content for write access
@@ -27,6 +27,27 @@ namespace PortingAssistant.Client.Common.Utils
                 result.AddRange(CheckWriteAccessForDirectory(subDirectory));
             }
             return result;
+        }
+
+        /// <summary>
+        /// Checks csproj and at least one .cs file is writeable
+        /// </summary>
+        /// <param name="path">Project file path</param>
+        /// <returns>True if csproj and at least one .cs file is writeable</returns>
+        public static bool CheckWriteAccessForProject(string path)
+        {
+            return CanWriteFile(path) &&
+                 DirectoryHasWriteableCSharpFile(Path.GetDirectoryName(path));
+        }
+
+        private static bool DirectoryHasWriteableCSharpFile(string directoryPath)
+        {
+            bool fileFound = Directory.GetFiles(directoryPath)
+                .Where(file => Path.GetExtension(file) == ".cs")
+                .Any(file => !CanWriteFile(file));
+
+            return fileFound || 
+                Directory.GetDirectories(directoryPath).Any(subDirectory => DirectoryHasWriteableCSharpFile(subDirectory));
         }
 
         private static bool CanWriteFile(string path)
