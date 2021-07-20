@@ -221,7 +221,7 @@ namespace PortingAssistant.Client.Analysis.Utils
                     EndLinePosition = ustNode.TextSpan?.EndLinePosition
                 },
                 // If we found an matching sdk assembly, assume the code is using the sdk.
-                Package = package ?? new PackageVersionPair() { PackageId = "", Version = "" };
+                Package = package ?? new PackageVersionPair() { PackageId = "", Version = "" }
             };
         }
 
