@@ -136,7 +136,14 @@ namespace PortingAssistant.Client.Analysis.Utils
 
         public static CodeEntityDetails Convert(InvocationExpression node, ExternalReferences externalReferences)
         {
-            return CreateCodeEntityDetails(node.MethodName, node.SemanticNamespace, node.SemanticMethodSignature, node.SemanticOriginalDefinition, CodeEntityType.Method, node, node.Reference, externalReferences);
+            return CreateCodeEntityDetails(node.MethodName, 
+                node.SemanticNamespace, 
+                string.IsNullOrEmpty(node.SemanticMethodSignature) ? node.MethodName : node.SemanticMethodSignature,
+                string.IsNullOrEmpty(node.SemanticOriginalDefinition) ? node.MethodName : node.SemanticOriginalDefinition,
+                CodeEntityType.Method, 
+                node, 
+                node.Reference, 
+                externalReferences);
         }
 
         public static CodeEntityDetails Convert(DeclarationNode node, ExternalReferences externalReferences)
@@ -174,11 +181,11 @@ namespace PortingAssistant.Client.Analysis.Utils
             if (package == null)
             {
                 //If any of these values are populated, this is an internal reference. If they are all null, this is a code entity with no references
-                if (reference.Assembly != null
-                    || reference.Namespace != null
-                    || reference.AssemblySymbol != null
-                    || reference.Version != null
-                    || reference.AssemblyLocation != null
+                if (reference?.Assembly != null
+                    || reference?.Namespace != null
+                    || reference?.AssemblySymbol != null
+                    || reference?.Version != null
+                    || reference?.AssemblyLocation != null
                     || !string.IsNullOrEmpty(@namespace))
                 {
                     return null;
