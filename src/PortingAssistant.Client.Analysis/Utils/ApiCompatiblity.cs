@@ -95,7 +95,8 @@ namespace PortingAssistant.Client.Analysis.Utils
                             return false;
                         }
                         return semversion.CompareTo(targetversion) > 0;
-                    }).ToList();
+                    }).ToList() ?? new List<string>();
+
                 return compatiblityResult;
             }
 
