@@ -209,7 +209,7 @@ namespace PortingAssistant.Client.Analysis.Utils
             return new CodeEntityDetails
             {
                 Name = name,
-                Namespace = @namespace,
+                Namespace = @namespace ?? string.Empty,
                 Signature = signature,
                 OriginalDefinition = originalDefinition,
                 CodeEntityType = codeEntityType,
@@ -221,7 +221,7 @@ namespace PortingAssistant.Client.Analysis.Utils
                     EndLinePosition = ustNode.TextSpan?.EndLinePosition
                 },
                 // If we found an matching sdk assembly, assume the code is using the sdk.
-                Package = package,
+                Package = package ?? new PackageVersionPair() { PackageId = "", Version = "" };
             };
         }
 
