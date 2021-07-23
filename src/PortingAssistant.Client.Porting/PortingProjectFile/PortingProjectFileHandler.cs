@@ -154,7 +154,7 @@ namespace PortingAssistant.Client.PortingProjectFile
                         Success = false,
                         ProjectFile = project.ProjectFilePath,
                         ProjectName = project.ProjectName,
-                        Message = $"Application does not have write access to project: ${project.ProjectName}",
+                        Message = $"Application does not have write access to project: {project.ProjectName}",
                         Exception = new UnauthorizedAccessException()
                     });
                 }
