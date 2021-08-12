@@ -1,0 +1,72 @@
+version: 2
+registries:
+  porting-assistant-nuget:
+    type: nuget-feed
+    url: https://s3-us-west-2.amazonaws.com/aws.portingassistant.dotnet.download/nuget/index.json
+  nuget-org:
+    type: nuget-feed
+    url: https://api.nuget.org/v3/index.json
+updates:
+  - package-ecosystem: "nuget"
+    directory: "/src/PortingAssistant.Client.Analysis"
+    registries:
+      - porting-assistant-nuget
+      - nuget-org
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "nuget"
+    directory: "/src/PortingAssistant.Client.Client"
+    registries:
+      - porting-assistant-nuget
+      - nuget-org
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "nuget"
+    directory: "/src/PortingAssistant.Client.Common"
+    registries:
+      - porting-assistant-nuget
+      - nuget-org
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "nuget"
+    directory: "/src/PortingAssistant.Client.NuGet"
+    registries:
+      - porting-assistant-nuget
+      - nuget-org
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "nuget"
+    directory: "/src/PortingAssistant.Client.Porting"
+    registries:
+      - porting-assistant-nuget
+      - nuget-org
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "nuget"
+    directory: "/src/PortingAssistant.Client.Telemetry"
+    registries:
+      - porting-assistant-nuget
+      - nuget-org
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "nuget"
+    directory: "/src/PortingAssistant.Client"
+    registries:
+      - porting-assistant-nuget
+      - nuget-org
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "nuget"
+    directory: "/tests/PortingAssistant.Client.IntegrationTests"
+    registries:
+      - porting-assistant-nuget
+      - nuget-org
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "nuget"
+    directory: "/tests/PortingAssistant.Client.UnitTests"
+    registries:
+      - porting-assistant-nuget
+      - nuget-org
+    schedule:
+      interval: "daily"
