@@ -5,23 +5,14 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
-    <Target Name="AddRuntimeDependenciesToContent"
-    Condition="'$(TargetFrameworkIdentifier)' == '.NETCoreApp'"
-    BeforeTargets="GetCopyToOutputDirectoryItems"
-    DependsOnTargets="GenerateBuildDependencyFile; GenerateBuildRuntimeConfigurationFiles">
+    <Target Name="AddRuntimeDependenciesToContent" Condition="'$(TargetFrameworkIdentifier)' == '.NETCoreApp'" BeforeTargets="GetCopyToOutputDirectoryItems" DependsOnTargets="GenerateBuildDependencyFile; GenerateBuildRuntimeConfigurationFiles">
         <ItemGroup>
             <!--
                 Include deps.json and runtimeconfig.json in ContentWithTargetPath so they will
                 be copied to the output folder of projects that reference this one.
             -->
-            <ContentWithTargetPath Include="$(ProjectDepsFilePath)"
-                                  Condition="'$(GenerateDependencyFile)' == 'true'"
-                                  CopyToOutputDirectory="PreserveNewest"
-                                  TargetPath="$(ProjectDepsFileName)" />
-            <ContentWithTargetPath Include="$(ProjectRuntimeConfigFilePath)"
-                                  Condition="'$(GenerateRuntimeConfigurationFiles)' == 'true'"
-                                  CopyToOutputDirectory="PreserveNewest"
-                                  TargetPath="$(ProjectRuntimeConfigFileName)" />
+            <ContentWithTargetPath Include="$(ProjectDepsFilePath)" Condition="'$(GenerateDependencyFile)' == 'true'" CopyToOutputDirectory="PreserveNewest" TargetPath="$(ProjectDepsFileName)" />
+            <ContentWithTargetPath Include="$(ProjectRuntimeConfigFilePath)" Condition="'$(GenerateRuntimeConfigurationFiles)' == 'true'" CopyToOutputDirectory="PreserveNewest" TargetPath="$(ProjectRuntimeConfigFileName)" />
         </ItemGroup>
     </Target>
 
@@ -37,7 +28,7 @@
 
   <ItemGroup>
     <PackageReference Update="Microsoft.SourceLink.GitHub" Version="1.0.0" />
-    <PackageReference Update="Nerdbank.GitVersioning" Version="3.4.205" />
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.4.231" />
   </ItemGroup>
 
 </Project>
