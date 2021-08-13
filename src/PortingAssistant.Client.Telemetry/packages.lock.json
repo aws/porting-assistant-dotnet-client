@@ -10,18 +10,18 @@
       },
       "AWSSDK.APIGateway": {
         "type": "Direct",
-        "requested": "[3.7.0.50, )",
-        "resolved": "3.7.0.50",
-        "contentHash": "KiDT8ul1U9Zor2AkH6euWNUHCnIPZc8vnHcAEm4u+ySdGCnRiHggSZTxzqO33ka3dE1WrNgFdLDR1+gyhhH2pg==",
+        "requested": "[3.7.1, )",
+        "resolved": "3.7.1",
+        "contentHash": "0SloQ51hdtsX3KAJTDovsscUE11Bs+l3Xi0tvFt+Z1YbCVmLe2HxSxvtzAZeKczaksXLgLnYmYeAyR2UDprMdA==",
         "dependencies": {
-          "AWSSDK.Core": "[3.7.2.2, 4.0.0)"
+          "AWSSDK.Core": "[3.7.2.3, 4.0.0)"
         }
       },
       "AWSSDK.Core": {
         "type": "Direct",
-        "requested": "[3.7.2.2, )",
-        "resolved": "3.7.2.2",
-        "contentHash": "ddNV0UdxZsnWAVpsCsthki5S8vEREef+5eDMYSSCFGDewptKU/3DsVnoArVsRVmWsbNv/FNIoA/sGFZnrI3rPQ=="
+        "requested": "[3.7.2.3, )",
+        "resolved": "3.7.2.3",
+        "contentHash": "3aQb3G2ihLS/D1e5Au/Ii358j49cefnxaj2NLtyythZjwakQkkWBMT9GnU6WPo15tZUB9F/GuclJRGvjUuP5Ng=="
       },
       "Microsoft.SourceLink.GitHub": {
         "type": "Direct",
