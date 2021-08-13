@@ -14,9 +14,9 @@
       },
       "Nerdbank.GitVersioning": {
         "type": "Direct",
-        "requested": "[3.4.231, )",
-        "resolved": "3.4.231",
-        "contentHash": "ifpSbv0sySgIVymTQQz0pjI6O7o/JxnIQMlj28JF5Ybr1LoUTcMfoKnAKwteRlhpQM9qJmONGy9M8BgrEcOteg=="
+        "requested": "[3.4.205, )",
+        "resolved": "3.4.205",
+        "contentHash": "NWUhCkYARhLEO5aJrp+Hrcr7vbiYovdNIbVI77uUEfGfCoZWSiryWb3wux9WEfCI8Uw1s6aQjR5gOO5VWqZKLw=="
       },
       "AWSSDK.Core": {
         "type": "Transitive",
@@ -1918,7 +1918,6 @@
           "AWSSDK.S3": "3.7.1.23",
           "Microsoft.Extensions.Http": "5.0.0",
           "Microsoft.Extensions.Logging.Abstractions": "5.0.0",
-          "NuGet.Protocol": "5.11.0",
           "PortingAssistant.Client.Common": "1.0.0"
         }
       }
