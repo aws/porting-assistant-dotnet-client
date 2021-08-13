@@ -6,7 +6,7 @@
   <ItemGroup>
     <PackageReference Include="CTA.Rules.PortCore" Version="1.8.33-alpha-g41d542cce7" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="NuGet.Protocol" Version="5.10.0" />
+    <PackageReference Include="NuGet.Protocol" Version="5.11.0" />
     <PackageReference Include="semver" Version="2.0.6" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
   </ItemGroup>
