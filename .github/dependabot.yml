@@ -59,6 +59,9 @@ updates:
       - nuget-org
     schedule:
       interval: "daily"
+    ignore:
+      # Starting with version 16.10.0, MSBuild requires .NET 5.0+
+      - dependency-name: "Microsoft.Build"
   - package-ecosystem: "nuget"
     directory: "/tests/PortingAssistant.Client.IntegrationTests"
     registries:
@@ -66,6 +69,9 @@ updates:
       - nuget-org
     schedule:
       interval: "daily"
+    ignore:
+      # Starting with version 16.10.0, MSBuild requires .NET 5.0+
+      - dependency-name: "Microsoft.Build"
   - package-ecosystem: "nuget"
     directory: "/tests/PortingAssistant.Client.UnitTests"
     registries:
