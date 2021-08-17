@@ -80,6 +80,7 @@ namespace PortingAssistantExtensionTelemetry
             var solutionMetrics = new SolutionMetrics
             {
                 metricsType = MetricsType.solution,
+                version = version,
                 portingAssistantSource = source,
                 targetFramework = targetFramework,
                 timeStamp = date.ToString("MM/dd/yyyy HH:mm"),
