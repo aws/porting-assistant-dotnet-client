@@ -84,26 +84,14 @@ namespace PortingAssistant.Client.IntegrationTests
                 "NetFrameworkExample.csproj");
             string actualAnalysisResultRootDir = actualTestSolutionExtractionPath;
 
-            ProcessStartInfo startInfo = new ProcessStartInfo(
-                "PortingAssistant.Client.CLI.exe");
-            startInfo.WorkingDirectory = testDirectoryRoot;
-            startInfo.CreateNoWindow = false;
-            startInfo.UseShellExecute = false;
-            startInfo.RedirectStandardOutput = true;
-            startInfo.RedirectStandardError = true;
-            startInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            startInfo.Arguments = "-s " + actualTestSolutionPath
-                + " " + "-o " + actualAnalysisResultRootDir
-                + " " + "-p " + actualTestProjectPath;
-
             try
             {
                 // Start the process with the info we specified.
                 // Call WaitForExit and then the using statement will close.
-                using (Process exeProcess = Process.Start(startInfo))
+                using (Process exeProcess = Process.Start(Path.Combine(testDirectoryRoot, "PortingAssistant.Client.CLI.exe"),
+                    $"-s {actualTestSolutionPath} -o {actualAnalysisResultRootDir} -p {actualTestProjectPath}"))
                 {
-                    Console.WriteLine(exeProcess.StandardError.ReadToEnd());
-                    exeProcess.WaitForExit();
+                    exeProcess.WaitForExit(300000);
                 }
             }
             catch
