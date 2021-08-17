@@ -79,10 +79,10 @@ namespace PortingAssistantExtensionTelemetry
             // Solution Metrics
             var solutionMetrics = new SolutionMetrics
             {
-                MetricsType = MetricsType.solution,
-                PortingAssistantSource = source,
-                TargetFramework = targetFramework,
-                TimeStamp = date.ToString("MM/dd/yyyy HH:mm"),
+                metricsType = MetricsType.solution,
+                portingAssistantSource = source,
+                targetFramework = targetFramework,
+                timeStamp = date.ToString("MM/dd/yyyy HH:mm"),
                 solutionName = GetHash(sha256hash, solutionDetail.SolutionName),
                 solutionPath = GetHash(sha256hash, solutionDetail.SolutionFilePath),
                 analysisTime = analysisTime,
@@ -93,12 +93,12 @@ namespace PortingAssistantExtensionTelemetry
             {
                 var projectMetrics = new ProjectMetrics
                 {
-                    MetricsType = MetricsType.project,
-                    PortingAssistantSource = source,
-                    Version = version,
-                    TargetFramework = targetFramework,
+                    metricsType = MetricsType.project,
+                    portingAssistantSource = source,
+                    version = version,
+                    targetFramework = targetFramework,
                     sourceFrameworks = project.TargetFrameworks,
-                    TimeStamp = date.ToString("MM/dd/yyyy HH:mm"),
+                    timeStamp = date.ToString("MM/dd/yyyy HH:mm"),
                     projectName = GetHash(sha256hash, project.ProjectName),
                     projectGuid = project.ProjectGuid,
                     projectType = project.ProjectType,
@@ -117,11 +117,11 @@ namespace PortingAssistantExtensionTelemetry
                     nuget.Value.Wait();
                     var nugetMetrics = new NugetMetrics
                     {
-                        MetricsType = MetricsType.nuget,
-                        PortingAssistantSource = source,
-                        Version = version,
-                        TargetFramework = targetFramework,
-                        TimeStamp = date.ToString("MM/dd/yyyy HH:mm"),
+                        metricsType = MetricsType.nuget,
+                        portingAssistantSource = source,
+                        version = version,
+                        targetFramework = targetFramework,
+                        timeStamp = date.ToString("MM/dd/yyyy HH:mm"),
                         pacakgeName = nuget.Value.Result.PackageVersionPair.PackageId,
                         packageVersion = nuget.Value.Result.PackageVersionPair.Version,
                         compatibility = nuget.Value.Result.CompatibilityResults[targetFramework].Compatibility,
@@ -144,11 +144,11 @@ namespace PortingAssistantExtensionTelemetry
             {
                 var apiMetrics = new APIMetrics
                 {
-                    MetricsType = MetricsType.api,
-                    PortingAssistantSource = source,
-                    Version = version,
-                    TargetFramework = targetFramework,
-                    TimeStamp = date.ToString("MM/dd/yyyy HH:mm"),
+                    metricsType = MetricsType.api,
+                    portingAssistantSource = source,
+                    version = version,
+                    targetFramework = targetFramework,
+                    timeStamp = date.ToString("MM/dd/yyyy HH:mm"),
                     name = api.CodeEntityDetails.Name,
                     nameSpace = api.CodeEntityDetails.Namespace,
                     originalDefinition = api.CodeEntityDetails.OriginalDefinition,
