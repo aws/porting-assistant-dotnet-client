@@ -8,7 +8,7 @@ namespace PortingAssistant.Client.Client.FileParser
         public static string getGitRepositoryRootPath(string solutionPath)
         {
             string dirName = Path.GetDirectoryName(solutionPath);
-            if (dirName == null)
+            if (System.String.IsNullOrWhiteSpace(dirName))
             {
                 return null;
             }

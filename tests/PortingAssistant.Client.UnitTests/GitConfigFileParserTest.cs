@@ -28,7 +28,7 @@ namespace PortingAssistant.Client.UnitTests
             string gitRootPath = GitConfigFileParser.getGitRepositoryRootPath(
                 Directory.GetCurrentDirectory());
             string gitUrl = GitConfigFileParser.getGitRepositoryUrl(gitRootPath);
-            Assert.AreEqual("https://github.com/aws/porting-assistant-dotnet-client.git", gitUrl);
+            Assert.IsTrue(gitUrl.Contains("https://github.com/aws/porting-assistant-dotnet-client"));
         }
 
         [Test]
