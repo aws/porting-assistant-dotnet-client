@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
-
   <ItemGroup>
     <Folder Include="FileParser\" />
   </ItemGroup>
@@ -15,6 +14,7 @@
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
     <PackageReference Include="Polly.Extensions.Http" Version="3.0.0" />
+    <PackageReference Include="LibGit2Sharp" Version="0.26.2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PortingAssistant.Client.Common\PortingAssistant.Client.Common.csproj" />

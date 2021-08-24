@@ -68,6 +68,9 @@ namespace PortingAssistant.Client.Client
                 {
                     SolutionName = Path.GetFileNameWithoutExtension(solutionFilePath),
                     SolutionFilePath = solutionFilePath,
+                    SolutionGuid = FileParser.SolutionFileParser.getSolutionGuid(solutionFilePath),
+                    RepositoryUrl = FileParser.GitConfigFileParser.getGitRepositoryUrl(
+                        FileParser.GitConfigFileParser.getGitRepositoryRootPath(solutionFilePath)),
                     Projects = projectAnalysisResults.ConvertAll(p => new ProjectDetails
                     {
                         PackageReferences = p.PackageReferences,
