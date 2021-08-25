@@ -9,9 +9,6 @@
 		<ProjectReference Include="..\PortingAssistant.Client.Common\PortingAssistant.Client.Common.csproj" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="CTA.Rules.PortCore" Version="1.8.33-alpha-g41d542cce7" />
-	</ItemGroup>
-	<ItemGroup>
 		<Folder Include="PortingProjectFile\" />
 	</ItemGroup>
 </Project>
