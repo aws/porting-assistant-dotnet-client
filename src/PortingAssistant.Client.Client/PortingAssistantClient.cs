@@ -64,10 +64,16 @@ namespace PortingAssistant.Client.Client
                     return null;
                 }).Where(p => p != null).ToList();
 
+                string solutionGuid = FileParser.SolutionFileParser.getSolutionGuid(solutionFilePath);
                 var solutionDetails = new SolutionDetails
                 {
                     SolutionName = Path.GetFileNameWithoutExtension(solutionFilePath),
                     SolutionFilePath = solutionFilePath,
+                    SolutionGuid = solutionGuid,
+                    RepositoryUrl = FileParser.GitConfigFileParser.getGitRepositoryUrl(
+                        FileParser.GitConfigFileParser.getGitRepositoryRootPath(solutionFilePath)),
+                    ApplicationGuid = solutionGuid ?? Utils.HashUtils.GenerateGuid(
+                        projectAnalysisResults.Select(p => p.ProjectName).ToList()),
                     Projects = projectAnalysisResults.ConvertAll(p => new ProjectDetails
                     {
                         PackageReferences = p.PackageReferences,

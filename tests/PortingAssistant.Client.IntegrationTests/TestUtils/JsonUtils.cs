@@ -24,8 +24,8 @@ namespace PortingAssistant.Client.IntegrationTests.TestUtils
             }
 
             JObject patch = FindJsonDiff(jObject1, jObject2);
-            Console.WriteLine("---------DIFF-----------");
-            Console.WriteLine(patch.ToString());
+            // Console.WriteLine("---------DIFF-----------");
+            // Console.WriteLine(patch.ToString());
             return patch.Count == 0;
         }
 

@@ -74,6 +74,7 @@ namespace PortingAssistant.Client.IntegrationTests
             Assert.AreEqual(Path.Combine(_tmpTestProjectsExtractionPath, "NetFrameworkExample", 
                 "NetFrameworkExample.sln"), solutionDetails.SolutionFilePath);
             Assert.AreEqual(1, solutionDetails.Projects.Count);
+            Assert.AreEqual("8602089B-96FD-4FA4-9B4D-36067C03E572".ToLower(), solutionDetails.SolutionGuid);
         }
 
         [Test]
@@ -86,6 +87,7 @@ namespace PortingAssistant.Client.IntegrationTests
             Assert.AreEqual(Path.Combine(_tmpTestProjectsExtractionPath, "NetFrameworkExample",
                 "NetFrameworkExample", "NetFrameworkExample.csproj"), projectDetails.ProjectFilePath);
             Assert.AreEqual("669D6AA1-29D1-47ED-9489-796D989351BA".ToLower(), projectDetails.ProjectGuid);
+
             Assert.AreEqual("KnownToBeMSBuildFormat", projectDetails.ProjectType);
             Assert.AreEqual("net48", projectDetails.TargetFrameworks.First());
             Assert.AreEqual(0, projectDetails.ProjectReferences.Count);
