@@ -2,6 +2,27 @@
   "version": 1,
   "dependencies": {
     ".NETCoreApp,Version=v3.1": {
+      "Aws4RequestSigner": {
+        "type": "Direct",
+        "requested": "[1.0.3, )",
+        "resolved": "1.0.3",
+        "contentHash": "nRXdbKbNH85aLjmIst7q6v47Owh91RPB1DlkQqXAuVvrVHY1oTePjkAt/2/4L539PSwFMZchn/DK0pYpSsq3Og=="
+      },
+      "AWSSDK.APIGateway": {
+        "type": "Direct",
+        "requested": "[3.7.2, )",
+        "resolved": "3.7.2",
+        "contentHash": "vzQLapVWLDcZ16STtXXdUmyl1IdM/3FA0NfeCmdcGinnf/wA2s0GxYQH4IVR5BOHv4TUMRLIbsx1BAIj8OhKJg==",
+        "dependencies": {
+          "AWSSDK.Core": "[3.7.2.6, 4.0.0)"
+        }
+      },
+      "AWSSDK.Core": {
+        "type": "Direct",
+        "requested": "[3.7.2.6, )",
+        "resolved": "3.7.2.6",
+        "contentHash": "5TfmNFJAue8FyCEMaswldFbHTrb02RevAy/PncfFcj5vey7v39v3Ee7IsEXuCsHNisBpveVHZBt0nz72Ujx3gQ=="
+      },
       "Microsoft.SourceLink.GitHub": {
         "type": "Direct",
         "requested": "[1.0.0, )",
@@ -18,17 +39,25 @@
         "resolved": "3.4.231",
         "contentHash": "ifpSbv0sySgIVymTQQz0pjI6O7o/JxnIQMlj28JF5Ybr1LoUTcMfoKnAKwteRlhpQM9qJmONGy9M8BgrEcOteg=="
       },
-      "AWSSDK.Core": {
-        "type": "Transitive",
-        "resolved": "3.7.2.6",
-        "contentHash": "5TfmNFJAue8FyCEMaswldFbHTrb02RevAy/PncfFcj5vey7v39v3Ee7IsEXuCsHNisBpveVHZBt0nz72Ujx3gQ=="
+      "Newtonsoft.Json": {
+        "type": "Direct",
+        "requested": "[13.0.1, )",
+        "resolved": "13.0.1",
+        "contentHash": "ppPFpBcvxdsfUonNcvITKqLl3bqxWbDCZIzDWHzjpdAHRFfZe0Dw9HmA0+za13IdyrgJwpkDTDA9fHaxOrt20A=="
       },
-      "AWSSDK.S3": {
-        "type": "Transitive",
-        "resolved": "3.7.1.26",
-        "contentHash": "23ybpVxENCGXOxKnBsdh1WbOeJk5HORCqKZ6shSpB5E4B+JYDOyrr3ZSx3CL3Yr/BEWgyA4ElGKvB26G8cKenw==",
+      "Serilog": {
+        "type": "Direct",
+        "requested": "[2.10.0, )",
+        "resolved": "2.10.0",
+        "contentHash": "+QX0hmf37a0/OZLxM3wL7V6/ADvC1XihXN4Kq/p6d8lCPfgkRdiuhbWlMaFjR9Av0dy5F0+MBeDmDdRZN/YwQA=="
+      },
+      "Serilog.Sinks.File": {
+        "type": "Direct",
+        "requested": "[5.0.0, )",
+        "resolved": "5.0.0",
+        "contentHash": "uwV5hdhWPwUH1szhO8PJpFiahqXmzPzJT/sOijH/kFgUx+cyoDTMM8MHD0adw9+Iem6itoibbUXHYslzXsLEAg==",
         "dependencies": {
-          "AWSSDK.Core": "[3.7.2.6, 4.0.0)"
+          "Serilog": "2.10.0"
         }
       },
       "Buildalyzer": {
@@ -506,17 +535,6 @@
           "System.Linq": "4.1.0"
         }
       },
-      "Microsoft.Extensions.Http": {
-        "type": "Transitive",
-        "resolved": "5.0.0",
-        "contentHash": "kT1ijDKZuSUhBtYoC1sXrmVKP7mA08h9Xrsr4VrS/QOtiKCEtUTTd7dd3XI9dwAb46tZSak13q/zdIcr4jqbyg==",
-        "dependencies": {
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "5.0.0",
-          "Microsoft.Extensions.Logging": "5.0.0",
-          "Microsoft.Extensions.Logging.Abstractions": "5.0.0",
-          "Microsoft.Extensions.Options": "5.0.0"
-        }
-      },
       "Microsoft.Extensions.Logging": {
         "type": "Transitive",
         "resolved": "5.0.0",
@@ -717,11 +735,6 @@
           "System.Xml.ReaderWriter": "4.3.0",
           "System.Xml.XDocument": "4.3.0"
         }
-      },
-      "Newtonsoft.Json": {
-        "type": "Transitive",
-        "resolved": "13.0.1",
-        "contentHash": "ppPFpBcvxdsfUonNcvITKqLl3bqxWbDCZIzDWHzjpdAHRFfZe0Dw9HmA0+za13IdyrgJwpkDTDA9fHaxOrt20A=="
       },
       "NJsonSchema": {
         "type": "Transitive",
@@ -1910,15 +1923,6 @@
           "Newtonsoft.Json": "13.0.1",
           "NuGet.Protocol": "5.11.0",
           "semver": "2.0.6"
-        }
-      },
-      "portingassistant.client.nuget": {
-        "type": "Project",
-        "dependencies": {
-          "AWSSDK.S3": "3.7.1.26",
-          "Microsoft.Extensions.Http": "5.0.0",
-          "Microsoft.Extensions.Logging.Abstractions": "5.0.0",
-          "PortingAssistant.Client.Common": "1.0.0"
         }
       }
     }

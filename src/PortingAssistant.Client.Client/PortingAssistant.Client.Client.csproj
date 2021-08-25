@@ -10,20 +10,13 @@
     <PackageReference Include="Microsoft.Build" Version="16.9.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="5.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
     <PackageReference Include="Polly.Extensions.Http" Version="3.0.0" />
     <PackageReference Include="LibGit2Sharp" Version="0.26.2" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PortingAssistant.Client.Common\PortingAssistant.Client.Common.csproj" />
     <ProjectReference Include="..\PortingAssistant.Client.NuGet\PortingAssistant.Client.NuGet.csproj" />
     <ProjectReference Include="..\PortingAssistant.Client.Porting\PortingAssistant.Client.Porting.csproj" />
     <ProjectReference Include="..\PortingAssistant.Client.Analysis\PortingAssistant.Client.Analysis.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Update="Microsoft.SourceLink.GitHub" Version="1.0.0" />
-    <PackageReference Update="Nerdbank.GitVersioning" Version="3.4.231" />
   </ItemGroup>
 </Project>
