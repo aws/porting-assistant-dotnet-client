@@ -17,10 +17,14 @@ jobs:
     - uses: actions/checkout@v2
       with:
         fetch-depth: 0
-    - name: Setup .NET Core
+    - name: Setup .NET Core 3
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 3.1.301
+        dotnet-version: 3.1.412
+    - name: Setup .NET Core 5
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.301
     - name: Install dependencies
       run: dotnet restore
     - name: Build
@@ -29,7 +33,9 @@ jobs:
       run: dotnet test --configuration Release --no-restore --verbosity normal
     - name: Pack
       if: ${{ github.event_name == 'push' }}
-      run: dotnet pack --configuration Release --no-restore -o dist
+      run: |
+        dotnet pack --configuration Release --no-restore -o dist
+        dotnet publish src/PortingAssistant.Client/PortingAssistant.Client.CLI.csproj -r win-x64 -p:PublishSingleFile=true /p:DebugType=None /p:DebugSymbols=false --self-contained false -f netcoreapp3.1 -o dist
     - name: Install Sleet
       if: ${{ github.event_name == 'push' }}
       run: dotnet tool install -g sleet --version 3.2.0
@@ -43,3 +49,12 @@ jobs:
     - name: Publish
       if: ${{ github.event_name == 'push' }}
       run: sleet push dist --source s3Feed --verbose
+    - name: Publish CLI Executable
+      if: ${{ github.event_name == 'push' }}
+      run: |
+        Get-ChildItem ./dist/PortingAssistant.Client.CLI.*.nupkg | Foreach-Object { 
+        $version =  $_.Name -replace 'PortingAssistant.Client.CLI.', '' -replace ‘.nupkg’, ‘’
+        }
+        $uploadLink = 's3://aws.portingassistant.dotnet.download/nuget/flatcontainer/portingassistant.client.cli/' + $version + '/'
+        Echo $uploadLink
+        aws s3 cp ./dist/PortingAssistant.Client.CLI.exe $uploadLink

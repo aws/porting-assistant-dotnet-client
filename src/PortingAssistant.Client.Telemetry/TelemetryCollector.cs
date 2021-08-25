@@ -1,7 +1,11 @@
 ﻿using Newtonsoft.Json;
+using PortingAssistant.Client.Model;
+using PortingAssistant.Client.Telemetry.Model;
 using Serilog;
 using System;
 using System.IO;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading;
 using ILogger = Serilog.ILogger;
 
@@ -66,34 +70,115 @@ namespace PortingAssistantExtensionTelemetry
         {
             WriteToFile(JsonConvert.SerializeObject(t));
         }
-        public static void Collect<T1, TResult>(Func<T1, TResult> collector, T1 t1)
+
+        public static void SolutionAssessmentCollect(SolutionAnalysisResult result, string targetFramework, string version, string source, double analysisTime)
         {
-            TResult output = collector.Invoke(t1);
-            WriteToFile(JsonConvert.SerializeObject(output));
+            var sha256hash = SHA256.Create();
+            var date = DateTime.Now;
+            var solutionDetail = result.SolutionDetails;
+            // Solution Metrics
+            var solutionMetrics = new SolutionMetrics
+            {
+                metricsType = MetricsType.solution,
+                version = version,
+                portingAssistantSource = source,
+                targetFramework = targetFramework,
+                timeStamp = date.ToString("MM/dd/yyyy HH:mm"),
+                solutionName = GetHash(sha256hash, solutionDetail.SolutionName),
+                solutionPath = GetHash(sha256hash, solutionDetail.SolutionFilePath),
+                analysisTime = analysisTime,
+            };
+            TelemetryCollector.Collect<SolutionMetrics>(solutionMetrics);
+
+            foreach (var project in solutionDetail.Projects)
+            {
+                var projectMetrics = new ProjectMetrics
+                {
+                    metricsType = MetricsType.project,
+                    portingAssistantSource = source,
+                    version = version,
+                    targetFramework = targetFramework,
+                    sourceFrameworks = project.TargetFrameworks,
+                    timeStamp = date.ToString("MM/dd/yyyy HH:mm"),
+                    projectName = GetHash(sha256hash, project.ProjectName),
+                    projectGuid = project.ProjectGuid,
+                    projectType = project.ProjectType,
+                    numNugets = project.PackageReferences.Count,
+                    numReferences = project.ProjectReferences.Count,
+                    isBuildFailed = project.IsBuildFailed,
+                };
+                TelemetryCollector.Collect<ProjectMetrics>(projectMetrics);
+            }
+
+            //nuget metrics
+            result.ProjectAnalysisResults.ForEach(project =>
+            {
+                foreach (var nuget in project.PackageAnalysisResults)
+                {
+                    nuget.Value.Wait();
+                    var nugetMetrics = new NugetMetrics
+                    {
+                        metricsType = MetricsType.nuget,
+                        portingAssistantSource = source,
+                        version = version,
+                        targetFramework = targetFramework,
+                        timeStamp = date.ToString("MM/dd/yyyy HH:mm"),
+                        pacakgeName = nuget.Value.Result.PackageVersionPair.PackageId,
+                        packageVersion = nuget.Value.Result.PackageVersionPair.Version,
+                        compatibility = nuget.Value.Result.CompatibilityResults[targetFramework].Compatibility,
+                    };
+                    TelemetryCollector.Collect<NugetMetrics>(nugetMetrics);
+                }
+
+                foreach (var sourceFile in project.SourceFileAnalysisResults)
+                {
+                    FileAssessmentCollect(sourceFile, targetFramework, version, source);
+                }
+            });
         }
 
-        public static void Collect<T1, T2, TResult>(Func<T1, T2, TResult> collector, T1 t1, T2 t2)
+
+        public static void FileAssessmentCollect(SourceFileAnalysisResult result, string targetFramework, string version, string source)
         {
-            TResult output = collector.Invoke(t1, t2);
-            WriteToFile(JsonConvert.SerializeObject(output));
+            var date = DateTime.Now;
+            foreach (var api in result.ApiAnalysisResults)
+            {
+                var apiMetrics = new APIMetrics
+                {
+                    metricsType = MetricsType.api,
+                    portingAssistantSource = source,
+                    version = version,
+                    targetFramework = targetFramework,
+                    timeStamp = date.ToString("MM/dd/yyyy HH:mm"),
+                    name = api.CodeEntityDetails.Name,
+                    nameSpace = api.CodeEntityDetails.Namespace,
+                    originalDefinition = api.CodeEntityDetails.OriginalDefinition,
+                    compatibility = api.CompatibilityResults[targetFramework].Compatibility,
+                    packageId = api.CodeEntityDetails.Package.PackageId,
+                    packageVersion = api.CodeEntityDetails.Package.Version
+                };
+                TelemetryCollector.Collect<APIMetrics>(apiMetrics);
+            }
         }
 
-        public static void Collect<T1, T2, T3, TResult>(Func<T1, T2, T3, TResult> collector, T1 t1, T2 t2, T3 t3)
-        {
-            TResult output = collector.Invoke(t1, t2, t3);
-            WriteToFile(JsonConvert.SerializeObject(output));
-        }
+        private static string GetHash(HashAlgorithm hashAlgorithm, string input)
 
-        public static void Collect<T1, T2, T3, T4, TResult>(Func<T1, T2, T3, T4, TResult> collector, T1 t1, T2 t2, T3 t3, T4 t4)
         {
-            TResult output = collector.Invoke(t1, t2, t3, t4);
-            WriteToFile(JsonConvert.SerializeObject(output));
-        }
 
-        public static void Collect<T1, T2, T3, T4, T5, TResult>(Func<T1, T2, T3, T4, T5, TResult> collector, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5)
-        {
-            TResult output = collector.Invoke(t1, t2, t3, t4, t5);
-            WriteToFile(JsonConvert.SerializeObject(output));
+            byte[] data = hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(input));
+
+            var sBuilder = new StringBuilder();
+
+            for (int i = 0; i < data.Length; i++)
+
+            {
+
+                sBuilder.Append(data[i].ToString("x2"));
+
+            }
+
+            return sBuilder.ToString();
+
         }
     }
 }
