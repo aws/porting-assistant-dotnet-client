@@ -14,5 +14,6 @@ namespace PortingAssistant.Client.Model
         public bool CompatibleOnly { get; set; }
 
         public bool ActionsOnly { get; set; }
+        public bool UseGenerator { get; set; }
     }
 }

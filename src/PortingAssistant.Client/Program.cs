@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using PortingAssistant.Client.Client;
 using PortingAssistant.Client.Model;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace PortingAssistant.Client.CLI
 
@@ -32,8 +32,11 @@ namespace PortingAssistant.Client.CLI
                             TargetFramework = cli.Target
                         };
 
+                solutionSettings.UseGenerator = true;
+
                 var analyzeResults = portingAssistantClient.AnalyzeSolutionAsync(cli.SolutionPath, solutionSettings);
                 analyzeResults.Wait();
+                var totalBytes = GC.GetTotalAllocatedBytes();
                 if (analyzeResults.IsCompletedSuccessfully)
                 {
                     reportExporter.GenerateJsonReport(analyzeResults.Result, cli.OutputPath);

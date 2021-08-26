@@ -1,21 +1,21 @@
-﻿using System;
+﻿using Codelyzer.Analysis;
+using Codelyzer.Analysis.Common;
+using Codelyzer.Analysis.Model;
+using CTA.Rules.Models;
+using CTA.Rules.PortCore;
+using Microsoft.Extensions.Logging;
+using PortingAssistant.Client.Analysis.Utils;
+using PortingAssistant.Client.Common.Model;
+using PortingAssistant.Client.Common.Utils;
+using PortingAssistant.Client.Model;
+using PortingAssistant.Client.NuGet;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using CTA.Rules.Models;
-using CTA.Rules.PortCore;
-using Codelyzer.Analysis;
-using Codelyzer.Analysis.Common;
-using Codelyzer.Analysis.Model;
-using Microsoft.Extensions.Logging;
-using PortingAssistant.Client.Common.Utils;
-using PortingAssistant.Client.Analysis.Utils;
-using PortingAssistant.Client.Model;
-using PortingAssistant.Client.NuGet;
 using AnalyzerConfiguration = Codelyzer.Analysis.AnalyzerConfiguration;
 using IDEProjectResult = Codelyzer.Analysis.Build.IDEProjectResult;
-using PortingAssistant.Client.Common.Model;
 
 namespace PortingAssistant.Client.Analysis
 {
@@ -141,7 +141,7 @@ namespace PortingAssistant.Client.Analysis
                 MemoryUtils.LogSolutiontSize(_logger, solutionFilename);
                 var configuration = GetAnalyzerConfiguration();
                 var analyzer = CodeAnalyzerFactory.GetAnalyzer(configuration, _logger);
-                var analyzersTask = await analyzer.AnalyzeSolution(solutionFilename);
+                var analyzersTask = await analyzer.AnalyzeSolution(solutionFilename);                
 
                 var analysisActions = AnalyzeActions(projects, targetFramework, analyzersTask, solutionFilename);
 
@@ -253,11 +253,65 @@ namespace PortingAssistant.Client.Analysis
                 MemoryUtils.LogMemoryConsumption(_logger);
                 throw e;
             }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
             finally
             {
                 CommonUtils.RunGarbageCollection(_logger, "PortingAssistantAnalysisHandler.AnalyzeSolution");
             }
 
+        }
+
+
+        public async Task<Dictionary<string, ProjectAnalysisResult>> AnalyzeSolutionGenerator(
+            string solutionFilename, List<string> projects, string targetFramework = DEFAULT_TARGET)
+        {
+            try
+            {
+                var configuration = GetAnalyzerConfiguration();
+                var analyzer = CodeAnalyzerFactory.GetAnalyzer(configuration, _logger);
+
+                var resultEnumerator = analyzer.AnalyzeSolutionGeneratorAsync(solutionFilename).GetAsyncEnumerator();
+                SolutionPort solutionPort = new SolutionPort(solutionFilename);
+                var resultsDictionary = new Dictionary<string, ProjectAnalysisResult>();
+
+                //Init
+                while (await resultEnumerator.MoveNextAsync())
+                {
+                    using var result = resultEnumerator.Current;
+                    var projectPath = result?.ProjectResult?.ProjectFilePath;
+                    PortCoreConfiguration projectConfiguration = new PortCoreConfiguration()
+                    {
+                        ProjectPath = projectPath,
+                        UseDefaultRules = true,
+                        TargetVersions = new List<string> { targetFramework },
+                        PortCode = false,
+                        PortProject = false
+                    };
+
+                    var projectResult = solutionPort.RunProject(result, projectConfiguration);
+
+                    var analysisResult = AnalyzeProject(projectPath, solutionFilename, result, new ProjectActions(), isIncremental: false, targetFramework);
+
+                    projectResult = null;
+                    analysisResult = null;
+                    resultsDictionary.Add(projectPath, analysisResult);
+                }                
+                //Terminate
+                return resultsDictionary;
+            }
+            catch (OutOfMemoryException e)
+            {
+                _logger.LogError("Analyze solution {0} with error {1}", solutionFilename, e);
+                MemoryUtils.LogMemoryConsumption(_logger);
+                throw e;
+            }
+            finally
+            {
+                CommonUtils.RunGarbageCollection(_logger, "PortingAssistantAnalysisHandler.AnalyzeSolution");
+            }
         }
 
         private List<ProjectResult> AnalyzeActions(List<string> projects, string targetFramework, List<AnalyzerResult> analyzerResults, string pathToSolution)
@@ -307,9 +361,35 @@ namespace PortingAssistant.Client.Analysis
             {
                 var analyzer = analyzers.Find((a) => a.ProjectResult?.ProjectFilePath != null &&
                     a.ProjectResult.ProjectFilePath.Equals(project));
-
                 var projectActions = analysisActions.FirstOrDefault(p => p.ProjectFile == project)?.ProjectActions ?? new ProjectActions();
 
+                return AnalyzeProject(project, solutionFileName, analyzer, projectActions, isIncremental, targetFramework);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error while analyzing {0}, {1}", project, ex);
+                return new ProjectAnalysisResult
+                {
+                    ProjectName = Path.GetFileNameWithoutExtension(project),
+                    ProjectFilePath = project,
+                    TargetFrameworks = new List<string>(),
+                    PackageReferences = new List<PackageVersionPair>(),
+                    ProjectReferences = new List<ProjectReference>(),
+                    PackageAnalysisResults = new Dictionary<PackageVersionPair, Task<PackageAnalysisResult>>(),
+                    IsBuildFailed = true,
+                    Errors = new List<string> { string.Format("Error while analyzing {0}, {1}", project, ex) },
+                    ProjectGuid = null,
+                    ProjectType = null,
+                    SourceFileAnalysisResults = new List<SourceFileAnalysisResult>()
+                };
+            }
+        }
+
+        private ProjectAnalysisResult AnalyzeProject(
+           string project, string solutionFileName, AnalyzerResult analyzer, ProjectActions projectActions, bool isIncremental = false, string targetFramework = DEFAULT_TARGET)
+        {
+            try
+            {
                 if (analyzer == null || analyzer.ProjectResult == null)
                 {
                     _logger.LogError("Unable to build {0}.", project);
@@ -321,7 +401,7 @@ namespace PortingAssistant.Client.Analysis
                     return SourceFileToCodeTokens(sourceFile);
                 }).ToDictionary(p => p.Key, p => p.Value);
 
-                var sourceFileToCodeEntityDetails = CodeEntityModelToCodeEntities.Convert(sourceFileToCodeTokens, analyzer);                
+                var sourceFileToCodeEntityDetails = CodeEntityModelToCodeEntities.Convert(sourceFileToCodeTokens, analyzer);
 
                 var namespaces = sourceFileToCodeEntityDetails.Aggregate(new HashSet<string>(), (agg, cur) =>
                 {
@@ -409,6 +489,7 @@ namespace PortingAssistant.Client.Analysis
                 };
             }
         }
+
 
         private ProjectCompatibilityResult GenerateCompatibilityResults(List<SourceFileAnalysisResult> sourceFileAnalysisResults, string projectPath, bool isPorted)
         {

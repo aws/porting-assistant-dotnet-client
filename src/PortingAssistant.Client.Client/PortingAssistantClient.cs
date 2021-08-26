@@ -47,6 +47,8 @@ namespace PortingAssistant.Client.Client
 
                 if (settings.ContiniousEnabled)
                     projectAnalysisResultsDict = await _analysisHandler.AnalyzeSolutionIncremental(solutionFilePath, projects, targetFramework);
+                else if (settings.UseGenerator)
+                    projectAnalysisResultsDict = await _analysisHandler.AnalyzeSolutionGenerator(solutionFilePath, projects, targetFramework);
                 else
                     projectAnalysisResultsDict = await _analysisHandler.AnalyzeSolution(solutionFilePath, projects, targetFramework);
 
