@@ -89,7 +89,7 @@ namespace PortingAssistant.Client.IntegrationTests
                 // Start the process with the info we specified.
                 // Call WaitForExit and then the using statement will close.
                 using (Process exeProcess = Process.Start(Path.Combine(testDirectoryRoot, "PortingAssistant.Client.CLI.exe"),
-                    $"-s {actualTestSolutionPath} -o {actualAnalysisResultRootDir} -p {actualTestProjectPath}"))
+                    $"assess -s {actualTestSolutionPath} -o {actualAnalysisResultRootDir} -p {actualTestProjectPath}"))
                 {
                     exeProcess.WaitForExit(300000);
                 }

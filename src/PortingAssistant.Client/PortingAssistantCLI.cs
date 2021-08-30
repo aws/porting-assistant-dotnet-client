@@ -7,8 +7,8 @@ using CommandLine.Text;
 
 namespace PortingAssistant.Client.CLI
 {
-
-    class Options
+    [Verb("assess", HelpText = "Assess an .NET solution file.")]
+    class AssessOptions
     {
         [Option('s', "solution-path", Required = true, HelpText = "Solution file path to be analyzed")]
         public string SolutionPath { get; set; }
@@ -34,14 +34,21 @@ namespace PortingAssistant.Client.CLI
             get
             {
                 return new List<Example>() {
-        new Example("analyze a solution", new Options { SolutionPath = "C://Path/To/example.sln", OutputPath = "C://output"}),
-        new Example("analyze a solution with ignored projects", new Options { SolutionPath = "C://Path/To/example.sln", OutputPath = "C://output", IgnoreProjects = new List<string>{"projectname1","projectname2"} }),
-        new Example("porting projects", new Options { SolutionPath = "C://Path/To/example.sln", OutputPath = "C://output", PortingProjects = new List<string>{"projectname1","projectname2"}, Target= "netcoreapp3.1" })
-      };
+                    new Example("analyze a solution", new AssessOptions { SolutionPath = "C://Path/To/example.sln", OutputPath = "C://output"}),
+                    new Example("analyze a solution with ignored projects", new AssessOptions { SolutionPath = "C://Path/To/example.sln", OutputPath = "C://output", IgnoreProjects = new List<string>{"projectname1","projectname2"} }),
+                    new Example("porting projects", new AssessOptions { SolutionPath = "C://Path/To/example.sln", OutputPath = "C://output", PortingProjects = new List<string>{"projectname1","projectname2"}, Target= "netcoreapp3.1" })
+                };
             }
         }
     }
 
+    [Verb("schema", HelpText = "Get the assessment schema information.")]
+    class SchemaOptions
+    {
+        [Option('s', "schema-version", Required = false, HelpText = "Get the schema version.")]
+        public bool SchemaVersion { get; set; }
+    }
+ 
     public class PortingAssistantCLI
     {
         public string SolutionPath;
@@ -50,14 +57,19 @@ namespace PortingAssistant.Client.CLI
         public List<string> PortingProjects;
         public string Target;
 
+        public bool isAssess = false;
+        public bool isSchema = false;
+        public bool schemaVersion = false;
+
         public void HandleCommand(String[] args)
         {
             var TargetFrameworks = new HashSet<string>{ "net5.0",  "netcoreapp3.1", "netstandard2.1"};
 
-            Parser.Default.ParseArguments<Options>(args)
+            Parser.Default.ParseArguments<AssessOptions, SchemaOptions>(args)
                 .WithNotParsed(HandleParseError)
-                .WithParsed(o =>
+                .WithParsed<AssessOptions>(o =>
                 {
+                    isAssess = true;
                     if (string.IsNullOrEmpty(o.SolutionPath) || !File.Exists(o.SolutionPath) || !o.SolutionPath.EndsWith(".sln") )
                     {
                         Console.WriteLine("Invalid command, please provide valid solution path");
@@ -88,7 +100,16 @@ namespace PortingAssistant.Client.CLI
                     {
                         PortingProjects = o.PortingProjects.ToList();
                     }
-                });
+                })
+                .WithParsed<SchemaOptions>(o =>
+                {
+                    isSchema = true;
+                    if (o.SchemaVersion)
+                    {
+                        schemaVersion = o.SchemaVersion;
+                    }
+
+                }); ;
         }
 
         static void HandleParseError(IEnumerable<Error> errs)
