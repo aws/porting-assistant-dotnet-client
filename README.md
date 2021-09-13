@@ -65,10 +65,11 @@ For more information about Porting Assistant and to try the tool, please refer t
 
    var portingRequest = new PortingRequest
    {
-       ProjectPaths = filteredProjects, //By default all projects are ported
+       Projects = projects, //By default all projects are ported
        SolutionPath = solutionPath,
        TargetFramework = analyzerSettings.TargetFramework,
-       RecommendedActions = FilteredRecommendedActions.ToList()
+       RecommendedActions = FilteredRecommendedActions.ToList(),
+       IncludeCodeFix = true
    };
 
    var portingResults =  portingAssistantClient.ApplyPortingChanges(portingRequest);
