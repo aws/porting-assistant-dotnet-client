@@ -35,7 +35,10 @@ For more information about Porting Assistant and to try the tool, please refer t
    /* For exporting the assessment results into a file */
    var reportExporter = portingAssistantBuilder.GetReportExporter();
 
-   var analyzerSettings = new AnalyzerSettings();
+   var analyzerSettings = new AnalyzerSettings
+   {
+       TargetFramework = "netcoreapp3.1",
+    };
 
    /* Analyze the solution */
    var analyzeResults =  await portingAssistantClient.AnalyzeSolutionAsync(solutionPath, analyzerSettings);
@@ -47,19 +50,26 @@ For more information about Porting Assistant and to try the tool, please refer t
    var filteredProjects = new List<string> {"projectname1", "projectname2"};
 
    /* Porting the application to .NET Core project */
+   var projects = analyzeResults.SolutionDetails.Projects.Where(p => !filteredProjects.Contains(p.ProjectName)).ToList();
    var PortingProjectResults = analyzeResults.ProjectAnalysisResults
-       .Where(project => filteredProjects.Contains(project.ProjectName));
+       .Where(project => !filteredProjects.Contains(project.ProjectName));
 
    var FilteredRecommendedActions = PortingProjectResults
        .SelectMany(project => project.PackageAnalysisResults.Values
-           .SelectMany(package => package.Result.Recommendations.RecommendedActions));
+       .Where(package =>
+       {
+            var comp = package.Result.CompatibilityResults.GetValueOrDefault(analyzerSettings.TargetFramework);
+            return comp.Compatibility != Compatibility.COMPATIBLE && comp.CompatibleVersions.Count != 0;
+        })
+        .SelectMany(package => package.Result.Recommendations.RecommendedActions));
 
    var portingRequest = new PortingRequest
    {
-       ProjectPaths = filteredProjects, //By default all projects are ported
+       Projects = projects, //By default all projects are ported
        SolutionPath = solutionPath,
-       TargetFramework = "netcoreapp31",
-       RecommendedActions = FilteredRecommendedActions.ToList()
+       TargetFramework = analyzerSettings.TargetFramework,
+       RecommendedActions = FilteredRecommendedActions.ToList(),
+       IncludeCodeFix = true
    };
 
    var portingResults =  portingAssistantClient.ApplyPortingChanges(portingRequest);
