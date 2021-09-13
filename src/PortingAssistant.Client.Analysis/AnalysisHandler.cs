@@ -141,7 +141,7 @@ namespace PortingAssistant.Client.Analysis
                 MemoryUtils.LogSolutiontSize(_logger, solutionFilename);
                 var configuration = GetAnalyzerConfiguration();
                 var analyzer = CodeAnalyzerFactory.GetAnalyzer(configuration, _logger);
-                var analyzersTask = await analyzer.AnalyzeSolution(solutionFilename);                
+                var analyzersTask = await analyzer.AnalyzeSolution(solutionFilename);
 
                 var analysisActions = AnalyzeActions(projects, targetFramework, analyzersTask, solutionFilename);
 
@@ -264,53 +264,35 @@ namespace PortingAssistant.Client.Analysis
 
         }
 
+        
 
-        public async Task<Dictionary<string, ProjectAnalysisResult>> AnalyzeSolutionGenerator(
-            string solutionFilename, List<string> projects, string targetFramework = DEFAULT_TARGET)
+        public async IAsyncEnumerable<ProjectAnalysisResult> AnalyzeSolutionGeneratorAsync(string solutionFilename, List<string> projects, string targetFramework = "netcoreapp3.1")
         {
-            try
+            var configuration = GetAnalyzerConfiguration();
+            var analyzer = CodeAnalyzerFactory.GetAnalyzer(configuration, _logger);
+
+            var resultEnumerator = analyzer.AnalyzeSolutionGeneratorAsync(solutionFilename).GetAsyncEnumerator();
+            SolutionPort solutionPort = new SolutionPort(solutionFilename);
+
+            while (await resultEnumerator.MoveNextAsync())
             {
-                var configuration = GetAnalyzerConfiguration();
-                var analyzer = CodeAnalyzerFactory.GetAnalyzer(configuration, _logger);
-
-                var resultEnumerator = analyzer.AnalyzeSolutionGeneratorAsync(solutionFilename).GetAsyncEnumerator();
-                SolutionPort solutionPort = new SolutionPort(solutionFilename);
-                var resultsDictionary = new Dictionary<string, ProjectAnalysisResult>();
-
-                //Init
-                while (await resultEnumerator.MoveNextAsync())
+                using var result = resultEnumerator.Current;
+                var projectPath = result?.ProjectResult?.ProjectFilePath;
+                PortCoreConfiguration projectConfiguration = new PortCoreConfiguration()
                 {
-                    using var result = resultEnumerator.Current;
-                    var projectPath = result?.ProjectResult?.ProjectFilePath;
-                    PortCoreConfiguration projectConfiguration = new PortCoreConfiguration()
-                    {
-                        ProjectPath = projectPath,
-                        UseDefaultRules = true,
-                        TargetVersions = new List<string> { targetFramework },
-                        PortCode = false,
-                        PortProject = false
-                    };
+                    ProjectPath = projectPath,
+                    UseDefaultRules = true,
+                    TargetVersions = new List<string> { targetFramework },
+                    PortCode = false,
+                    PortProject = false
+                };
 
-                    var projectResult = solutionPort.RunProject(result, projectConfiguration);
+                var projectResult = solutionPort.RunProject(result, projectConfiguration);
 
-                    var analysisResult = AnalyzeProject(projectPath, solutionFilename, result, new ProjectActions(), isIncremental: false, targetFramework);
+                var analysisResult = AnalyzeProject(projectPath, solutionFilename, result, new ProjectActions(), isIncremental: false, targetFramework);
 
-                    projectResult = null;
-                    analysisResult = null;
-                    resultsDictionary.Add(projectPath, analysisResult);
-                }                
-                //Terminate
-                return resultsDictionary;
-            }
-            catch (OutOfMemoryException e)
-            {
-                _logger.LogError("Analyze solution {0} with error {1}", solutionFilename, e);
-                MemoryUtils.LogMemoryConsumption(_logger);
-                throw e;
-            }
-            finally
-            {
-                CommonUtils.RunGarbageCollection(_logger, "PortingAssistantAnalysisHandler.AnalyzeSolution");
+                yield return analysisResult;
+
             }
         }
 
@@ -495,7 +477,8 @@ namespace PortingAssistant.Client.Analysis
         {
             var projectCompatibilityResult = new ProjectCompatibilityResult() { IsPorted = isPorted, ProjectPath = projectPath };
 
-            sourceFileAnalysisResults.ForEach(SourceFileAnalysisResult => {
+            sourceFileAnalysisResults.ForEach(SourceFileAnalysisResult =>
+            {
                 SourceFileAnalysisResult.ApiAnalysisResults.ForEach(apiAnalysisResult =>
                 {
                     var currentEntity = projectCompatibilityResult.CodeEntityCompatibilityResults.First(r => r.CodeEntityType == apiAnalysisResult.CodeEntityDetails.CodeEntityType);

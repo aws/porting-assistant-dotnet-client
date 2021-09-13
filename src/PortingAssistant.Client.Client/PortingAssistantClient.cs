@@ -27,28 +27,38 @@ namespace PortingAssistant.Client.Client
             _portingHandler = portingHandler;
         }
 
+
+        public async IAsyncEnumerable<ProjectAnalysisResult> AnalyzeSolutionGeneratorAsync(string solutionFilePath, AnalyzerSettings settings)
+        {
+            var targetFramework = settings.TargetFramework ?? DEFAULT_TARGET;
+
+            var projects = ProjectsToAnalyze(solutionFilePath, settings);
+            var resultEnumerator = _analysisHandler.AnalyzeSolutionGeneratorAsync(solutionFilePath, projects, targetFramework).GetAsyncEnumerator();
+
+            while (await resultEnumerator.MoveNextAsync())
+            {
+
+                var result = resultEnumerator.Current;
+                yield return result;
+            }   
+        }
+
         public async Task<SolutionAnalysisResult> AnalyzeSolutionAsync(string solutionFilePath, AnalyzerSettings settings)
         {
             try
             {
-                var solution = SolutionFile.Parse(solutionFilePath);
+                var targetFramework = settings.TargetFramework ?? DEFAULT_TARGET;
+
                 var failedProjects = new List<string>();
 
-                var projects = solution.ProjectsInOrder.Where(p =>
-                    (p.ProjectType == SolutionProjectType.KnownToBeMSBuildFormat ||
-                    p.ProjectType == SolutionProjectType.WebProject) &&
-                    (settings.IgnoreProjects?.Contains(p.AbsolutePath) != true))
-                    .Select(p => p.AbsolutePath)
-                    .ToList();
-
-                var targetFramework = settings.TargetFramework ?? DEFAULT_TARGET;
+                var projects = ProjectsToAnalyze(solutionFilePath,settings);
 
                 Dictionary<string, ProjectAnalysisResult> projectAnalysisResultsDict;
 
                 if (settings.ContiniousEnabled)
                     projectAnalysisResultsDict = await _analysisHandler.AnalyzeSolutionIncremental(solutionFilePath, projects, targetFramework);
-                else if (settings.UseGenerator)
-                    projectAnalysisResultsDict = await _analysisHandler.AnalyzeSolutionGenerator(solutionFilePath, projects, targetFramework);
+                //else if (settings.UseGenerator)
+                //    projectAnalysisResultsDict = await _analysisHandler.AnalyzeSolutionGenerator(solutionFilePath, projects, targetFramework);
                 else
                     projectAnalysisResultsDict = await _analysisHandler.AnalyzeSolution(solutionFilePath, projects, targetFramework);
 
@@ -145,6 +155,17 @@ namespace PortingAssistant.Client.Client
                 throw new PortingAssistantException("Could not apply porting changes", ex);
             }
 
+        }
+
+        private List<string> ProjectsToAnalyze(string solutionFilePath, AnalyzerSettings settings)
+        {
+            var solution = SolutionFile.Parse(solutionFilePath);
+            return solution.ProjectsInOrder.Where(p =>
+                (p.ProjectType == SolutionProjectType.KnownToBeMSBuildFormat ||
+                p.ProjectType == SolutionProjectType.WebProject) &&
+                (settings.IgnoreProjects?.Contains(p.AbsolutePath) != true))
+                .Select(p => p.AbsolutePath)
+                .ToList();
         }
     }
 }
