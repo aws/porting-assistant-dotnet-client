@@ -94,6 +94,11 @@ namespace PortingAssistant.Client.CLI
                             .Where(project => cli.PortingProjects.Contains(project.ProjectName));
                         var FilteredRecommendedActions = PortingProjectResults
                             .SelectMany(project => project.PackageAnalysisResults.Values
+                            .Where(package =>
+                            {
+                                var comp = package.Result.CompatibilityResults.GetValueOrDefault(cli.Target);
+                                return comp.Compatibility != Compatibility.COMPATIBLE && comp.CompatibleVersions.Count != 0;
+                            })
                             .SelectMany(package => package.Result.Recommendations.RecommendedActions));
                         var PortingRequest = new PortingRequest
                         {
@@ -101,7 +106,8 @@ namespace PortingAssistant.Client.CLI
                             Projects = analyzeResults.Result.SolutionDetails.Projects.Where(p => cli.PortingProjects.Contains(p.ProjectFilePath)).ToList(),
                             SolutionPath = cli.SolutionPath,
                             TargetFramework = cli.Target.ToString(),
-                            RecommendedActions = FilteredRecommendedActions.ToList()
+                            RecommendedActions = FilteredRecommendedActions.ToList(),
+                            IncludeCodeFix = true
                         };
                         var portingResults = portingAssistantClient.ApplyPortingChanges(PortingRequest);
                         reportExporter.GenerateJsonReport(portingResults, cli.SolutionPath, cli.OutputPath);
