@@ -50,9 +50,9 @@ For more information about Porting Assistant and to try the tool, please refer t
    var filteredProjects = new List<string> {"projectname1", "projectname2"};
 
    /* Porting the application to .NET Core project */
-   var projects = analyzeResults.SolutionDetails.Projects.Where(p => filteredProjects.Contains(p.ProjectName)).ToList();
+   var projects = analyzeResults.SolutionDetails.Projects.Where(p => !filteredProjects.Contains(p.ProjectName)).ToList();
    var PortingProjectResults = analyzeResults.ProjectAnalysisResults
-       .Where(project => filteredProjects.Contains(project.ProjectName));
+       .Where(project => !filteredProjects.Contains(project.ProjectName));
 
    var FilteredRecommendedActions = PortingProjectResults
        .SelectMany(project => project.PackageAnalysisResults.Values
