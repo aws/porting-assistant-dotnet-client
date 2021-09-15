@@ -135,6 +135,7 @@ namespace PortingAssistant.Client.Client
                         var packageRecommendation = (PackageRecommendation)recommendation;
                         return new Tuple<string, Tuple<string, string>>(packageRecommendation.PackageId, new Tuple<string, string>(packageRecommendation.Version, packageRecommendation.TargetVersions.First()));
                     })
+                    .GroupBy(t => t.Item1).Select(t => t.FirstOrDefault())
                     .ToDictionary(t => t.Item1, t => t.Item2);
 
                 return _portingHandler.ApplyPortProjectFileChanges(
