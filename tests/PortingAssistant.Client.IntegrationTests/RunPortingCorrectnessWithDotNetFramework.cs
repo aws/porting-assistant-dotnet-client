@@ -97,7 +97,7 @@ namespace PortingAssistant.Client.IntegrationTests
             startInfo.WindowStyle = ProcessWindowStyle.Hidden;
             startInfo.Arguments = "assess -s " + actualTestSolutionPath
                 + " " + "-o " + actualAnalysisResultRootDir
-                + " " + "-p " + actualTestProjectPath;
+                + " " + "-p " + "NetFrameworkExample";
 
             try
             {
