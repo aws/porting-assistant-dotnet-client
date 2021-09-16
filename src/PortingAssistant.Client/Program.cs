@@ -3,7 +3,9 @@ using PortingAssistant.Client.Client;
 using PortingAssistant.Client.Model;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace PortingAssistant.Client.CLI
 
@@ -34,8 +36,18 @@ namespace PortingAssistant.Client.CLI
 
                 solutionSettings.UseGenerator = true;
 
-                var analyzeResults = portingAssistantClient.AnalyzeSolutionAsync(cli.SolutionPath, solutionSettings);
-                analyzeResults.Wait();
+                Task<SolutionAnalysisResult> analyzeResults;
+
+                if(solutionSettings.UseGenerator)
+                {
+                    analyzeResults = AnalyzeSolutionGenerator(portingAssistantClient, cli.SolutionPath, solutionSettings);
+                }
+                else
+                {
+                    analyzeResults = portingAssistantClient.AnalyzeSolutionAsync(cli.SolutionPath, solutionSettings);
+                    analyzeResults.Wait();
+                }
+
                 var totalBytes = GC.GetTotalAllocatedBytes();
                 if (analyzeResults.IsCompletedSuccessfully)
                 {
@@ -69,6 +81,51 @@ namespace PortingAssistant.Client.CLI
             {
                 Console.WriteLine("error when using the tools :" + ex);
             }
+        }
+
+        private static async Task<SolutionAnalysisResult> AnalyzeSolutionGenerator(IPortingAssistantClient portingAssistantClient, string solutionPath, AnalyzerSettings solutionSettings)
+        {
+            List<ProjectAnalysisResult> projectAnalysisResults = new List<ProjectAnalysisResult>();
+            var failedProjects = new List<string>();
+            var projectAnalysisResultEnumerator = portingAssistantClient.AnalyzeSolutionGeneratorAsync(solutionPath, solutionSettings).GetAsyncEnumerator();
+
+            while (await projectAnalysisResultEnumerator.MoveNextAsync().ConfigureAwait(false))
+            {
+                var result = projectAnalysisResultEnumerator.Current;
+                projectAnalysisResults.Add(result);
+
+                if (result.IsBuildFailed)
+                {
+                    failedProjects.Add(result.ProjectFilePath);
+                }
+            }
+
+
+            var solutionDetails = new SolutionDetails
+            {
+                SolutionName = Path.GetFileNameWithoutExtension(solutionPath),
+                SolutionFilePath = solutionPath,
+                Projects = projectAnalysisResults.ConvertAll(p => new ProjectDetails
+                {
+                    PackageReferences = p.PackageReferences,
+                    ProjectFilePath = p.ProjectFilePath,
+                    ProjectGuid = p.ProjectGuid,
+                    ProjectName = p.ProjectName,
+                    ProjectReferences = p.ProjectReferences,
+                    ProjectType = p.ProjectType,
+                    TargetFrameworks = p.TargetFrameworks,
+                    IsBuildFailed = p.IsBuildFailed
+                }),
+
+                FailedProjects = failedProjects
+            };
+
+            return new SolutionAnalysisResult
+            {
+                FailedProjects = failedProjects,
+                SolutionDetails = solutionDetails,
+                ProjectAnalysisResults = projectAnalysisResults
+            };
         }
     }
 }
