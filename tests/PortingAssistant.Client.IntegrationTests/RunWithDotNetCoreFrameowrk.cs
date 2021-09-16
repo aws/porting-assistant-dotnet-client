@@ -75,6 +75,7 @@ namespace PortingAssistant.Client.IntegrationTests
                 "Miniblog.Core.sln"), solutionDetails.SolutionFilePath);
             Assert.AreEqual(1, solutionDetails.Projects.Count);
             Assert.AreEqual("D6EFE298-6363-41A3-92FD-78CC98AE3580".ToLower(), solutionDetails.SolutionGuid);
+            Assert.AreEqual("D6EFE298-6363-41A3-92FD-78CC98AE3580".ToLower(), solutionDetails.ApplicationGuid);
         }
 
         [Test]
