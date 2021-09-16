@@ -78,11 +78,17 @@ namespace PortingAssistant.Client.Client.Reports
                     {
                         Errors = new List<string> { $"Errors during compilation in {projectAnalysResult.ProjectName}." },
                         SolutionFile = SolutionName,
+                        SolutionGuid = solutionAnalysisResult.SolutionDetails.SolutionGuid,
+                        ApplicationGuid = solutionAnalysisResult.SolutionDetails.ApplicationGuid,
+                        RepositoryUrl = solutionAnalysisResult.SolutionDetails.RepositoryUrl,
                         ProjectFile = ProjectName,
                     } : new ProjectApiAnalysisResult
                     {
                         Errors = projectAnalysResult.Errors,
                         SolutionFile = SolutionName,
+                        SolutionGuid = solutionAnalysisResult.SolutionDetails.SolutionGuid,
+                        ApplicationGuid = solutionAnalysisResult.SolutionDetails.ApplicationGuid,
+                        RepositoryUrl = solutionAnalysisResult.SolutionDetails.RepositoryUrl,
                         ProjectFile = ProjectName,
                         SourceFileAnalysisResults = projectAnalysResult.SourceFileAnalysisResults
                     };
