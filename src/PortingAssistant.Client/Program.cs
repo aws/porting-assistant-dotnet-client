@@ -10,6 +10,7 @@ using PortingAssistant.Client.Common;
 using PortingAssistant.Client.Telemetry.Model;
 using PortingAssistantExtensionTelemetry;
 using Serilog;
+using PortingAssistant.Client.Common.Model;
 
 namespace PortingAssistant.Client.CLI
 
@@ -40,9 +41,9 @@ namespace PortingAssistant.Client.CLI
                 {
                     var configuration = new PortingAssistantConfiguration();
                     var roamingFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-                    var driftLogs = Path.Combine(roamingFolder, "Porting Assistant for .NET", "logs", "drift");
-                    var logFilePath = Path.Combine(driftLogs, "portingAssistant-assessment.log");
-                    var metricsFilePath = Path.Combine(driftLogs, "portingAssistant-assessment.metrics");
+                    var logs = Path.Combine(roamingFolder, "Porting Assistant for .NET", "logs");
+                    var logFilePath = Path.Combine(logs, "portingAssistant-client-cli.log");
+                    var metricsFilePath = Path.Combine(logs, "portingAssistant-client-cli.metrics");
 
                     var outputTemplate = "[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] {SourceContext}: {Message:lj}{NewLine}{Exception}";
 
@@ -81,7 +82,7 @@ namespace PortingAssistant.Client.CLI
                     if (analyzeResults.IsCompletedSuccessfully)
                     {
                         reportExporter.GenerateJsonReport(analyzeResults.Result, cli.OutputPath);
-                        TelemetryCollector.SolutionAssessmentCollect(analyzeResults.Result, cli.Target, "1.0.0", "PortingAssistantCLI", DateTime.Now.Subtract(startTime).TotalMilliseconds);
+                        TelemetryCollector.SolutionAssessmentCollect(analyzeResults.Result, cli.Target, "1.8.0", "Porting Assistant Client CLI", DateTime.Now.Subtract(startTime).TotalMilliseconds);
                     }
                     else
                     {
