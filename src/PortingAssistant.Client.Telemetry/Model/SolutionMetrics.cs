@@ -8,6 +8,9 @@ namespace PortingAssistant.Client.Telemetry.Model
     {
         public string solutionName { get; set; }
         public string solutionPath { get; set; }
+        public string ApplicationGuid { get; set; }
+        public string SolutionGuid { get; set; }
+        public string RepositoryUrl { get; set; }
         public double analysisTime { get; set; }
     }
 }
