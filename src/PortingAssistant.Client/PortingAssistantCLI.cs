@@ -48,7 +48,7 @@ namespace PortingAssistant.Client.CLI
         [Option('s', "schema-version", Required = false, HelpText = "Get the schema version.")]
         public bool SchemaVersion { get; set; }
     }
- 
+
     public class PortingAssistantCLI
     {
         public string SolutionPath;
@@ -63,14 +63,14 @@ namespace PortingAssistant.Client.CLI
 
         public void HandleCommand(String[] args)
         {
-            var TargetFrameworks = new HashSet<string>{ "net5.0",  "netcoreapp3.1", "netstandard2.1"};
+            var TargetFrameworks = new HashSet<string> { "net5.0", "netcoreapp3.1", "netstandard2.1" };
 
             Parser.Default.ParseArguments<AssessOptions, SchemaOptions>(args)
                 .WithNotParsed(HandleParseError)
                 .WithParsed<AssessOptions>(o =>
                 {
                     isAssess = true;
-                    if (string.IsNullOrEmpty(o.SolutionPath) || !File.Exists(o.SolutionPath) || !o.SolutionPath.EndsWith(".sln") )
+                    if (string.IsNullOrEmpty(o.SolutionPath) || !File.Exists(o.SolutionPath) || !o.SolutionPath.EndsWith(".sln"))
                     {
                         Console.WriteLine("Invalid command, please provide valid solution path");
                         Environment.Exit(-1);

@@ -10,6 +10,7 @@ using PortingAssistant.Client.Common;
 using PortingAssistant.Client.Telemetry.Model;
 using PortingAssistantExtensionTelemetry;
 using Serilog;
+using System.Threading.Tasks;
 
 namespace PortingAssistant.Client.CLI
 
@@ -18,10 +19,9 @@ namespace PortingAssistant.Client.CLI
     {
         static void Main(string[] args)
         {
-
             PortingAssistantCLI cli = new PortingAssistantCLI();
             cli.HandleCommand(args);
-
+            
             var logConfiguration = new LoggerConfiguration().Enrich.FromLogContext()
                 .MinimumLevel.Debug()
                 .WriteTo.Console();
@@ -76,8 +76,17 @@ namespace PortingAssistant.Client.CLI
                             };
 
                     var startTime = DateTime.Now;
-                    var analyzeResults = portingAssistantClient.AnalyzeSolutionAsync(cli.SolutionPath, solutionSettings);
-                    analyzeResults.Wait();
+                    Task<SolutionAnalysisResult> analyzeResults;
+
+                    if (solutionSettings.UseGenerator)
+                    {
+                        analyzeResults = AnalyzeSolutionGenerator(portingAssistantClient, cli.SolutionPath, solutionSettings);
+                    }
+                    else
+                    {
+                        analyzeResults = portingAssistantClient.AnalyzeSolutionAsync(cli.SolutionPath, solutionSettings);
+                        analyzeResults.Wait();
+                    }
                     if (analyzeResults.IsCompletedSuccessfully)
                     {
                         reportExporter.GenerateJsonReport(analyzeResults.Result, cli.OutputPath);
@@ -118,6 +127,51 @@ namespace PortingAssistant.Client.CLI
                     Console.WriteLine("error when using the tools :" + ex);
                 }
             }
+        }
+
+        private static async Task<SolutionAnalysisResult> AnalyzeSolutionGenerator(IPortingAssistantClient portingAssistantClient, string solutionPath, AnalyzerSettings solutionSettings)
+        {
+            List<ProjectAnalysisResult> projectAnalysisResults = new List<ProjectAnalysisResult>();
+            var failedProjects = new List<string>();
+            var projectAnalysisResultEnumerator = portingAssistantClient.AnalyzeSolutionGeneratorAsync(solutionPath, solutionSettings).GetAsyncEnumerator();
+
+            while (await projectAnalysisResultEnumerator.MoveNextAsync().ConfigureAwait(false))
+            {
+                var result = projectAnalysisResultEnumerator.Current;
+                projectAnalysisResults.Add(result);
+
+                if (result.IsBuildFailed)
+                {
+                    failedProjects.Add(result.ProjectFilePath);
+                }
+            }
+
+
+            var solutionDetails = new SolutionDetails
+            {
+                SolutionName = Path.GetFileNameWithoutExtension(solutionPath),
+                SolutionFilePath = solutionPath,
+                Projects = projectAnalysisResults.ConvertAll(p => new ProjectDetails
+                {
+                    PackageReferences = p.PackageReferences,
+                    ProjectFilePath = p.ProjectFilePath,
+                    ProjectGuid = p.ProjectGuid,
+                    ProjectName = p.ProjectName,
+                    ProjectReferences = p.ProjectReferences,
+                    ProjectType = p.ProjectType,
+                    TargetFrameworks = p.TargetFrameworks,
+                    IsBuildFailed = p.IsBuildFailed
+                }),
+
+                FailedProjects = failedProjects
+            };
+
+            return new SolutionAnalysisResult
+            {
+                FailedProjects = failedProjects,
+                SolutionDetails = solutionDetails,
+                ProjectAnalysisResults = projectAnalysisResults
+            };
         }
     }
 }
