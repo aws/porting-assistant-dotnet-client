@@ -4,7 +4,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="CTA.Rules.PortCore" Version="1.9.3-alpha-geca169ede0" />
+    <PackageReference Include="CTA.Rules.PortCore" Version="1.9.8-alpha-g708ed8d54d" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="NuGet.Protocol" Version="5.11.0" />
     <PackageReference Include="semver" Version="2.0.6" />
