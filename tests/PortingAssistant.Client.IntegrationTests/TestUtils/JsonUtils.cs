@@ -3,12 +3,36 @@ using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Schema;
 using System.Linq;
 
 namespace PortingAssistant.Client.IntegrationTests.TestUtils
 {
     public static class JsonUtils
     {
+        public static bool ValidateSchema(string jsonFilePath, string schemaFilePath, bool isJArray)
+        {
+            JToken data;
+            if (isJArray)
+            {
+                data = (JArray)JsonConvert.DeserializeObject(File.ReadAllText(jsonFilePath));
+            }
+            else
+            {
+                data = (JObject)JsonConvert.DeserializeObject(File.ReadAllText(jsonFilePath));
+            }
+            var schema = JSchema.Parse(File.ReadAllText(schemaFilePath));
+
+            IList<string> messages;
+            bool valid = data.IsValid(schema, out messages); // properly validates
+            if (valid == false)
+            {
+                Console.WriteLine("{0} failed validatoin against schema {1}", jsonFilePath, schemaFilePath);
+                Console.WriteLine(string.Join("\n", messages));
+            }
+            return valid;
+        }
+
         public static bool AreTwoJsonFilesEqual(
             string filePath1, string filePath2, string[] propertiesToBeRemoved)
         {
