@@ -1,0 +1,300 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "JSON Schema for Porting Assistant package analysis json output",
+
+  "type": "object",
+  "properties": {
+    "SolutionFile": {
+      "type": "string"
+    },
+    "ApplicationGuid": {
+      "type": "string"
+    },
+    "SolutionGuid": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "RepositoryUrl": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "ProjectFile": {
+      "type": "string"
+    },
+    "Errors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "SourceFileAnalysisResults": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "SourceFileName": {
+            "type": "string"
+          },
+          "SourceFilePath": {
+            "type": "string"
+          },
+          "ApiAnalysisResults": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "CodeEntityDetails": {
+                  "$ref": "#/$defs/CodeEntityDetails"
+                },
+                "CompatibilityResults": {
+                  "$ref": "#/$defs/CompatibilityResults"
+                },
+                "Recommendations": {
+                  "$ref": "#/$defs/Recommendations"
+                }
+              }
+            }
+          },
+          "RecommendedActions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "RecommendedActionType": {
+                  "enum": [
+                    "NoRecommendation",
+                    "ReplaceApi",
+                    "ReplaceNamespace",
+                    "ReplacePackage",
+                    "UpgradePackage"
+                  ],
+                  "type": "string"
+                },
+                "Description": {
+                  "type": [
+                    "null",
+                    "string"
+                  ]
+                },
+                "TextSpan": {
+                  "type": "object",
+                  "properties": {
+                    "StartCharPosition": {
+                      "type": "number"
+                    },
+                    "EndCharPosition": {
+                      "type": "number"
+                    },
+                    "StartLinePosition": {
+                      "type": "number"
+                    },
+                    "EndLinePosition": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "TargetCPU": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "x86",
+                      "x64",
+                      "ARM32",
+                      "ARM64"
+                    ]
+                  }
+                },
+                "TextChanges": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "NewText": {
+                        "type": "string"
+                      },
+                      "FileLinePositionSpan": {
+                        "type": "object",
+                        "properties": {
+                          "Path": {
+                            "type": "string"
+                          },
+                          "HasMappedPath": {
+                            "type": "boolean"
+                          },
+                          "StartLinePosition": {
+                            "$ref": "#/$defs/LinePosition"
+                          },
+                          "EndLinePosition": {
+                            "$ref": "#/$defs/LinePosition"
+                          },
+                          "Span": {
+                            "type": "object",
+                            "properties": {
+                              "Start": {
+                                "$ref": "#/$defs/LinePosition"
+                              },
+                              "End": {
+                                "$ref": "#/$defs/LinePosition"
+                              }
+                            }
+                          },
+                          "IsValid": {
+                            "type": "boolean"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "SolutionFile",
+    "ProjectFile",
+    "Errors"
+  ],
+  "$defs": {
+    "CodeEntityDetails": {
+      "type": "object",
+      "properties": {
+        "CodeEntityType": {
+          "enum": [
+            "Class",
+            "ClassAttribute",
+            "InstanceAttribute",
+            "Method",
+            "Namespace",
+            "Annotation",
+            "Declaration",
+            "Using",
+            "Enum",
+            "Struct"
+          ],
+          "type": "string"
+        },
+        "Namespace": {
+          "type": "string"
+        },
+        "Name": {
+          "type": "string"
+        },
+        "Signature": {
+          "type": "string"
+        },
+        "OriginalDefinition": {
+          "type": "string"
+        },
+        "TextSpan": {
+          "type": "object",
+          "properties": {
+            "StartCharPosition": {
+              "type": "number"
+            },
+            "EndCharPosition": {
+              "type": "number"
+            },
+            "StartLinePosition": {
+              "type": "number"
+            },
+            "EndLinePosition": {
+              "type": "number"
+            }
+          }
+        },
+        "Package": {
+          "type": "object",
+          "properties": {
+            "PackageId": {
+              "type": "string"
+            },
+            "Version": {
+              "type": "string"
+            },
+            "PackageSourceType": {
+              "enum": [
+                "SDK",
+                "NUGET",
+                "PORTABILITY_ANALYZER",
+                "RECOMMENDATION",
+                "PRIVATE"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "CompatibilityResults": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "Compatibility": {
+            "enum": [
+              "COMPATIBLE",
+              "DEPRACATED",
+              "INCOMPATIBLE",
+              "UNKNOWN"
+            ],
+            "type": "string"
+          },
+          "CompatibleVersions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "Recommendations": {
+      "type": "object",
+      "properties": {
+        "RecommendedActions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "RecommendedActionType": {
+                "enum": [
+                  "NoRecommendation",
+                  "ReplaceApi",
+                  "ReplaceNamespace",
+                  "ReplacePackage",
+                  "UpgradePackage"
+                ],
+                "type": "string"
+              },
+              "Description": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "LinePosition": {
+      "type": "object",
+      "properties": {
+        "Line": {
+          "type": "number"
+        },
+        "Character": {
+          "type": "number"
+        }
+      }
+    }
+  }
+}
