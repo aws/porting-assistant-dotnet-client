@@ -18,5 +18,7 @@ namespace PortingAssistant.Client.Analysis
 
         Task<Dictionary<string, ProjectAnalysisResult>> AnalyzeSolutionIncremental(string solutionFilename, List<string> projects,
             string targetFramework = "netcoreapp3.1");
+
+        IAsyncEnumerable<ProjectAnalysisResult> AnalyzeSolutionGeneratorAsync(string solutionFilename, List<string> projects, string targetFramework = "netcoreapp3.1");
     }
 }

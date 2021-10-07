@@ -271,6 +271,45 @@ namespace PortingAssistant.Client.Analysis
 
         }
 
+        public async IAsyncEnumerable<ProjectAnalysisResult> AnalyzeSolutionGeneratorAsync(string solutionFilename, List<string> projects, string targetFramework = "netcoreapp3.1")
+        {
+            var configuration = GetAnalyzerConfiguration();
+            var analyzer = CodeAnalyzerFactory.GetAnalyzer(configuration, _logger);
+
+            var resultEnumerator = analyzer.AnalyzeSolutionGeneratorAsync(solutionFilename).GetAsyncEnumerator();
+            try
+            {
+                SolutionPort solutionPort = new SolutionPort(solutionFilename);
+
+                while (await resultEnumerator.MoveNextAsync().ConfigureAwait(false))
+                {
+                    var result = resultEnumerator.Current;
+                    var projectPath = result?.ProjectResult?.ProjectFilePath;
+                    PortCoreConfiguration projectConfiguration = new PortCoreConfiguration()
+                    {
+                        ProjectPath = projectPath,
+                        UseDefaultRules = true,
+                        TargetVersions = new List<string> { targetFramework },
+                        PortCode = false,
+                        PortProject = false
+                    };
+
+                    var projectResult = solutionPort.RunProject(result, projectConfiguration);
+
+                    var analysisActions = AnalyzeActions(new List<string> { projectPath }, targetFramework, new List<AnalyzerResult> { result }, solutionFilename);
+
+                    var analysisResult = AnalyzeProject(projectPath, solutionFilename, new List<AnalyzerResult> { result }, analysisActions, isIncremental: false, targetFramework);
+
+                    yield return analysisResult;
+
+                }
+            }
+            finally
+            {
+                await resultEnumerator.DisposeAsync();
+            }
+        }
+
         private List<ProjectResult> AnalyzeActions(List<string> projects, string targetFramework, List<AnalyzerResult> analyzerResults, string pathToSolution)
         {
             _logger.LogInformation("Memory Consumption before AnalyzeActions: ");

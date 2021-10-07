@@ -34,12 +34,7 @@ namespace PortingAssistant.Client.Client
                 var solution = SolutionFile.Parse(solutionFilePath);
                 var failedProjects = new List<string>();
 
-                var projects = solution.ProjectsInOrder.Where(p =>
-                    (p.ProjectType == SolutionProjectType.KnownToBeMSBuildFormat ||
-                    p.ProjectType == SolutionProjectType.WebProject) &&
-                    (settings.IgnoreProjects?.Contains(p.AbsolutePath) != true))
-                    .Select(p => p.AbsolutePath)
-                    .ToList();
+                var projects = ProjectsToAnalyze(solutionFilePath, settings);
 
                 var targetFramework = settings.TargetFramework ?? DEFAULT_TARGET;
 
@@ -105,6 +100,27 @@ namespace PortingAssistant.Client.Client
 
         }
 
+        public async IAsyncEnumerable<ProjectAnalysisResult> AnalyzeSolutionGeneratorAsync(string solutionFilePath, AnalyzerSettings settings)
+        {
+            var targetFramework = settings.TargetFramework ?? DEFAULT_TARGET;
+
+            var projects = ProjectsToAnalyze(solutionFilePath, settings);
+            var resultEnumerator = _analysisHandler.AnalyzeSolutionGeneratorAsync(solutionFilePath, projects, targetFramework).GetAsyncEnumerator();
+            try
+            {
+                while (await resultEnumerator.MoveNextAsync().ConfigureAwait(false))
+                {
+
+                    var result = resultEnumerator.Current;
+                    yield return result;
+                }
+            }
+            finally
+            {
+                await resultEnumerator.DisposeAsync();
+            }
+        }
+
         public async Task<List<SourceFileAnalysisResult>> AnalyzeFileAsync(string filePath, string projectFile, string solutionFilePath,
     List<string> preportReferences, List<string> currentReferences, RootNodes rules, ExternalReferences externalReferences, AnalyzerSettings settings)
         {
@@ -150,6 +166,17 @@ namespace PortingAssistant.Client.Client
                 throw new PortingAssistantException("Could not apply porting changes", ex);
             }
 
+        }
+
+        private List<string> ProjectsToAnalyze(string solutionFilePath, AnalyzerSettings settings)
+        {
+            var solution = SolutionFile.Parse(solutionFilePath);
+            return solution.ProjectsInOrder.Where(p =>
+                (p.ProjectType == SolutionProjectType.KnownToBeMSBuildFormat ||
+                p.ProjectType == SolutionProjectType.WebProject) &&
+                (settings.IgnoreProjects?.Contains(p.AbsolutePath) != true))
+                .Select(p => p.AbsolutePath)
+                .ToList();
         }
     }
 }
