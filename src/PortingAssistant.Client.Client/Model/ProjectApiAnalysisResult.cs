@@ -5,6 +5,9 @@ namespace PortingAssistant.Client.Model
     public class ProjectApiAnalysisResult
     {
         public string SolutionFile { get; set; }
+        public string SolutionGuid { get; set; }
+        public string ApplicationGuid { get; set; }
+        public string RepositoryUrl { get; set; }
         public string ProjectFile { get; set; }
         public string ProjectGuid { get; set; }
         public List<string> Errors { get; set; }

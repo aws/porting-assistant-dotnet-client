@@ -26,7 +26,7 @@ namespace PortingAssistant.Client.Client.FileParser
 
         public static string getGitRepositoryUrl(string gitRepositoryRootPath)
         {
-            if (!Directory.Exists(gitRepositoryRootPath))
+            if (gitRepositoryRootPath == null || !Directory.Exists(gitRepositoryRootPath))
             {
                 return null;
             }

@@ -68,7 +68,7 @@ namespace PortingAssistant.Client.Client
                     RepositoryUrl = FileParser.GitConfigFileParser.getGitRepositoryUrl(
                         FileParser.GitConfigFileParser.getGitRepositoryRootPath(solutionFilePath)),
                     ApplicationGuid = solutionGuid ?? Utils.HashUtils.GenerateGuid(
-                        projectAnalysisResults.Select(p => p.ProjectName).ToList()),
+                        projectAnalysisResults.Select(p => p.ProjectGuid).ToList()),
                     Projects = projectAnalysisResults.ConvertAll(p => new ProjectDetails
                     {
                         PackageReferences = p.PackageReferences,

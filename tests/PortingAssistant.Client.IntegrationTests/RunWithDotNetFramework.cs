@@ -75,6 +75,7 @@ namespace PortingAssistant.Client.IntegrationTests
                 "NetFrameworkExample.sln"), solutionDetails.SolutionFilePath);
             Assert.AreEqual(1, solutionDetails.Projects.Count);
             Assert.AreEqual("8602089B-96FD-4FA4-9B4D-36067C03E572".ToLower(), solutionDetails.SolutionGuid);
+            Assert.AreEqual("8602089B-96FD-4FA4-9B4D-36067C03E572".ToLower(), solutionDetails.ApplicationGuid);
         }
 
         [Test]
