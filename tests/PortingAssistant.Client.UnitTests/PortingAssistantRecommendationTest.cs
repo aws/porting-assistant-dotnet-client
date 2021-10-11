@@ -150,5 +150,38 @@ namespace PortingAssistant.Client.UnitTests
             recommendation = ApiCompatiblity.UpgradeStrategy(compatibilityResult, apiMethod, resultTasks, "xxxx");
             Assert.AreEqual(RecommendedActionType.NoRecommendation, recommendation.RecommendedActionType);
         }
+
+        [Test]
+        public void TestPackageCompatibilityResult()
+        {
+            var versions = new SortedSet<string>
+            {
+                "1.0.0",
+                "1.0.1-beta",
+                "2.0.0",
+            };
+            var packageVersionPair = new PackageVersionPair
+            {
+                PackageId = "MyNugetPackage",
+                PackageSourceType = PackageSourceType.NUGET,
+                Version = "1.0.0"
+            };
+            var packageDetails = new PackageDetails
+            {
+                Name = "MyNugetPackage",
+                Versions = versions,
+                Targets = new Dictionary<string, SortedSet<string>>
+                {
+                    { "netcoreapp3.1",  versions}
+                }
+            };
+
+            var compatResults = PackageCompatibility.IsCompatibleAsync(Task.FromResult(packageDetails), packageVersionPair, NullLogger.Instance);
+            var recommendation = PackageCompatibility.GetPackageAnalysisResult(compatResults, packageVersionPair, "netcoreapp3.1").Result;
+
+            Assert.AreEqual(2, compatResults.Result.CompatibleVersions.Count);
+            Assert.AreEqual(1, recommendation.CompatibilityResults["netcoreapp3.1"].CompatibleVersions.Count);
+            Assert.AreEqual("2.0.0", recommendation.Recommendations.RecommendedActions[0].Description);
+        }
     }
 }

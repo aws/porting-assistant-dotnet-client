@@ -14,6 +14,7 @@ namespace PortingAssistant.Client.Analysis.Utils
         public static async Task<PackageAnalysisResult> GetPackageAnalysisResult(Task<CompatibilityResult> CompatibilityResult, PackageVersionPair packageVersionPair, string targetFramework)
         {
             var result = await CompatibilityResult;
+            var compatibleVersions = result.CompatibleVersions.Where(v => !v.Contains("-")).ToList();
             return new PackageAnalysisResult
             {
                 PackageVersionPair = packageVersionPair,
@@ -23,7 +24,7 @@ namespace PortingAssistant.Client.Analysis.Utils
                         targetFramework, new CompatibilityResult
                         {
                             Compatibility = result.Compatibility,
-                            CompatibleVersions = result.CompatibleVersions
+                            CompatibleVersions = compatibleVersions
                         }
                     }
                 },
@@ -35,8 +36,8 @@ namespace PortingAssistant.Client.Analysis.Utils
                         {
                             PackageId = packageVersionPair.PackageId,
                             RecommendedActionType = RecommendedActionType.UpgradePackage,
-                            Description = result.CompatibleVersions.Count != 0 ? result.CompatibleVersions.First() : null,
-                            TargetVersions = result.CompatibleVersions
+                            Description = compatibleVersions.Count != 0 ? compatibleVersions.First() : null,
+                            TargetVersions = compatibleVersions
                         }
                     }
                 }
