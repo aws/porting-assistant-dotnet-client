@@ -91,7 +91,7 @@ namespace PortingAssistant.Client.CLI
                     if (analyzeResults.IsCompletedSuccessfully)
                     {
                         reportExporter.GenerateJsonReport(analyzeResults.Result, cli.OutputPath);
-                        TelemetryCollector.SolutionAssessmentCollect(analyzeResults.Result, cli.Target, "1.8.0", "Porting Assistant Client CLI", DateTime.Now.Subtract(startTime).TotalMilliseconds);
+                        TelemetryCollector.SolutionAssessmentCollect(analyzeResults.Result, cli.Target, "1.8.0", $"Porting Assistant {cli.Tag.ToUpper()} CLI", DateTime.Now.Subtract(startTime).TotalMilliseconds);
                     }
                     else
                     {

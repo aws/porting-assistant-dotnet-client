@@ -27,6 +27,9 @@ namespace PortingAssistant.Client.CLI
         [Option('p', "porting-projects", Separator = ',', Required = false, HelpText = "porting projects")]
         public IEnumerable<string> PortingProjects { get; set; }
 
+        [Option('g', "tag", Required = false, Default = "client", HelpText = "tag the metrics source with: MH, drift or client, by default is client")]
+        public string Tag { get; set; }
+
 
         [Usage(ApplicationAlias = "Porting Assistant Client")]
         public static IEnumerable<Example> Examples
@@ -56,6 +59,7 @@ namespace PortingAssistant.Client.CLI
         public List<string> IgnoreProjects;
         public List<string> PortingProjects;
         public string Target;
+        public string Tag;
 
         public bool isAssess = false;
         public bool isSchema = false;
@@ -64,6 +68,7 @@ namespace PortingAssistant.Client.CLI
         public void HandleCommand(String[] args)
         {
             var TargetFrameworks = new HashSet<string> { "net5.0", "netcoreapp3.1", "netstandard2.1" };
+            var Tags = new HashSet<string> { "mh", "drift", "client" };
 
             Parser.Default.ParseArguments<AssessOptions, SchemaOptions>(args)
                 .WithNotParsed(HandleParseError)
@@ -90,6 +95,13 @@ namespace PortingAssistant.Client.CLI
                         Environment.Exit(-1);
                     }
                     Target = o.Target;
+
+                    if (!Tags.Contains(o.Tag.ToLower()))
+                    {
+                        Console.WriteLine("Invalid tag " + OutputPath);
+                        Environment.Exit(-1);
+                    }
+                    Tag = o.Tag;
 
                     if (o.IgnoreProjects != null)
                     {
