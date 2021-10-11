@@ -36,34 +36,19 @@
       "netcoreapp3.1": {
         "Compatibility": "COMPATIBLE",
         "CompatibleVersions": [
-          "4.0.0-alpha",
-          "4.0.0-alpha2",
-          "4.0.0-alpha3",
-          "4.0.0-alpha4",
-          "4.0.0-alpha5",
-          "4.0.0-alpha6",
-          "4.0.0-beta",
-          "4.0.0-beta2",
-          "4.0.0-beta3",
           "4.0.0",
           "4.1.0",
-          "4.1.1-contentFiles",
           "4.1.1",
           "4.1.2",
           "4.1.3",
           "4.2.1",
           "4.3.1",
           "4.4.0",
-          "4.4.1-content-files",
-          "4.4.1-contentFiles",
           "4.4.1",
           "4.5.0",
           "4.5.1",
           "4.5.2",
-          "4.5.3",
-          "5.0.0-alpha1",
-          "5.0.0-alpha2",
-          "5.0.0-alpha3"
+          "4.5.3"
         ]
       }
     },
@@ -73,37 +58,22 @@
           "PackageId": "bootstrap",
           "Version": null,
           "TargetVersions": [
-            "4.0.0-alpha",
-            "4.0.0-alpha2",
-            "4.0.0-alpha3",
-            "4.0.0-alpha4",
-            "4.0.0-alpha5",
-            "4.0.0-alpha6",
-            "4.0.0-beta",
-            "4.0.0-beta2",
-            "4.0.0-beta3",
             "4.0.0",
             "4.1.0",
-            "4.1.1-contentFiles",
             "4.1.1",
             "4.1.2",
             "4.1.3",
             "4.2.1",
             "4.3.1",
             "4.4.0",
-            "4.4.1-content-files",
-            "4.4.1-contentFiles",
             "4.4.1",
             "4.5.0",
             "4.5.1",
             "4.5.2",
-            "4.5.3",
-            "5.0.0-alpha1",
-            "5.0.0-alpha2",
-            "5.0.0-alpha3"
+            "4.5.3"
           ],
           "RecommendedActionType": "UpgradePackage",
-          "Description": "4.0.0-alpha",
+          "Description": "4.0.0",
           "TextSpan": null,
           "TargetCPU": null,
           "TextChanges": null
@@ -405,8 +375,6 @@
       "netcoreapp3.1": {
         "Compatibility": "COMPATIBLE",
         "CompatibleVersions": [
-          "12.0.3-beta1",
-          "12.0.3-beta2",
           "12.0.3"
         ]
       }
@@ -417,12 +385,10 @@
           "PackageId": "Newtonsoft.Json",
           "Version": null,
           "TargetVersions": [
-            "12.0.3-beta1",
-            "12.0.3-beta2",
             "12.0.3"
           ],
           "RecommendedActionType": "UpgradePackage",
-          "Description": "12.0.3-beta1",
+          "Description": "12.0.3",
           "TextSpan": null,
           "TargetCPU": null,
           "TextChanges": null

@@ -112,7 +112,7 @@ namespace PortingAssistant.Client.IntegrationTests
             GetValueOrDefault("netcoreapp3.1").Compatibility);
             Assert.True(packageAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").CompatibleVersions.Count > 0);
             Assert.AreEqual(RecommendedActionType.UpgradePackage, packageAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
-            Assert.AreEqual("4.0.0-alpha", packageAnalysisResult.Recommendations.RecommendedActions.First().Description);
+            Assert.AreEqual("4.0.0", packageAnalysisResult.Recommendations.RecommendedActions.First().Description);
 
             packageAnalysisResult = packageAnalysisResults.GetValueOrDefault(new PackageVersionPair
             {
@@ -136,7 +136,7 @@ namespace PortingAssistant.Client.IntegrationTests
             GetValueOrDefault("netcoreapp3.1").Compatibility);
             Assert.True(packageAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").CompatibleVersions.Count > 0);
             Assert.AreEqual(RecommendedActionType.UpgradePackage, packageAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
-            Assert.AreEqual("12.0.3-beta1", packageAnalysisResult.Recommendations.RecommendedActions.First().Description);
+            Assert.AreEqual("12.0.3", packageAnalysisResult.Recommendations.RecommendedActions.First().Description);
 
             packageAnalysisResult = packageAnalysisResults.GetValueOrDefault(new PackageVersionPair
             {
