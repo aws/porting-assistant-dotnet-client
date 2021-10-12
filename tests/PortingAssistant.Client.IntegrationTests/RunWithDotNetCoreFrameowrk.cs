@@ -121,9 +121,8 @@ namespace PortingAssistant.Client.IntegrationTests
             }).Result;
             Assert.AreEqual(Compatibility.COMPATIBLE, packageAnalysisResult.CompatibilityResults.
             GetValueOrDefault("netcoreapp3.1").Compatibility);
-            Assert.True(packageAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").CompatibleVersions.Count > 0);
+            Assert.True(packageAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").CompatibleVersions.Count == 0);
             Assert.AreEqual(RecommendedActionType.UpgradePackage, packageAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
-            Assert.AreEqual("3.0.42-beta", packageAnalysisResult.Recommendations.RecommendedActions.First().Description);
 
             packageAnalysisResult = packageAnalysisResults.GetValueOrDefault(new PackageVersionPair
             {
