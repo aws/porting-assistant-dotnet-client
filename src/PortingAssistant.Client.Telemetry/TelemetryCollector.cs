@@ -71,7 +71,7 @@ namespace PortingAssistantExtensionTelemetry
             WriteToFile(JsonConvert.SerializeObject(t));
         }
 
-        public static void SolutionAssessmentCollect(SolutionAnalysisResult result, string targetFramework, string version, string source, double analysisTime)
+        public static void SolutionAssessmentCollect(SolutionAnalysisResult result, string targetFramework, string version, string source, double analysisTime, string tag)
         {
             var sha256hash = SHA256.Create();
             var date = DateTime.Now;
@@ -82,6 +82,7 @@ namespace PortingAssistantExtensionTelemetry
                 metricsType = MetricsType.solution,
                 version = version,
                 portingAssistantSource = source,
+                tag = tag,
                 targetFramework = targetFramework,
                 timeStamp = date.ToString("MM/dd/yyyy HH:mm"),
                 solutionName = GetHash(sha256hash, solutionDetail.SolutionName),
@@ -99,6 +100,7 @@ namespace PortingAssistantExtensionTelemetry
                 {
                     metricsType = MetricsType.project,
                     portingAssistantSource = source,
+                    tag = tag,
                     version = version,
                     targetFramework = targetFramework,
                     sourceFrameworks = project.TargetFrameworks,
@@ -123,6 +125,7 @@ namespace PortingAssistantExtensionTelemetry
                     {
                         metricsType = MetricsType.nuget,
                         portingAssistantSource = source,
+                        tag = tag,
                         version = version,
                         targetFramework = targetFramework,
                         timeStamp = date.ToString("MM/dd/yyyy HH:mm"),
@@ -135,13 +138,13 @@ namespace PortingAssistantExtensionTelemetry
 
                 foreach (var sourceFile in project.SourceFileAnalysisResults)
                 {
-                    FileAssessmentCollect(sourceFile, targetFramework, version, source);
+                    FileAssessmentCollect(sourceFile, targetFramework, version, source, tag);
                 }
             });
         }
 
 
-        public static void FileAssessmentCollect(SourceFileAnalysisResult result, string targetFramework, string version, string source)
+        public static void FileAssessmentCollect(SourceFileAnalysisResult result, string targetFramework, string version, string source, string tag)
         {
             var date = DateTime.Now;
             foreach (var api in result.ApiAnalysisResults)
@@ -150,6 +153,7 @@ namespace PortingAssistantExtensionTelemetry
                 {
                     metricsType = MetricsType.api,
                     portingAssistantSource = source,
+                    tag = tag,
                     version = version,
                     targetFramework = targetFramework,
                     timeStamp = date.ToString("MM/dd/yyyy HH:mm"),
