@@ -150,7 +150,7 @@ namespace PortingAssistant.Client.Analysis.Utils
 
                 if (compatibilityResult?.CompatibleVersions != null)
                 {
-                    var validVersions = compatibilityResult.CompatibleVersions.Where(v => !v.Contains("-")).ToList();
+                    var validVersions = compatibilityResult.GetCompatibleVersionsWithoutPreReleases();
                     if (validVersions.Count != 0)
                     {
                         return new ApiRecommendation

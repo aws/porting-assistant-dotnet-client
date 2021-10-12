@@ -14,7 +14,7 @@ namespace PortingAssistant.Client.Analysis.Utils
         public static async Task<PackageAnalysisResult> GetPackageAnalysisResult(Task<CompatibilityResult> CompatibilityResult, PackageVersionPair packageVersionPair, string targetFramework)
         {
             var result = await CompatibilityResult;
-            var compatibleVersions = result.CompatibleVersions.Where(v => !v.Contains("-")).ToList();
+            var compatibleVersions = result.GetCompatibleVersionsWithoutPreReleases();
             return new PackageAnalysisResult
             {
                 PackageVersionPair = packageVersionPair,
