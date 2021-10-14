@@ -77,6 +77,7 @@ namespace PortingAssistant.Client.Client.Reports
                     var projectApiAnalysisResult = projectAnalysResult.IsBuildFailed ? new ProjectApiAnalysisResult
                     {
                         Errors = new List<string> { $"Errors during compilation in {projectAnalysResult.ProjectName}." },
+                        SchemaVersion = Common.Model.Schema.version,
                         SolutionFile = SolutionName,
                         SolutionGuid = solutionAnalysisResult.SolutionDetails.SolutionGuid,
                         ApplicationGuid = solutionAnalysisResult.SolutionDetails.ApplicationGuid,
@@ -85,6 +86,7 @@ namespace PortingAssistant.Client.Client.Reports
                     } : new ProjectApiAnalysisResult
                     {
                         Errors = projectAnalysResult.Errors,
+                        SchemaVersion = Common.Model.Schema.version,
                         SolutionFile = SolutionName,
                         SolutionGuid = solutionAnalysisResult.SolutionDetails.SolutionGuid,
                         ApplicationGuid = solutionAnalysisResult.SolutionDetails.ApplicationGuid,
