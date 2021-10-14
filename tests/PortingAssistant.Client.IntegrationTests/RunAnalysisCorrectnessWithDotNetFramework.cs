@@ -47,13 +47,28 @@ namespace PortingAssistant.Client.IntegrationTests
 
         private void RunCLIToAnalyzeSolution()
         {
+            ProcessStartInfo startInfo = new ProcessStartInfo(
+                "PortingAssistant.Client.CLI.exe");
+            startInfo.WorkingDirectory = testDirectoryRoot;
+            startInfo.CreateNoWindow = false;
+            startInfo.UseShellExecute = false;
+            startInfo.RedirectStandardOutput = true;
+            startInfo.RedirectStandardError = true;
+            startInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            startInfo.Arguments = "assess -s " + testSolutionPath
+                + " " + "-o " + actualAnalysisResultRootDir;
+
             try
             {
                 // Start the process with the info we specified.
                 // Call WaitForExit and then the using statement will close.
-                using (Process exeProcess = Process.Start(Path.Combine(testDirectoryRoot, "PortingAssistant.Client.CLI.exe"), $"assess -s {testSolutionPath} -o {actualAnalysisResultRootDir}"))
+                using (Process exeProcess = Process.Start(startInfo))
                 {
-                    exeProcess.WaitForExit(300000);
+                    string stdout = exeProcess.StandardOutput.ReadToEnd();
+                    string stderr = exeProcess.StandardError.ReadToEnd();
+                    //Console.WriteLine(stdout);
+                    //Console.WriteLine(stderr);
+                    exeProcess.WaitForExit();
                 }
             }
             catch
