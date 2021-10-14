@@ -1,9 +1,13 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "JSON Schema for Porting Assistant package analysis json output",
+  "additionalProperties": false,
 
   "type": "object",
   "properties": {
+    "SchemaVersion": {
+      "type": "string"
+    },
     "SolutionFile": {
       "type": "string"
     },
@@ -17,6 +21,12 @@
       ]
     },
     "RepositoryUrl": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "ProjectGuid": {
       "type": [
         "null",
         "string"
