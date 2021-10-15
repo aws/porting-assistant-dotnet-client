@@ -128,8 +128,8 @@ namespace PortingAssistant.Client.CLI
                         var portingResults = portingAssistantClient.ApplyPortingChanges(PortingRequest);
                         reportExporter.GenerateJsonReport(portingResults, cli.SolutionPath, cli.OutputPath);
 
-                        UploadLogs(cli.Profile, telemetryConfiguration, logFilePath, metricsFilePath);
                     }
+                    UploadLogs(cli.Profile, telemetryConfiguration, logFilePath, metricsFilePath);
                 }
                 catch (Exception ex)
                 {
