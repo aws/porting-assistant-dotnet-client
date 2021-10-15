@@ -50,11 +50,14 @@ jobs:
       if: ${{ github.event_name == 'push' }}
       run: sleet push dist --source s3Feed --verbose
     - name: Publish CLI Executable
+      env: 
+        INVOKE_URL: ${{ secrets.INVOKE_URL }}
+        SERVICE_NAME: ${{ secrets.SERVICE_NAME }}
       if: ${{ github.event_name == 'push' }}
       run: |
         $json = Get-Content src/PortingAssistant.Client/PortingAssistantTelemetryConfig.json | ConvertFrom-Json
-        $json.InvokeUrl = ${{ secrets.INVOKE_URL }}
-        $json.ServiceName = ${{ secrets.SERVICE_NAME }}
+        $json.InvokeUrl = $env.INVOKE_URL
+        $json.ServiceName = $env.SERVICE_NAME
         $json | ConvertTo-Json | Out-File src/PortingAssistant.Client/PortingAssistantTelemetryConfig.json
         Get-ChildItem ./dist/PortingAssistant.Client.CLI.*.nupkg | Foreach-Object { 
         $version =  $_.Name -replace 'PortingAssistant.Client.CLI.', '' -replace ‘.nupkg’, ‘’
