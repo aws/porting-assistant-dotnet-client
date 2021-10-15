@@ -1,0 +1,7 @@
+{
+  "InvokeUrl": "https://localhost",
+  "Region": "us-east-1",
+  "ServiceName": "service_name",
+  "Suffix": [ ".log", ".metrics" ],
+  "Description": "Porting Assistant for .NET Telemetry Logs"
+}

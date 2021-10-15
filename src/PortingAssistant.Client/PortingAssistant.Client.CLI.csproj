@@ -17,4 +17,11 @@
     <ProjectReference Include="..\PortingAssistant.Client.Telemetry\PortingAssistant.Client.Telemetry.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="PortingAssistantTelemetryConfig.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInExe>True</IncludeInExe>
+    </None>
+  </ItemGroup>
+
 </Project>

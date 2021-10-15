@@ -7,8 +7,13 @@ using Microsoft.Extensions.Logging;
 using PortingAssistant.Client.Client;
 using PortingAssistant.Client.Model;
 using PortingAssistantExtensionTelemetry;
+using PortingAssistantExtensionTelemetry.Model;
 using Serilog;
 using System.Threading.Tasks;
+using System.Reflection;
+using System.Text.Json;
+using PortingAssistant.Client.Telemetry;
+using System.Diagnostics;
 
 namespace PortingAssistant.Client.CLI
 
@@ -24,11 +29,14 @@ namespace PortingAssistant.Client.CLI
                 .MinimumLevel.Debug()
                 .WriteTo.Console();
 
+            var assemblypath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var telemetryConfiguration = JsonSerializer.Deserialize<TelemetryConfiguration>(File.ReadAllText(Path.Combine(assemblypath, "PortingAssistantTelemetryConfig.json")));
+
             if (cli.isSchema)
             {
                 if (cli.schemaVersion)
                 {
-                    Console.Out.WriteLine(Common.Model.Schema.version);
+                    Console.WriteLine(Common.Model.Schema.version);
                 }
             }
 
@@ -42,7 +50,8 @@ namespace PortingAssistant.Client.CLI
                     var logFilePath = Path.Combine(logs, "portingAssistant-client-cli.log");
                     var metricsFilePath = Path.Combine(logs, "portingAssistant-client-cli.metrics");
 
-                    var outputTemplate = "[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] {SourceContext}: {Message:lj}{NewLine}{Exception}";
+                    string version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
+                    var outputTemplate = "[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] (Porting Assistant Client CLI) (" + version + ") {SourceContext}: {Message:lj}{NewLine}{Exception}";
 
                     Serilog.Formatting.Display.MessageTemplateTextFormatter tf =
                         new Serilog.Formatting.Display.MessageTemplateTextFormatter(outputTemplate, CultureInfo.InvariantCulture);
@@ -92,7 +101,7 @@ namespace PortingAssistant.Client.CLI
                     }
                     else
                     {
-                        Console.WriteLine("err generated solution analysis report");
+                        Log.Logger.Error("err generated solution analysis report");
                     }
                     if (cli.PortingProjects != null && cli.PortingProjects.Count != 0)
                     {
@@ -119,10 +128,26 @@ namespace PortingAssistant.Client.CLI
                         var portingResults = portingAssistantClient.ApplyPortingChanges(PortingRequest);
                         reportExporter.GenerateJsonReport(portingResults, cli.SolutionPath, cli.OutputPath);
                     }
+
+                    if (!string.IsNullOrEmpty(cli.Profile))
+                    {
+                        telemetryConfiguration.LogFilePath = logFilePath;
+                        telemetryConfiguration.MetricsFilePath = metricsFilePath;
+                        var isSuccessed = Uploader.Upload(telemetryConfiguration, new System.Net.Http.HttpClient(), cli.Profile, "");
+
+                        if (!isSuccessed)
+                        {
+                            Log.Logger.Error("Upload Metrcis/Logs Failed!");
+                            Environment.Exit(-1);
+                        }
+
+                        Log.Logger.Information("Upload Metrcis/Logs Success!");
+                    }
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("error when using the tools :" + ex);
+                    Log.Logger.Error(ex, "error when using the tools :");
+                    Environment.Exit(-1);
                 }
             }
         }

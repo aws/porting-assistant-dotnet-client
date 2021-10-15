@@ -30,6 +30,9 @@ namespace PortingAssistant.Client.CLI
         [Option('g', "tag", Required = false, Default = "client", HelpText = "metrics/logs will be tagged by provided tag")]
         public string Tag { get; set; }
 
+        [Option('r', "profile", Required = false, HelpText = "Aws named profile, if provided, CLI will collect logs and metrics.")]
+        public string Profile { get; set; }
+
 
         [Usage(ApplicationAlias = "Porting Assistant Client")]
         public static IEnumerable<Example> Examples
@@ -60,6 +63,7 @@ namespace PortingAssistant.Client.CLI
         public List<string> PortingProjects;
         public string Target;
         public string Tag;
+        public string Profile;
 
         public bool isAssess = false;
         public bool isSchema = false;
@@ -96,6 +100,8 @@ namespace PortingAssistant.Client.CLI
                     Target = o.Target;
 
                     Tag = o.Tag;
+
+                    Profile = o.Profile;
 
                     if (o.IgnoreProjects != null)
                     {
