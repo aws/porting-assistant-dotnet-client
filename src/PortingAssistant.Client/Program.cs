@@ -7,8 +7,13 @@ using Microsoft.Extensions.Logging;
 using PortingAssistant.Client.Client;
 using PortingAssistant.Client.Model;
 using PortingAssistantExtensionTelemetry;
+using PortingAssistantExtensionTelemetry.Model;
 using Serilog;
 using System.Threading.Tasks;
+using System.Reflection;
+using System.Text.Json;
+using PortingAssistant.Client.Telemetry;
+using System.Diagnostics;
 
 namespace PortingAssistant.Client.CLI
 
@@ -24,11 +29,33 @@ namespace PortingAssistant.Client.CLI
                 .MinimumLevel.Debug()
                 .WriteTo.Console();
 
+            var assemblypath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var telemetryConfiguration = JsonSerializer.Deserialize<TelemetryConfiguration>(File.ReadAllText(Path.Combine(assemblypath, "PortingAssistantTelemetryConfig.json")));
+
+            var configuration = new PortingAssistantConfiguration();
+            var roamingFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            var logs = Path.Combine(roamingFolder, "Porting Assistant for .NET", "logs");
+            var logFilePath = Path.Combine(logs, "portingAssistant-client-cli.log");
+            var metricsFilePath = Path.Combine(logs, "portingAssistant-client-cli.metrics");
+
+            string version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
+            var outputTemplate = "[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] (Porting Assistant Client CLI) (" + version + ") {SourceContext}: {Message:lj}{NewLine}{Exception}";
+
+            Serilog.Formatting.Display.MessageTemplateTextFormatter tf =
+                new Serilog.Formatting.Display.MessageTemplateTextFormatter(outputTemplate, CultureInfo.InvariantCulture);
+
+            logConfiguration.WriteTo.File(
+                    logFilePath,
+                    rollingInterval: RollingInterval.Infinite,
+                    rollOnFileSizeLimit: false,
+                    outputTemplate: outputTemplate);
+            Log.Logger = logConfiguration.CreateLogger();
+
             if (cli.isSchema)
             {
                 if (cli.schemaVersion)
                 {
-                    Console.Out.WriteLine(Common.Model.Schema.version);
+                    Console.WriteLine(Common.Model.Schema.version);
                 }
             }
 
@@ -36,24 +63,6 @@ namespace PortingAssistant.Client.CLI
             {
                 try
                 {
-                    var configuration = new PortingAssistantConfiguration();
-                    var roamingFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-                    var logs = Path.Combine(roamingFolder, "Porting Assistant for .NET", "logs");
-                    var logFilePath = Path.Combine(logs, "portingAssistant-client-cli.log");
-                    var metricsFilePath = Path.Combine(logs, "portingAssistant-client-cli.metrics");
-
-                    var outputTemplate = "[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] {SourceContext}: {Message:lj}{NewLine}{Exception}";
-
-                    Serilog.Formatting.Display.MessageTemplateTextFormatter tf =
-                        new Serilog.Formatting.Display.MessageTemplateTextFormatter(outputTemplate, CultureInfo.InvariantCulture);
-
-                    logConfiguration.WriteTo.File(
-                            logFilePath,
-                            rollingInterval: RollingInterval.Infinite,
-                            rollOnFileSizeLimit: false,
-                            outputTemplate: outputTemplate);
-
-                    Log.Logger = logConfiguration.CreateLogger();
                     TelemetryCollector.Builder(Log.Logger, metricsFilePath);
 
                     var portingAssistantBuilder = PortingAssistantBuilder.Build(configuration, logConfig =>
@@ -92,7 +101,7 @@ namespace PortingAssistant.Client.CLI
                     }
                     else
                     {
-                        Console.WriteLine("err generated solution analysis report");
+                        Log.Logger.Error("err generated solution analysis report");
                     }
                     if (cli.PortingProjects != null && cli.PortingProjects.Count != 0)
                     {
@@ -118,12 +127,34 @@ namespace PortingAssistant.Client.CLI
                         };
                         var portingResults = portingAssistantClient.ApplyPortingChanges(PortingRequest);
                         reportExporter.GenerateJsonReport(portingResults, cli.SolutionPath, cli.OutputPath);
+
+                        UploadLogs(cli.Profile, telemetryConfiguration, logFilePath, metricsFilePath);
                     }
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("error when using the tools :" + ex);
+                    Log.Logger.Error(ex, "error when using the tools :");
+                    UploadLogs(cli.Profile, telemetryConfiguration, logFilePath, metricsFilePath);
+                    Environment.Exit(-1);
                 }
+            }
+        }
+
+        private static void UploadLogs(string profile, TelemetryConfiguration telemetryConfiguration, string logFilePath, string metricsFilePath)
+        {
+            if (!string.IsNullOrEmpty(profile))
+            {
+                telemetryConfiguration.LogFilePath = logFilePath;
+                telemetryConfiguration.MetricsFilePath = metricsFilePath;
+                var isSuccessed = Uploader.Upload(telemetryConfiguration, new System.Net.Http.HttpClient(), profile, "");
+
+                if (!isSuccessed)
+                {
+                    Log.Logger.Error("Upload Metrcis/Logs Failed!");
+                    Environment.Exit(-1);
+                }
+
+                Log.Logger.Information("Upload Metrcis/Logs Success!");
             }
         }
 

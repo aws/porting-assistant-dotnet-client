@@ -52,6 +52,10 @@ jobs:
     - name: Publish CLI Executable
       if: ${{ github.event_name == 'push' }}
       run: |
+        $json = Get-Content src/PortingAssistant.Client/PortingAssistantTelemetryConfig.json | ConvertFrom-Json
+        $json.InvokeUrl = ${{ secrets.INVOKE_URL }}
+        $json.ServiceName = ${{ secrets.SERVICE_NAME }}
+        $json | ConvertTo-Json | Out-File src/PortingAssistant.Client/PortingAssistantTelemetryConfig.json
         Get-ChildItem ./dist/PortingAssistant.Client.CLI.*.nupkg | Foreach-Object { 
         $version =  $_.Name -replace 'PortingAssistant.Client.CLI.', '' -replace ‘.nupkg’, ‘’
         }
