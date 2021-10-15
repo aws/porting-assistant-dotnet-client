@@ -25,7 +25,7 @@ namespace PortingAssistant.Client.Telemetry
                 var fileEntries = new List<string> {
                     teleConfig.LogFilePath,
                     teleConfig.MetricsFilePath
-                }.Where(x => !string.IsNullOrEmpty(x)).ToList();
+                }.Where(x => !string.IsNullOrEmpty(x) && File.Exists(x)).ToList();
                 // Get or Create fileLineNumberMap
                 foreach (var file in fileEntries)
                 {
