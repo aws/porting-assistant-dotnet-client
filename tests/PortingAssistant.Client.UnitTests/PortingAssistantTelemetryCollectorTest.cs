@@ -1,10 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
-using System.Text;
-using System.Web.Helpers;
 using NUnit.Framework;
-using PortingAssistant.Client.Client.Utils;
 using PortingAssistant.Client.Model;
 using PortingAssistantExtensionTelemetry;
 using System.Security.Cryptography;

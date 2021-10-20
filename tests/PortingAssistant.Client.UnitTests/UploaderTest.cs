@@ -1,14 +1,7 @@
 ﻿using System;
 using System.IO;
-using System.Collections.Generic;
-using System.Text;
-using System.Web.Helpers;
 using NUnit.Framework;
-using PortingAssistant.Client.Client.Utils;
-using PortingAssistant.Client.Model;
-using PortingAssistantExtensionTelemetry;
 using PortingAssistantExtensionTelemetry.Model;
-using System.Security.Cryptography;
 using PortingAssistant.Client.Telemetry;
 
 namespace PortingAssistant.Client.UnitTests
