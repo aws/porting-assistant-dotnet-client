@@ -29,6 +29,13 @@ jobs:
       run: dotnet restore
     - name: Build
       run: dotnet build --configuration Release --no-restore
+    - name: "Configure AWS Credentials"
+      if: ${{ github.event_name == 'push' }}
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+        aws-region: us-west-2
     - name: Test
       run: dotnet test --configuration Release --no-restore --verbosity normal
     - name: Pack
@@ -44,13 +51,6 @@ jobs:
     - name: Install Sleet
       if: ${{ github.event_name == 'push' }}
       run: dotnet tool install -g sleet --version 3.2.0
-    - name: "Configure AWS Credentials"
-      if: ${{ github.event_name == 'push' }}
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-        aws-region: us-west-2
     - name: Publish
       if: ${{ github.event_name == 'push' }}
       run: sleet push dist --source s3Feed --verbose
