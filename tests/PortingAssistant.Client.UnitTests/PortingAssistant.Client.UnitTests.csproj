@@ -40,6 +40,7 @@
     <ProjectReference Include="..\..\src\PortingAssistant.Client.Porting\PortingAssistant.Client.Porting.csproj" />
     <ProjectReference Include="..\..\src\PortingAssistant.Client.Analysis\PortingAssistant.Client.Analysis.csproj" />
     <ProjectReference Include="..\..\src\PortingAssistant.Client.Client\PortingAssistant.Client.Client.csproj" />
+    <ProjectReference Include="..\..\src\PortingAssistant.Client.Telemetry\PortingAssistant.Client.Telemetry.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="TestProjects\" />
