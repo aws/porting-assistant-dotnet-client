@@ -29,13 +29,6 @@ jobs:
       run: dotnet restore
     - name: Build
       run: dotnet build --configuration Release --no-restore
-    - name: "Create AWS Profile"
-      uses: Fooji/create-aws-profile-action@v1
-      with:
-        profile: default
-        region: us-east-1
-        key: ${{ secrets.AWS_ACCESS_KEY }}
-        secret: ${{ secrets.AWS_SECRET_KEY }}
     - name: Test
       run: dotnet test --configuration Release --no-restore --verbosity normal
     - name: Pack
