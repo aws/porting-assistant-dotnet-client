@@ -31,7 +31,7 @@ namespace PortingAssistant.Client.UnitTests
                 SolutionName = solutionName,
                 SolutionFilePath = solutionPath,
                 ApplicationGuid = "test-application-guid",
-                SolutionGuid = "test-solution-guid",
+                SolutionGuid = "test-solution-guid", 
                 RepositoryUrl = "https://github.com/test-project",
             };
             var actualSolutionMetric = TelemetryCollector.createSolutionMetric(solutionDetail, targetFramework, version, source, analysisTime, tag, sha256hash, date);
@@ -79,17 +79,25 @@ namespace PortingAssistant.Client.UnitTests
             var roamingFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             var logs = Path.Combine(roamingFolder, "Porting Assistant for .NET", "logs");
             var suffix = new List<string> { "log", "metric" };
+            var invokeUrl = "https://8q2itpfg51.execute-api.us-east-1.amazonaws.com/beta";
+            var region = "us-east-1";
+            var servicename = "appmodernization-beta";
+            var description = "Test";
             var teleConfig = new TelemetryConfiguration
             {
-                InvokeUrl = "https://8q2itpfg51.execute-api.us-east-1.amazonaws.com/beta",
-                Region = "us-east-1",
+                InvokeUrl = invokeUrl,
+                Region = region,
                 LogsPath = logs,
-                ServiceName = "appmodernization-beta",
-                Description = "Test",
+                ServiceName = servicename,
+                Description = description,
                 LogFilePath = Path.Combine(logs, "portingAssistant-client-cli-test.log"),
                 MetricsFilePath = Path.Combine(logs, "portingAssistant-client-cli-test.metrics"),
                 Suffix = suffix,               
             };
+            Assert.AreEqual(teleConfig.InvokeUrl, invokeUrl);
+            Assert.AreEqual(teleConfig.Region, region);
+            Assert.AreEqual(teleConfig.ServiceName, servicename);
+            Assert.AreEqual(teleConfig.Description, description);
             Assert.AreEqual(teleConfig.LogsPath, logs);
             Assert.AreEqual(teleConfig.Suffix, suffix);
         }
