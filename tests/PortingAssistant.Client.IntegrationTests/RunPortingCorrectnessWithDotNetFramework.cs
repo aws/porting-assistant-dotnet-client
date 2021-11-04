@@ -51,7 +51,7 @@ namespace PortingAssistant.Client.IntegrationTests
             RunCLIToPortSolution();
             string expectedPortedTestSolutionPath = Path.Combine(
                 expectedPortedTestSolutionExtractionPath,
-                "NetFrameworkExample");
+                "NetFrameworkExample-ported","NetFrameworkExample");
             string actualPortedTestSolutionPath = Path.Combine(
                 actualTestSolutionExtractionPath,
                 "NetFrameworkExample");
