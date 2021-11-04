@@ -299,7 +299,7 @@ namespace PortingAssistant.Client.Analysis
                     var analysisActions = AnalyzeActions(new List<string> { projectPath }, targetFramework, new List<AnalyzerResult> { result }, solutionFilename);
 
                     var analysisResult = AnalyzeProject(projectPath, solutionFilename, new List<AnalyzerResult> { result }, analysisActions, isIncremental: false, targetFramework);
-
+                    result.Dispose();
                     yield return analysisResult;
 
                 }
@@ -406,7 +406,7 @@ namespace PortingAssistant.Client.Analysis
                     return SourceFileToCodeTokens(sourceFile);
                 }).ToDictionary(p => p.Key, p => p.Value);
 
-                var sourceFileToCodeEntityDetails = CodeEntityModelToCodeEntities.Convert(sourceFileToCodeTokens, analyzer);                
+                var sourceFileToCodeEntityDetails = CodeEntityModelToCodeEntities.Convert(sourceFileToCodeTokens, analyzer);
 
                 var namespaces = sourceFileToCodeEntityDetails.Aggregate(new HashSet<string>(), (agg, cur) =>
                 {
@@ -499,7 +499,8 @@ namespace PortingAssistant.Client.Analysis
         {
             var projectCompatibilityResult = new ProjectCompatibilityResult() { IsPorted = isPorted, ProjectPath = projectPath };
 
-            sourceFileAnalysisResults.ForEach(SourceFileAnalysisResult => {
+            sourceFileAnalysisResults.ForEach(SourceFileAnalysisResult =>
+            {
                 SourceFileAnalysisResult.ApiAnalysisResults.ForEach(apiAnalysisResult =>
                 {
                     var currentEntity = projectCompatibilityResult.CodeEntityCompatibilityResults.First(r => r.CodeEntityType == apiAnalysisResult.CodeEntityDetails.CodeEntityType);
