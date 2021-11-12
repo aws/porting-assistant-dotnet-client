@@ -493,6 +493,10 @@ namespace PortingAssistant.Client.Analysis
                     SourceFileAnalysisResults = new List<SourceFileAnalysisResult>()
                 };
             }
+            finally
+            {
+                CommonUtils.RunGarbageCollection(_logger, "PortingAssistantAnalysisHandler.AnalyzeProject");
+            }
         }
 
         private ProjectCompatibilityResult GenerateCompatibilityResults(List<SourceFileAnalysisResult> sourceFileAnalysisResults, string projectPath, bool isPorted)
