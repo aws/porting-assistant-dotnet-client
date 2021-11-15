@@ -18,7 +18,7 @@ namespace PortingAssistant.Client.CLI
         [Option('o', "output-path", Required = true, HelpText = "output folder.")]
         public string OutputPath { get; set; }
 
-        [Option('t', "target", Required = false, Default = "netcoreapp3.1", HelpText = "Target framework: net5.0,  netcoreapp3.1 or netstandard2.1, by default is netcoreapp3.1")]
+        [Option('t', "target", Required = false, Default = "netcoreapp3.1", HelpText = "Target framework: net6.0, net5.0,  netcoreapp3.1 or netstandard2.1, by default is netcoreapp3.1")]
         public string Target { get; set; }
 
         [Option('i', "ignore-projects", Separator = ',', Required = false, HelpText = "ignore projects in the solution")]
@@ -71,7 +71,7 @@ namespace PortingAssistant.Client.CLI
 
         public void HandleCommand(String[] args)
         {
-            var TargetFrameworks = new HashSet<string> { "net5.0", "netcoreapp3.1", "netstandard2.1" };
+            var TargetFrameworks = new HashSet<string> { "net6.0", "net5.0", "netcoreapp3.1", "netstandard2.1" };
 
             Parser.Default.ParseArguments<AssessOptions, SchemaOptions>(args)
                 .WithNotParsed(HandleParseError)
