@@ -39,7 +39,7 @@ namespace PortingAssistant.Client.CLI
             var metricsFilePath = Path.Combine(logs, "portingAssistant-client-cli.metrics");
 
             string version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
-            var outputTemplate = "[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] (Porting Assistant Client CLI) (" + version + ") {SourceContext}: {Message:lj}{NewLine}{Exception}";
+            var outputTemplate = "[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] (Porting Assistant Client CLI) (" + version + ") (" + cli.Tag + ") {SourceContext}: {Message:lj}{NewLine}{Exception}";
 
             Serilog.Formatting.Display.MessageTemplateTextFormatter tf =
                 new Serilog.Formatting.Display.MessageTemplateTextFormatter(outputTemplate, CultureInfo.InvariantCulture);
