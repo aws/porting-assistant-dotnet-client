@@ -231,7 +231,7 @@ namespace PortingAssistant.Client.IntegrationTests
             Assert.AreEqual(Compatibility.COMPATIBLE, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").Compatibility);
             Assert.True(apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").CompatibleVersions.Count > 0);
             Assert.AreEqual(RecommendedActionType.UpgradePackage, apiAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
-            Assert.AreEqual("2.8.0", apiAnalysisResult.Recommendations.RecommendedActions.First().Description);
+            Assert.AreEqual("2.10.0", apiAnalysisResult.Recommendations.RecommendedActions.First().Description);
 
 
             var blogController = sourceFileAnalysisResults.Find(s => s.SourceFileName == "BlogController.cs");
