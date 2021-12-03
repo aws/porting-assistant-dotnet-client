@@ -32,11 +32,10 @@ namespace PortingAssistant.Client.Client.FileParser
             {
                 return null;
             }
-
-            var repo = new Repository(gitRepositoryRootPath);
-
             try
             {
+                var repo = new Repository(gitRepositoryRootPath);
+
                 var configEntries = new List<ConfigurationEntry<string>>(repo.Config.Find("remote.origin.url"));
                 return configEntries.FirstOrDefault()?.Value;
             }
