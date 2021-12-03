@@ -35,8 +35,15 @@ namespace PortingAssistant.Client.Client.FileParser
 
             var repo = new Repository(gitRepositoryRootPath);
 
-            var configEntries = new List<ConfigurationEntry<string>>(repo.Config.Find("remote.origin.url"));
-            return configEntries.FirstOrDefault()?.Value;
+            try
+            {
+                var configEntries = new List<ConfigurationEntry<string>>(repo.Config.Find("remote.origin.url"));
+                return configEntries.FirstOrDefault()?.Value;
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }
