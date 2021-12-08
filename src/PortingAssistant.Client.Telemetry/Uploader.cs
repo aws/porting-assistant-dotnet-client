@@ -26,7 +26,13 @@ namespace PortingAssistant.Client.Telemetry
                     teleConfig.LogFilePath,
                     teleConfig.MetricsFilePath
                 }.Where(x => !string.IsNullOrEmpty(x) && File.Exists(x)).ToList();
-                // Get or Create fileLineNumberMap
+
+                var lastReadTokenFile = Path.Combine(teleConfig.LogsPath, "lastToken.json");
+                var fileLineNumberMap = new Dictionary<string, int>();
+                if (File.Exists(lastReadTokenFile))
+                {
+                    fileLineNumberMap = JsonConvert.DeserializeObject<Dictionary<string, int>>(File.ReadAllText(lastReadTokenFile));
+                }
                 foreach (var file in fileEntries)
                 {
                     var logName = Path.GetFileNameWithoutExtension(file);
@@ -40,6 +46,13 @@ namespace PortingAssistant.Client.Telemetry
                         logName = $"{logName}-metrics";
                     }
 
+                    // Add new files to fileLineNumberMap
+                    if (!fileLineNumberMap.ContainsKey(file))
+                    {
+                        fileLineNumberMap[file] = 0;
+                    }
+                    var initLineNumber = fileLineNumberMap[file];
+
                     FileInfo fileInfo = new FileInfo(file);
                     var success = false;
                     using (FileStream fs = fileInfo.Open(FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -48,8 +61,20 @@ namespace PortingAssistant.Client.Telemetry
                         {
                             // If put-log api works keep sending logs else wait and do it next time
                             var logs = new ArrayList();
+
+                            int currLineNumber = 0;
+                            for (; currLineNumber < initLineNumber; currLineNumber++)
+                            {
+                                string line = reader.ReadLine();
+                                if (line == null)
+                                {
+                                    return true;
+                                }
+                            }
+
                             while (!reader.EndOfStream)
                             {
+                                currLineNumber++;
                                 logs.Add(reader.ReadLine());
 
                                 // send 1000 lines of logs each time when there are large files
@@ -66,6 +91,13 @@ namespace PortingAssistant.Client.Telemetry
                             {
                                 success = PutLogData(client, logName, JsonConvert.SerializeObject(logs), profile, teleConfig).Result;
                                 if (!success) return false;
+                            }
+
+                            if (success)
+                            {
+                                fileLineNumberMap[file] = currLineNumber;
+                                string jsonString = JsonConvert.SerializeObject(fileLineNumberMap);
+                                File.WriteAllText(lastReadTokenFile, jsonString);
                             }
                         }
                     }

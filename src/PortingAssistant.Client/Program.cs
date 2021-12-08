@@ -129,23 +129,24 @@ namespace PortingAssistant.Client.CLI
                         reportExporter.GenerateJsonReport(portingResults, cli.SolutionPath, cli.OutputPath);
 
                     }
-                    UploadLogs(cli.Profile, telemetryConfiguration, logFilePath, metricsFilePath);
+                    UploadLogs(cli.Profile, telemetryConfiguration, logFilePath, metricsFilePath, logs);
                 }
                 catch (Exception ex)
                 {
                     Log.Logger.Error(ex, "error when using the tools :");
-                    UploadLogs(cli.Profile, telemetryConfiguration, logFilePath, metricsFilePath);
+                    UploadLogs(cli.Profile, telemetryConfiguration, logFilePath, metricsFilePath, logs);
                     Environment.Exit(-1);
                 }
             }
         }
 
-        private static void UploadLogs(string profile, TelemetryConfiguration telemetryConfiguration, string logFilePath, string metricsFilePath)
+        private static void UploadLogs(string profile, TelemetryConfiguration telemetryConfiguration, string logFilePath, string metricsFilePath, string logsPath)
         {
             if (!string.IsNullOrEmpty(profile))
             {
                 telemetryConfiguration.LogFilePath = logFilePath;
                 telemetryConfiguration.MetricsFilePath = metricsFilePath;
+                telemetryConfiguration.LogsPath = logsPath;
                 var isSuccessed = Uploader.Upload(telemetryConfiguration, new System.Net.Http.HttpClient(), profile, "");
 
                 if (!isSuccessed)
