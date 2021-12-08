@@ -109,7 +109,7 @@ namespace PortingAssistant.Client.IntegrationTests
                expectedAnalysisResultRootDir,
                "Schemas",
                "package-analysis-schema.json");
-            Assert.IsTrue(JsonUtils.ValidateSchema(actualPackageAnalysisPath, packageAnalysisSchemaPath, true));
+            Assert.IsTrue(JsonUtils.ValidateSchema(actualPackageAnalysisPath, packageAnalysisSchemaPath, true), "Package analysis schema does not match expected");
 
             string actualApiAnalysisPath = Path.Combine(
                 actualAnalysisResultRootDir,
@@ -121,7 +121,7 @@ namespace PortingAssistant.Client.IntegrationTests
                expectedAnalysisResultRootDir,
                "Schemas",
                "api-analysis-schema.json");
-            Assert.IsTrue(JsonUtils.ValidateSchema(actualApiAnalysisPath, apiAnalysisSchemaPath, false));
+            Assert.IsTrue(JsonUtils.ValidateSchema(actualApiAnalysisPath, apiAnalysisSchemaPath, false), "API analysis schema does not match expected");
         }
     }
 }
