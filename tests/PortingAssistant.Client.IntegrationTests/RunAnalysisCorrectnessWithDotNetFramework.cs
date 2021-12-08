@@ -78,7 +78,7 @@ namespace PortingAssistant.Client.IntegrationTests
             string[] propertiesToBeRemovedInPackageAnalysisResult = { };
             Assert.IsTrue(JsonUtils.AreTwoJsonFilesEqual(
                 expectedPackageAnalysisPath, actualPackageAnalysisPath,
-                propertiesToBeRemovedInPackageAnalysisResult));
+                propertiesToBeRemovedInPackageAnalysisResult), "Package analysis did not match expected");
 
             string expectedApiAnalysisPath = Path.Combine(
                 expectedAnalysisResultRootDir,
@@ -94,7 +94,7 @@ namespace PortingAssistant.Client.IntegrationTests
             bool comparisonResult = JsonUtils.AreTwoJsonFilesEqual(
                 expectedApiAnalysisPath, actualApiAnalysisPath,
                 propertiesToBeRemovedInApiAnalysisResult);
-            Assert.IsTrue(comparisonResult);
+            Assert.IsTrue(comparisonResult, "API analysis did not match expected");
         }
 
         private void ValidateSchemas()
