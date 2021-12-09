@@ -143,7 +143,8 @@
         "Compatibility": "COMPATIBLE",
         "CompatibleVersions": [
           "1.19.1",
-          "1.19.2"
+          "1.19.2",
+          "1.19.3"
         ]
       }
     },
@@ -154,7 +155,8 @@
           "Version": null,
           "TargetVersions": [
             "1.19.1",
-            "1.19.2"
+            "1.19.2",
+            "1.19.3"
           ],
           "RecommendedActionType": "UpgradePackage",
           "Description": "1.19.1",

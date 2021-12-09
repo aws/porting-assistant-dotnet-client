@@ -78,7 +78,7 @@ namespace PortingAssistant.Client.IntegrationTests
             string[] propertiesToBeRemovedInPackageAnalysisResult = { };
             Assert.IsTrue(JsonUtils.AreTwoJsonFilesEqual(
                 expectedPackageAnalysisPath, actualPackageAnalysisPath,
-                propertiesToBeRemovedInPackageAnalysisResult));
+                propertiesToBeRemovedInPackageAnalysisResult), "Package analysis did not match expected");
 
             string expectedApiAnalysisPath = Path.Combine(
                 expectedAnalysisResultRootDir,
@@ -94,7 +94,7 @@ namespace PortingAssistant.Client.IntegrationTests
             bool comparisonResult = JsonUtils.AreTwoJsonFilesEqual(
                 expectedApiAnalysisPath, actualApiAnalysisPath,
                 propertiesToBeRemovedInApiAnalysisResult);
-            Assert.IsTrue(comparisonResult);
+            Assert.IsTrue(comparisonResult, "API analysis did not match expected");
         }
 
         private void ValidateSchemas()
@@ -109,7 +109,7 @@ namespace PortingAssistant.Client.IntegrationTests
                expectedAnalysisResultRootDir,
                "Schemas",
                "package-analysis-schema.json");
-            Assert.IsTrue(JsonUtils.ValidateSchema(actualPackageAnalysisPath, packageAnalysisSchemaPath, true));
+            Assert.IsTrue(JsonUtils.ValidateSchema(actualPackageAnalysisPath, packageAnalysisSchemaPath, true), "Package analysis schema does not match expected");
 
             string actualApiAnalysisPath = Path.Combine(
                 actualAnalysisResultRootDir,
@@ -121,7 +121,7 @@ namespace PortingAssistant.Client.IntegrationTests
                expectedAnalysisResultRootDir,
                "Schemas",
                "api-analysis-schema.json");
-            Assert.IsTrue(JsonUtils.ValidateSchema(actualApiAnalysisPath, apiAnalysisSchemaPath, false));
+            Assert.IsTrue(JsonUtils.ValidateSchema(actualApiAnalysisPath, apiAnalysisSchemaPath, false), "API analysis schema does not match expected");
         }
     }
 }
