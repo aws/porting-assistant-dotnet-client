@@ -59,10 +59,11 @@ namespace PortingAssistant.Client.NuGet
                 return;
             }
 
-            var packageVersionsGroupedByPackageId = packageVersions.ToDictionary(t => t.ToString(), t => t);
+            var packageVersionsGroupedByPackageIdDict = packageVersions.ToDictionary(t => t.ToString(), t => t);
+            ConcurrentDictionary<string, PackageVersionPair> packageVersionsGroupedByPackageIdConcurrent = new ConcurrentDictionary<string, PackageVersionPair>(packageVersionsGroupedByPackageIdDict);
 
             var distinctPackageVersions = packageVersions.Distinct().ToList();
-            var exceptions = new Dictionary<PackageVersionPair, Exception>();
+            var exceptions = new ConcurrentDictionary<PackageVersionPair, Exception>();
             foreach (var compatibilityChecker in _compatibilityCheckers)
             {
                 try
@@ -74,7 +75,7 @@ namespace PortingAssistant.Client.NuGet
                         {
                             if (task.IsCompletedSuccessfully)
                             {
-                                packageVersionsGroupedByPackageId.Remove(result.Key.ToString());
+                                packageVersionsGroupedByPackageIdConcurrent.TryRemove(result.Key.ToString(), out _);
                                 if (_compatibilityTaskCompletionSources.TryGetValue(result.Key, out var packageVersionPairResult))
                                 {
                                     packageVersionPairResult.TrySetResult(task.Result);
@@ -97,7 +98,7 @@ namespace PortingAssistant.Client.NuGet
                 }
             }
 
-            foreach (var packageVersion in packageVersionsGroupedByPackageId.Select(packageVersionGroup => packageVersionGroup.Value))
+            foreach (var packageVersion in packageVersionsGroupedByPackageIdConcurrent.Select(packageVersionGroup => packageVersionGroup.Value))
             {
                 if (packageVersion != null && _compatibilityTaskCompletionSources.TryGetValue(packageVersion, out var packageVersionPairResult))
                 {
