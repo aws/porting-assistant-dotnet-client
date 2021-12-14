@@ -74,6 +74,7 @@ namespace PortingAssistant.Client.Client
                         PackageReferences = p.PackageReferences,
                         ProjectFilePath = p.ProjectFilePath,
                         ProjectGuid = p.ProjectGuid,
+                        FeatureType = p.FeatureType,
                         ProjectName = p.ProjectName,
                         ProjectReferences = p.ProjectReferences,
                         ProjectType = p.ProjectType,
