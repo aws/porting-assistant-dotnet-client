@@ -59,7 +59,7 @@ namespace PortingAssistant.Client.UnitTests
             // use real http client with mocked handler here
             var httpClient = new HttpClient(handlerMock.Object)
             {
-                BaseAddress = new Uri("https://8q2itpfg51.execute-api.us-east-1.amazonaws.com/beta"),
+                BaseAddress = new Uri("https://localhost"),
             };
 
             var profile = "default";
@@ -73,7 +73,7 @@ namespace PortingAssistant.Client.UnitTests
 
             var teleConfig = new TelemetryConfiguration
             {
-                InvokeUrl = "https://8q2itpfg51.execute-api.us-east-1.amazonaws.com/beta",
+                InvokeUrl = "https://localhost",
                 Region = "us-east-1",
                 LogsPath = logs,
                 ServiceName = "appmodernization-beta",
@@ -82,9 +82,9 @@ namespace PortingAssistant.Client.UnitTests
                 MetricsFilePath = metricsFilePath,
             };
             var lastReadTokenFile = Path.Combine(teleConfig.LogsPath, "lastToken.json");
-            Uploader.Upload(teleConfig, httpClient, profile, "");
+            bool result = Uploader.Upload(teleConfig, httpClient, profile, "");
+            Assert.IsTrue(result);
             var fileLineNumberMap = JsonConvert.DeserializeObject<Dictionary<string, int>>(File.ReadAllText(lastReadTokenFile));
-            
             Assert.AreEqual(fileLineNumberMap[logFilePath], 3);
             Assert.AreEqual(fileLineNumberMap[metricsFilePath], 2);
 
