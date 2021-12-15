@@ -182,11 +182,13 @@ namespace PortingAssistant.Client.Telemetry
 
                     return response.IsSuccessStatusCode;
                 }
+                Console.WriteLine("Invalid Credentials");
                 Log.Logger.Error("Invalid Credentials.");
                 return false;
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 Log.Logger.Error(ex.Message);
                 return false;
             }
