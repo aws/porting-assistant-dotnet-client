@@ -33,15 +33,8 @@ namespace PortingAssistant.Client.Client.FileParser
                 return null;
             }
 
-            try
-            {
-                var repo = new Repository(gitRepositoryRootPath);
-                return repo.Config.Get<string>(new[] { "remote", "origin", "url" }).Value;
-            }
-            catch
-            {
-                return null;
-            }
+            var repo = new Repository(gitRepositoryRootPath);
+            return repo.Config.Get<string>(new[] { "remote", "origin", "url" }).Value;
         }
     }
 }
