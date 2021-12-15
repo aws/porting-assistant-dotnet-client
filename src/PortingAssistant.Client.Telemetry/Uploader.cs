@@ -83,14 +83,24 @@ namespace PortingAssistant.Client.Telemetry
                                     // logs.TrimToSize();
                                     success = PutLogData(client, logName, JsonConvert.SerializeObject(logs), profile, teleConfig).Result;
                                     if (success) { logs = new ArrayList(); }
-                                    else return false;
+                                    else
+                                    {
+                                        Console.WriteLine("Put log data request failed");
+                                        Log.Logger.Error("Put log data request failed");
+                                        return false;
+                                    }
                                 }
                             }
 
                             if (logs.Count != 0)
                             {
                                 success = PutLogData(client, logName, JsonConvert.SerializeObject(logs), profile, teleConfig).Result;
-                                if (!success) return false;
+                                if (!success)
+                                {
+                                    Console.WriteLine("Put log data request failed");
+                                    Log.Logger.Error("Put log data request failed");
+                                    return false;
+                                }
                             }
 
                             if (success)
@@ -107,6 +117,7 @@ namespace PortingAssistant.Client.Telemetry
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 Log.Logger.Error(ex.Message);
                 return false;
             }
