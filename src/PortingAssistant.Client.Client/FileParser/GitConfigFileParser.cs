@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using LibGit2Sharp;
 
 namespace PortingAssistant.Client.Client.FileParser
@@ -30,9 +32,17 @@ namespace PortingAssistant.Client.Client.FileParser
             {
                 return null;
             }
+            try
+            {
+                var repo = new Repository(gitRepositoryRootPath);
 
-            var repo = new Repository(gitRepositoryRootPath);
-            return repo.Config.Get<string>(new[] { "remote", "origin", "url" }).Value;
+                var configEntries = new List<ConfigurationEntry<string>>(repo.Config.Find("remote.origin.url"));
+                return configEntries.FirstOrDefault()?.Value;
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }
