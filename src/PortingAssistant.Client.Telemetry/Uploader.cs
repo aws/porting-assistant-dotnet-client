@@ -139,6 +139,7 @@ namespace PortingAssistant.Client.Telemetry
                 var profileName = profile;
                 var region = telemetryConfiguration.Region;
 
+                Console.WriteLine($"creds location {chain.ProfilesLocation}");
                 if (chain.TryGetAWSCredentials(profileName, out awsCredentials))
                 {
                     var signer = new AWS4RequestSigner
