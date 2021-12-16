@@ -65,8 +65,8 @@ namespace PortingAssistant.Client.UnitTests
             var profile = "default";
             var roamingFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             var logs = Path.Combine(roamingFolder, "Porting Assistant for .NET", "logs");
-            var logFilePath = Path.Combine(logs, "portingAssistant-client-cli-test.log");
-            var metricsFilePath = Path.Combine(logs, "portingAssistant-client-cli-test.metrics");
+            var logFilePath = Path.Combine(logs, "portingAssistant-client-cli-test-2.log");
+            var metricsFilePath = Path.Combine(logs, "portingAssistant-client-cli-test-2.metrics");
 
             File.WriteAllLines(logFilePath, logLines);
             File.WriteAllLines(metricsFilePath, metricLogLines);
