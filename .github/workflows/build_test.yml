@@ -38,7 +38,6 @@ jobs:
         aws-region: us-west-2
     - name: Configure credentials to default profile
       run: |
-        dotnet pack
         CREDENTIALS="~\.aws\credentials"
         touch $CREDENTIALS
         echo "[default]" >> $CREDENTIALS
