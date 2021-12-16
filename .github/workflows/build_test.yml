@@ -38,6 +38,7 @@ jobs:
         aws-region: us-west-2
     - name: Configure credentials to default profile
       run: |
+        mkdir "~\.aws"
         "[default]" | Out-File -FilePath "~\.aws\credentials"
         "aws_access_key_id = $env:AWS_ACCESS_KEY_ID" | Out-File -FilePath "~\.aws\credentials" -Append
         "aws_secret_access_key = $env:AWS_SECRET_KEY_ID" | Out-File -FilePath "~\.aws\credentials" -Append
