@@ -85,8 +85,6 @@ namespace PortingAssistant.Client.Telemetry
                                     if (success) { logs = new ArrayList(); }
                                     else
                                     {
-                                        Console.WriteLine("Put log data request failed");
-                                        Log.Logger.Error("Put log data request failed");
                                         return false;
                                     }
                                 }
@@ -97,8 +95,6 @@ namespace PortingAssistant.Client.Telemetry
                                 success = PutLogData(client, logName, JsonConvert.SerializeObject(logs), profile, teleConfig).Result;
                                 if (!success)
                                 {
-                                    Console.WriteLine("Put log data request failed");
-                                    Log.Logger.Error("Put log data request failed");
                                     return false;
                                 }
                             }
@@ -117,7 +113,6 @@ namespace PortingAssistant.Client.Telemetry
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
                 Log.Logger.Error(ex.Message);
                 return false;
             }
@@ -139,7 +134,6 @@ namespace PortingAssistant.Client.Telemetry
                 var profileName = profile;
                 var region = telemetryConfiguration.Region;
 
-                Console.WriteLine($"creds location {chain.ProfilesLocation}");
                 if (chain.TryGetAWSCredentials(profileName, out awsCredentials))
                 {
                     var signer = new AWS4RequestSigner
@@ -183,13 +177,11 @@ namespace PortingAssistant.Client.Telemetry
 
                     return response.IsSuccessStatusCode;
                 }
-                Console.WriteLine("Invalid Credentials");
                 Log.Logger.Error("Invalid Credentials.");
                 return false;
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
                 Log.Logger.Error(ex.Message);
                 return false;
             }
