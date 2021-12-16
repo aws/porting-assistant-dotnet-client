@@ -37,11 +37,14 @@ jobs:
         aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
         aws-region: us-west-2
     - name: Configure credentials to default profile
+      env:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
       run: |
         mkdir "~\.aws"
         "[default]" | Out-File -FilePath "~\.aws\credentials"
-        "aws_access_key_id = $env:AWS_ACCESS_KEY_ID" | Out-File -FilePath "~\.aws\credentials" -Append
-        "aws_secret_access_key = $env:AWS_SECRET_KEY_ID" | Out-File -FilePath "~\.aws\credentials" -Append
+        "aws_access_key_id = $env:aws-access-key-id" | Out-File -FilePath "~\.aws\credentials" -Append
+        "aws_secret_access_key = $env:aws-secret-access-key" | Out-File -FilePath "~\.aws\credentials" -Append
         cat "~\.aws\credentials"
     - name: Test
       run: dotnet test --configuration Release --no-restore --verbosity normal
