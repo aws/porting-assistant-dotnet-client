@@ -35,7 +35,15 @@ jobs:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
         aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-        aws-region: us-west-2   
+        aws-region: us-west-2
+    - name: Configure credentials to default profile
+      run: |
+        dotnet pack
+        CREDENTIALS="~\.aws\credentials"
+        touch $CREDENTIALS
+        echo "[default]" >> $CREDENTIALS
+        echo "aws_access_key_id = $AWS_ACCESS_KEY_ID" >> $CREDENTIALS
+        echo "aws_secret_access_key = $AWS_SECRET_KEY_ID" >> $CREDENTIALS
     - name: Test
       run: dotnet test --configuration Release --no-restore --verbosity normal
     - name: Pack
