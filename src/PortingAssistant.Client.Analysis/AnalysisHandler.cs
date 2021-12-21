@@ -393,6 +393,9 @@ namespace PortingAssistant.Client.Analysis
                 var analyzer = analyzers.Find((a) => a.ProjectResult?.ProjectFilePath != null &&
                     a.ProjectResult.ProjectFilePath.Equals(project));
 
+                var projectFeatureType = analysisActions.Find((a) => a.ProjectFile != null &&
+                    a.ProjectFile.Equals(project))?.FeatureType.ToString();
+
                 var projectActions = analysisActions.FirstOrDefault(p => p.ProjectFile == project)?.ProjectActions ?? new ProjectActions();
 
                 if (analyzer == null || analyzer.ProjectResult == null)
@@ -467,6 +470,7 @@ namespace PortingAssistant.Client.Analysis
                     Errors = analyzer.ProjectResult.BuildErrors,
                     ProjectGuid = analyzer.ProjectResult.ProjectGuid,
                     ProjectType = analyzer.ProjectResult.ProjectType,
+                    FeatureType = projectFeatureType,
                     SourceFileAnalysisResults = SourceFileAnalysisResults,
                     MetaReferences = analyzer.ProjectBuildResult.Project.MetadataReferences.Select(m => m.Display).ToList(),
                     PreportMetaReferences = analyzer.ProjectBuildResult.PreportReferences,
