@@ -83,14 +83,20 @@ namespace PortingAssistant.Client.Telemetry
                                     // logs.TrimToSize();
                                     success = PutLogData(client, logName, JsonConvert.SerializeObject(logs), profile, teleConfig).Result;
                                     if (success) { logs = new ArrayList(); }
-                                    else return false;
+                                    else
+                                    {
+                                        return false;
+                                    }
                                 }
                             }
 
                             if (logs.Count != 0)
                             {
                                 success = PutLogData(client, logName, JsonConvert.SerializeObject(logs), profile, teleConfig).Result;
-                                if (!success) return false;
+                                if (!success)
+                                {
+                                    return false;
+                                }
                             }
 
                             if (success)
