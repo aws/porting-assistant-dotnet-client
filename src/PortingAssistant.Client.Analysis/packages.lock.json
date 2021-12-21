@@ -69,50 +69,50 @@
       },
       "Codelyzer.Analysis": {
         "type": "Transitive",
-        "resolved": "1.8.34-alpha-gdc94356e56",
-        "contentHash": "OU6rn/2iJvn2b2bJ/COU4reXNrUMecervCZlb/qNthF+kSmndf1WFlNqc2C5AtIjy30ablxw0zW0GAiwAE3SyQ==",
+        "resolved": "1.8.35",
+        "contentHash": "/MY1V3bRW1tKMPAenet6hWmgyMiSgJ2FUj8zFvVWuqitUS/zYqh8bWE8BEkqTt8gOl9dYZ0OT6yCRa0hDkrwLQ==",
         "dependencies": {
-          "Codelyzer.Analysis.Build": "1.8.34-alpha-gdc94356e56",
-          "Codelyzer.Analysis.CSharp": "1.8.34-alpha-gdc94356e56",
+          "Codelyzer.Analysis.Build": "1.8.35",
+          "Codelyzer.Analysis.CSharp": "1.8.35",
           "CommandLineParser": "2.8.0",
           "Microsoft.Extensions.Logging.Console": "5.0.0"
         }
       },
       "Codelyzer.Analysis.Build": {
         "type": "Transitive",
-        "resolved": "1.8.34-alpha-gdc94356e56",
-        "contentHash": "nyErmQx27vyJrQCshj8u35XzbKnDasnVtory13XDdlWnM8aGdoJHbNR00kEP0MuulYpIzVM+BJRN1/dDPpaE8w==",
+        "resolved": "1.8.35",
+        "contentHash": "LBv4UtDrCgDW8KlfdrVQv7K0B5wyP+lM8n9XWCLVBWoaFGri5VE8xNKg18OjMvA2dWKzg1zZsEBKe+rspqz7uw==",
         "dependencies": {
           "Buildalyzer": "3.2.2",
           "Buildalyzer.Logger": "3.2.2",
           "Buildalyzer.Workspaces": "3.2.2",
-          "Codelyzer.Analysis.CSharp": "1.8.34-alpha-gdc94356e56",
+          "Codelyzer.Analysis.CSharp": "1.8.35",
           "Microsoft.Extensions.Logging": "5.0.0",
           "NuGet.Packaging": "5.11.0"
         }
       },
       "Codelyzer.Analysis.Common": {
         "type": "Transitive",
-        "resolved": "1.8.34-alpha-gdc94356e56",
-        "contentHash": "M/u4FH+QFSm4qPSiDWBVAMZNTmhDHUAcpMJXoXJyQHRsMQVGmpnNqSOyN3x4A8OntbQVqPoaqMJg62tzIGaK2A==",
+        "resolved": "1.8.35",
+        "contentHash": "n9vQBz2KymWbXtDevFA19dimYnL9CVXAOoUv0oMYSVj44zZ7Vg2kKtUfTnYKhZqWvMQJsWEMwuWA6B/aAxRqyA==",
         "dependencies": {
-          "Codelyzer.Analysis.Model": "1.8.34-alpha-gdc94356e56",
+          "Codelyzer.Analysis.Model": "1.8.35",
           "Newtonsoft.Json": "13.0.1"
         }
       },
       "Codelyzer.Analysis.CSharp": {
         "type": "Transitive",
-        "resolved": "1.8.34-alpha-gdc94356e56",
-        "contentHash": "9qwWjYZCLeN4PDe3MtE2pHl3GJO/o1fgDaNawiZ2QKDCUTFrmJkJOWKVWrgdoQFjbOc0eyGik36x4aMsrZxV+A==",
+        "resolved": "1.8.35",
+        "contentHash": "xgXRSNsd9EihVHqbwjW+P173WZUl0k5QUOYS+Ei5J1bTPz0H83D+K/lvKjIMx6GaLA0BETSCz9Wg+r8PQbtgTg==",
         "dependencies": {
-          "Codelyzer.Analysis.Common": "1.8.34-alpha-gdc94356e56",
-          "Codelyzer.Analysis.Model": "1.8.34-alpha-gdc94356e56"
+          "Codelyzer.Analysis.Common": "1.8.35",
+          "Codelyzer.Analysis.Model": "1.8.35"
         }
       },
       "Codelyzer.Analysis.Model": {
         "type": "Transitive",
-        "resolved": "1.8.34-alpha-gdc94356e56",
-        "contentHash": "WJL0VVZXWPypDR8KrhZA1ySEV+VWgcu6lQMUnVJongo51ESfntpUrAZAvojDSqBLiIb9lc5ZmLM5I345pZJNSA==",
+        "resolved": "1.8.35",
+        "contentHash": "8CTQTWCyU2u6xCtmITjZSVw2/ZWfoDZaYBdOQgHC6vSoWQy7y4EAVsYJpbW5oc5bhx2kk6+s+aUc1It3jzyxoQ==",
         "dependencies": {
           "Microsoft.CodeAnalysis": "3.11.0",
           "Microsoft.CodeAnalysis.CSharp": "3.11.0",
@@ -127,90 +127,90 @@
       },
       "CTA.FeatureDetection": {
         "type": "Transitive",
-        "resolved": "1.10.126-alpha-ga37f8e2c76",
-        "contentHash": "6+4JNZZqIYZdOixHM+OHmDuWcFnon9hEEOq/8gjC9qRjoxsHuvcJ2s5sS8wtR0pCA5Bn6kZE8juWW0UEP1OWeQ==",
+        "resolved": "1.10.129",
+        "contentHash": "1S4M6T/cdb5k/EWnP7kfz9OTM1LbF+GmIHF+ZMr+6LFeYOGdBr7D2cg0eSlWRIu73/nCanqIiQ1PLuAA0FgIxw==",
         "dependencies": {
-          "CTA.FeatureDetection.AuthType": "1.10.126-alpha-ga37f8e2c76",
-          "CTA.FeatureDetection.Common": "1.10.126-alpha-ga37f8e2c76",
-          "CTA.FeatureDetection.Load": "1.10.126-alpha-ga37f8e2c76",
-          "CTA.FeatureDetection.ProjectType": "1.10.126-alpha-ga37f8e2c76",
-          "CTA.Rules.Common": "1.10.126-alpha-ga37f8e2c76"
+          "CTA.FeatureDetection.AuthType": "1.10.129",
+          "CTA.FeatureDetection.Common": "1.10.129",
+          "CTA.FeatureDetection.Load": "1.10.129",
+          "CTA.FeatureDetection.ProjectType": "1.10.129",
+          "CTA.Rules.Common": "1.10.129"
         }
       },
       "CTA.FeatureDetection.AuthType": {
         "type": "Transitive",
-        "resolved": "1.10.126-alpha-ga37f8e2c76",
-        "contentHash": "oANHOr+qHxlO8mWe5AU4/J6+1J9orRdcrohNk6rWdwH0CrVtx3n/aXlALzrfP8IVTDvDyewMXLxDZBa1hjviwA==",
+        "resolved": "1.10.129",
+        "contentHash": "n3o/iBCn12gdw1Ed5k5QI9B93W8+6yrOcKb6jJI2X1Fi8RTAHR3P+kCFWv1vMzYmgSQa5y2kgJo5IGqRC/b5tg==",
         "dependencies": {
-          "CTA.FeatureDetection.Common": "1.10.126-alpha-ga37f8e2c76",
-          "CTA.Rules.Common": "1.10.126-alpha-ga37f8e2c76",
-          "CTA.Rules.Config": "1.10.126-alpha-ga37f8e2c76",
+          "CTA.FeatureDetection.Common": "1.10.129",
+          "CTA.Rules.Common": "1.10.129",
+          "CTA.Rules.Config": "1.10.129",
           "System.Configuration.ConfigurationManager": "5.0.0"
         }
       },
       "CTA.FeatureDetection.Common": {
         "type": "Transitive",
-        "resolved": "1.10.126-alpha-ga37f8e2c76",
-        "contentHash": "P9G4yBW/+5/dEL/9XJGEygKTCNrrhyrX/5ZX2ulWUDn+qiHll2ruW9ribt5MJqPxc6k2fvFW57Q+CF8nUpzy+g==",
+        "resolved": "1.10.129",
+        "contentHash": "aKQRPwcqrUrwLpqZ52uND5XXmr5Fdyjt7TduXWmbYBXz9kCrlKnzY2Pyvot7/oeHymv4VY8SqDluPrUVZSF4GA==",
         "dependencies": {
-          "CTA.Rules.Common": "1.10.126-alpha-ga37f8e2c76",
-          "CTA.Rules.Config": "1.10.126-alpha-ga37f8e2c76"
+          "CTA.Rules.Common": "1.10.129",
+          "CTA.Rules.Config": "1.10.129"
         }
       },
       "CTA.FeatureDetection.Load": {
         "type": "Transitive",
-        "resolved": "1.10.126-alpha-ga37f8e2c76",
-        "contentHash": "BGOz6/oQyVqjtLaeCZdCQ9gqy7UQ/vbeSedS4FL9sbIIpO78wEil2RM/swukLI9TCButnLVnkHeKZGVhdKDrFg==",
+        "resolved": "1.10.129",
+        "contentHash": "/KTIE7Q+SKdSbNpxjVktaCXbYTlkLlcCx+utNjJXZjxYzGJsqOJ4MEakEPB3Gx5SqS2TlVbxf1wsAXtW9w8IMA==",
         "dependencies": {
-          "CTA.FeatureDetection.Common": "1.10.126-alpha-ga37f8e2c76",
-          "CTA.FeatureDetection.ProjectType": "1.10.126-alpha-ga37f8e2c76"
+          "CTA.FeatureDetection.Common": "1.10.129",
+          "CTA.FeatureDetection.ProjectType": "1.10.129"
         }
       },
       "CTA.FeatureDetection.ProjectType": {
         "type": "Transitive",
-        "resolved": "1.10.126-alpha-ga37f8e2c76",
-        "contentHash": "1mFCH/htdyhhY6otUHPsEj48/6jgMclx50Jpv3aKCACo9F++17JQY1mumc+1UR0t6mxwk9IjIwm3ELvP1nnpsg==",
+        "resolved": "1.10.129",
+        "contentHash": "QKemk19SeMIaUhTtUXBaJWB6dXTiuXU2PiiemeNCV76xlwRcZfLXIuSUd+vfBOf8pUVhbrRNyENwrqpIeI8vVA==",
         "dependencies": {
-          "CTA.FeatureDetection.Common": "1.10.126-alpha-ga37f8e2c76"
+          "CTA.FeatureDetection.Common": "1.10.129"
         }
       },
       "CTA.Rules.Actions": {
         "type": "Transitive",
-        "resolved": "1.10.126-alpha-ga37f8e2c76",
-        "contentHash": "O55dxM3I0PMHJKhFDtf9i4mtrk8HOddmFUY0+avVP50WT/3vmDRFsGEZ2cphyAkPYtZMBCjdvjeRNlb4tgK1Uw==",
+        "resolved": "1.10.129",
+        "contentHash": "s3Q7Vlj3hLixJMuWrFnIP6HOKIZBStJR/WDJjXsaSkDAXdil7Lsl8fpaZYifxIRfwCg0G76BolaAsQuKWK0/NQ==",
         "dependencies": {
-          "CTA.Rules.Config": "1.10.126-alpha-ga37f8e2c76",
-          "CTA.Rules.Models": "1.10.126-alpha-ga37f8e2c76",
-          "CTA.Rules.ProjectFile": "1.10.126-alpha-ga37f8e2c76",
+          "CTA.Rules.Config": "1.10.129",
+          "CTA.Rules.Models": "1.10.129",
+          "CTA.Rules.ProjectFile": "1.10.129",
           "System.Configuration.ConfigurationManager": "5.0.0"
         }
       },
       "CTA.Rules.Analysis": {
         "type": "Transitive",
-        "resolved": "1.10.126-alpha-ga37f8e2c76",
-        "contentHash": "LBeeE3tgQAHQ+yG01nf7s3xKfuWgPcPnHCM+U0KUyrFvNOscnAb9ynatPtJGATjQS043UQCdOkkl6xw4aL0xdg==",
+        "resolved": "1.10.129",
+        "contentHash": "uWJ3nhgKEi2lQXFTt5FlJJZrSjw6cYQCI41UEual8wme020Ai/PI0LNts1Ix6IgdKfOertaNrVWhPuLHY4fA4w==",
         "dependencies": {
-          "CTA.Rules.Config": "1.10.126-alpha-ga37f8e2c76",
-          "CTA.Rules.Metrics": "1.10.126-alpha-ga37f8e2c76",
-          "CTA.Rules.Models": "1.10.126-alpha-ga37f8e2c76"
+          "CTA.Rules.Config": "1.10.129",
+          "CTA.Rules.Metrics": "1.10.129",
+          "CTA.Rules.Models": "1.10.129"
         }
       },
       "CTA.Rules.Common": {
         "type": "Transitive",
-        "resolved": "1.10.126-alpha-ga37f8e2c76",
-        "contentHash": "lWH1y1EXFK7ZZlTLl2C4+bfBylxFx5F2FsqMvRG3oONb2bAmpgQ+hRA1NsXzskiJ3g/+yJ4ueR4u+3W8Rc/JSA==",
+        "resolved": "1.10.129",
+        "contentHash": "TPKl4BRGoTfKlJwbOBnY9s2TZF/5F7lVLA5Ve9Juk1aBsFG5XW4MuRClyVLr1CTa39377FIBnip2l60zO+7cPA==",
         "dependencies": {
-          "CTA.Rules.Config": "1.10.126-alpha-ga37f8e2c76",
+          "CTA.Rules.Config": "1.10.129",
           "System.Configuration.ConfigurationManager": "5.0.0"
         }
       },
       "CTA.Rules.Config": {
         "type": "Transitive",
-        "resolved": "1.10.126-alpha-ga37f8e2c76",
-        "contentHash": "hN05iGk9KBs32yOCEb3NjMnLCpDBu7YGWhKSa5dGbH0MVharYVPg1G5w9mWL4wxMuCaf0/4J9ALiBuVSuSFYmA==",
+        "resolved": "1.10.129",
+        "contentHash": "8BHB7MJGhcQQPnwWQr4Ccn4Y/ZToiPpkMgx25IdjgsUr/u9QpzzKw4TE21JjM6FGuz7HEyi2vZgkfNqkBq4w3A==",
         "dependencies": {
-          "Codelyzer.Analysis": "1.8.34-alpha-gdc94356e56",
-          "Codelyzer.Analysis.Model": "1.8.34-alpha-gdc94356e56",
+          "Codelyzer.Analysis": "1.8.35",
+          "Codelyzer.Analysis.Model": "1.8.35",
           "Microsoft.Extensions.Logging": "5.0.0",
           "Microsoft.Extensions.Logging.Abstractions": "5.0.0",
           "Microsoft.Extensions.Logging.Console": "5.0.0",
@@ -219,72 +219,72 @@
       },
       "CTA.Rules.Metrics": {
         "type": "Transitive",
-        "resolved": "1.10.126-alpha-ga37f8e2c76",
-        "contentHash": "QgL7qSRg0Ix1iX1xH1M6wXJ1MEw1oyV6Vu9IOyGppTfyky3q6HFzWuOeumA60ub1jEaHy1FCtf3c6+lr+7xL1g==",
+        "resolved": "1.10.129",
+        "contentHash": "HUzfoB3SUC7n1gwfbrzWSKaOBfFleAGa+qAtCKP6A4L6IM2mL6idzsnYY9gIr9jpOejlJFJIBKoL4wAvEF9DyA==",
         "dependencies": {
-          "CTA.FeatureDetection.Common": "1.10.126-alpha-ga37f8e2c76",
-          "CTA.Rules.Config": "1.10.126-alpha-ga37f8e2c76",
-          "CTA.Rules.Models": "1.10.126-alpha-ga37f8e2c76"
+          "CTA.FeatureDetection.Common": "1.10.129",
+          "CTA.Rules.Config": "1.10.129",
+          "CTA.Rules.Models": "1.10.129"
         }
       },
       "CTA.Rules.Models": {
         "type": "Transitive",
-        "resolved": "1.10.126-alpha-ga37f8e2c76",
-        "contentHash": "D7WBxOLEdTavdBIHUuuiTCtlr5TnDHWN+F6JccZVXEXc2UNH4vLYyLO72Q7r5XxvRutqUabHX+lzvT1BP18mVw==",
+        "resolved": "1.10.129",
+        "contentHash": "r/yVVX9trDE65rC4p+bp09E3EhgAPIqQLb5Zsj4hxQtXDHr3vhKzSd0QSzFNgNz0feF+jcDDK1j9HXXzzCldBQ==",
         "dependencies": {
-          "CTA.Rules.Common": "1.10.126-alpha-ga37f8e2c76",
-          "CTA.Rules.Config": "1.10.126-alpha-ga37f8e2c76",
+          "CTA.Rules.Common": "1.10.129",
+          "CTA.Rules.Config": "1.10.129",
           "System.ComponentModel.Annotations": "5.0.0"
         }
       },
       "CTA.Rules.PortCore": {
         "type": "Transitive",
-        "resolved": "1.10.126-alpha-ga37f8e2c76",
-        "contentHash": "vkCMO+ZNhci/VGhohBjFND6p8kD9QqHsxC2ERSlm6Z5KxMvKdygUSMd9ep2BYSJj37ZkoQMbozfh5ylQqRQoAA==",
+        "resolved": "1.10.129",
+        "contentHash": "6GsG9zyvSBIXUHTFFaEFvFP2Cxg83fJjsm7QtLr8NNQ6tucQXPCOWJx/0qtt/rUdG19t7l6289ycFV/ADSrkNA==",
         "dependencies": {
-          "CTA.FeatureDetection": "1.10.126-alpha-ga37f8e2c76",
-          "CTA.Rules.Update": "1.10.126-alpha-ga37f8e2c76",
-          "CTA.WebForms": "1.10.126-alpha-ga37f8e2c76"
+          "CTA.FeatureDetection": "1.10.129",
+          "CTA.Rules.Update": "1.10.129",
+          "CTA.WebForms": "1.10.129"
         }
       },
       "CTA.Rules.ProjectFile": {
         "type": "Transitive",
-        "resolved": "1.10.126-alpha-ga37f8e2c76",
-        "contentHash": "Cpo4BzK0TtkhxNPoxrqxBLrLQRDWi0mx2CNoSDaZDNHyUIq4ueJYun149U3V92OLpXI8ZRtYQw+BMi5EOalXWw==",
+        "resolved": "1.10.129",
+        "contentHash": "2Mb7CljE+wDVkPkq6K/YpDMwMEhbPfwbdSQhEOr1QkxlIK0pSvdDsXlHr7EcxpEOySymHkFv9qVF4NzbYLrrQw==",
         "dependencies": {
-          "CTA.Rules.Models": "1.10.126-alpha-ga37f8e2c76"
+          "CTA.Rules.Models": "1.10.129"
         }
       },
       "CTA.Rules.RuleFiles": {
         "type": "Transitive",
-        "resolved": "1.10.126-alpha-ga37f8e2c76",
-        "contentHash": "XJMo7Zv7f9PgosjV5EjUwZ2OHxq61ripyCwlEWxBQJL8NMnfZAdSMjKRZNc6wPBnWlEV2cTNItdhBpIMe7r+DA==",
+        "resolved": "1.10.129",
+        "contentHash": "yr0TlVzpNcNi8896S3yPxm/FYIwzQ74bzXIxkVXieadJMdrNtg5aYzbEYXQf34T/w2Ozd/DYMfgThH/KQxy1fg==",
         "dependencies": {
-          "CTA.Rules.Actions": "1.10.126-alpha-ga37f8e2c76",
-          "CTA.Rules.Metrics": "1.10.126-alpha-ga37f8e2c76",
-          "CTA.Rules.Models": "1.10.126-alpha-ga37f8e2c76"
+          "CTA.Rules.Actions": "1.10.129",
+          "CTA.Rules.Metrics": "1.10.129",
+          "CTA.Rules.Models": "1.10.129"
         }
       },
       "CTA.Rules.Update": {
         "type": "Transitive",
-        "resolved": "1.10.126-alpha-ga37f8e2c76",
-        "contentHash": "eUoIIxSHmv40fAinjCrHfmfhCx6oXypwGzWqy0TWRH6dUc7+qukfULd1x3WH/PGlOXg6hFxwc/iHJjpHsEjARQ==",
+        "resolved": "1.10.129",
+        "contentHash": "TPsNlTfOYPWl6GQJ6fa2dGGiaMdQ4arRLrObJWK8993pZmhnpvZwXp2rtyUyf+tmIrDANV/nJh1M4WnrKewC/A==",
         "dependencies": {
-          "CTA.Rules.Actions": "1.10.126-alpha-ga37f8e2c76",
-          "CTA.Rules.Analysis": "1.10.126-alpha-ga37f8e2c76",
-          "CTA.Rules.Config": "1.10.126-alpha-ga37f8e2c76",
-          "CTA.Rules.Metrics": "1.10.126-alpha-ga37f8e2c76",
-          "CTA.Rules.Models": "1.10.126-alpha-ga37f8e2c76",
-          "CTA.Rules.ProjectFile": "1.10.126-alpha-ga37f8e2c76",
-          "CTA.Rules.RuleFiles": "1.10.126-alpha-ga37f8e2c76"
+          "CTA.Rules.Actions": "1.10.129",
+          "CTA.Rules.Analysis": "1.10.129",
+          "CTA.Rules.Config": "1.10.129",
+          "CTA.Rules.Metrics": "1.10.129",
+          "CTA.Rules.Models": "1.10.129",
+          "CTA.Rules.ProjectFile": "1.10.129",
+          "CTA.Rules.RuleFiles": "1.10.129"
         }
       },
       "CTA.WebForms": {
         "type": "Transitive",
-        "resolved": "1.10.126-alpha-ga37f8e2c76",
-        "contentHash": "YY6id3PqSR47G12a5WeQxB/VZoC4DrZDA7B5wmECRWjOrD+oRtiYLUTpjdeK2WCbaNBGUKkfrDVr86LWDDaUqA==",
+        "resolved": "1.10.129",
+        "contentHash": "+1IU9Q4BUTR32Q/pxpjRX1cNIuSdglcEQVujKYqoZX+FYsvybT8T3q1zslYz3HojNbLHdq5hAnpH2U3EQTZJhw==",
         "dependencies": {
-          "CTA.Rules.Actions": "1.10.126-alpha-ga37f8e2c76",
+          "CTA.Rules.Actions": "1.10.129",
           "HtmlAgilityPack": "1.11.34"
         }
       },
@@ -1937,7 +1937,7 @@
       "portingassistant.client.common": {
         "type": "Project",
         "dependencies": {
-          "CTA.Rules.PortCore": "1.10.126-alpha-ga37f8e2c76",
+          "CTA.Rules.PortCore": "1.10.129",
           "Microsoft.Extensions.Logging": "5.0.0",
           "Newtonsoft.Json": "13.0.1",
           "NuGet.Protocol": "5.11.0",
