@@ -373,9 +373,12 @@ namespace PortingAssistant.Client.Analysis
                         .Select((project) => new KeyValuePair<string, ProjectAnalysisResult>(
                             project,
                             AnalyzeProject(
-                                project, solutionFileName,
-                                analyzerResult, analysisActions,
-                                isIncremental, targetFramework)))
+                                project,
+                                solutionFileName,
+                                analyzerResult,
+                                analysisActions,
+                                isIncremental,
+                                targetFramework)))
                         .Where(p => p.Value != null)
                         .ToDictionary(p => p.Key, p => p.Value);
 
@@ -423,12 +426,18 @@ namespace PortingAssistant.Client.Analysis
                 var nugetPackages = analyzer.ProjectResult.ExternalReferences.NugetReferences
                     .Select(r => CodeEntityModelToCodeEntities.ReferenceToPackageVersionPair(r))
                     .ToHashSet();
+                var nugetPackageNameLookup = nugetPackages.Select(package => package.PackageId).ToHashSet();
 
                 var subDependencies = analyzer.ProjectResult.ExternalReferences.NugetDependencies
                     .Select(r => CodeEntityModelToCodeEntities.ReferenceToPackageVersionPair(r))
                     .ToHashSet();
 
-                var sdkPackages = namespaces.Select(n => new PackageVersionPair { PackageId = n, Version = "0.0.0", PackageSourceType = PackageSourceType.SDK });
+                var sdkPackages = namespaces.Select(n => new PackageVersionPair
+                {
+                    PackageId = n,
+                    Version = "0.0.0",
+                    PackageSourceType = PackageSourceType.SDK
+                }).Where(pair => !nugetPackageNameLookup.Contains(pair.PackageId));
 
                 var allPackages = nugetPackages
                     .Union(subDependencies)
