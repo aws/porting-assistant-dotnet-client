@@ -95,18 +95,22 @@ namespace PortingAssistant.Client.Analysis.Utils
                     return semversion.CompareTo(version) > 0;
                 }).ToList();
 
+                var compatibility = foundTarget.Any(v =>
+                {
+                    if (!NuGetVersion.TryParse(v, out var semversion))
+                    {
+                        return false;
+                    }
+
+                    return version.CompareTo(semversion) == 0;
+                })
+                    ? Compatibility.COMPATIBLE
+                    : Compatibility.INCOMPATIBLE;
+
                 compatibleVersions.Sort( (a, b) => NuGetVersion.Parse(a).CompareTo(NuGetVersion.Parse(b)));
                 return new CompatibilityResult
                 {
-                    Compatibility = foundTarget.Any(v =>
-                    {
-                        if (!NuGetVersion.TryParse(v, out var semversion))
-                        {
-                            return false;
-                        }
-
-                        return version.CompareTo(semversion) >= 0;
-                    }) ? Compatibility.COMPATIBLE : Compatibility.INCOMPATIBLE,
+                    Compatibility = compatibility,
                     CompatibleVersions = compatibleVersions
                 };
             }

@@ -183,5 +183,35 @@ namespace PortingAssistant.Client.UnitTests
             Assert.AreEqual(1, recommendation.CompatibilityResults["netcoreapp3.1"].CompatibleVersions.Count);
             Assert.AreEqual("2.0.0", recommendation.Recommendations.RecommendedActions[0].Description);
         }
+
+        [Test]
+        public void TestIsCompatibleAsync_ReturnsIncompatible_PackageVersionNotInTargetVersions()
+        {
+            var versions = new SortedSet<string>
+            {
+                "4.0.0",
+                "4.5.0"
+            };
+            var packageVersionPair = new PackageVersionPair
+            {
+                PackageId = "System.DirectoryServices",
+                PackageSourceType = PackageSourceType.NUGET,
+                Version = "5.0.0"
+            };
+            var packageDetails = new PackageDetails
+            {
+                Name = "System.DirectoryServices",
+                Versions = versions,
+                Targets = new Dictionary<string, SortedSet<string>>
+                {
+                    { "net5.0",  versions }
+                }
+            };
+
+            var compatResults = PackageCompatibility.IsCompatibleAsync(Task.FromResult(packageDetails), packageVersionPair, NullLogger.Instance);
+
+            Assert.AreEqual(0, compatResults.Result.CompatibleVersions.Count);
+            Assert.AreEqual(Compatibility.INCOMPATIBLE, compatibilityResult.Compatibility);
+        }
     }
 }

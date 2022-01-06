@@ -108,8 +108,8 @@ namespace PortingAssistant.Client.IntegrationTests
                 Version = "3.4.1",
                 PackageSourceType = PackageSourceType.NUGET
             }).Result;
-            Assert.AreEqual(Compatibility.COMPATIBLE, packageAnalysisResult.CompatibilityResults.
-            GetValueOrDefault("netcoreapp3.1").Compatibility);
+            Assert.AreEqual(Compatibility.COMPATIBLE, 
+                packageAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").Compatibility);
             Assert.True(packageAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").CompatibleVersions.Count > 0);
             Assert.AreEqual(RecommendedActionType.UpgradePackage, packageAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
             Assert.AreEqual("4.0.0", packageAnalysisResult.Recommendations.RecommendedActions.First().Description);
@@ -120,8 +120,8 @@ namespace PortingAssistant.Client.IntegrationTests
                 Version = "2.0.1",
                 PackageSourceType = PackageSourceType.NUGET
             }).Result;
-            Assert.AreEqual(Compatibility.COMPATIBLE, packageAnalysisResult.CompatibilityResults.
-            GetValueOrDefault("netcoreapp3.1").Compatibility);
+            Assert.AreEqual(Compatibility.INCOMPATIBLE, 
+                packageAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").Compatibility);
             Assert.AreEqual(0, packageAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").CompatibleVersions.Count);
             Assert.AreEqual(RecommendedActionType.UpgradePackage, packageAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
             Assert.Null(packageAnalysisResult.Recommendations.RecommendedActions.First().Description);
@@ -132,8 +132,8 @@ namespace PortingAssistant.Client.IntegrationTests
                 Version = "12.0.2",
                 PackageSourceType = PackageSourceType.NUGET
             }).Result;
-            Assert.AreEqual(Compatibility.COMPATIBLE, packageAnalysisResult.CompatibilityResults.
-            GetValueOrDefault("netcoreapp3.1").Compatibility);
+            Assert.AreEqual(Compatibility.COMPATIBLE, 
+                packageAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").Compatibility);
             Assert.True(packageAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").CompatibleVersions.Count > 0);
             Assert.AreEqual(RecommendedActionType.UpgradePackage, packageAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
             Assert.AreEqual("12.0.3", packageAnalysisResult.Recommendations.RecommendedActions.First().Description);
@@ -144,8 +144,8 @@ namespace PortingAssistant.Client.IntegrationTests
                 Version = "3.5.0.2",
                 PackageSourceType = PackageSourceType.NUGET
             }).Result;
-            Assert.AreEqual(Compatibility.INCOMPATIBLE, packageAnalysisResult.CompatibilityResults.
-            GetValueOrDefault("netcoreapp3.1").Compatibility);
+            Assert.AreEqual(Compatibility.INCOMPATIBLE, 
+                packageAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").Compatibility);
             Assert.AreEqual(0, packageAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").CompatibleVersions.Count);
             Assert.AreEqual(RecommendedActionType.UpgradePackage, packageAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
             Assert.Null(packageAnalysisResult.Recommendations.RecommendedActions.First().Description);
@@ -156,8 +156,8 @@ namespace PortingAssistant.Client.IntegrationTests
                 Version = "5.2.7",
                 PackageSourceType = PackageSourceType.NUGET
             }).Result;
-            Assert.AreEqual(Compatibility.INCOMPATIBLE, packageAnalysisResult.CompatibilityResults.
-            GetValueOrDefault("netcoreapp3.1").Compatibility);
+            Assert.AreEqual(Compatibility.INCOMPATIBLE, 
+                packageAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").Compatibility);
             Assert.AreEqual(0, packageAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").CompatibleVersions.Count);
             Assert.AreEqual(RecommendedActionType.UpgradePackage, packageAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
             Assert.Null(packageAnalysisResult.Recommendations.RecommendedActions.First().Description);

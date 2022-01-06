@@ -283,7 +283,7 @@
     },
     "CompatibilityResults": {
       "netcoreapp3.1": {
-        "Compatibility": "COMPATIBLE",
+        "Compatibility": "INCOMPATIBLE",
         "CompatibleVersions": []
       }
     },
