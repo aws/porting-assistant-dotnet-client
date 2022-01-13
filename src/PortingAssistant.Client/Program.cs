@@ -147,15 +147,16 @@ namespace PortingAssistant.Client.CLI
                 telemetryConfiguration.LogFilePath = logFilePath;
                 telemetryConfiguration.MetricsFilePath = metricsFilePath;
                 telemetryConfiguration.LogsPath = logsPath;
-                var isSuccessed = Uploader.Upload(telemetryConfiguration, new System.Net.Http.HttpClient(), profile, "");
+                var isSuccessed = Uploader.Upload(telemetryConfiguration, profile, "");
 
                 if (!isSuccessed)
                 {
                     Log.Logger.Error("Upload Metrcis/Logs Failed!");
-                    Environment.Exit(-1);
                 }
-
-                Log.Logger.Information("Upload Metrcis/Logs Success!");
+                else
+                {
+                    Log.Logger.Information("Upload Metrcis/Logs Success!");
+                }
             }
         }
 

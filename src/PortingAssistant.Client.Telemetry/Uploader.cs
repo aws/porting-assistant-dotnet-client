@@ -1,6 +1,5 @@
 ﻿using Amazon.Runtime;
 using Amazon.Runtime.CredentialManagement;
-using Aws4RequestSigner;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PortingAssistantExtensionTelemetry.Model;
@@ -11,14 +10,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using Amazon;
 
 namespace PortingAssistant.Client.Telemetry
 {
     public class Uploader
     {
-        public static bool Upload(TelemetryConfiguration teleConfig, HttpClient client, string profile, string prefix)
+        public static bool Upload(TelemetryConfiguration teleConfig, string profile, string prefix)
         {
             try
             {
@@ -81,7 +82,7 @@ namespace PortingAssistant.Client.Telemetry
                                 if (logs.Count >= 1000)
                                 {
                                     // logs.TrimToSize();
-                                    success = PutLogData(client, logName, JsonConvert.SerializeObject(logs), profile, teleConfig).Result;
+                                    success = PutLogData(logName, JsonConvert.SerializeObject(logs), profile, teleConfig).Result;
                                     if (success) { logs = new ArrayList(); }
                                     else
                                     {
@@ -92,7 +93,7 @@ namespace PortingAssistant.Client.Telemetry
 
                             if (logs.Count != 0)
                             {
-                                success = PutLogData(client, logName, JsonConvert.SerializeObject(logs), profile, teleConfig).Result;
+                                success = PutLogData(logName, JsonConvert.SerializeObject(logs), profile, teleConfig).Result;
                                 if (!success)
                                 {
                                     return false;
@@ -119,14 +120,12 @@ namespace PortingAssistant.Client.Telemetry
         }
         private static async Task<bool> PutLogData
            (
-           HttpClient client,
            string logName,
            string logData,
            string profile,
            TelemetryConfiguration telemetryConfiguration
            )
         {
-            const string PathTemplate = "/put-log-data";
             try
             {
                 var chain = new CredentialProfileStoreChain();
@@ -136,12 +135,6 @@ namespace PortingAssistant.Client.Telemetry
 
                 if (chain.TryGetAWSCredentials(profileName, out awsCredentials))
                 {
-                    var signer = new AWS4RequestSigner
-                        (
-                        awsCredentials.GetCredentials().AccessKey,
-                        awsCredentials.GetCredentials().SecretKey
-                        );
-
                     dynamic requestMetadata = new JObject();
                     requestMetadata.version = "1.0";
                     requestMetadata.service = telemetryConfiguration.ServiceName;
@@ -159,27 +152,23 @@ namespace PortingAssistant.Client.Telemetry
                     body.log = log;
 
                     var requestContent = new StringContent(body.ToString(Formatting.None), Encoding.UTF8, "application/json");
-
-                    var requestUri = new Uri(String.Join("", telemetryConfiguration.InvokeUrl, PathTemplate));
-
-                    var request = new HttpRequestMessage
-                    {
-                        Method = HttpMethod.Post,
-                        RequestUri = requestUri,
-                        Content = requestContent
+                    var config = new TelemetryConfig() 
+                    { 
+                        RegionEndpoint = RegionEndpoint.GetBySystemName(region), 
+                        MaxErrorRetry = 2, 
+                        ServiceURL = telemetryConfiguration.InvokeUrl,
                     };
+                    var client = new TelemetryClient(awsCredentials, config);
+                    var contentString = await requestContent.ReadAsStringAsync();
+                    var telemetryRequest = new TelemetryRequest(telemetryConfiguration.ServiceName, contentString);
+                    var telemetryResponse = await client.SendAsync(telemetryRequest);
 
-                    request = await signer.Sign(request, "execute-api", region);
-                    if (!string.IsNullOrEmpty(awsCredentials.GetCredentials().Token))
+                    if (telemetryResponse.HttpStatusCode != HttpStatusCode.OK)
                     {
-                        request.Headers.Add("x-amz-security-token", awsCredentials.GetCredentials().Token);
+                        Log.Logger.Error("Http response failed with status code: " + telemetryResponse.HttpStatusCode.ToString());
                     }
 
-                    var response = await client.SendAsync(request);
-
-                    if (!response.IsSuccessStatusCode) Log.Logger.Error("Http response faild with status code: " + response.StatusCode.ToString());
-
-                    return response.IsSuccessStatusCode;
+                    return telemetryResponse.HttpStatusCode == HttpStatusCode.OK;
                 }
                 Log.Logger.Error("Invalid Credentials.");
                 return false;
