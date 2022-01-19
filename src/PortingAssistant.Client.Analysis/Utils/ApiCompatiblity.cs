@@ -21,10 +21,10 @@ namespace PortingAssistant.Client.Analysis.Utils
             {
                 return GetCompatibilityResult(package, codeEntityDetails.OriginalDefinition, codeEntityDetails.Package.Version, target, checkLesserPackage);
             }
-            //If another node type, we will not try to find it. Compatibility will be based on the package compatiblity
+            //If another node type, we will not try to find it. Compatibility will be based on the package compatibility
             else
             {
-                var compatiblityResult = new CompatibilityResult
+                var compatibilityResult = new CompatibilityResult
                 {
                     Compatibility = Compatibility.UNKNOWN,
                     CompatibleVersions = new List<string>()
@@ -32,111 +32,113 @@ namespace PortingAssistant.Client.Analysis.Utils
 
                 if (package == null || !NuGetVersion.TryParse(codeEntityDetails.Package.Version, out var targetversion))
                 {
-                    return compatiblityResult;
+                    return compatibilityResult;
                 }
 
                 if (package.PackageDetails.IsDeprecated)
                 {
-                    compatiblityResult.Compatibility = Compatibility.DEPRECATED;
-                    return compatiblityResult;
+                    compatibilityResult.Compatibility = Compatibility.DEPRECATED;
+                    return compatibilityResult;
                 }
 
                 //For other code entities, we just need to check if the package has a compatible target:
                 if (package.PackageDetails.Targets.ContainsKey(target))
                 {
-                    compatiblityResult.Compatibility = Compatibility.COMPATIBLE;
-                    return compatiblityResult;
+                    compatibilityResult.Compatibility = Compatibility.COMPATIBLE;
+                    return compatibilityResult;
                 } else
                 {
-                    compatiblityResult.Compatibility = Compatibility.INCOMPATIBLE;
+                    compatibilityResult.Compatibility = Compatibility.INCOMPATIBLE;
                 }
                 
-                return compatiblityResult;
+                return compatibilityResult;
             }
         }
 
 
-        public static CompatibilityResult GetCompatibilityResult(PackageDetailsWithApiIndices package, string apiMethodSignature, string version, string target = "netcoreapp3.1", bool checkLesserPackage = false)
+        public static CompatibilityResult GetCompatibilityResult(
+            PackageDetailsWithApiIndices package, 
+            string apiMethodSignature, 
+            string packageVersion, 
+            string target = "netcoreapp3.1", 
+            bool checkLesserPackage = false)
         {
-
-            var compatiblityResult = new CompatibilityResult
+            var compatibilityResult = new CompatibilityResult
             {
                 Compatibility = Compatibility.UNKNOWN,
                 CompatibleVersions = new List<string>()
             };
 
-            if (package == null || apiMethodSignature == null || !NuGetVersion.TryParse(version, out var targetversion))
+            // If necessary data to determine compatibility is missing, return unknown compatibility
+            if (package == null 
+                || apiMethodSignature == null 
+                || !NuGetVersion.TryParse(packageVersion, out var validPackageVersion))
             {
-                return compatiblityResult;
+                return compatibilityResult;
             }
 
             if (package.PackageDetails.IsDeprecated)
             {
-                compatiblityResult.Compatibility = Compatibility.DEPRECATED;
-                return compatiblityResult;
+                compatibilityResult.Compatibility = Compatibility.DEPRECATED;
+                return compatibilityResult;
             }
 
-            var foundApi = GetApiDetails(package, apiMethodSignature);
+            var apiDetails = GetApiDetails(package, apiMethodSignature);
+            var compatiblePackageVersionsForTarget = 
+                GetCompatiblePackageVersionsForTarget(apiDetails, package, target, checkLesserPackage);
 
-            if (foundApi == null)
+            // If package version is greater than the greatest compatible version, it is likely this latest version
+            // has not been assessed and added to the compatibility datastore. If it has a lower version of the same
+            // major that is compatible, then it will be marked as Compatible. It will be marked as Incompatible otherwise
+            var maxCompatibleVersion = NugetVersionHelper.GetMaxVersion(compatiblePackageVersionsForTarget);
+            if (maxCompatibleVersion != null 
+                && !maxCompatibleVersion.IsZeroVersion()
+                && validPackageVersion.IsGreaterThan(maxCompatibleVersion))
             {
-                if (!checkLesserPackage || package.PackageDetails.Targets == null || !package.PackageDetails.Targets.TryGetValue(target, out var targetFramework))
-                {
-                    compatiblityResult.Compatibility = Compatibility.INCOMPATIBLE;
-                    return compatiblityResult;
-                }
-
-                compatiblityResult.Compatibility = HasLesserTarget(version, targetFramework.ToArray()) ? Compatibility.COMPATIBLE : Compatibility.INCOMPATIBLE;
-                compatiblityResult.CompatibleVersions = targetFramework
-                    .Where(v =>
-                    {
-                        if (!NuGetVersion.TryParse(v, out var semversion))
-                        {
-                            return false;
-                        }
-                        return semversion.CompareTo(targetversion) > 0;
-                    }).ToList() ?? new List<string>();
-
-                return compatiblityResult;
+                compatibilityResult.Compatibility = validPackageVersion.HasSameMajorAs(maxCompatibleVersion)
+                    ? Compatibility.COMPATIBLE
+                    : Compatibility.INCOMPATIBLE;
             }
-
-            if (!foundApi.Targets.TryGetValue(target, out var framework))
+            // In all other cases, just check to see if the list of compatible versions for the target framework
+            // contains the current package version
+            else
             {
-                compatiblityResult.Compatibility = Compatibility.INCOMPATIBLE;
-                return compatiblityResult;
+                compatibilityResult.Compatibility = validPackageVersion.HasLowerOrEqualCompatibleVersion(compatiblePackageVersionsForTarget)
+                    ? Compatibility.COMPATIBLE
+                    : Compatibility.INCOMPATIBLE;
             }
 
-            compatiblityResult.Compatibility = HasLesserTarget(version, framework.ToArray()) ? Compatibility.COMPATIBLE : Compatibility.INCOMPATIBLE;
-            compatiblityResult.CompatibleVersions = framework
-                .Where(v =>
-                {
-                    if (!NuGetVersion.TryParse(v, out var semversion))
-                    {
-                        return false;
-                    }
-                    return semversion.CompareTo(targetversion) > 0;
-                }).ToList();
-            return compatiblityResult;
+            // CompatibleVersions are recommended as potential upgrades from current version
+            compatibilityResult.CompatibleVersions = validPackageVersion.FindGreaterCompatibleVersions(compatiblePackageVersionsForTarget).ToList();
+
+            return compatibilityResult;
         }
 
-        private static bool HasLesserTarget(string version, string[] targetVersions)
+        private static IEnumerable<string> GetCompatiblePackageVersionsForTarget(
+            ApiDetails apiDetails, 
+            PackageDetailsWithApiIndices package,
+            string target,
+            bool checkLesserPackage)
         {
-            if (!NuGetVersion.TryParse(version, out var target))
+            // If ApiDetails found, use them to get compatible versions
+            if (apiDetails == null)
             {
-                return false;
+                if (!checkLesserPackage
+                    || package.PackageDetails.Targets == null
+                    || !package.PackageDetails.Targets.TryGetValue(target, out var compatiblePackageVersionsForTarget))
+                {
+                    return new List<string>();
+                }
+
+                return compatiblePackageVersionsForTarget.ToList();
             }
-            return targetVersions.Any(v =>
+            // If ApiDetails not found, fallback to using PackageDetails to get compatible versions
+            else if (apiDetails.Targets.TryGetValue(target, out var compatiblePackageVersionsForTarget))
             {
-                if (v == "0.0.0" || v == "0.0.0.0")
-                {
-                    return true;
-                }
-                if (!NuGetVersion.TryParse(v, out var semversion))
-                {
-                    return false;
-                }
-                return target.CompareTo(semversion) >= 0;
-            });
+                return compatiblePackageVersionsForTarget.ToList();
+            }
+
+            return new List<string>();
         }
 
         public static ApiRecommendation UpgradeStrategy(
@@ -147,7 +149,6 @@ namespace PortingAssistant.Client.Analysis.Utils
         {
             try
             {
-
                 if (compatibilityResult?.CompatibleVersions != null)
                 {
                     var validVersions = compatibilityResult.GetCompatibleVersionsWithoutPreReleases();
@@ -166,12 +167,12 @@ namespace PortingAssistant.Client.Analysis.Utils
             {
                 return DEFAULT_RECOMMENDATION;
             }
-
         }
 
         private static ApiRecommendation FetchApiRecommendation(
             string apiMethodSignature,
-            Task<RecommendationDetails> recommendationDetails,
+            Task<RecommendationDetails> 
+            recommendationDetails,
             string target = "netcoreapp3.1")
         {
             if (apiMethodSignature != null && recommendationDetails != null)
@@ -200,11 +201,11 @@ namespace PortingAssistant.Client.Analysis.Utils
 
         private static ApiDetails GetApiDetails(PackageDetailsWithApiIndices packageDetailsWithApiIndices, string apiMethodSignature)
         {
-            if (packageDetailsWithApiIndices == null ||
-                packageDetailsWithApiIndices.PackageDetails == null ||
-                packageDetailsWithApiIndices.IndexDict == null ||
-                packageDetailsWithApiIndices.PackageDetails.Api == null ||
-                apiMethodSignature == null)
+            if (packageDetailsWithApiIndices == null 
+                || packageDetailsWithApiIndices.PackageDetails == null 
+                || packageDetailsWithApiIndices.IndexDict == null 
+                || packageDetailsWithApiIndices.PackageDetails.Api == null 
+                || apiMethodSignature == null)
             {
                 return null;
             }
