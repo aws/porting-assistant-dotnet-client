@@ -67,8 +67,8 @@ namespace PortingAssistant.Client.Analysis.Utils
                     };
                 }
 
-                var foundTarget = packageDetails.Result.Targets.GetValueOrDefault(target, null);
-                if (foundTarget == null)
+                var compatibleVersionsForTargetFramework = packageDetails.Result.Targets.GetValueOrDefault(target, null);
+                if (compatibleVersionsForTargetFramework == null)
                 {
                     return new CompatibilityResult
                     {
@@ -85,33 +85,31 @@ namespace PortingAssistant.Client.Analysis.Utils
                         CompatibleVersions = new List<string>()
                     };
                 }
+                
+                var compatibleVersionsToRecommend = version.FindGreaterCompatibleVersions(compatibleVersionsForTargetFramework).ToList();
+                compatibleVersionsToRecommend.Sort( (a, b) => NuGetVersion.Parse(a).CompareTo(NuGetVersion.Parse(b)));
 
-                var compatibleVersions = foundTarget.Where(v =>
+                Compatibility compatibility;
+                var maxCompatibleVersion = NugetVersionHelper.GetMaxVersion(compatibleVersionsForTargetFramework);
+                if (maxCompatibleVersion != null
+                    && !maxCompatibleVersion.IsZeroVersion()
+                    && version.IsGreaterThan(maxCompatibleVersion))
                 {
-                    if (!NuGetVersion.TryParse(v, out var semversion))
-                    {
-                        return false;
-                    }
-                    return semversion.CompareTo(version) > 0;
-                }).ToList();
-
-                var compatibility = foundTarget.Any(v =>
+                    compatibility = version.HasSameMajorAs(maxCompatibleVersion)
+                        ? Compatibility.COMPATIBLE
+                        : Compatibility.INCOMPATIBLE;
+                }
+                else
                 {
-                    if (!NuGetVersion.TryParse(v, out var semversion))
-                    {
-                        return false;
-                    }
+                    compatibility = version.HasLowerOrEqualCompatibleVersion(compatibleVersionsForTargetFramework)
+                        ? Compatibility.COMPATIBLE
+                        : Compatibility.INCOMPATIBLE;
+                }
 
-                    return version.CompareTo(semversion) == 0;
-                })
-                    ? Compatibility.COMPATIBLE
-                    : Compatibility.INCOMPATIBLE;
-
-                compatibleVersions.Sort( (a, b) => NuGetVersion.Parse(a).CompareTo(NuGetVersion.Parse(b)));
                 return new CompatibilityResult
                 {
                     Compatibility = compatibility,
-                    CompatibleVersions = compatibleVersions
+                    CompatibleVersions = compatibleVersionsToRecommend
                 };
             }
             catch (OutOfMemoryException e)

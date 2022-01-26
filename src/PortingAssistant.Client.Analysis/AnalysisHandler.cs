@@ -83,12 +83,18 @@ namespace PortingAssistant.Client.Analysis
                     var nugetPackages = externalReferences?.NugetReferences?
                             .Select(r => CodeEntityModelToCodeEntities.ReferenceToPackageVersionPair(r))?
                             .ToHashSet();
+                    var nugetPackageNameLookup = nugetPackages.Select(package => package.PackageId).ToHashSet();
 
                     var subDependencies = externalReferences?.NugetDependencies?
                         .Select(r => CodeEntityModelToCodeEntities.ReferenceToPackageVersionPair(r))
                         .ToHashSet();
 
-                    var sdkPackages = namespaces.Select(n => new PackageVersionPair { PackageId = n, Version = "0.0.0", PackageSourceType = PackageSourceType.SDK });
+                    var sdkPackages = namespaces.Select(n => new PackageVersionPair
+                    {
+                        PackageId = n, 
+                        Version = "0.0.0", 
+                        PackageSourceType = PackageSourceType.SDK
+                    }).Where(pair => !nugetPackageNameLookup.Contains(pair.PackageId));
 
                     var allPackages = nugetPackages
                         .Union(subDependencies)

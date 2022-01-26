@@ -16,51 +16,9 @@ namespace PortingAssistant.Client.Tests
     public class PortingAssistantResultsToInvocationsWithCompatibilityTest
     {
         private Mock<IPortingAssistantNuGetHandler> _handler;
-        private Dictionary<PackageVersionPair, Task<PackageDetails>> packageResults;
-        private Dictionary<string, Task<RecommendationDetails>> recommendationResults;
+        private Dictionary<PackageVersionPair, Task<PackageDetails>> _packageResults;
+        private Dictionary<string, Task<RecommendationDetails>> _recommendationResults;
         private static string DEFAULT_TARGET = "netcoreapp3.1";
-
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
-        {
-            _handler = new Mock<IPortingAssistantNuGetHandler>();
-        }
-
-        [SetUp]
-        public void SetUp()
-        {
-            _handler.Reset();
-            _handler.Setup(handler => handler.GetNugetPackages(It.IsAny<List<PackageVersionPair>>(), "", It.IsAny<bool>(), It.IsAny<bool>()))
-                .Returns((List<PackageVersionPair> packages, string path, bool isIncremental, bool incrementalRefresh) =>
-                {
-                    var task = new TaskCompletionSource<PackageDetails>();
-                    task.SetResult(_packageDetails);
-                    return new Dictionary<PackageVersionPair, Task<PackageDetails>> {
-                        {packages.First(), task.Task }
-                    };
-                });
-            var package = new PackageVersionPair
-            {
-                PackageId = "Newtonsoft.Json",
-                Version = "11.0.1"
-            };
-
-            var packageTask = new TaskCompletionSource<PackageDetails>();
-            var recommendationTask = new TaskCompletionSource<RecommendationDetails>();
-
-            packageTask.SetResult(_packageDetails);
-            recommendationTask.SetResult(new RecommendationDetails());
-
-            packageResults = new Dictionary<PackageVersionPair, Task<PackageDetails>>
-            {
-                {package, packageTask.Task }
-            };
-
-            recommendationResults = new Dictionary<string, Task<RecommendationDetails>>
-            {
-                {"Newtonsoft.Json", recommendationTask.Task }
-            };
-        }
 
         private readonly PackageDetails _packageDetails = new PackageDetails
         {
@@ -110,26 +68,188 @@ namespace PortingAssistant.Client.Tests
             CodeEntityType = CodeEntityType.Method
         };
 
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
+        {
+            _handler = new Mock<IPortingAssistantNuGetHandler>();
+        }
+
+        [SetUp]
+        public void SetUp()
+        {
+            _handler.Reset();
+            _handler.Setup(handler => handler.GetNugetPackages(It.IsAny<List<PackageVersionPair>>(), "", It.IsAny<bool>(), It.IsAny<bool>()))
+                .Returns((List<PackageVersionPair> packages, string path, bool isIncremental, bool incrementalRefresh) =>
+                {
+                    var task = new TaskCompletionSource<PackageDetails>();
+                    task.SetResult(_packageDetails);
+                    return new Dictionary<PackageVersionPair, Task<PackageDetails>> {
+                        {packages.First(), task.Task }
+                    };
+                });
+            var package = new PackageVersionPair
+            {
+                PackageId = "Newtonsoft.Json",
+                Version = "11.0.1"
+            };
+
+            var packageTask = new TaskCompletionSource<PackageDetails>();
+            packageTask.SetResult(_packageDetails);
+            _packageResults = new Dictionary<PackageVersionPair, Task<PackageDetails>>
+            {
+                {package, packageTask.Task }
+            };
+
+            var recommendationTask = new TaskCompletionSource<RecommendationDetails>();
+            recommendationTask.SetResult(new RecommendationDetails());
+            _recommendationResults = new Dictionary<string, Task<RecommendationDetails>>
+            {
+                {"Newtonsoft.Json", recommendationTask.Task }
+            };
+        }
+
         [Test]
-        public void NormalAnalyzeCaseTest()
+        public void ApiAnalysis_Returns_Compatible_When_ApiVersion_Is_LargerThanAllCompatibleVersions_And_Has_A_LowerCompatibleVersionWithSameMajor()
         {
             var sourceFileToInvocations = new Dictionary<string, List<CodeEntityDetails>>
             {
                 {
                     "file1", new UstList<CodeEntityDetails>
                     {
-                       _codeEntityDetails
+                        new CodeEntityDetails
+                        {
+                            Name = "JsonConvert.SerializeObject",
+                            OriginalDefinition = "Newtonsoft.Json.JsonConvert.SerializeObject(object)",
+                            Namespace = "Newtonsoft.Json",
+                            Package = new PackageVersionPair
+                            {
+                                PackageId = "Newtonsoft.Json",
+                                Version = "12.0.5"
+                            },
+                            TextSpan = new TextSpan(),
+                            CodeEntityType = CodeEntityType.Method
+                        }
                     }
                 }
             };
 
-            var result = CodeEntityModelToCodeEntities.AnalyzeResults(
-                sourceFileToInvocations, packageResults, recommendationResults, new Dictionary<string, List<RecommendedAction>>());
+            var package = new PackageVersionPair
+            {
+                PackageId = "Newtonsoft.Json",
+                Version = "12.0.5"
+            };
 
-            Assert.AreEqual(1, result.First().ApiAnalysisResults.Count);
-            Assert.AreEqual("11.0.1", result.First().ApiAnalysisResults.First().CodeEntityDetails.Package.Version);
-            Assert.AreEqual(Compatibility.COMPATIBLE, result.First().ApiAnalysisResults.First().CompatibilityResults.GetValueOrDefault(DEFAULT_TARGET).Compatibility);
-            Assert.AreEqual("12.0.3", result[0].ApiAnalysisResults[0].Recommendations.RecommendedActions.First().Description);
+            var packageTask = new TaskCompletionSource<PackageDetails>();
+
+            packageTask.SetResult(_packageDetails);
+            _packageResults = new Dictionary<PackageVersionPair, Task<PackageDetails>>
+            {
+                { package, packageTask.Task }
+            };
+
+            var results = CodeEntityModelToCodeEntities.AnalyzeResults(
+                sourceFileToInvocations, _packageResults, _recommendationResults, new Dictionary<string, List<RecommendedAction>>());
+
+            var apiAnalysisResults = results.First().ApiAnalysisResults;
+            Assert.AreEqual("12.0.5", apiAnalysisResults.First().CodeEntityDetails.Package.Version);
+            Assert.AreEqual(Compatibility.COMPATIBLE, apiAnalysisResults.First().CompatibilityResults.GetValueOrDefault(DEFAULT_TARGET).Compatibility);
+            Assert.AreEqual(RecommendedActionType.NoRecommendation, apiAnalysisResults[0].Recommendations.RecommendedActions.First().RecommendedActionType);
+        }
+
+        [Test]
+        public void ApiAnalysis_Returns_Incompatible_When_ApiVersion_Is_LessThan_All_CompatibleVersions()
+        {
+            var sourceFileToInvocations = new Dictionary<string, List<CodeEntityDetails>>
+            {
+                {
+                    "file1", new UstList<CodeEntityDetails>
+                    {
+                        new CodeEntityDetails
+                        {
+                            Name = "JsonConvert.SerializeObject",
+                            OriginalDefinition = "Newtonsoft.Json.JsonConvert.SerializeObject(object)",
+                            Namespace = "Newtonsoft.Json",
+                            Package = new PackageVersionPair
+                            {
+                                PackageId = "Newtonsoft.Json",
+                                Version = "10.1.0"
+                            },
+                            TextSpan = new TextSpan(),
+                            CodeEntityType = CodeEntityType.Method
+                        }
+                    }
+                }
+            };
+
+            var package = new PackageVersionPair
+            {
+                PackageId = "Newtonsoft.Json",
+                Version = "10.1.0"
+            };
+
+            var packageTask = new TaskCompletionSource<PackageDetails>();
+
+            packageTask.SetResult(_packageDetails);
+            _packageResults = new Dictionary<PackageVersionPair, Task<PackageDetails>>
+            {
+                {package, packageTask.Task }
+            };
+
+            var results = CodeEntityModelToCodeEntities.AnalyzeResults(
+                sourceFileToInvocations, _packageResults, _recommendationResults, new Dictionary<string, List<RecommendedAction>>());
+
+            var apiAnalysisResults = results.First().ApiAnalysisResults;
+            Assert.AreEqual("10.1.0", apiAnalysisResults.First().CodeEntityDetails.Package.Version);
+            Assert.AreEqual(Compatibility.INCOMPATIBLE, apiAnalysisResults.First().CompatibilityResults.GetValueOrDefault(DEFAULT_TARGET).Compatibility);
+            Assert.AreEqual("10.2.0", apiAnalysisResults[0].Recommendations.RecommendedActions.First().Description);
+        }
+
+        [Test]
+        public void ApiAnalysis_Returns_Compatible_When_ApiVersion_Matches_A_CompatibleVersion()
+        {
+            var sourceFileToInvocations = new Dictionary<string, List<CodeEntityDetails>>
+            {
+                {
+                    "file1", new UstList<CodeEntityDetails>
+                    {
+                        new CodeEntityDetails
+                        {
+                            Name = "JsonConvert.SerializeObject",
+                            OriginalDefinition = "Newtonsoft.Json.JsonConvert.SerializeObject(object)",
+                            Namespace = "Newtonsoft.Json",
+                            Package = new PackageVersionPair
+                            {
+                                PackageId = "Newtonsoft.Json",
+                                Version = "10.2.0"
+                            },
+                            TextSpan = new TextSpan(),
+                            CodeEntityType = CodeEntityType.Method
+                        }
+                    }
+                }
+            };
+
+            var package = new PackageVersionPair
+            {
+                PackageId = "Newtonsoft.Json",
+                Version = "10.2.0"
+            };
+
+            var packageTask = new TaskCompletionSource<PackageDetails>();
+
+            packageTask.SetResult(_packageDetails);
+            _packageResults = new Dictionary<PackageVersionPair, Task<PackageDetails>>
+            {
+                {package, packageTask.Task }
+            };
+
+            var results = CodeEntityModelToCodeEntities.AnalyzeResults(
+                sourceFileToInvocations, _packageResults, _recommendationResults, new Dictionary<string, List<RecommendedAction>>());
+
+            var apiAnalysisResults = results.First().ApiAnalysisResults;
+            Assert.AreEqual("10.2.0", apiAnalysisResults.First().CodeEntityDetails.Package.Version);
+            Assert.AreEqual(Compatibility.COMPATIBLE, apiAnalysisResults.First().CompatibilityResults.GetValueOrDefault(DEFAULT_TARGET).Compatibility);
+            Assert.AreEqual("12.0.3", apiAnalysisResults[0].Recommendations.RecommendedActions.First().Description);
         }
 
         [Test]
@@ -146,14 +266,13 @@ namespace PortingAssistant.Client.Tests
             };
 
             var result = CodeEntityModelToCodeEntities.AnalyzeResults(
-                sourceFileToInvocations, new Dictionary<PackageVersionPair, Task<PackageDetails>>(), recommendationResults, new Dictionary<string, List<RecommendedAction>>());
+                sourceFileToInvocations, new Dictionary<PackageVersionPair, Task<PackageDetails>>(), _recommendationResults, new Dictionary<string, List<RecommendedAction>>());
 
             Assert.AreEqual(1, result.First().ApiAnalysisResults.Count);
             Assert.AreEqual("11.0.1", result.First().ApiAnalysisResults.First().CodeEntityDetails.Package.Version);
             Assert.AreEqual(Compatibility.UNKNOWN, result.First().ApiAnalysisResults.First().CompatibilityResults.GetValueOrDefault(DEFAULT_TARGET).Compatibility);
             Assert.IsNull(result[0].ApiAnalysisResults[0].Recommendations.RecommendedActions.First().Description);
         }
-
 
         [Test]
         public void NormalCaseTest()
