@@ -14,7 +14,6 @@ namespace PortingAssistant.Client.PortingProjectFile
     /// </summary>
     public class PortingProjectFileHandler : IPortingProjectFileHandler
     {
-        private string aws_secret_key = "xxxxxxxx";
         private readonly ILogger _logger;
 
         /// <summary>
