@@ -17,6 +17,16 @@ jobs:
     - uses: actions/checkout@v2
       with:
         fetch-depth: 0
+    - name: Check for secrets leak on the repo
+      run: |
+          git clone https://github.com/awslabs/git-secrets.git target
+          cd target
+          ./install.ps1
+          echo "Git-secrets installation completed"
+          git secrets --register-aws --global
+          echo "Added aws secret templates"
+          git secrets --scan -r ../
+          echo "Repository scan completed"
     - name: Setup .NET Core 3
       uses: actions/setup-dotnet@v1
       with:
