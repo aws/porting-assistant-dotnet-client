@@ -19,7 +19,7 @@ namespace PortingAssistant.Client.Telemetry
 {
     public class Uploader
     {
-        public static bool Upload(TelemetryConfiguration teleConfig, string profile, string prefix)
+        public static bool Upload(TelemetryConfiguration teleConfig, string profile, bool isTest = false)
         {
             try
             {
@@ -82,7 +82,7 @@ namespace PortingAssistant.Client.Telemetry
                                 if (logs.Count >= 1000)
                                 {
                                     // logs.TrimToSize();
-                                    success = PutLogData(logName, JsonConvert.SerializeObject(logs), profile, teleConfig).Result;
+                                    success = PutLogData(logName, JsonConvert.SerializeObject(logs), profile, teleConfig, isTest).Result;
                                     if (success) { logs = new ArrayList(); }
                                     else
                                     {
@@ -93,7 +93,7 @@ namespace PortingAssistant.Client.Telemetry
 
                             if (logs.Count != 0)
                             {
-                                success = PutLogData(logName, JsonConvert.SerializeObject(logs), profile, teleConfig).Result;
+                                success = PutLogData(logName, JsonConvert.SerializeObject(logs), profile, teleConfig, isTest).Result;
                                 if (!success)
                                 {
                                     return false;
@@ -118,14 +118,17 @@ namespace PortingAssistant.Client.Telemetry
                 return false;
             }
         }
-        private static async Task<bool> PutLogData
-           (
+        private static async Task<bool> PutLogData (
            string logName,
            string logData,
            string profile,
-           TelemetryConfiguration telemetryConfiguration
-           )
+           TelemetryConfiguration telemetryConfiguration, 
+           bool isTest = false)
         {
+            if (isTest)
+            {
+                return true;
+            }
             try
             {
                 var chain = new CredentialProfileStoreChain();

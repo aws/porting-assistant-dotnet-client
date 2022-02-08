@@ -147,7 +147,7 @@ namespace PortingAssistant.Client.CLI
                 telemetryConfiguration.LogFilePath = logFilePath;
                 telemetryConfiguration.MetricsFilePath = metricsFilePath;
                 telemetryConfiguration.LogsPath = logsPath;
-                var isSuccessed = Uploader.Upload(telemetryConfiguration, profile, "");
+                var isSuccessed = Uploader.Upload(telemetryConfiguration, profile);
 
                 if (!isSuccessed)
                 {
