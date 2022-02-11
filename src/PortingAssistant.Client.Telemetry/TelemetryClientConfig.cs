@@ -4,11 +4,11 @@ using Amazon.Util.Internal;
 
 namespace PortingAssistant.Client.Telemetry
 {
-    public class TelemetryConfig : ClientConfig
+    public class TelemetryClientConfig : ClientConfig
     {
         private static readonly string userAgentString =
             InternalSDKUtils.BuildUserAgentString("3.5.0.9");
-        public TelemetryConfig()
+        public TelemetryClientConfig()
         {
             AuthenticationServiceName = "execute-api";
         }

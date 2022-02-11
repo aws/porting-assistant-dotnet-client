@@ -19,7 +19,7 @@ namespace PortingAssistant.Client.Telemetry
 {
     public class Uploader
     {
-        public static bool Upload(TelemetryConfiguration teleConfig, string profile, string prefix)
+        public static bool Upload(TelemetryConfiguration teleConfig, string profile, ITelemetryClient teleClient)
         {
             try
             {
@@ -82,7 +82,7 @@ namespace PortingAssistant.Client.Telemetry
                                 if (logs.Count >= 1000)
                                 {
                                     // logs.TrimToSize();
-                                    success = PutLogData(logName, JsonConvert.SerializeObject(logs), profile, teleConfig).Result;
+                                    success = PutLogData(logName, JsonConvert.SerializeObject(logs), profile, teleConfig, teleClient).Result;
                                     if (success) { logs = new ArrayList(); }
                                     else
                                     {
@@ -93,7 +93,7 @@ namespace PortingAssistant.Client.Telemetry
 
                             if (logs.Count != 0)
                             {
-                                success = PutLogData(logName, JsonConvert.SerializeObject(logs), profile, teleConfig).Result;
+                                success = PutLogData(logName, JsonConvert.SerializeObject(logs), profile, teleConfig, teleClient).Result;
                                 if (!success)
                                 {
                                     return false;
@@ -123,55 +123,40 @@ namespace PortingAssistant.Client.Telemetry
            string logName,
            string logData,
            string profile,
-           TelemetryConfiguration telemetryConfiguration
+           TelemetryConfiguration telemetryConfiguration,
+           ITelemetryClient client
            )
         {
             try
             {
-                var chain = new CredentialProfileStoreChain();
-                AWSCredentials awsCredentials;
-                var profileName = profile;
-                var region = telemetryConfiguration.Region;
+                dynamic requestMetadata = new JObject();
+                requestMetadata.version = "1.0";
+                requestMetadata.service = telemetryConfiguration.ServiceName;
+                requestMetadata.token = "12345678";
+                requestMetadata.description = telemetryConfiguration.Description;
 
-                if (chain.TryGetAWSCredentials(profileName, out awsCredentials))
+                dynamic log = new JObject();
+                log.timestamp = DateTime.Now.ToString();
+                log.logName = logName;
+                var logDataInBytes = System.Text.Encoding.UTF8.GetBytes(logData);
+                log.logData = System.Convert.ToBase64String(logDataInBytes);
+
+                dynamic body = new JObject();
+                body.requestMetadata = requestMetadata;
+                body.log = log;
+
+                var requestContent = new StringContent(body.ToString(Formatting.None), Encoding.UTF8, "application/json");
+                    
+                var contentString = await requestContent.ReadAsStringAsync();
+                var telemetryRequest = new TelemetryRequest(telemetryConfiguration.ServiceName, contentString);
+                var telemetryResponse = await client.SendAsync(telemetryRequest);
+
+                if (telemetryResponse.HttpStatusCode != HttpStatusCode.OK)
                 {
-                    dynamic requestMetadata = new JObject();
-                    requestMetadata.version = "1.0";
-                    requestMetadata.service = telemetryConfiguration.ServiceName;
-                    requestMetadata.token = "12345678";
-                    requestMetadata.description = telemetryConfiguration.Description;
-
-                    dynamic log = new JObject();
-                    log.timestamp = DateTime.Now.ToString();
-                    log.logName = logName;
-                    var logDataInBytes = System.Text.Encoding.UTF8.GetBytes(logData);
-                    log.logData = System.Convert.ToBase64String(logDataInBytes);
-
-                    dynamic body = new JObject();
-                    body.requestMetadata = requestMetadata;
-                    body.log = log;
-
-                    var requestContent = new StringContent(body.ToString(Formatting.None), Encoding.UTF8, "application/json");
-                    var config = new TelemetryConfig() 
-                    { 
-                        RegionEndpoint = RegionEndpoint.GetBySystemName(region), 
-                        MaxErrorRetry = 2, 
-                        ServiceURL = telemetryConfiguration.InvokeUrl,
-                    };
-                    var client = new TelemetryClient(awsCredentials, config);
-                    var contentString = await requestContent.ReadAsStringAsync();
-                    var telemetryRequest = new TelemetryRequest(telemetryConfiguration.ServiceName, contentString);
-                    var telemetryResponse = await client.SendAsync(telemetryRequest);
-
-                    if (telemetryResponse.HttpStatusCode != HttpStatusCode.OK)
-                    {
-                        Log.Logger.Error("Http response failed with status code: " + telemetryResponse.HttpStatusCode.ToString());
-                    }
-
-                    return telemetryResponse.HttpStatusCode == HttpStatusCode.OK;
+                    Log.Logger.Error("Http response failed with status code: " + telemetryResponse.HttpStatusCode.ToString());
                 }
-                Log.Logger.Error("Invalid Credentials.");
-                return false;
+
+                return telemetryResponse.HttpStatusCode == HttpStatusCode.OK;
             }
             catch (Exception ex)
             {

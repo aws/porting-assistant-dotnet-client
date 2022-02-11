@@ -144,18 +144,27 @@ namespace PortingAssistant.Client.CLI
         {
             if (!string.IsNullOrEmpty(profile))
             {
+                bool isSuccessed = false;
                 telemetryConfiguration.LogFilePath = logFilePath;
                 telemetryConfiguration.MetricsFilePath = metricsFilePath;
                 telemetryConfiguration.LogsPath = logsPath;
-                var isSuccessed = Uploader.Upload(telemetryConfiguration, profile, "");
 
-                if (!isSuccessed)
+                if (TelemetryClientFactory.TryGetClient(profile, telemetryConfiguration, out ITelemetryClient client))
                 {
-                    Log.Logger.Error("Upload Metrcis/Logs Failed!");
+                    isSuccessed = Uploader.Upload(telemetryConfiguration, profile, client);
                 }
                 else
                 {
-                    Log.Logger.Information("Upload Metrcis/Logs Success!");
+                    Log.Logger.Error("Invalid Credentials.");
+                }               
+
+                if (!isSuccessed)
+                {
+                    Log.Logger.Error("Upload Metrics/Logs Failed!");
+                }
+                else
+                {
+                    Log.Logger.Information("Upload Metrics/Logs Success!");
                 }
             }
         }
