@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Net;
 using Newtonsoft.Json;
+using Amazon.Runtime;
 
 namespace PortingAssistant.Client.UnitTests
 {
@@ -33,14 +34,30 @@ namespace PortingAssistant.Client.UnitTests
                 LogFilePath = Path.Combine(logs, "portingAssistant-client-cli-test.log"),
                 MetricsFilePath = Path.Combine(logs, "portingAssistant-client-cli-test.metrics"),
             };
-
-            var actualSuccessStatus = Uploader.Upload(teleConfig, profile);
+            bool actualSuccessStatus = false;
+            if (TelemetryClientFactory.TryGetClient(profile, teleConfig, out ITelemetryClient client))
+            {
+                actualSuccessStatus = Uploader.Upload(teleConfig, profile, client);
+            }
             Assert.IsTrue(actualSuccessStatus);
         }
 
         [Test]
         public void File_Line_Map_Updated_On_Upload()
         {
+            var telemetryClientMock = new Mock<ITelemetryClient>();
+
+            
+            telemetryClientMock
+                .Setup(
+                    x => x.SendAsync(It.IsAny<TelemetryRequest>()).Result
+                )
+                .Returns(new AmazonWebServiceResponse()
+                {
+                    HttpStatusCode = HttpStatusCode.OK,
+                })
+                .Verifiable();
+
             var profile = "default";
             var roamingFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             var logs = Path.Combine(roamingFolder, "Porting Assistant for .NET", "logs");
@@ -61,7 +78,7 @@ namespace PortingAssistant.Client.UnitTests
                 MetricsFilePath = metricsFilePath,
             };
             var lastReadTokenFile = Path.Combine(teleConfig.LogsPath, "lastToken.json");
-            bool result = Uploader.Upload(teleConfig, profile, isTest: true);
+            bool result = Uploader.Upload(teleConfig, profile, telemetryClientMock.Object);
             Assert.IsTrue(result);
             var fileLineNumberMap = JsonConvert.DeserializeObject<Dictionary<string, int>>(File.ReadAllText(lastReadTokenFile));
             Assert.AreEqual(fileLineNumberMap[logFilePath], 3);
