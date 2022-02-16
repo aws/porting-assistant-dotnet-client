@@ -122,6 +122,22 @@ namespace PortingAssistant.Client.Analysis.Utils
                     CompatibleVersions = new List<string>()
                 };
             }
+
+            catch (AggregateException ae)
+            {
+                foreach (var e in ae.Flatten().InnerExceptions)
+                {
+                    if (!(e is PortingAssistantClientException))
+                    {
+                        _logger.LogError("parse package version {0} {1} with error {2}", packageVersionPair.PackageId, packageVersionPair.Version, e);
+                    }
+                }
+                return new CompatibilityResult
+                {
+                    Compatibility = Compatibility.UNKNOWN,
+                    CompatibleVersions = new List<string>()
+                };
+            }
             catch (Exception e)
             {
                 _logger.LogError("parse package version {0} {1} with error {2}", packageVersionPair.PackageId, packageVersionPair.Version, e);
