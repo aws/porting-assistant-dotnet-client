@@ -86,7 +86,7 @@ namespace PortingAssistant.Client.NuGet
                                 }
                             }
                             else
-                            {
+                            {  
                                 exceptions.TryAdd(result.Key, task.Exception);
                             }
                         });
@@ -102,8 +102,7 @@ namespace PortingAssistant.Client.NuGet
             {
                 if (packageVersion != null && _compatibilityTaskCompletionSources.TryGetValue(packageVersion, out var packageVersionPairResult))
                 {
-                    _logger.LogError($"Cound not find package {packageVersion} in all sources");
-                    var defaultErrorMessage = $"Could not find package {packageVersion}. Compatibility task status: {packageVersionPairResult.Task.Status}.";
+                    var defaultErrorMessage = $"Could not find package {packageVersion} in all sources. Compatibility task status: {packageVersionPairResult.Task.Status}.";
                     var defaultException = new PortingAssistantClientException(ExceptionMessage.PackageNotFound(packageVersion), new PackageNotFoundException(defaultErrorMessage));
                     var exception = exceptions.GetValueOrDefault(packageVersion, defaultException);
 
