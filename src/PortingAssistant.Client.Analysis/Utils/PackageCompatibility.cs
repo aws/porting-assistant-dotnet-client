@@ -127,10 +127,7 @@ namespace PortingAssistant.Client.Analysis.Utils
             {
                 foreach (var e in ae.Flatten().InnerExceptions)
                 {
-                    if (!(e is PortingAssistantClientException))
-                    {
-                        _logger.LogError("parse package version {0} {1} with error {2}", packageVersionPair.PackageId, packageVersionPair.Version, e);
-                    }
+                    _logger.LogError("parse package version {0} {1} with error {2}", packageVersionPair.PackageId, packageVersionPair.Version, e);
                 }
                 return new CompatibilityResult
                 {
