@@ -65,20 +65,13 @@ namespace PortingAssistant.Client.UnitTests
             var logFilePath = Path.Combine(logs, "portingAssistant-client-cli-test-2.log");
             var metricsFilePath = Path.Combine(logs, "portingAssistant-client-cli-test-2.metrics");
 
-            using (TextWriter tw = new StreamWriter(logFilePath))
+            if (!Directory.Exists(logs))
             {
-                foreach (String s in logLines)
-                    tw.WriteLine(s);
-            }
-            using (TextWriter tw = new StreamWriter(metricsFilePath))
-            {
-                foreach (String s in metricLogLines)
-                    tw.WriteLine(s);
+                DirectoryInfo di = Directory.CreateDirectory(logs);
             }
 
-            //The following two lines throw  System.IO.DirectoryNotFoundException sometimes
-            //File.WriteAllLines(logFilePath, logLines);
-            //File.WriteAllLines(metricsFilePath, metricLogLines);
+            File.WriteAllLines(logFilePath, logLines);
+            File.WriteAllLines(metricsFilePath, metricLogLines);
 
             var teleConfig = new TelemetryConfiguration
             {
