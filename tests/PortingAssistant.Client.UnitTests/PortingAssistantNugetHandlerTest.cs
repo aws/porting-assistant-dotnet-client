@@ -730,7 +730,7 @@ namespace PortingAssistant.Client.Tests
         public void CompatibilityCheckOfMissingExternalPackageThrowsException()
         {
             SetMockHttpService(new PackageDetails());
-            var handler = GetCheckerWithException();
+
             var externalPackagesCompatibilityChecker = GetExternalPackagesCompatibilityChecker();
 
             var packageVersionPair = new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.5", PackageSourceType = PackageSourceType.NUGET };
