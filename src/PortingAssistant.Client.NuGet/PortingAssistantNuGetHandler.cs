@@ -110,7 +110,8 @@ namespace PortingAssistant.Client.NuGet
                             (exception.InnerException is PortingAssistantClientException) ? null: exception.InnerException);
                         packageVersionPairResult.TrySetException(newException);
                     }
-                    else {
+                    else 
+                    {
                         var defaultException = new PortingAssistantClientException(ExceptionMessage.PackageNotFound(packageVersion), new PackageNotFoundException(defaultErrorMessage));
                         packageVersionPairResult.TrySetException(defaultException);
                     }

@@ -12,6 +12,7 @@ using System.Threading;
 using System.Net;
 using Newtonsoft.Json;
 using Amazon.Runtime;
+using System.Text;
 
 namespace PortingAssistant.Client.UnitTests
 {
@@ -64,8 +65,20 @@ namespace PortingAssistant.Client.UnitTests
             var logFilePath = Path.Combine(logs, "portingAssistant-client-cli-test-2.log");
             var metricsFilePath = Path.Combine(logs, "portingAssistant-client-cli-test-2.metrics");
 
-            File.WriteAllLines(logFilePath, logLines);
-            File.WriteAllLines(metricsFilePath, metricLogLines);
+            using (TextWriter tw = new StreamWriter(logFilePath))
+            {
+                foreach (String s in logLines)
+                    tw.WriteLine(s);
+            }
+            using (TextWriter tw = new StreamWriter(metricsFilePath))
+            {
+                foreach (String s in metricLogLines)
+                    tw.WriteLine(s);
+            }
+
+            //The following two lines throw  System.IO.DirectoryNotFoundException sometimes
+            //File.WriteAllLines(logFilePath, logLines);
+            //File.WriteAllLines(metricsFilePath, metricLogLines);
 
             var teleConfig = new TelemetryConfiguration
             {
