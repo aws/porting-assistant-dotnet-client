@@ -741,17 +741,11 @@ namespace PortingAssistant.Client.Tests
 
             var resultTasks = externalPackagesCompatibilityChecker.Check(packages, null);
 
-            _loggerMock.Verify(_ => _.Log(
-                LogLevel.Error,
-                It.IsAny<EventId>(),
-                It.IsAny<It.IsValueType>(),
-                It.IsAny<Exception>(),
-                (Func<It.IsValueType, Exception, string>)It.IsAny<object>()), Times.Exactly(2));
-
             Assert.Throws<AggregateException>(() =>
             {
                 Task.WaitAll(resultTasks.Values.ToArray());
             });
+
         }
 
         [Test]
@@ -768,7 +762,7 @@ namespace PortingAssistant.Client.Tests
                 It.IsAny<EventId>(),
                 It.IsAny<It.IsValueType>(),
                 It.IsAny<Exception>(),
-                (Func<It.IsValueType, Exception, string>)It.IsAny<object>()), Times.Exactly(2));
+                (Func<It.IsValueType, Exception, string>)It.IsAny<object>()), Times.Exactly(1));
         }
 
         [Test]
@@ -810,7 +804,7 @@ namespace PortingAssistant.Client.Tests
                 It.IsAny<EventId>(),
                 It.IsAny<It.IsValueType>(),
                 It.IsAny<Exception>(),
-                (Func<It.IsValueType, Exception, string>)It.IsAny<object>()), Times.Exactly(2));
+                (Func<It.IsValueType, Exception, string>)It.IsAny<object>()), Times.Exactly(1));
         }
 
         [Test]

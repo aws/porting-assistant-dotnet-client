@@ -12,6 +12,7 @@ using System.Threading;
 using System.Net;
 using Newtonsoft.Json;
 using Amazon.Runtime;
+using System.Text;
 
 namespace PortingAssistant.Client.UnitTests
 {
@@ -63,6 +64,11 @@ namespace PortingAssistant.Client.UnitTests
             var logs = Path.Combine(roamingFolder, "Porting Assistant for .NET", "logs");
             var logFilePath = Path.Combine(logs, "portingAssistant-client-cli-test-2.log");
             var metricsFilePath = Path.Combine(logs, "portingAssistant-client-cli-test-2.metrics");
+
+            if (!Directory.Exists(logs))
+            {
+                DirectoryInfo di = Directory.CreateDirectory(logs);
+            }
 
             File.WriteAllLines(logFilePath, logLines);
             File.WriteAllLines(metricsFilePath, metricLogLines);
