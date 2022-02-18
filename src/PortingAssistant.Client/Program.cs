@@ -10,7 +10,6 @@ using PortingAssistantExtensionTelemetry;
 using PortingAssistantExtensionTelemetry.Model;
 using Serilog;
 using System.Threading.Tasks;
-using System.Reflection;
 using System.Text.Json;
 using PortingAssistant.Client.Telemetry;
 using System.Diagnostics;
@@ -20,17 +19,22 @@ namespace PortingAssistant.Client.CLI
 {
     class Program
     {
+        private static string ProjectName => "PortingAssistant.Client.CLI";
+        private static string ExeName => $"{ProjectName}.exe";
+        private static string DllName => $"{ProjectName}.dll";
+
         static void Main(string[] args)
         {
             PortingAssistantCLI cli = new PortingAssistantCLI();
             cli.HandleCommand(args);
-            
+
             var logConfiguration = new LoggerConfiguration().Enrich.FromLogContext()
                 .MinimumLevel.Debug()
                 .WriteTo.Console();
 
-            var assemblypath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var telemetryConfiguration = JsonSerializer.Deserialize<TelemetryConfiguration>(File.ReadAllText(Path.Combine(assemblypath, "PortingAssistantTelemetryConfig.json")));
+            var executingFile = GetAppEntryPoint();
+            var executionPath = Path.GetDirectoryName(executingFile);
+            var telemetryConfiguration = JsonSerializer.Deserialize<TelemetryConfiguration>(File.ReadAllText(Path.Combine(executionPath, "PortingAssistantTelemetryConfig.json")));
 
             var configuration = new PortingAssistantConfiguration();
             var roamingFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
@@ -38,7 +42,8 @@ namespace PortingAssistant.Client.CLI
             var logFilePath = Path.Combine(logs, "portingAssistant-client-cli.log");
             var metricsFilePath = Path.Combine(logs, "portingAssistant-client-cli.metrics");
 
-            string version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
+            var version = FileVersionInfo.GetVersionInfo(executingFile).ProductVersion;
+
             var outputTemplate = "[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] (Porting Assistant Client CLI) (" + version + ") (" + cli.Tag + ") {SourceContext}: {Message:lj}{NewLine}{Exception}";
 
             Serilog.Formatting.Display.MessageTemplateTextFormatter tf =
@@ -71,16 +76,17 @@ namespace PortingAssistant.Client.CLI
 
                     var portingAssistantClient = portingAssistantBuilder.GetPortingAssistant();
                     var reportExporter = portingAssistantBuilder.GetReportExporter();
-                    var solutionSettings = cli.IgnoreProjects != null && cli.IgnoreProjects.Count != 0 ?
-                            new AnalyzerSettings
-                            {
-                                IgnoreProjects = cli.IgnoreProjects,
-                                TargetFramework = cli.Target
-                            } : new AnalyzerSettings
-                            {
-                                IgnoreProjects = new List<string>(),
-                                TargetFramework = cli.Target
-                            };
+                    var solutionSettings = cli.IgnoreProjects != null && cli.IgnoreProjects.Count != 0 
+                        ? new AnalyzerSettings 
+                        {
+                            IgnoreProjects = cli.IgnoreProjects,
+                            TargetFramework = cli.Target
+                        } 
+                        : new AnalyzerSettings
+                        {
+                            IgnoreProjects = new List<string>(),
+                            TargetFramework = cli.Target
+                        };
 
                     var startTime = DateTime.Now;
                     Task<SolutionAnalysisResult> analyzeResults;
@@ -138,6 +144,17 @@ namespace PortingAssistant.Client.CLI
                     Environment.Exit(-1);
                 }
             }
+        }
+
+        private static string GetAppEntryPoint()
+        {
+            var executingDirectory = AppContext.BaseDirectory;
+            var assemblyFile = Path.Combine(executingDirectory, DllName);
+            var executableFile = Path.Combine(executingDirectory, ExeName);
+
+            var entryPointFile = Directory.EnumerateFiles(executingDirectory, $"{ProjectName}.*")
+                .First(file => file.EndsWith(assemblyFile) || file.EndsWith(executableFile));
+            return entryPointFile;
         }
 
         private static void UploadLogs(string profile, TelemetryConfiguration telemetryConfiguration, string logFilePath, string metricsFilePath, string logsPath)
