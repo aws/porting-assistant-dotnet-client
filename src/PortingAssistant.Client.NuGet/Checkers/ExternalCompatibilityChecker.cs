@@ -211,7 +211,7 @@ namespace PortingAssistant.Client.NuGet
             if (pathToSolution != null)
             {
                 string solutionId;
-                using (var sha = new SHA256Managed())
+                using (var sha = SHA256.Create())
                 {
                     byte[] textData = System.Text.Encoding.UTF8.GetBytes(pathToSolution);
                     byte[] hash = sha.ComputeHash(textData);
