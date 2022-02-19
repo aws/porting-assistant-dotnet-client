@@ -33,6 +33,23 @@ namespace PortingAssistant.Client.CLI
                 .WriteTo.Console();
 
             var executingFile = GetAppEntryPoint();
+            if (string.IsNullOrEmpty(executingFile))
+            {
+                var executingFileNotFoundMessageLines = new []
+                {
+                    "ERROR: Could not find one of the expected entry point files in the base directory.",
+                    "Base Directory:",
+                    AppContext.BaseDirectory,
+                    "Expected one of the following files:",
+                    DllName,
+                    ExeName,
+                    "Exiting the application"
+                };
+                var errorMessage = string.Join(Environment.NewLine, executingFileNotFoundMessageLines);
+                Console.WriteLine(errorMessage);
+                Environment.Exit(-1);
+            }
+
             var executionPath = Path.GetDirectoryName(executingFile);
             var telemetryConfiguration = JsonSerializer.Deserialize<TelemetryConfiguration>(File.ReadAllText(Path.Combine(executionPath, "PortingAssistantTelemetryConfig.json")));
 
@@ -153,7 +170,7 @@ namespace PortingAssistant.Client.CLI
             var executableFile = Path.Combine(executingDirectory, ExeName);
 
             var entryPointFile = Directory.EnumerateFiles(executingDirectory, $"{ProjectName}.*")
-                .First(file => file.EndsWith(assemblyFile) || file.EndsWith(executableFile));
+                .FirstOrDefault(file => file.EndsWith(assemblyFile) || file.EndsWith(executableFile));
             return entryPointFile;
         }
 
