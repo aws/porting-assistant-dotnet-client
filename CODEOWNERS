@@ -3,8 +3,8 @@
 # be sent to owner(s) for a review.
 
 
-/src/PortingAssistant.Client.Common/Model/ @saikiranakula-amzn @flywanli
-/src/PortingAssistant.Client/PortingAssistantCLI.cs @saikiranakula-amzn @flywanli
-/src/PortingAssistant.Client.Client/PortingAssistantClient.cs @saikiranakula-amzn @flywanli
-/src/PortingAssistant.Client.Analysis/AnalysisHandler.cs @saikiranakula-amzn @flywanli
-/src/PortingAssistant.Client.Porting/PortingProjectFile/PortingProjectFileHandler.cs @saikiranakula-amzn @flywanli
+/src/PortingAssistant.Client.Common/Model/ @saikiranakula-amzn @cslong @huawenm
+/src/PortingAssistant.Client/PortingAssistantCLI.cs @saikiranakula-amzn @cslong @huawenm
+/src/PortingAssistant.Client.Client/PortingAssistantClient.cs @saikiranakula-amzn @cslong @huawenm
+/src/PortingAssistant.Client.Analysis/AnalysisHandler.cs @saikiranakula-amzn @cslong @huawenm
+/src/PortingAssistant.Client.Porting/PortingProjectFile/PortingProjectFileHandler.cs @saikiranakula-amzn @cslong @huawenm
