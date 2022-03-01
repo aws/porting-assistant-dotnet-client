@@ -306,7 +306,7 @@ namespace PortingAssistant.Client.Tests
             _fileSystem.Setup(fileSystem => fileSystem.FileExists(It.IsAny<string>())).Returns((string file) =>
             {
                 string solutionId;
-                using (var sha = new SHA256Managed())
+                using (var sha = SHA256.Create())
                 {
                     byte[] textData = System.Text.Encoding.UTF8.GetBytes(Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
                     byte[] hash = sha.ComputeHash(textData);

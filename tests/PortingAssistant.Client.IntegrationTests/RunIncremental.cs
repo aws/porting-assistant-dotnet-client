@@ -43,7 +43,7 @@ namespace PortingAssistant.Client.IntegrationTests
             solutionAnalysisResultTask = portingAssistantClient.AnalyzeSolutionAsync(netFrameworkProjectPath, new AnalyzerSettings() { ContiniousEnabled = true } );
 
             string solutionId;
-            using (var sha = new SHA256Managed())
+            using (var sha = SHA256.Create())
             {
                 byte[] textData = System.Text.Encoding.UTF8.GetBytes(netFrameworkProjectPath);
                 byte[] hash = sha.ComputeHash(textData);
