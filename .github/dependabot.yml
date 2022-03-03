@@ -13,14 +13,14 @@ updates:
       - porting-assistant-nuget
       - nuget-org
     schedule:
-      interval: "daily"
+      interval: "weekly"
   - package-ecosystem: "nuget"
     directory: "/src/PortingAssistant.Client.Client"
     registries:
       - porting-assistant-nuget
       - nuget-org
     schedule:
-      interval: "daily"
+      interval: "weekly"
     ignore:
       # Starting with version 16.10.0, MSBuild requires .NET 5.0+
       - dependency-name: "Microsoft.Build"
@@ -30,35 +30,35 @@ updates:
       - porting-assistant-nuget
       - nuget-org
     schedule:
-      interval: "daily"
+      interval: "weekly"
   - package-ecosystem: "nuget"
     directory: "/src/PortingAssistant.Client.NuGet"
     registries:
       - porting-assistant-nuget
       - nuget-org
     schedule:
-      interval: "daily"
+      interval: "weekly"
   - package-ecosystem: "nuget"
     directory: "/src/PortingAssistant.Client.Porting"
     registries:
       - porting-assistant-nuget
       - nuget-org
     schedule:
-      interval: "daily"
+      interval: "weekly"
   - package-ecosystem: "nuget"
     directory: "/src/PortingAssistant.Client.Telemetry"
     registries:
       - porting-assistant-nuget
       - nuget-org
     schedule:
-      interval: "daily"
+      interval: "weekly"
   - package-ecosystem: "nuget"
     directory: "/src/PortingAssistant.Client"
     registries:
       - porting-assistant-nuget
       - nuget-org
     schedule:
-      interval: "daily"
+      interval: "weekly"
     ignore:
       # Starting with version 16.10.0, MSBuild requires .NET 5.0+
       - dependency-name: "Microsoft.Build"
@@ -68,7 +68,7 @@ updates:
       - porting-assistant-nuget
       - nuget-org
     schedule:
-      interval: "daily"
+      interval: "weekly"
     ignore:
       # Starting with version 16.10.0, MSBuild requires .NET 5.0+
       - dependency-name: "Microsoft.Build"
@@ -78,7 +78,7 @@ updates:
       - porting-assistant-nuget
       - nuget-org
     schedule:
-      interval: "daily"
+      interval: "weekly"
     ignore:
       # Starting with version 16.10.0, MSBuild requires .NET 5.0+
       - dependency-name: "Microsoft.Build"
