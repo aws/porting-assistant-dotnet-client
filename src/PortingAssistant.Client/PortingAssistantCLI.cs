@@ -18,7 +18,7 @@ namespace PortingAssistant.Client.CLI
         [Option('o', "output-path", Required = true, HelpText = "output folder.")]
         public string OutputPath { get; set; }
 
-        [Option('t', "target", Required = false, Default = "netcoreapp3.1", HelpText = "Target framework: net6.0, net5.0,  netcoreapp3.1 or netstandard2.1, by default is netcoreapp3.1")]
+        [Option('t', "target", Required = false, Default = "net6.0", HelpText = "Target framework: net6.0, net5.0,  netcoreapp3.1 or netstandard2.1, by default is net6.0")]
         public string Target { get; set; }
 
         [Option('i', "ignore-projects", Separator = ',', Required = false, HelpText = "ignore projects in the solution")]
