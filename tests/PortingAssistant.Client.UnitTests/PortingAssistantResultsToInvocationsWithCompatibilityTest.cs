@@ -18,7 +18,7 @@ namespace PortingAssistant.Client.Tests
         private Mock<IPortingAssistantNuGetHandler> _handler;
         private Dictionary<PackageVersionPair, Task<PackageDetails>> _packageResults;
         private Dictionary<string, Task<RecommendationDetails>> _recommendationResults;
-        private static string DEFAULT_TARGET = "netcoreapp3.1";
+        private static string DEFAULT_TARGET = "net6.0";
 
         private readonly PackageDetails _packageDetails = new PackageDetails
         {
@@ -34,6 +34,9 @@ namespace PortingAssistant.Client.Tests
                     {
                         {
                             "netcoreapp3.1", new SortedSet<string> { "10.2.0", "12.0.3", "12.0.4" }
+                        },
+                        {
+                            "net6.0", new SortedSet<string> { "10.2.0", "12.0.3", "12.0.4" }
                         }
                     },
                 }
@@ -42,7 +45,11 @@ namespace PortingAssistant.Client.Tests
                 {
                     "netcoreapp3.1",
                     new SortedSet<string> { "12.0.3", "12.0.4" }
-                }
+                },
+                {
+                    "net6.0",
+                    new SortedSet<string> { "12.0.3", "12.0.4" }
+                },
             },
             License = new LicenseDetails
             {

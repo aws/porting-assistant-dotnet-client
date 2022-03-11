@@ -51,7 +51,7 @@ namespace PortingAssistant.Client.IntegrationTests
             {
                 // Start the process with the info we specified.
                 // Call WaitForExit and then the using statement will close.
-                using (Process exeProcess = Process.Start(Path.Combine(testDirectoryRoot, "PortingAssistant.Client.CLI.exe"), $"assess -s {testSolutionPath} -o {actualAnalysisResultRootDir}"))
+                using (Process exeProcess = Process.Start(Path.Combine(testDirectoryRoot, "PortingAssistant.Client.CLI.exe"), $"assess -s {testSolutionPath} -o {actualAnalysisResultRootDir} -t netcoreapp3.1"))
                 {
                     exeProcess.WaitForExit(1000000);
                 }

@@ -25,7 +25,7 @@ namespace PortingAssistant.Client.Tests
         private string _solutionFile;
         private List<ProjectDetails> _projects;
         private List<string> _projectPaths;
-        private string DEFAULT_TARGET = "netcoreapp3.1";
+        private string DEFAULT_TARGET = "net6.0";
 
         private readonly PackageDetails _packageDetails = new PackageDetails
         {
@@ -41,6 +41,9 @@ namespace PortingAssistant.Client.Tests
                     {
                         {
                              "netcoreapp3.1", new SortedSet<string> { "10.2.0","12.0.3", "12.0.4" }
+                        },
+                        {
+                             "net6.0", new SortedSet<string> { "10.2.0","12.0.3", "12.0.4" }
                         }
                     },
                 }
@@ -48,6 +51,10 @@ namespace PortingAssistant.Client.Tests
             Targets = new Dictionary<string, SortedSet<string>> {
                 {
                     "netcoreapp3.1",
+                    new SortedSet<string> { "12.0.3", "12.0.4" }
+                },
+                {
+                    "net6.0",
                     new SortedSet<string> { "12.0.3", "12.0.4" }
                 }
             },

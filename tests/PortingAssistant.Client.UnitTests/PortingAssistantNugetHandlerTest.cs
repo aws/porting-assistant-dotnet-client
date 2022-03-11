@@ -48,6 +48,9 @@ namespace PortingAssistant.Client.Tests
                     {
                         {
                              "netcoreapp3.1", new SortedSet<string> { "12.0.3", "12.0.4" }
+                        },
+                        {
+                             "net6.0", new SortedSet<string> { "12.0.3", "12.0.4" }
                         }
                     },
                 }
@@ -56,6 +59,9 @@ namespace PortingAssistant.Client.Tests
                 {
                     "netcoreapp3.1",
                     new SortedSet<string> { "12.0.3", "12.0.4" }
+                },
+                {
+                    "net6.0", new SortedSet<string> { "12.0.3", "12.0.4" }
                 }
             },
             License = new LicenseDetails
@@ -539,7 +545,7 @@ namespace PortingAssistant.Client.Tests
             Task.WaitAll(resultTasks.Values.ToArray());
 
             Assert.AreEqual(packages.First().PackageId, resultTasks.Values.First().Result.Name);
-            Assert.AreEqual(packages.First().Version, resultTasks.Values.First().Result.Targets["netcoreapp3.1"].First());
+            Assert.AreEqual(packages.First().Version, resultTasks.Values.First().Result.Targets["net6.0"].First());
         }
 
         [Test]
@@ -584,8 +590,8 @@ namespace PortingAssistant.Client.Tests
             Task.WaitAll(resultTasks.Values.ToArray());
 
             Assert.AreEqual(packages.First().PackageId, resultTasks.Values.First().Result.Name);
-            Assert.AreEqual("netcoreapp3.1", resultTasks.Values.First().Result.Targets.First().Key);
-            Assert.AreEqual(0, resultTasks.Values.First().Result.Targets["netcoreapp3.1"].Count);
+            Assert.AreEqual("net6.0", resultTasks.Values.First().Result.Targets.First().Key);
+            Assert.AreEqual(0, resultTasks.Values.First().Result.Targets["net6.0"].Count);
         }
 
         [Test]
@@ -827,7 +833,7 @@ namespace PortingAssistant.Client.Tests
             var result = _internalPackagesCompatibilityChecker.Object.Check(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
 
             Task.WaitAll(result.Values.ToArray());
-            Assert.AreEqual(0, result.Values.First().Result.Targets.GetValueOrDefault("netcoreapp3.1").Count);
+            Assert.AreEqual(0, result.Values.First().Result.Targets.GetValueOrDefault("net6.0").Count);
 
             _internalNuGetCompatibilityHandlerMock.Reset();
             _internalNuGetCompatibilityHandlerMock
@@ -841,7 +847,7 @@ namespace PortingAssistant.Client.Tests
             result = _internalPackagesCompatibilityChecker.Object.Check(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
 
             Task.WaitAll(result.Values.ToArray());
-            Assert.AreEqual(0, result.Values.First().Result.Targets.GetValueOrDefault("netcoreapp3.1").Count);
+            Assert.AreEqual(0, result.Values.First().Result.Targets.GetValueOrDefault("net6.0").Count);
         }
 
         [Test]

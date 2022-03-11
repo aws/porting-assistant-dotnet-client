@@ -17,7 +17,7 @@ namespace PortingAssistant.Client.Analysis.Utils
             Dictionary<PackageVersionPair, Task<PackageDetails>> packageResults,
             Dictionary<string, Task<RecommendationDetails>> recommendationResults,
             Dictionary<string, List<RecommendedAction>> portingActionResults,
-            string targetFramework = "netcoreapp3.1",
+            string targetFramework = "net6.0",
             bool compatibleOnly = false
         )
         {

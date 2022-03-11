@@ -32,7 +32,7 @@ namespace PortingAssistant.Client.Tests
         private string _tmpProjectPath;
         private string _tmpSolutionDirectory;
         private string _tmpSolutionFileName;
-        private static string DEFAULT_TARGET = "netcoreapp3.1";
+        private static string DEFAULT_TARGET = "net6.0";
 
         private readonly PackageDetails _packageDetails = new PackageDetails
         {
@@ -48,6 +48,9 @@ namespace PortingAssistant.Client.Tests
                     {
                         {
                              "netcoreapp3.1", new SortedSet<string> { "12.0.3", "12.0.4" }
+                        },
+                        {
+                             "net6.0", new SortedSet<string> { "12.0.3", "12.0.4" }
                         }
                     },
                 }
@@ -55,6 +58,10 @@ namespace PortingAssistant.Client.Tests
             Targets = new Dictionary<string, SortedSet<string>> {
                 {
                     "netcoreapp3.1",
+                    new SortedSet<string> { "12.0.3", "12.0.4" }
+                },
+                {
+                    "net6.0",
                     new SortedSet<string> { "12.0.3", "12.0.4" }
                 }
             },
@@ -319,7 +326,7 @@ namespace PortingAssistant.Client.Tests
         [Test]
         public void AnalyzeSolutionWithProjectsSucceeds()
         {
-            var results = _portingAssistantClient.AnalyzeSolutionAsync(Path.Combine(_solutionFolder, "SolutionWithProjects.sln"), new AnalyzerSettings { TargetFramework = "netcoreapp3.1" });
+            var results = _portingAssistantClient.AnalyzeSolutionAsync(Path.Combine(_solutionFolder, "SolutionWithProjects.sln"), new AnalyzerSettings { TargetFramework = "net6.0" });
             results.Wait();
             var projectAnalysisResult = results.Result.ProjectAnalysisResults.Find(p => p.ProjectName == "Nop.Core");
             var sourceFileAnalysisResults = projectAnalysisResult.SourceFileAnalysisResults;

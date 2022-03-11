@@ -14,7 +14,7 @@ namespace PortingAssistant.Client.Analysis.Utils
             RecommendedActionType = RecommendedActionType.NoRecommendation
         };
 
-        public static CompatibilityResult GetCompatibilityResult(PackageDetailsWithApiIndices package, CodeEntityDetails codeEntityDetails, string target = "netcoreapp3.1", bool checkLesserPackage = false)
+        public static CompatibilityResult GetCompatibilityResult(PackageDetailsWithApiIndices package, CodeEntityDetails codeEntityDetails, string target = "net6.0", bool checkLesserPackage = false)
         {
             //If invocation, we will try to find it in a later package
             if (codeEntityDetails.CodeEntityType == CodeEntityType.Method)
@@ -60,7 +60,7 @@ namespace PortingAssistant.Client.Analysis.Utils
             PackageDetailsWithApiIndices package, 
             string apiMethodSignature, 
             string packageVersion, 
-            string target = "netcoreapp3.1", 
+            string target = "net6.0", 
             bool checkLesserPackage = false)
         {
             var compatibilityResult = new CompatibilityResult
@@ -145,7 +145,7 @@ namespace PortingAssistant.Client.Analysis.Utils
             CompatibilityResult compatibilityResult,
             string apiMethodSignature,
             Task<RecommendationDetails> recommendationDetails,
-            string target = "netcoreapp3.1")
+            string target = "net6.0")
         {
             try
             {
@@ -173,7 +173,7 @@ namespace PortingAssistant.Client.Analysis.Utils
             string apiMethodSignature,
             Task<RecommendationDetails> 
             recommendationDetails,
-            string target = "netcoreapp3.1")
+            string target = "net6.0")
         {
             if (apiMethodSignature != null && recommendationDetails != null)
             {

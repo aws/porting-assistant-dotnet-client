@@ -172,7 +172,8 @@ namespace PortingAssistant.Client.UnitTests
                 Versions = versions,
                 Targets = new Dictionary<string, SortedSet<string>>
                 {
-                    { "netcoreapp3.1",  versions}
+                    { "netcoreapp3.1",  versions},
+                    { "net6.0",  versions}
                 }
             };
 
