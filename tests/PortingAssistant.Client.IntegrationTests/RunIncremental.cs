@@ -40,7 +40,7 @@ namespace PortingAssistant.Client.IntegrationTests
             }
 
             var netFrameworkProjectPath = Path.Combine(_tmpTestProjectsExtractionPath, "NetFrameworkExample", "NetFrameworkExample.sln");
-            solutionAnalysisResultTask = portingAssistantClient.AnalyzeSolutionAsync(netFrameworkProjectPath, new AnalyzerSettings() { ContiniousEnabled = true } );
+            solutionAnalysisResultTask = portingAssistantClient.AnalyzeSolutionAsync(netFrameworkProjectPath, new AnalyzerSettings() { TargetFramework = "netcoreapp3.1", ContiniousEnabled = true } );
 
             string solutionId;
             using (var sha = SHA256.Create())
@@ -102,7 +102,7 @@ namespace PortingAssistant.Client.IntegrationTests
             var projectRules = projectAnalysisResult.ProjectRules;
 
             var fileAnalysisResultTask = portingAssistantClient.AnalyzeFileAsync(filePath, projectPath, netFrameworkSolutionPath,
-                preportReferences, metaReferences, projectRules, externalReferences, new AnalyzerSettings { });
+                preportReferences, metaReferences, projectRules, externalReferences, new AnalyzerSettings {TargetFramework = "netcoreapp3.1" });
 
             Assert.DoesNotThrow(() =>
             {

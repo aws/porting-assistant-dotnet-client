@@ -37,7 +37,7 @@ namespace PortingAssistant.Client.IntegrationTests
             }
 
             var netCoreProjectPath = Path.Combine(_tmpTestProjectsExtractionPath, "Miniblog.Core-master", "Miniblog.Core.sln");
-            solutionAnalysisResultTask = portingAssistantClient.AnalyzeSolutionAsync(netCoreProjectPath, new AnalyzerSettings());
+            solutionAnalysisResultTask = portingAssistantClient.AnalyzeSolutionAsync(netCoreProjectPath, new AnalyzerSettings() { TargetFramework="netcoreapp3.1"});
         }
 
         static private void ConfigureServices(IServiceCollection serviceCollection, PortingAssistantConfiguration config)

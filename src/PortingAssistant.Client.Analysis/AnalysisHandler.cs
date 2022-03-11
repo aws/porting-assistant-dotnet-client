@@ -25,7 +25,7 @@ namespace PortingAssistant.Client.Analysis
         private readonly IPortingAssistantNuGetHandler _handler;
         private readonly IPortingAssistantRecommendationHandler _recommendationHandler;
 
-        private const string DEFAULT_TARGET = "netcoreapp3.1";
+        private const string DEFAULT_TARGET = "net6.0";
 
         public PortingAssistantAnalysisHandler(ILogger<PortingAssistantAnalysisHandler> logger,
             IPortingAssistantNuGetHandler handler, IPortingAssistantRecommendationHandler recommendationHandler)
@@ -277,7 +277,7 @@ namespace PortingAssistant.Client.Analysis
 
         }
 
-        public async IAsyncEnumerable<ProjectAnalysisResult> AnalyzeSolutionGeneratorAsync(string solutionFilename, List<string> projects, string targetFramework = "netcoreapp3.1")
+        public async IAsyncEnumerable<ProjectAnalysisResult> AnalyzeSolutionGeneratorAsync(string solutionFilename, List<string> projects, string targetFramework = "net6.0")
         {
             var configuration = GetAnalyzerConfiguration();
             var analyzer = CodeAnalyzerFactory.GetAnalyzer(configuration, _logger);

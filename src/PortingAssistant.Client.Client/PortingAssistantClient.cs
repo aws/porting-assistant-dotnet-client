@@ -18,7 +18,7 @@ namespace PortingAssistant.Client.Client
         private readonly IPortingAssistantAnalysisHandler _analysisHandler;
         private readonly IPortingHandler _portingHandler;
 
-        private const string DEFAULT_TARGET = "netcoreapp3.1";
+        private const string DEFAULT_TARGET = "net6.0";
 
         public PortingAssistantClient(IPortingAssistantAnalysisHandler AnalysisHandler,
             IPortingHandler portingHandler)

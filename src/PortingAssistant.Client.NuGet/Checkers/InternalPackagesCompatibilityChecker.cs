@@ -109,7 +109,7 @@ namespace PortingAssistant.Client.NuGet
                 Versions = versions,
                 Targets = new Dictionary<string, SortedSet<string>>
                 {
-                    { "netcoreapp3.1", compatibleVersions }
+                    { "net6.0", compatibleVersions }
                 },
                 Api = new List<ApiDetails>().ToArray()
             };
@@ -125,7 +125,7 @@ namespace PortingAssistant.Client.NuGet
                 return await _internalNuGetCompatibilityHandler.CheckCompatibilityAsync(
                     packageVersion.PackageId,
                     packageVersion.Version,
-                    "netcoreapp3.1",
+                    "net6.0",
                     internalRepositories);
             }
             catch (Exception ex) when (ex is PortingAssistantClientException)

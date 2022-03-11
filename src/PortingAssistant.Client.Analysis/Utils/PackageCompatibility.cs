@@ -44,7 +44,7 @@ namespace PortingAssistant.Client.Analysis.Utils
             };
         }
 
-        public static async Task<CompatibilityResult> IsCompatibleAsync(Task<PackageDetails> packageDetails, PackageVersionPair packageVersionPair, ILogger _logger, string target = "netcoreapp3.1")
+        public static async Task<CompatibilityResult> IsCompatibleAsync(Task<PackageDetails> packageDetails, PackageVersionPair packageVersionPair, ILogger _logger, string target = "net6.0")
         {
             if (packageDetails == null || packageVersionPair == null)
             {

@@ -37,7 +37,7 @@ namespace PortingAssistant.Client.IntegrationTests
             }
 
             var netFrameworkProjectPath = Path.Combine(_tmpTestProjectsExtractionPath, "NetFrameworkExample", "NetFrameworkExample.sln");
-            solutionAnalysisResultTask = portingAssistantClient.AnalyzeSolutionAsync(netFrameworkProjectPath, new AnalyzerSettings());
+            solutionAnalysisResultTask = portingAssistantClient.AnalyzeSolutionAsync(netFrameworkProjectPath, new AnalyzerSettings() { TargetFramework="netcoreapp3.1"});
         }
 
         static private void ConfigureServices(IServiceCollection serviceCollection, PortingAssistantConfiguration config)
