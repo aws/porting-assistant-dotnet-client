@@ -34,6 +34,7 @@ namespace PortingAssistant.Client.UnitTests
                 Description = "Test",
                 LogFilePath = Path.Combine(logs, "portingAssistant-client-cli-test.log"),
                 MetricsFilePath = Path.Combine(logs, "portingAssistant-client-cli-test.metrics"),
+                Suffix = new List<string> { ".log", ".metrics" }
             };
             bool actualSuccessStatus = false;
             if (TelemetryClientFactory.TryGetClient(profile, teleConfig, out ITelemetryClient client))
@@ -82,6 +83,7 @@ namespace PortingAssistant.Client.UnitTests
                 Description = "Test",
                 LogFilePath = logFilePath,
                 MetricsFilePath = metricsFilePath,
+                Suffix = new List<string> { ".log", ".metrics" }
             };
             var lastReadTokenFile = Path.Combine(teleConfig.LogsPath, "lastToken.json");
             bool result = Uploader.Upload(teleConfig, profile, telemetryClientMock.Object);

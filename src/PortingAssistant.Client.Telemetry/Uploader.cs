@@ -23,10 +23,12 @@ namespace PortingAssistant.Client.Telemetry
         {
             try
             {
-                var fileEntries = new List<string> {
-                    teleConfig.LogFilePath,
-                    teleConfig.MetricsFilePath
-                }.Where(x => !string.IsNullOrEmpty(x) && File.Exists(x)).ToList();
+                var fileEntries = Directory.GetFiles(teleConfig.LogsPath)
+                    .Where(f =>
+                        Path.GetFileName(f)
+                            .StartsWith("portingAssistant-client-cli") &&
+                        teleConfig.Suffix.ToArray().Any(x => f.EndsWith(x))
+                    ).ToList();
 
                 var lastReadTokenFile = Path.Combine(teleConfig.LogsPath, "lastToken.json");
                 var fileLineNumberMap = new Dictionary<string, int>();
