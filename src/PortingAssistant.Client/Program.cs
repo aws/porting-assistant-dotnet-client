@@ -35,8 +35,8 @@ namespace PortingAssistant.Client.CLI
             var configuration = new PortingAssistantConfiguration();
             var roamingFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             var logs = Path.Combine(roamingFolder, "Porting Assistant for .NET", "logs");
-            var logFilePath = Path.Combine(logs, "portingAssistant-client-cli.log");
-            var metricsFilePath = Path.Combine(logs, "portingAssistant-client-cli.metrics");
+            var logFilePath = Path.Combine(logs, "portingAssistant-client-cli-.log");
+            var metricsFilePath = Path.Combine(logs, $"portingAssistant-client-cli-{DateTime.Today:yyyyMMdd}.metrics");
 
             var version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
 
@@ -47,7 +47,7 @@ namespace PortingAssistant.Client.CLI
 
             logConfiguration.WriteTo.File(
                     logFilePath,
-                    rollingInterval: RollingInterval.Infinite,
+                    rollingInterval: RollingInterval.Day,
                     rollOnFileSizeLimit: false,
                     outputTemplate: outputTemplate);
             Log.Logger = logConfiguration.CreateLogger();
@@ -150,6 +150,7 @@ namespace PortingAssistant.Client.CLI
                 telemetryConfiguration.LogFilePath = logFilePath;
                 telemetryConfiguration.MetricsFilePath = metricsFilePath;
                 telemetryConfiguration.LogsPath = logsPath;
+                telemetryConfiguration.Suffix = new List<string> {".log", ".metrics"};
 
                 if (TelemetryClientFactory.TryGetClient(profile, telemetryConfiguration, out ITelemetryClient client))
                 {
