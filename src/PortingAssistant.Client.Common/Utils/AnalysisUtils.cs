@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace PortingAssistant.Client.Common.Utils
 {
-    public class AnalysisUtils
+    public static class AnalysisUtils
     {
         public static ProjectCompatibilityResult GenerateCompatibilityResults(List<SourceFileAnalysisResult> sourceFileAnalysisResults, string projectPath, bool isPorted)
         {
