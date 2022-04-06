@@ -470,9 +470,8 @@ namespace PortingAssistant.Client.Analysis
 
                 var SourceFileAnalysisResults = CodeEntityModelToCodeEntities.AnalyzeResults(
                     sourceFileToCodeEntityDetails, packageResults, recommendationResults, portingActionResults, targetFramework);
-
-                var compatibilityResults = GenerateCompatibilityResults(SourceFileAnalysisResults, analyzer.ProjectResult.ProjectFilePath, analyzer.ProjectBuildResult?.PrePortCompilation != null);
-
+                var compatibilityResults = AnalysisUtils.GenerateCompatibilityResults(SourceFileAnalysisResults, analyzer.ProjectResult.ProjectFilePath, analyzer.ProjectBuildResult?.PrePortCompilation != null);
+                
                 return new ProjectAnalysisResult
                 {
                     ProjectName = analyzer.ProjectResult.ProjectName,
@@ -517,51 +516,7 @@ namespace PortingAssistant.Client.Analysis
                 CommonUtils.RunGarbageCollection(_logger, "PortingAssistantAnalysisHandler.AnalyzeProject");
             }
         }
-
-        private ProjectCompatibilityResult GenerateCompatibilityResults(List<SourceFileAnalysisResult> sourceFileAnalysisResults, string projectPath, bool isPorted)
-        {
-            var projectCompatibilityResult = new ProjectCompatibilityResult() { IsPorted = isPorted, ProjectPath = projectPath };
-
-            sourceFileAnalysisResults.ForEach(SourceFileAnalysisResult =>
-            {
-                SourceFileAnalysisResult.ApiAnalysisResults.ForEach(apiAnalysisResult =>
-                {
-                    var currentEntity = projectCompatibilityResult.CodeEntityCompatibilityResults.First(r => r.CodeEntityType == apiAnalysisResult.CodeEntityDetails.CodeEntityType);
-
-                    var hasAction = SourceFileAnalysisResult.RecommendedActions.Any(ra => ra.TextSpan.Equals(apiAnalysisResult.CodeEntityDetails.TextSpan));
-                    if (hasAction)
-                    {
-                        currentEntity.Actions++;
-                    }
-                    var compatibility = apiAnalysisResult.CompatibilityResults?.FirstOrDefault().Value?.Compatibility;
-                    if (compatibility == Compatibility.COMPATIBLE)
-                    {
-                        currentEntity.Compatible++;
-                    }
-                    else if (compatibility == Compatibility.INCOMPATIBLE)
-                    {
-                        currentEntity.Incompatible++;
-                    }
-                    else if (compatibility == Compatibility.UNKNOWN)
-                    {
-                        currentEntity.Unknown++;
-
-                    }
-                    else if (compatibility == Compatibility.DEPRECATED)
-                    {
-                        currentEntity.Deprecated++;
-                    }
-                    else
-                    {
-                        currentEntity.Unknown++;
-                    }
-                });
-            });
-
-            _logger.LogInformation($"{projectCompatibilityResult.ToString()}");
-            return projectCompatibilityResult;
-        }
-
+        
         private AnalyzerConfiguration GetAnalyzerConfiguration()
         {
             return new AnalyzerConfiguration(LanguageOptions.CSharp)
