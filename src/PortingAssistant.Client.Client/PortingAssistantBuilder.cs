@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PortingAssistant.Client.Client.Reports;
@@ -50,6 +51,7 @@ namespace PortingAssistant.Client.Client
             ServiceCollection.AddAssessment(Configuration);
             ServiceCollection.AddSingleton<IReportExporter, ReportExporter>();
             ServiceCollection.AddOptions();
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         }
     }
 
