@@ -23,6 +23,7 @@ namespace PortingAssistant.Client.UnitTests
         public void Upload_Empty_File_Returns_Success_Status()
         {
             var profile = "default";
+            var enabledDefaultCredentials = false;
             var roamingFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             var logs = Path.Combine(roamingFolder, "Porting Assistant for .NET", "logs");
             var teleConfig = new TelemetryConfiguration
