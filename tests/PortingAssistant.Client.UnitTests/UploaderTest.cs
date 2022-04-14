@@ -45,6 +45,31 @@ namespace PortingAssistant.Client.UnitTests
         }
 
         [Test]
+        public void Upload_Empty_File_Default_Creds_Returns_Success_Status()
+        {
+            var profile = "DEFAULT";
+            var roamingFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            var logs = Path.Combine(roamingFolder, "Porting Assistant for .NET", "logs");
+            var teleConfig = new TelemetryConfiguration
+            {
+                InvokeUrl = "https://8q2itpfg51.execute-api.us-east-1.amazonaws.com/beta",
+                Region = "us-east-1",
+                LogsPath = logs,
+                ServiceName = "appmodernization-beta",
+                Description = "Test",
+                LogFilePath = Path.Combine(logs, "portingAssistant-client-cli-test.log"),
+                MetricsFilePath = Path.Combine(logs, "portingAssistant-client-cli-test.metrics"),
+                Suffix = new List<string> { ".log", ".metrics" }
+            };
+            bool actualSuccessStatus = false;
+            if (TelemetryClientFactory.TryGetClient(profile, teleConfig, out ITelemetryClient client, true))
+            {
+                actualSuccessStatus = Uploader.Upload(teleConfig, profile, client);
+            }
+            Assert.IsTrue(actualSuccessStatus);
+        }
+
+        [Test]
         public void File_Line_Map_Updated_On_Upload()
         {
             var telemetryClientMock = new Mock<ITelemetryClient>();

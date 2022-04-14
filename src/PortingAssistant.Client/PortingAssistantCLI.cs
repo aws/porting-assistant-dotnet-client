@@ -33,6 +33,9 @@ namespace PortingAssistant.Client.CLI
         [Option('r', "profile", Required = false, HelpText = "Aws named profile, if provided, CLI will collect logs and metrics.")]
         public string Profile { get; set; }
 
+        [Option('d', "enable-default-credentials", Required = false, HelpText = "Set if default credentials is being used.")]
+        public bool EnabledDefaultCredentials { get; set; }
+
 
         [Usage(ApplicationAlias = "Porting Assistant Client")]
         public static IEnumerable<Example> Examples
@@ -64,6 +67,7 @@ namespace PortingAssistant.Client.CLI
         public string Target;
         public string Tag;
         public string Profile;
+        public bool EnabledDefaultCredentials = false;
 
         public bool isAssess = false;
         public bool isSchema = false;
@@ -102,6 +106,8 @@ namespace PortingAssistant.Client.CLI
                     Tag = o.Tag;
 
                     Profile = o.Profile;
+
+                    EnabledDefaultCredentials = o.EnabledDefaultCredentials;
 
                     if (o.IgnoreProjects != null)
                     {

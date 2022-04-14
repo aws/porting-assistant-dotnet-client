@@ -28,7 +28,7 @@ namespace PortingAssistant.Client.CLI
             var logConfiguration = new LoggerConfiguration().Enrich.FromLogContext()
                 .MinimumLevel.Debug()
                 .WriteTo.Console();
-            
+
             var assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             var telemetryConfiguration = JsonSerializer.Deserialize<TelemetryConfiguration>(File.ReadAllText(Path.Combine(assemblyPath, "PortingAssistantTelemetryConfig.json")));
 
@@ -131,20 +131,20 @@ namespace PortingAssistant.Client.CLI
                         reportExporter.GenerateJsonReport(portingResults, cli.SolutionPath, cli.OutputPath);
 
                     }
-                    UploadLogs(cli.Profile, telemetryConfiguration, logFilePath, metricsFilePath, logs);
+                    UploadLogs(cli.Profile, telemetryConfiguration, logFilePath, metricsFilePath, logs, cli.EnabledDefaultCredentials);
                 }
                 catch (Exception ex)
                 {
                     Log.Logger.Error(ex, "error when using the tools :");
-                    UploadLogs(cli.Profile, telemetryConfiguration, logFilePath, metricsFilePath, logs);
+                    UploadLogs(cli.Profile, telemetryConfiguration, logFilePath, metricsFilePath, logs, cli.EnabledDefaultCredentials);
                     Environment.Exit(-1);
                 }
             }
         }
-        
-        private static void UploadLogs(string profile, TelemetryConfiguration telemetryConfiguration, string logFilePath, string metricsFilePath, string logsPath)
+
+        private static void UploadLogs(string profile, TelemetryConfiguration telemetryConfiguration, string logFilePath, string metricsFilePath, string logsPath, bool enabledDefaultCredentials = false)
         {
-            if (!string.IsNullOrEmpty(profile))
+            if (!string.IsNullOrEmpty(profile) || enabledDefaultCredentials)
             {
                 var isSuccess = false;
                 telemetryConfiguration.LogFilePath = logFilePath;
@@ -152,7 +152,7 @@ namespace PortingAssistant.Client.CLI
                 telemetryConfiguration.LogsPath = logsPath;
                 telemetryConfiguration.Suffix = new List<string> {".log", ".metrics"};
 
-                if (TelemetryClientFactory.TryGetClient(profile, telemetryConfiguration, out ITelemetryClient client))
+                if (TelemetryClientFactory.TryGetClient(profile, telemetryConfiguration, out ITelemetryClient client, enabledDefaultCredentials))
                 {
                     isSuccess = Uploader.Upload(telemetryConfiguration, profile, client);
                 }
