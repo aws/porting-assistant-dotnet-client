@@ -22,6 +22,18 @@ namespace PortingAssistant.Client.CLI
     {
         static void Main(string[] args)
         {
+            args = new[]
+            {
+                "assess",
+                //"-s", @"D:\mvc_compat_issue\DirectoryServicesExample_net6\DirectoryServicesExample_net6.sln",
+                //"-s", @"D:\mvc_compat_issue\DirectoryServicesExample_net48\DirectoryServicesExample_net48.sln",
+                //"-s", @"D:\mvc_compat_issue\MvcExample_net6\MvcExample_net6.sln",
+                "-s", @"D:\Users\louiejon\Downloads\DriftSampleApp\DriftRefactoringApp\DriftRefactoringApp.sln",
+                "-o", @"D:\output",
+                "--target", "net6.0"//, "--tag", "<MHS-1.0.0>", "--profile", "default"
+
+            };
+
             PortingAssistantCLI cli = new PortingAssistantCLI();
             cli.HandleCommand(args);
 

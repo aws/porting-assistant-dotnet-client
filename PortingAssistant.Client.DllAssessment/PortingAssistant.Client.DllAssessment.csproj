@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.7.3.20" />
+    <PackageReference Include="ICSharpCode.Decompiler" Version="7.2.1.6856" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.1.0" />
+    <PackageReference Include="Mono.Cecil" Version="0.11.4" />
+    <PackageReference Include="NEST" Version="7.17.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="NuGet.Packaging" Version="6.1.0" />
+    <PackageReference Include="NuGet.Protocol" Version="6.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="AssemblyCompatibility\Extensions\" />
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="dotnet publish D:\dll_assessment\MvcExample_net6\MvcExample_net6\MvcExample_net6.csproj -r win-x64 -p:PublishSingleFile=true -p:IncludeAllContentForSelfExtract=true -p:IncludeSymbolsInSingleFile=false /p:DebugType=None /p:DebugSymbols=false --self-contained false -o D:\dll_assessment\output_net6&#xD;&#xA;dotnet publish D:\dll_assessment\MvcExample_net6\MvcExample_net6\MvcExample_net6.csproj -r win-x64 -p:PublishSingleFile=false -p:IncludeAllContentForSelfExtract=true -p:IncludeSymbolsInSingleFile=false /p:DebugType=None /p:DebugSymbols=false --self-contained false -o D:\dll_assessment\output_net6\new" />
+  </Target>
+
+</Project>

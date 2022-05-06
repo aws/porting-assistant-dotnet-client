@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30320.27
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32228.430
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PortingAssistant.Client.CLI", "src\PortingAssistant.Client\PortingAssistant.Client.CLI.csproj", "{E10A97D6-15E7-48F9-8414-8963ED325620}"
 EndProject
@@ -19,6 +19,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PortingAssistant.Client.UnitTests", "tests\PortingAssistant.Client.UnitTests\PortingAssistant.Client.UnitTests.csproj", "{DC046552-C0F6-475E-8593-3F81A7BCD47F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PortingAssistant.Client.Telemetry", "src\PortingAssistant.Client.Telemetry\PortingAssistant.Client.Telemetry.csproj", "{DB27CDC7-8785-4D5B-B94E-AE6F4B2EA8F7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PortingAssistant.Client.DllAssessment", "PortingAssistant.Client.DllAssessment\PortingAssistant.Client.DllAssessment.csproj", "{ADA9C468-7F02-4DFD-A32A-148CEA1BBE8F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -62,6 +64,10 @@ Global
 		{DB27CDC7-8785-4D5B-B94E-AE6F4B2EA8F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DB27CDC7-8785-4D5B-B94E-AE6F4B2EA8F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DB27CDC7-8785-4D5B-B94E-AE6F4B2EA8F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ADA9C468-7F02-4DFD-A32A-148CEA1BBE8F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ADA9C468-7F02-4DFD-A32A-148CEA1BBE8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ADA9C468-7F02-4DFD-A32A-148CEA1BBE8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ADA9C468-7F02-4DFD-A32A-148CEA1BBE8F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
