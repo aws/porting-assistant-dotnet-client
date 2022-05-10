@@ -39,7 +39,10 @@ internal static class ModuleDefinitionExtensions
         return targetFramework >= TargetFrameworkMoniker.NetStandard10;
     }
 
-    public static bool? IsLinuxCompatible(this ModuleDefinition moduleDefinition, bool? isNetCoreCompatible = null)
+    public static bool? IsLinuxCompatible(
+        this ModuleDefinition moduleDefinition, 
+        ISet<ModuleDefinition>? incompatibleMicrosoftDllNames = null, 
+        bool? isNetCoreCompatible = null)
     {
         const string supportedOsPlatformAttribute = "SupportedOSPlatformAttribute";
         const string linuxOsPlatform = "linux";
@@ -47,10 +50,17 @@ internal static class ModuleDefinitionExtensions
         try
         {
             isNetCoreCompatible ??= moduleDefinition.IsNetCoreCompatible();
-
+            incompatibleMicrosoftDllNames ??= new HashSet<ModuleDefinition>();
+            
             if (isNetCoreCompatible is false or null)
             {
                 return isNetCoreCompatible;
+            }
+
+            var assemblyFileName = Path.GetFileName(method.Module.FileName);
+            if (incompatibleMicrosoftDllNames.Contains(assemblyFileName))
+            {
+                return true;
             }
 
             // Check if this assembly has an inclusive list of supported OS platforms

@@ -19,14 +19,20 @@ namespace PortingAssistant.Client.DllAssessment
                 //@"C:\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App\6.0.3", // Windows only
             };
 
-            // TODO: Cache dlls from "Microsoft.WindowsDesktop.App" as incompatible from MS
+            // [x] TODO: Cache dlls from "Microsoft.WindowsDesktop.App" as incompatible from MS
+            // [x] TODO: Add previous logic to check for "throws PlatformNotSupported"
+            // TODO: Convert incompatible IL api names to c# names
+            // TODO: Ensure constructors and property names are accounted for
+            // TODO: Unit tests
+            // TODO: Add SerializeWithCOmpatibility(Compatibility) extension methods to convert ModuleDefinion and MethodDefinion to POCO objects, then write them to json
             // TODO: Issue: Semantic information is lost (e.g. System.DirectoryServices is incompatible assembly. Trying to call DirectoryEntry.ToString() results in System.Object.ToString() being detected.)
             // TODO: Need to report incompatible assemblies used and add test case using specific incompatible APIs (System.Console.CapsLock property, Console.Beep())
             // TODO: Resolve edge cases where we are not able to detect target framework version (can we use Metadata Attribute and look at TargetFramework constructor arg?)
             // TODO: Try finding all dlls that are entry point dlls. Will this cause issues?
             var cataloger = new CompatibilityCataloger(dllPath, sdkAndRuntimePaths);
-            var incompatibleApisUsedInProject = cataloger.Assess();
-
+            cataloger.Assess();
+            
+            var incompatibleApisUsedInProject = cataloger.IncompatibleMethodsReferencedInProject;
             var incompatibleAssemblies = cataloger.IncompatibleAssemblies;
             var incompatibleApis = cataloger.IncompatibleMethods;
             var unknownAssemblies = cataloger.AssembliesWithUnknownCompatibility;

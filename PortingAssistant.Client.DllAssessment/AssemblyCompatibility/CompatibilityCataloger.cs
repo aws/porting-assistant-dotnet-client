@@ -13,6 +13,7 @@ public class CompatibilityCataloger
     private readonly string _assemblyFile;
     private readonly ModuleDefinition _moduleDefinition;
     private readonly ISet<string> _assembliesFromMicrosoft;
+    private readonly ISet<string> _incompatibleAssembliesFromMicrosoft;
     private readonly DefaultAssemblyResolver _assemblyResolver;
     private readonly ReaderParameters _readerParameters;
 
@@ -51,6 +52,15 @@ public class CompatibilityCataloger
         }
     }
 
+    private ISet<MethodDefinition> _incompatibleMethodsReferencedInProject = new HashSet<MethodDefinition>();
+    public ISet<MethodDefinition> IncompatibleMethodsReferencedInProject
+    {
+        get
+        {
+            return _incompatibleMethodsReferencedInProject;
+        }
+    }
+    
     public ISet<ModuleDefinition> AssembliesWithUnknownCompatibility
     {
         get
@@ -93,13 +103,7 @@ public class CompatibilityCataloger
         _assemblyFile = assemblyFile;
         _moduleDefinition = ModuleDefinition.ReadModule(_assemblyFile, _readerParameters);
         _assembliesFromMicrosoft = GetAssembliesFromMicrosoft(searchDirectories);
-
-        //
-        UNSUPPORTED_EXCEPTIONS = new HashSet<string>
-        {
-            "System.Void System.PlatformNotSupportedException::.ctor()",
-            "System.Void System.NotSupportedException::.ctor(System.String)"
-        };
+        _incompatibleAssembliesFromMicrosoft = GetIncompatibleAssembliesFromMicrosoft(searchDirectories);
 
         _methodsIL2CSharpMap = new Dictionary<string, string>();
         _publicUnsupportedMethods = new HashSet<string>();
@@ -122,7 +126,23 @@ public class CompatibilityCataloger
         return dlls;
     }
 
-    public IEnumerable<MethodDefinition> Assess()
+    private ISet<string> GetIncompatibleAssembliesFromMicrosoft(IEnumerable<string> searchDirectories)
+    {
+        Console.WriteLine("Searching for incompatible assemblies written by Microsoft...");
+        var dotnetDirectories = searchDirectories
+            .Where(d => d.Contains("Microsoft.WindowsDesktop.App"));
+
+        var dlls = dotnetDirectories.SelectMany(d => Directory.EnumerateFiles(d, "*.dll"))
+            .ToHashSet()
+            .Select(Path.GetFileName)
+            .Where(f => f != null)
+            .ToHashSet();
+
+        Console.WriteLine($"Found {dlls.Count} incompatible assemblies.");
+        return dlls;
+    }
+
+    public void Assess()
     {
         Console.WriteLine("Building dependency graph...");
         var dependencyGraph = BuildDependencyGraph(_moduleDefinition);
@@ -134,7 +154,7 @@ public class CompatibilityCataloger
             CatalogCompatibilities(assembly, dependencyGraph);
         }
 
-        return GetIncompatibleApisUsedInProject();
+        _incompatibleMethodsReferencedInProject = GetIncompatibleApisUsedInProject();
     }
 
     private IEnumerable<MethodDefinition> GetIncompatibleApisUsedInProject()
@@ -260,7 +280,7 @@ public class CompatibilityCataloger
         }
 
         var isNetCoreCompatible = assembly.IsNetCoreCompatible();
-        var isLinuxCompatible = assembly.IsLinuxCompatible(isNetCoreCompatible);
+        var isLinuxCompatible = assembly.IsLinuxCompatible(_incompatibleAssembliesFromMicrosoft, isNetCoreCompatible);
         var assemblyCompatibility = new MetadataModels.AssemblyCompatibility
         {
             IsNetCoreCompatible = isNetCoreCompatible,
@@ -307,19 +327,34 @@ public class CompatibilityCataloger
             }
         }
 
-        // Check attributes on method for compatibility
-        var isLinuxCompatible = method.IsLinuxCompatible();
+        // Check if method throws PlatformNotSUpportedException
+        var isLinuxCompatible = !method.DoesThrowPlatformNotSupportedException();
         var methodCompatibility = new MethodCompatibility
         {
             IsLinuxCompatible = isLinuxCompatible,
             IsNetCoreCompatible = true,
             IsWindowsCompatibleOnly = !isLinuxCompatible
         };
+        if (!isLinuxCompatible)
+        {
+            return methodCompatibility;
+        }
+
+        // Check attributes on method for compatibility
+        isLinuxCompatible = method.IsLinuxCompatibleBasedOnAttributes();
+        methodCompatibility.IsLinuxCompatible = isLinuxCompatible;
+        methodCompatibility.IsWindowsCompatibleOnly = !isLinuxCompatible;
+        if (!isLinuxCompatible)
+        {
+            return methodCompatibility;
+        }
 
         /*
-         So far, method compatibility has only been determined by the attributes on the method declaration. 
+         So far, method compatibility has been solely determined by the attributes on the method declaration. 
          If method is from a Microsoft SDK dll, this should be sufficient as Microsoft's labels on method
-         declarations serve as "ground truth" for platform-dependent attribute labeling.
+         declarations serve as "ground truth" for platform-dependent attribute labeling. Conversely, it is
+         possible for a non-Microsoft nuget assembly to not have all incompatile methods decorated with the
+         UnsupportedOSPlatform attribute. In those cases, we dive deeper.
         */
         if (IsMethodFromMicrosoft(method))
         {
@@ -642,11 +677,11 @@ public class CompatibilityCataloger
     //    }
     //}
 
-    ///* Some part of the code was taken  from: https://github.com/dotnet/platform-compat/tree/master/src/ex-scan
-    //   and modified to use  Mono.Cecil library.
-    // */
-    //private ExceptionInfo ScanPlatformNotSupported(MethodDefinition method, HashSet<string> visited, int nestingLevel = 0)
-    //{
+    /* Some part of the code was taken  from: https://github.com/dotnet/platform-compat/tree/master/src/ex-scan
+      and modified to use  Mono.Cecil library.
+    */
+    // private ExceptionInfo ScanPlatformNotSupported(MethodDefinition method, HashSet<string> visited, int nestingLevel = 0)
+    // {
 
     //    const int maxNestingLevel = 3;
 
@@ -695,7 +730,7 @@ public class CompatibilityCataloger
     //    }
 
     //    return result;
-    //}
+    // }
 
     //private bool ResolveMethod(MethodReference calledMethod)
     //{
@@ -768,8 +803,8 @@ public class CompatibilityCataloger
     //    });
     //}
 
-    //private IEnumerable<Instruction> GetOperationsPreceedingThrow(MethodDefinition method)
-    //{
+    // private IEnumerable<Instruction> GetOperationsPreceedingThrow(MethodDefinition method)
+    // {
     //    Instruction previous = null;
 
     //    if (method.Body != null &&
@@ -787,7 +822,7 @@ public class CompatibilityCataloger
     //            previous = op;
     //        }
     //    }
-    //}
+    // }
 
     //private IEnumerable<MethodReference> GetCalls(MethodDefinition method)
     //{
@@ -808,8 +843,8 @@ public class CompatibilityCataloger
     //    return UNSUPPORTED_EXCEPTIONS.Contains(method);
     //}
 
-    //private bool IsFactoryForPlatformNotSupported(MethodReference reference)
-    //{
+    // private bool IsFactoryForPlatformNotSupported(MethodReference reference)
+    // {
     //    var methodInfo = reference.Resolve();
 
     //    if (methodInfo == null || methodInfo.IsAbstract)
@@ -826,13 +861,13 @@ public class CompatibilityCataloger
     //                constructorReference = op;
     //                break;
     //            case Code.Ret:
-    //                if (constructorReference != null &&
-    //                    IsPlatformNotSupported(constructorReference.Operand.ToString()))
-    //                    return true;
+    //                if (constructorReference != null 
+    //                   && IsPlatformNotSupported(constructorReference.Operand.ToString()))
+    //                   return true;
     //                break;
     //        }
     //    }
 
     //    return false;
-    //}
+    // }
 }
