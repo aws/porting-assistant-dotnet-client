@@ -42,11 +42,27 @@ namespace PortingAssistant.Client.Telemetry
 
     public class TelemetryClientFactory
     {
-        public static bool TryGetClient(string profile, TelemetryConfiguration config, out ITelemetryClient client)
+        public static bool TryGetClient(string profile, TelemetryConfiguration config, out ITelemetryClient client, bool enabledDefaultCredentials = false)
         {
             client = null;
             var chain = new CredentialProfileStoreChain();
-            if (chain.TryGetAWSCredentials(profile, out AWSCredentials awsCredentials))
+            AWSCredentials awsCredentials;
+            if (enabledDefaultCredentials)
+            {
+                awsCredentials = FallbackCredentialsFactory.GetCredentials();
+                if (awsCredentials == null)
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                if (!chain.TryGetAWSCredentials(profile, out awsCredentials))
+                {
+                    return false;
+                }
+            }
+            if (awsCredentials != null)
             {
                 client = new TelemetryClient(awsCredentials, new TelemetryClientConfig
                 {
@@ -55,7 +71,7 @@ namespace PortingAssistant.Client.Telemetry
                     ServiceURL = config.InvokeUrl,
                 });
                 return true;
-            }
+            }           
             return false;
         }
     }

@@ -28,15 +28,15 @@ namespace PortingAssistant.Client.CLI
             var logConfiguration = new LoggerConfiguration().Enrich.FromLogContext()
                 .MinimumLevel.Debug()
                 .WriteTo.Console();
-            
+
             var assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             var telemetryConfiguration = JsonSerializer.Deserialize<TelemetryConfiguration>(File.ReadAllText(Path.Combine(assemblyPath, "PortingAssistantTelemetryConfig.json")));
 
             var configuration = new PortingAssistantConfiguration();
             var roamingFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             var logs = Path.Combine(roamingFolder, "Porting Assistant for .NET", "logs");
-            var logFilePath = Path.Combine(logs, "portingAssistant-client-cli.log");
-            var metricsFilePath = Path.Combine(logs, "portingAssistant-client-cli.metrics");
+            var logFilePath = Path.Combine(logs, "portingAssistant-client-cli-.log");
+            var metricsFilePath = Path.Combine(logs, $"portingAssistant-client-cli-{DateTime.Today:yyyyMMdd}.metrics");
 
             var version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
 
@@ -47,7 +47,7 @@ namespace PortingAssistant.Client.CLI
 
             logConfiguration.WriteTo.File(
                     logFilePath,
-                    rollingInterval: RollingInterval.Infinite,
+                    rollingInterval: RollingInterval.Day,
                     rollOnFileSizeLimit: false,
                     outputTemplate: outputTemplate);
             Log.Logger = logConfiguration.CreateLogger();
@@ -131,27 +131,28 @@ namespace PortingAssistant.Client.CLI
                         reportExporter.GenerateJsonReport(portingResults, cli.SolutionPath, cli.OutputPath);
 
                     }
-                    UploadLogs(cli.Profile, telemetryConfiguration, logFilePath, metricsFilePath, logs);
+                    UploadLogs(cli.Profile, telemetryConfiguration, logFilePath, metricsFilePath, logs, cli.EnabledDefaultCredentials);
                 }
                 catch (Exception ex)
                 {
                     Log.Logger.Error(ex, "error when using the tools :");
-                    UploadLogs(cli.Profile, telemetryConfiguration, logFilePath, metricsFilePath, logs);
+                    UploadLogs(cli.Profile, telemetryConfiguration, logFilePath, metricsFilePath, logs, cli.EnabledDefaultCredentials);
                     Environment.Exit(-1);
                 }
             }
         }
-        
-        private static void UploadLogs(string profile, TelemetryConfiguration telemetryConfiguration, string logFilePath, string metricsFilePath, string logsPath)
+
+        private static void UploadLogs(string profile, TelemetryConfiguration telemetryConfiguration, string logFilePath, string metricsFilePath, string logsPath, bool enabledDefaultCredentials = false)
         {
-            if (!string.IsNullOrEmpty(profile))
+            if (!string.IsNullOrEmpty(profile) || enabledDefaultCredentials)
             {
                 var isSuccess = false;
                 telemetryConfiguration.LogFilePath = logFilePath;
                 telemetryConfiguration.MetricsFilePath = metricsFilePath;
                 telemetryConfiguration.LogsPath = logsPath;
+                telemetryConfiguration.Suffix = new List<string> {".log", ".metrics"};
 
-                if (TelemetryClientFactory.TryGetClient(profile, telemetryConfiguration, out ITelemetryClient client))
+                if (TelemetryClientFactory.TryGetClient(profile, telemetryConfiguration, out ITelemetryClient client, enabledDefaultCredentials))
                 {
                     isSuccess = Uploader.Upload(telemetryConfiguration, profile, client);
                 }
