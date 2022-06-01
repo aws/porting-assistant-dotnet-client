@@ -90,7 +90,7 @@ namespace PortingAssistant.Client.IntegrationTests
                 "solution-analyze",
                 "NetFrameworkExample",
                 "NetFrameworkExample-api-analysis.json");
-            string[] propertiesToBeRemovedInApiAnalysisResult = { "SourceFilePath", "Path" };
+            string[] propertiesToBeRemovedInApiAnalysisResult = { "SourceFilePath", "Path", "TextChanges" };
             bool comparisonResult = JsonUtils.AreTwoJsonFilesEqual(
                 expectedApiAnalysisPath, actualApiAnalysisPath,
                 propertiesToBeRemovedInApiAnalysisResult);
