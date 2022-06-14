@@ -45,6 +45,9 @@
     <None Update="TestProjects\Schemas\package-analysis-schema.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="TestProjects\VBWebApi.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

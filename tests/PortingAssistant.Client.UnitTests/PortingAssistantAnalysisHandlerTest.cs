@@ -25,6 +25,9 @@ namespace PortingAssistant.Client.Tests
         private string _solutionFile;
         private List<ProjectDetails> _projects;
         private List<string> _projectPaths;
+        private string _vbSolutionFile;
+        private List<ProjectDetails> _vbProjects;
+        private List<string> _vbProjectPaths;
         private string DEFAULT_TARGET = "net6.0";
 
         private readonly PackageDetails _packageDetails = new PackageDetails
@@ -83,6 +86,11 @@ namespace PortingAssistant.Client.Tests
                 "TestXml", "SolutionWithApi", "SolutionWithApi.sln");
             _projects = GetProjects(_solutionFile);
             _projectPaths = _projects.ConvertAll(p => p.ProjectFilePath);
+
+            _vbSolutionFile = Path.Combine(TestContext.CurrentContext.TestDirectory,
+                "TestXml", "VBSolutionWithApi", "VBSolutionWithApi.sln");
+            _vbProjects = GetProjects(_vbSolutionFile);
+            _vbProjectPaths = _vbProjects.ConvertAll(p => p.ProjectFilePath);
 
             _nuGetHandlerMock.Reset();
 
@@ -171,6 +179,43 @@ namespace PortingAssistant.Client.Tests
             Assert.AreEqual(RecommendedActionType.UpgradePackage, packageAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
 
             var sourceFile = projectAnalysisResult.SourceFileAnalysisResults.Find(s => s.SourceFileName == "Program.cs");
+            Assert.NotNull(sourceFile);
+            Assert.NotNull(sourceFile.ApiAnalysisResults);
+
+            var apiAnalysisResult = sourceFile.ApiAnalysisResults.Find(r => r.CodeEntityDetails.OriginalDefinition == "Newtonsoft.Json.JsonConvert.SerializeObject(object)");
+            Assert.NotNull(apiAnalysisResult);
+
+            Assert.AreEqual("Newtonsoft.Json", apiAnalysisResult.CodeEntityDetails.Package.PackageId);
+            Assert.AreEqual("11.0.1", apiAnalysisResult.CodeEntityDetails.Package.Version);
+            Assert.AreEqual("Newtonsoft.Json.JsonConvert.SerializeObject(object)",
+                apiAnalysisResult.CodeEntityDetails.OriginalDefinition);
+            Assert.AreEqual(Compatibility.COMPATIBLE, apiAnalysisResult.CompatibilityResults.GetValueOrDefault(DEFAULT_TARGET).Compatibility);
+            Assert.AreEqual("12.0.3", apiAnalysisResult.Recommendations.RecommendedActions.First().Description);
+        }
+
+        [Test]
+        public void VBAnalyzeWellDefinedSolutionSucceeds()
+        {
+            var package = new PackageVersionPair
+            {
+                PackageId = "Newtonsoft.Json",
+                Version = "11.0.1",
+                PackageSourceType = PackageSourceType.NUGET
+            };
+            var result = _analysisHandler.AnalyzeSolution(_vbSolutionFile, _vbProjectPaths);
+            Task.WaitAll(result);
+
+            var projectAnalysisResult = result.Result.Values.First();
+            Task.WaitAll(projectAnalysisResult.PackageAnalysisResults.Values.ToArray());
+            var packageAnalysisResult = projectAnalysisResult.PackageAnalysisResults.First(p => p.Key.PackageId == "Newtonsoft.Json").Value.Result;
+
+            Assert.AreEqual(package, packageAnalysisResult.PackageVersionPair);
+            Assert.AreEqual(Compatibility.INCOMPATIBLE, packageAnalysisResult.CompatibilityResults.GetValueOrDefault(DEFAULT_TARGET).Compatibility);
+            Assert.AreEqual("12.0.3", packageAnalysisResult.CompatibilityResults.GetValueOrDefault(DEFAULT_TARGET).CompatibleVersions.First());
+            Assert.AreEqual("12.0.3", packageAnalysisResult.Recommendations.RecommendedActions.First().Description);
+            Assert.AreEqual(RecommendedActionType.UpgradePackage, packageAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
+
+            var sourceFile = projectAnalysisResult.SourceFileAnalysisResults.Find(s => s.SourceFileName == "Program.vb");
             Assert.NotNull(sourceFile);
             Assert.NotNull(sourceFile.ApiAnalysisResults);
 
