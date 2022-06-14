@@ -364,6 +364,8 @@ namespace PortingAssistant.Client.Analysis
             allNodes.AddRange(sourceFile.AllDeclarationNodes());
             allNodes.AddRange(sourceFile.AllStructDeclarations());
             allNodes.AddRange(sourceFile.AllEnumDeclarations());
+            allNodes.AddRange(sourceFile.AllEnumBlocks());
+            allNodes.AddRange(sourceFile.AllAttributeLists());
 
             return KeyValuePair.Create(sourceFile.FileFullPath, allNodes);
         }

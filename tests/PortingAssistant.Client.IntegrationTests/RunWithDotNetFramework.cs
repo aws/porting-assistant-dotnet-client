@@ -329,7 +329,7 @@ namespace PortingAssistant.Client.IntegrationTests
 
             Assert.AreEqual(Path.Combine(_vbTmpTestProjectsExtractionPath, "VBWebApi",
                 "VBWebApi", "App_Start", "BundleConfig.vb"), bundlerConfigFile.SourceFilePath);
-            var apiAnalysisResult = bundlerConfigFile.ApiAnalysisResults.Find(r => r.CodeEntityDetails.OriginalDefinition
+            /*var apiAnalysisResult = bundlerConfigFile.ApiAnalysisResults.Find(r => r.CodeEntityDetails.OriginalDefinition
                 == "System.Web.Optimization.BundleCollection.Add(System.Web.Optimization.Bundle)");
             Assert.AreEqual(CodeEntityType.Method, apiAnalysisResult.CodeEntityDetails.CodeEntityType);
             Assert.AreEqual("Add", apiAnalysisResult.CodeEntityDetails.Name);
@@ -343,7 +343,7 @@ namespace PortingAssistant.Client.IntegrationTests
             Assert.AreEqual(Compatibility.UNKNOWN, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").Compatibility);
             Assert.AreEqual(0, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").CompatibleVersions.Count);
             Assert.AreEqual(RecommendedActionType.NoRecommendation, apiAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
-            Assert.Null(apiAnalysisResult.Recommendations.RecommendedActions.First().Description);
+            Assert.Null(apiAnalysisResult.Recommendations.RecommendedActions.First().Description);*/
         }
     }
 }

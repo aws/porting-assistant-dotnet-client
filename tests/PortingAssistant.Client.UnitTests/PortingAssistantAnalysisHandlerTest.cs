@@ -49,6 +49,20 @@ namespace PortingAssistant.Client.Tests
                              "net6.0", new SortedSet<string> { "10.2.0","12.0.3", "12.0.4" }
                         }
                     },
+                },
+                new ApiDetails
+                {
+                    MethodName = "SerializeObject",
+                    MethodSignature = "Public Shared Overloads Function SerializeObject(value As Object) As String",
+                    Targets = new Dictionary<string, SortedSet<string>>
+                    {
+                        {
+                             "netcoreapp3.1", new SortedSet<string> { "10.2.0","12.0.3", "12.0.4" }
+                        },
+                        {
+                             "net6.0", new SortedSet<string> { "10.2.0","12.0.3", "12.0.4" }
+                        }
+                    },
                 }
             },
             Targets = new Dictionary<string, SortedSet<string>> {
@@ -219,12 +233,12 @@ namespace PortingAssistant.Client.Tests
             Assert.NotNull(sourceFile);
             Assert.NotNull(sourceFile.ApiAnalysisResults);
 
-            var apiAnalysisResult = sourceFile.ApiAnalysisResults.Find(r => r.CodeEntityDetails.OriginalDefinition == "Newtonsoft.Json.JsonConvert.SerializeObject(object)");
+            var apiAnalysisResult = sourceFile.ApiAnalysisResults.Find(r => r.CodeEntityDetails.OriginalDefinition == "Public Shared Overloads Function SerializeObject(value As Object) As String");
             Assert.NotNull(apiAnalysisResult);
 
             Assert.AreEqual("Newtonsoft.Json", apiAnalysisResult.CodeEntityDetails.Package.PackageId);
             Assert.AreEqual("11.0.1", apiAnalysisResult.CodeEntityDetails.Package.Version);
-            Assert.AreEqual("Newtonsoft.Json.JsonConvert.SerializeObject(object)",
+            Assert.AreEqual("Public Shared Overloads Function SerializeObject(value As Object) As String",
                 apiAnalysisResult.CodeEntityDetails.OriginalDefinition);
             Assert.AreEqual(Compatibility.COMPATIBLE, apiAnalysisResult.CompatibilityResults.GetValueOrDefault(DEFAULT_TARGET).Compatibility);
             Assert.AreEqual("12.0.3", apiAnalysisResult.Recommendations.RecommendedActions.First().Description);
