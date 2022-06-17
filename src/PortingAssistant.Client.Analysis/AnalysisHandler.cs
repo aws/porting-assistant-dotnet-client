@@ -45,7 +45,7 @@ namespace PortingAssistant.Client.Analysis
 
             var configuration = GetAnalyzerConfiguration(projects);
             CodeAnalyzerByLanguage analyzer = new CodeAnalyzerByLanguage(configuration, _logger);
-            //var analyzer = CodeAnalyzerFactory.GetAnalyzer(configuration, _logger);
+            
             var analyzerResults = await analyzer.AnalyzeSolution(solutionFilename);
 
             _logger.LogInformation("Memory usage after RunCoderlyzerAnalysis: ");
@@ -235,7 +235,6 @@ namespace PortingAssistant.Client.Analysis
                     }
                 };
                 CodeAnalyzerByLanguage analyzerByLanguage = new CodeAnalyzerByLanguage(configuration, _logger);
-                //var analyzer = CodeAnalyzerFactory.GetAnalyzer(configuration, _logger);
                 var analyzer = analyzerByLanguage.GetLanguageAnalyzerByFileType(Path.GetExtension(filePath));
                 var ideProjectResult = await analyzer.AnalyzeFile(projectPath, filePath, fileContent, preportReferences, currentReferences);
 
@@ -284,7 +283,6 @@ namespace PortingAssistant.Client.Analysis
         public async IAsyncEnumerable<ProjectAnalysisResult> AnalyzeSolutionGeneratorAsync(string solutionFilename, List<string> projects, string targetFramework = "net6.0")
         {
             var configuration = GetAnalyzerConfiguration(projects);
-            //var analyzer = CodeAnalyzerFactory.GetAnalyzer(configuration, _logger);
             CodeAnalyzerByLanguage analyzer = new CodeAnalyzerByLanguage(configuration, _logger);
             var resultEnumerator = analyzer.AnalyzeSolutionGeneratorAsync(solutionFilename).GetAsyncEnumerator();
             try
