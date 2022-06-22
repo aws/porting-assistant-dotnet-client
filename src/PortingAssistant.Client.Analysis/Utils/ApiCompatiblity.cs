@@ -247,7 +247,7 @@ namespace PortingAssistant.Client.Analysis.Utils
 
         private static Dictionary<string, int> SignatureToIndexPreProcess(PackageDetails packageDetails)
         {
-            var indexDict = new Dictionary<string, int>();
+            var indexDict = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
             if (packageDetails == null || packageDetails.Api == null)
             {
                 return indexDict;
