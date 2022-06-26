@@ -493,6 +493,7 @@ namespace PortingAssistant.Client.Analysis
                     MetaReferences = analyzer.ProjectBuildResult.Project.MetadataReferences.Select(m => m.Display).ToList(),
                     PreportMetaReferences = analyzer.ProjectBuildResult.PreportReferences,
                     ProjectRules = projectActions.ProjectRules,
+                    VisualBasicProjectRules = projectActions.VbProjectRules,
                     ExternalReferences = analyzer.ProjectResult.ExternalReferences,
                     ProjectCompatibilityResult = compatibilityResults
                 };

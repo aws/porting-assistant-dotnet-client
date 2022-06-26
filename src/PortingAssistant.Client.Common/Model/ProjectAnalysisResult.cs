@@ -4,6 +4,7 @@ using PortingAssistant.Client.Common.Model;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using CTA.Rules.Models.VisualBasic;
 
 namespace PortingAssistant.Client.Model
 {
@@ -15,6 +16,7 @@ namespace PortingAssistant.Client.Model
         public List<string> PreportMetaReferences { get; set; }
         public List<string> MetaReferences { get; set; }
         public RootNodes ProjectRules { get; set; }
+        public VisualBasicRootNodes VisualBasicProjectRules { get; set; }
         public ExternalReferences ExternalReferences { get; set; }
         public ProjectCompatibilityResult ProjectCompatibilityResult { get; set; }
 
@@ -26,6 +28,7 @@ namespace PortingAssistant.Client.Model
             PreportMetaReferences = null;
             MetaReferences = null;
             ProjectRules = null;
+            VisualBasicProjectRules = null;
             ExternalReferences = null;
             ProjectCompatibilityResult = null;
         }
