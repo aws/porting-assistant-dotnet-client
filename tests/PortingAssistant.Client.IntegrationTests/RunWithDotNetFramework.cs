@@ -18,6 +18,7 @@ namespace PortingAssistant.Client.IntegrationTests
         private string _vbTmpTestProjectsExtractionPath;
         private Task<SolutionAnalysisResult> solutionAnalysisResultTask;
         private Task<SolutionAnalysisResult> vbSolutionAnalysisResultTask;
+        private Task<SolutionAnalysisResult> vbSolutionAnalysisResultIncTask;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
@@ -53,6 +54,7 @@ namespace PortingAssistant.Client.IntegrationTests
             var vbNetFrameworkProjectPath = Path.Combine(_vbTmpTestProjectsExtractionPath, "VBWebApi", "VBWebApi.sln");
             vbSolutionAnalysisResultTask = portingAssistantClient.AnalyzeSolutionAsync(vbNetFrameworkProjectPath, new AnalyzerSettings() { TargetFramework = "netcoreapp3.1" });
 
+            vbSolutionAnalysisResultIncTask = portingAssistantClient.AnalyzeSolutionAsync(vbNetFrameworkProjectPath, new AnalyzerSettings() { TargetFramework = "netcoreapp3.1", ContiniousEnabled = true });
         }
 
         static private void ConfigureServices(IServiceCollection serviceCollection, PortingAssistantConfiguration config)
@@ -88,6 +90,14 @@ namespace PortingAssistant.Client.IntegrationTests
             });
             Assert.AreEqual(0, vbSolutionAnalysisResultTask.Result.FailedProjects.Count);
             Assert.Null(vbSolutionAnalysisResultTask.Result.Errors);
+        }
+
+        [Test]
+        public void VbAnalyzeIncrementalSucceeds()
+        {
+            Assert.DoesNotThrow(() => vbSolutionAnalysisResultIncTask.Wait());
+            Assert.AreEqual(0, vbSolutionAnalysisResultIncTask.Result.FailedProjects.Count);
+            Assert.Null(vbSolutionAnalysisResultIncTask.Result.Errors);
         }
 
         [Test]
@@ -344,7 +354,48 @@ namespace PortingAssistant.Client.IntegrationTests
             Assert.AreEqual(Compatibility.UNKNOWN, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").Compatibility);
             Assert.AreEqual(0, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").CompatibleVersions.Count);
             Assert.AreEqual(RecommendedActionType.NoRecommendation, apiAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
-            Assert.Null(apiAnalysisResult.Recommendations.RecommendedActions.First().Description);*/
+            Assert.Null(apiAnalysisResult.Recommendations.RecommendedActions.First().Description);
+            */
+        }
+
+        [Test]
+        public void VbCheckPortingResult()
+        {
+            var projectPath = Path.Combine(_vbTmpTestProjectsExtractionPath, "VBWebApi", "VBWebApi", "VBWebApi.vbproj");
+            var vbNetFrameworkSlnPath = Path.Combine(_vbTmpTestProjectsExtractionPath, "VBWebApi", "VBWebApi.sln");
+            var request = new PortingRequest
+            {
+                Projects = new List<ProjectDetails> {
+                    new ProjectDetails {
+                        ProjectFilePath = projectPath,
+                        PackageReferences = new List<PackageVersionPair>
+                        {
+                            new PackageVersionPair
+                            {
+                                PackageId = "Newtonsoft.Json",
+                                Version = "9.0.1"
+                            }
+                        }
+                    }
+                },
+                SolutionPath = vbNetFrameworkSlnPath,
+                TargetFramework = "netcoreapp3.1",
+                RecommendedActions = new List<RecommendedAction>
+                {
+                    new PackageRecommendation
+                    {
+                        PackageId = "Newtonsoft.Json",
+                        Version = "9.0.1",
+                        RecommendedActionType = RecommendedActionType.UpgradePackage,
+                        TargetVersions = new List<string> { "12.0.3" },
+                    }
+                }
+            };
+
+            var result = portingAssistantClient.ApplyPortingChanges(request);
+
+            Assert.True(result[0].Success);
+            Assert.AreEqual(projectPath, result[0].ProjectFile);
         }
     }
 }

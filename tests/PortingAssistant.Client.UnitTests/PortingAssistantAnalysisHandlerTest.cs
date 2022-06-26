@@ -233,12 +233,12 @@ namespace PortingAssistant.Client.Tests
             Assert.NotNull(sourceFile);
             Assert.NotNull(sourceFile.ApiAnalysisResults);
 
-            var apiAnalysisResult = sourceFile.ApiAnalysisResults.Find(r => r.CodeEntityDetails.OriginalDefinition == "Public Shared Overloads Function SerializeObject(value As Object) As String");
+            var apiAnalysisResult = sourceFile.ApiAnalysisResults.Find(r => r.CodeEntityDetails.OriginalDefinition == "Newtonsoft.Json.JsonConvert.SerializeObject(Object)");
             Assert.NotNull(apiAnalysisResult);
 
             Assert.AreEqual("Newtonsoft.Json", apiAnalysisResult.CodeEntityDetails.Package.PackageId);
             Assert.AreEqual("11.0.1", apiAnalysisResult.CodeEntityDetails.Package.Version);
-            Assert.AreEqual("Public Shared Overloads Function SerializeObject(value As Object) As String",
+            Assert.AreEqual("Newtonsoft.Json.JsonConvert.SerializeObject(Object)",
                 apiAnalysisResult.CodeEntityDetails.OriginalDefinition);
             Assert.AreEqual(Compatibility.COMPATIBLE, apiAnalysisResult.CompatibilityResults.GetValueOrDefault(DEFAULT_TARGET).Compatibility);
             Assert.AreEqual("12.0.3", apiAnalysisResult.Recommendations.RecommendedActions.First().Description);
