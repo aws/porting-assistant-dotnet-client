@@ -13,5 +13,6 @@ namespace PortingAssistant.Client.Telemetry.Model
         public string projectType { get; set; }
         public string projectName { get; set; }
         public List<String> sourceFrameworks { get; set; }
+        public string language { get; set; }
     }
 }

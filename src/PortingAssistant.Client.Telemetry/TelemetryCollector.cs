@@ -107,6 +107,7 @@ namespace PortingAssistantExtensionTelemetry
                 numNugets = project.PackageReferences.Count,
                 numReferences = project.ProjectReferences.Count,
                 isBuildFailed = project.IsBuildFailed,
+                language = GetProjectLanguage(project.ProjectFilePath)
             };
             
         }
@@ -209,6 +210,19 @@ namespace PortingAssistantExtensionTelemetry
 
             return sBuilder.ToString();
 
+        }
+
+        private static string GetProjectLanguage(string projectFilePath)
+        {
+            if (projectFilePath.EndsWith(".csproj", StringComparison.InvariantCultureIgnoreCase))
+            {
+                return "csharp";
+            }
+            if (projectFilePath.EndsWith(".vbproj", StringComparison.InvariantCultureIgnoreCase))
+            {
+                return "visualbasic";
+            }
+            return "invalid";
         }
     }
 }
