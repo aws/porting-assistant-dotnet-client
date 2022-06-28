@@ -16,6 +16,7 @@ using PortingAssistant.Client.NuGet;
 using AnalyzerConfiguration = Codelyzer.Analysis.AnalyzerConfiguration;
 using IDEProjectResult = Codelyzer.Analysis.Build.IDEProjectResult;
 using PortingAssistant.Client.Common.Model;
+using Codelyzer.Analysis.Analyzer;
 
 namespace PortingAssistant.Client.Analysis
 {
@@ -35,15 +36,16 @@ namespace PortingAssistant.Client.Analysis
             _recommendationHandler = recommendationHandler;
         }
 
-        private async Task<List<AnalyzerResult>> RunCoderlyzerAnalysis(string solutionFilename)
+        private async Task<List<AnalyzerResult>> RunCoderlyzerAnalysis(string solutionFilename, List<string> projects)
         {
             MemoryUtils.LogSystemInfo(_logger);
             MemoryUtils.LogSolutiontSize(_logger, solutionFilename);
             _logger.LogInformation("Memory usage before RunCoderlyzerAnalysis: ");
             MemoryUtils.LogMemoryConsumption(_logger);
 
-            var configuration = GetAnalyzerConfiguration();
-            var analyzer = CodeAnalyzerFactory.GetAnalyzer(configuration, _logger);
+            var configuration = GetAnalyzerConfiguration(projects);
+            CodeAnalyzerByLanguage analyzer = new CodeAnalyzerByLanguage(configuration, _logger);
+            
             var analyzerResults = await analyzer.AnalyzeSolution(solutionFilename);
 
             _logger.LogInformation("Memory usage after RunCoderlyzerAnalysis: ");
@@ -162,7 +164,7 @@ namespace PortingAssistant.Client.Analysis
         {
             try
             {
-                var analyzerResults = await RunCoderlyzerAnalysis(solutionFilename);
+                var analyzerResults = await RunCoderlyzerAnalysis(solutionFilename, projects);
 
                 var analysisActions = AnalyzeActions(projects, targetFramework, analyzerResults, solutionFilename);
 
@@ -232,7 +234,8 @@ namespace PortingAssistant.Client.Analysis
                         InterfaceDeclarations = true
                     }
                 };
-                var analyzer = CodeAnalyzerFactory.GetAnalyzer(configuration, _logger);
+                CodeAnalyzerByLanguage analyzerByLanguage = new CodeAnalyzerByLanguage(configuration, _logger);
+                var analyzer = analyzerByLanguage.GetLanguageAnalyzerByFileType(Path.GetExtension(filePath));
                 var ideProjectResult = await analyzer.AnalyzeFile(projectPath, filePath, fileContent, preportReferences, currentReferences);
 
                 return ideProjectResult;
@@ -253,7 +256,7 @@ namespace PortingAssistant.Client.Analysis
         {
             try
             {
-                var analyzerResults = await RunCoderlyzerAnalysis(solutionFilename);
+                var analyzerResults = await RunCoderlyzerAnalysis(solutionFilename, projects);
 
                 var analysisActions = AnalyzeActions(projects, targetFramework, analyzerResults, solutionFilename);
 
@@ -279,9 +282,8 @@ namespace PortingAssistant.Client.Analysis
 
         public async IAsyncEnumerable<ProjectAnalysisResult> AnalyzeSolutionGeneratorAsync(string solutionFilename, List<string> projects, string targetFramework = "net6.0")
         {
-            var configuration = GetAnalyzerConfiguration();
-            var analyzer = CodeAnalyzerFactory.GetAnalyzer(configuration, _logger);
-
+            var configuration = GetAnalyzerConfiguration(projects);
+            CodeAnalyzerByLanguage analyzer = new CodeAnalyzerByLanguage(configuration, _logger);
             var resultEnumerator = analyzer.AnalyzeSolutionGeneratorAsync(solutionFilename).GetAsyncEnumerator();
             try
             {
@@ -360,6 +362,8 @@ namespace PortingAssistant.Client.Analysis
             allNodes.AddRange(sourceFile.AllDeclarationNodes());
             allNodes.AddRange(sourceFile.AllStructDeclarations());
             allNodes.AddRange(sourceFile.AllEnumDeclarations());
+            allNodes.AddRange(sourceFile.AllEnumBlocks());
+            allNodes.AddRange(sourceFile.AllAttributeLists());
 
             return KeyValuePair.Create(sourceFile.FileFullPath, allNodes);
         }
@@ -489,6 +493,7 @@ namespace PortingAssistant.Client.Analysis
                     MetaReferences = analyzer.ProjectBuildResult.Project.MetadataReferences.Select(m => m.Display).ToList(),
                     PreportMetaReferences = analyzer.ProjectBuildResult.PreportReferences,
                     ProjectRules = projectActions.ProjectRules,
+                    VisualBasicProjectRules = projectActions.VbProjectRules,
                     ExternalReferences = analyzer.ProjectResult.ExternalReferences,
                     ProjectCompatibilityResult = compatibilityResults
                 };
@@ -517,9 +522,14 @@ namespace PortingAssistant.Client.Analysis
             }
         }
         
-        private AnalyzerConfiguration GetAnalyzerConfiguration()
+        private AnalyzerConfiguration GetAnalyzerConfiguration(List<string> projects)
         {
-            return new AnalyzerConfiguration(LanguageOptions.CSharp)
+            var language = LanguageOptions.CSharp;
+            if (projects != null && projects.Count > 0 & projects.Any(c => c.ToLower().EndsWith(".vbproj")))
+            {
+                language = LanguageOptions.Vb;
+            }
+            return new AnalyzerConfiguration(language)
             {
                 MetaDataSettings =
                     {

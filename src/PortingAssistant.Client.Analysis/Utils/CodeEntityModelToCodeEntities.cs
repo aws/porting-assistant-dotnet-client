@@ -128,6 +128,10 @@ namespace PortingAssistant.Client.Analysis.Utils
                     {
                         return Convert(enumDeclaration, externalReferences);
                     }
+                    else if (node is EnumBlock enumBlock)
+                    {
+                        return Convert(enumBlock, externalReferences);
+                    }
 
                     return null;
                 }).Where(result => result != null).ToList());
@@ -164,6 +168,16 @@ namespace PortingAssistant.Client.Analysis.Utils
         public static CodeEntityDetails Convert(StructDeclaration node, ExternalReferences externalReferences)
         {
             return CreateCodeEntityDetails(node.Identifier, node.Reference.Namespace, node.Identifier, node.Identifier, CodeEntityType.Struct, node, node.Reference, externalReferences);
+        }
+
+        public static CodeEntityDetails Convert(EnumBlock node, ExternalReferences externalReferences)
+        {
+            return CreateCodeEntityDetails(node.Identifier, node.Reference.Namespace, node.Identifier, node.Identifier, CodeEntityType.Enum, node, node.Reference, externalReferences);
+        }
+
+        public static CodeEntityDetails Convert(AttributeList node, ExternalReferences externalReferences)
+        {
+            return CreateCodeEntityDetails(node.Identifier, node.Reference.Namespace, node.Identifier, node.Identifier, CodeEntityType.Annotation, node, node.Reference, externalReferences);
         }
 
         private static CodeEntityDetails CreateCodeEntityDetails(
