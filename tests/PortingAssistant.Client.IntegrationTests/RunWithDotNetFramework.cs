@@ -396,6 +396,10 @@ namespace PortingAssistant.Client.IntegrationTests
 
             Assert.True(result[0].Success);
             Assert.AreEqual(projectPath, result[0].ProjectFile);
+
+            var projectFile = File.ReadAllText(projectPath);
+            Assert.True(projectFile.Contains("netcoreapp3.1"));
+            Assert.True(projectFile.Contains("\"Newtonsoft.Json\" Version=\"12.0.3\""));
         }
     }
 }
