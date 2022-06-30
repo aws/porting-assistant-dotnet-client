@@ -19,7 +19,7 @@ namespace PortingAssistant.Client.Analysis.Utils
             //If invocation, we will try to find it in a later package
             if (codeEntityDetails.CodeEntityType == CodeEntityType.Method)
             {
-                if (codeEntityDetails.Namespace == "")
+                if (string.IsNullOrEmpty(codeEntityDetails.Namespace))
                 {
                     // codelyzer was not able to parse the symbol from the semantic model, so we can't accurately assess the compatibility.
                     return new CompatibilityResult
