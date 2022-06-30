@@ -19,6 +19,15 @@ namespace PortingAssistant.Client.Analysis.Utils
             //If invocation, we will try to find it in a later package
             if (codeEntityDetails.CodeEntityType == CodeEntityType.Method)
             {
+                if (codeEntityDetails.Namespace == "")
+                {
+                    // codelyzer was not able to parse the symbol from the semantic model, so we can't accurately assess the compatibility.
+                    return new CompatibilityResult
+                    {
+                        Compatibility = Compatibility.UNKNOWN,
+                        CompatibleVersions = new List<string>()
+                    };
+                }
                 return GetCompatibilityResult(package, codeEntityDetails.OriginalDefinition, codeEntityDetails.Package.Version, target, checkLesserPackage);
             }
             //If another node type, we will not try to find it. Compatibility will be based on the package compatibility
