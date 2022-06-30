@@ -337,8 +337,7 @@ namespace PortingAssistant.Client.IntegrationTests
             var sourceFileAnalysisResults = vbSolutionAnalysisResultTask.Result.ProjectAnalysisResults.First().SourceFileAnalysisResults;
             var bundlerConfigFile = sourceFileAnalysisResults.Find(s => s.SourceFileName == "BundleConfig.vb");
 
-            //place holder for vb check 
-            /*Assert.AreEqual(Path.Combine(_vbTmpTestProjectsExtractionPath, "VBWebApi",
+            Assert.AreEqual(Path.Combine(_vbTmpTestProjectsExtractionPath, "VBWebApi",
                 "VBWebApi", "App_Start", "BundleConfig.vb"), bundlerConfigFile.SourceFilePath);
             var apiAnalysisResult = bundlerConfigFile.ApiAnalysisResults.Find(r => r.CodeEntityDetails.OriginalDefinition
                 == "System.Web.Optimization.BundleCollection.Add(System.Web.Optimization.Bundle)");
@@ -347,15 +346,15 @@ namespace PortingAssistant.Client.IntegrationTests
             Assert.AreEqual("System.Web.Optimization", apiAnalysisResult.CodeEntityDetails.Namespace);
             Assert.AreEqual("System.Web.Optimization.BundleCollection.Add(System.Web.Optimization.Bundle)",
                 apiAnalysisResult.CodeEntityDetails.OriginalDefinition);
-            Assert.AreEqual("System.Web.Optimization.BundleCollection.Add(System.Web.Optimization.Bundle)", apiAnalysisResult.CodeEntityDetails.Signature);
-            Assert.AreEqual("System.Web.Optimization", apiAnalysisResult.CodeEntityDetails.Package.PackageId);
-            Assert.AreEqual("1.1.0", apiAnalysisResult.CodeEntityDetails.Package.Version);
+            Assert.AreEqual("Public Overloads Sub Add(bundle As System.Web.Optimization.Bundle)", apiAnalysisResult.CodeEntityDetails.Signature);
+            Assert.AreEqual("Microsoft.AspNet.Web.Optimization", apiAnalysisResult.CodeEntityDetails.Package.PackageId);
+            Assert.AreEqual("1.1.3", apiAnalysisResult.CodeEntityDetails.Package.Version);
             Assert.AreEqual(PackageSourceType.NUGET, apiAnalysisResult.CodeEntityDetails.Package.PackageSourceType);
-            Assert.AreEqual(Compatibility.UNKNOWN, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").Compatibility);
+            Assert.AreEqual(Compatibility.INCOMPATIBLE, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").Compatibility);
             Assert.AreEqual(0, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").CompatibleVersions.Count);
             Assert.AreEqual(RecommendedActionType.NoRecommendation, apiAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
             Assert.Null(apiAnalysisResult.Recommendations.RecommendedActions.First().Description);
-            */
+            
         }
 
         [Test]
@@ -396,6 +395,10 @@ namespace PortingAssistant.Client.IntegrationTests
 
             Assert.True(result[0].Success);
             Assert.AreEqual(projectPath, result[0].ProjectFile);
+
+            var projectFile = File.ReadAllText(projectPath);
+            Assert.True(projectFile.Contains("netcoreapp3.1"));
+            Assert.True(projectFile.Contains("\"Newtonsoft.Json\" Version=\"12.0.3\""));
         }
     }
 }
