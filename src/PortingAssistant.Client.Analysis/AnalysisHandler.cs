@@ -91,12 +91,16 @@ namespace PortingAssistant.Client.Analysis
                         .Select(r => CodeEntityModelToCodeEntities.ReferenceToPackageVersionPair(r))
                         .ToHashSet();
 
-                    var sdkPackages = namespaces.Select(n => new PackageVersionPair
-                    {
-                        PackageId = n, 
-                        Version = "0.0.0", 
-                        PackageSourceType = PackageSourceType.SDK
-                    }).Where(pair => !nugetPackageNameLookup.Contains(pair.PackageId));
+                    var sdkPackages = namespaces.Select(n =>
+                            new PackageVersionPair
+                            {
+                                PackageId = n,
+                                Version = "0.0.0",
+                                PackageSourceType = PackageSourceType.SDK
+                            })
+                        .Where(pair =>
+                            !string.IsNullOrEmpty(pair.PackageId) &&
+                            !nugetPackageNameLookup.Contains(pair.PackageId));
 
                     var allPackages = nugetPackages
                         .Union(subDependencies)
@@ -443,11 +447,14 @@ namespace PortingAssistant.Client.Analysis
                     .ToHashSet();
 
                 var sdkPackages = namespaces.Select(n => new PackageVersionPair
-                {
-                    PackageId = n,
-                    Version = "0.0.0",
-                    PackageSourceType = PackageSourceType.SDK
-                }).Where(pair => !nugetPackageNameLookup.Contains(pair.PackageId));
+                    {
+                        PackageId = n,
+                        Version = "0.0.0",
+                        PackageSourceType = PackageSourceType.SDK
+                    })
+                    .Where(pair =>
+                        !string.IsNullOrEmpty(pair.PackageId) &&
+                        !nugetPackageNameLookup.Contains(pair.PackageId));
 
                 var allPackages = nugetPackages
                     .Union(subDependencies)

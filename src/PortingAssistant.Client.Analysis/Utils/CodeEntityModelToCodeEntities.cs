@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -190,7 +191,7 @@ namespace PortingAssistant.Client.Analysis.Utils
             Reference reference,
             ExternalReferences externalReferences)
         {
-            var package = GetPackageVersionPair(reference, externalReferences);
+            var package = GetPackageVersionPair(reference, externalReferences, @namespace);
 
             if (package == null)
             {
@@ -239,7 +240,7 @@ namespace PortingAssistant.Client.Analysis.Utils
             };
         }
 
-        private static PackageVersionPair GetPackageVersionPair(Reference reference, ExternalReferences externalReferences)
+        private static PackageVersionPair GetPackageVersionPair(Reference reference, ExternalReferences externalReferences, string @namespace)
         {
             var assemblyLength = reference?.Assembly?.Length;
             if (assemblyLength == null || assemblyLength == 0)
@@ -262,6 +263,19 @@ namespace PortingAssistant.Client.Analysis.Utils
             var potentialSdk = externalReferences?.SdkReferences?.Find((s) =>
                 s.AssemblyLocation?.EndsWith(reference.Assembly + ".dll") == true || s.Identity.Equals(reference.Assembly));
             PackageVersionPair sdk = ReferenceToPackageVersionPair(potentialSdk, PackageSourceType.SDK);
+
+            // if mscorlib, try to match namespace to sdk
+            if (string.Compare(reference.Assembly, "mscorlib", StringComparison.OrdinalIgnoreCase) == 0)
+            {
+                var potential = externalReferences?.SdkReferences?.Find(s =>
+                    s.AssemblyLocation?.EndsWith($"{@namespace}.dll") == true ||
+                    s.Identity.Equals(@namespace));
+                if (potential != null)
+                {
+                    potential.Version = "0.0.0"; // SDK lookups will have no version number
+                    sdk = ReferenceToPackageVersionPair(potential, PackageSourceType.SDK);
+                }
+            }
 
             return sdk ?? nugetPackage;
         }
