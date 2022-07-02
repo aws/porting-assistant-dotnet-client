@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -264,7 +265,7 @@ namespace PortingAssistant.Client.Analysis.Utils
             PackageVersionPair sdk = ReferenceToPackageVersionPair(potentialSdk, PackageSourceType.SDK);
 
             // if mscorlib, try to match namespace to sdk
-            if (reference.Assembly == "mscorlib")
+            if (string.Compare(reference.Assembly, "mscorlib", StringComparison.OrdinalIgnoreCase) == 0)
             {
                 var potential = externalReferences?.SdkReferences?.Find(s =>
                     s.AssemblyLocation?.EndsWith($"{@namespace}.dll") == true ||
