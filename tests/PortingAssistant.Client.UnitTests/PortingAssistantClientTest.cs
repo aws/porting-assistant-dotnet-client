@@ -11,12 +11,10 @@ using PortingAssistant.Client.Analysis;
 using PortingAssistant.Client.Client;
 using PortingAssistant.Client.Model;
 using PortingAssistant.Client.Porting;
-using PortingAssistant.Client.Analysis.Utils;
 using PortingAssistant.Client.Client.FileParser;
 using NuGet.Frameworks;
 using NuGet.Versioning;
 using PortingAssistant.Client.PortingProjectFile;
-using Codelyzer.Analysis;
 using CTA.Rules.Models;
 
 namespace PortingAssistant.Client.Tests
@@ -379,7 +377,7 @@ namespace PortingAssistant.Client.Tests
                         PackageId = "Newtonsoft.Json",
                         Version = "9.0.1",
                         RecommendedActionType = RecommendedActionType.UpgradePackage,
-                        TargetVersions = new List<string> { "12.0.3" },
+                        TargetVersions = new List<string> { "13.0.1" },
                     }
                 }
             };
@@ -396,7 +394,7 @@ namespace PortingAssistant.Client.Tests
                 new PackageVersionPair
                 {
                     PackageId = "Newtonsoft.Json",
-                    Version = "12.0.3"
+                    Version = "13.0.1"
                 },
                 portResult.PackageReferences.Find(nugetPackage => nugetPackage.PackageId == "Newtonsoft.Json"));
         }
