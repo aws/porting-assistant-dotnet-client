@@ -386,7 +386,7 @@ namespace PortingAssistant.Client.IntegrationTests
                         PackageId = "Newtonsoft.Json",
                         Version = "9.0.1",
                         RecommendedActionType = RecommendedActionType.UpgradePackage,
-                        TargetVersions = new List<string> { "12.0.3" },
+                        TargetVersions = new List<string> { "13.0.1" },
                     }
                 }
             };
@@ -398,7 +398,7 @@ namespace PortingAssistant.Client.IntegrationTests
 
             var projectFile = File.ReadAllText(projectPath);
             Assert.True(projectFile.Contains("netcoreapp3.1"));
-            Assert.True(projectFile.Contains("\"Newtonsoft.Json\" Version=\"12.0.3\""));
+            Assert.True(projectFile.Contains("\"Newtonsoft.Json\" Version=\"13.0.1\""));
         }
     }
 }

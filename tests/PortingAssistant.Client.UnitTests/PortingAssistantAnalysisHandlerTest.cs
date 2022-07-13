@@ -8,8 +8,6 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using PortingAssistant.Client.Analysis;
-using PortingAssistant.Client.Analysis.Utils;
-using PortingAssistant.Client.Client.FileParser;
 using PortingAssistant.Client.Model;
 using PortingAssistant.Client.NuGet;
 
@@ -33,7 +31,7 @@ namespace PortingAssistant.Client.Tests
         private readonly PackageDetails _packageDetails = new PackageDetails
         {
             Name = "Newtonsoft.Json",
-            Versions = new SortedSet<string> { "12.0.3", "12.0.4" },
+            Versions = new SortedSet<string> { "12.0.3", "12.0.4", "13.0.2" },
             Api = new ApiDetails[]
             {
                 new ApiDetails
@@ -43,10 +41,10 @@ namespace PortingAssistant.Client.Tests
                     Targets = new Dictionary<string, SortedSet<string>>
                     {
                         {
-                             "netcoreapp3.1", new SortedSet<string> { "10.2.0","12.0.3", "12.0.4" }
+                             "netcoreapp3.1", new SortedSet<string> { "10.2.0", "12.0.3", "12.0.4", "13.0.2" }
                         },
                         {
-                             "net6.0", new SortedSet<string> { "10.2.0","12.0.3", "12.0.4" }
+                             "net6.0", new SortedSet<string> { "10.2.0", "12.0.3", "12.0.4", "13.0.2" }
                         }
                     },
                 },
@@ -57,10 +55,10 @@ namespace PortingAssistant.Client.Tests
                     Targets = new Dictionary<string, SortedSet<string>>
                     {
                         {
-                             "netcoreapp3.1", new SortedSet<string> { "10.2.0","12.0.3", "12.0.4" }
+                             "netcoreapp3.1", new SortedSet<string> { "10.2.0", "12.0.3", "12.0.4", "13.0.2" }
                         },
                         {
-                             "net6.0", new SortedSet<string> { "10.2.0","12.0.3", "12.0.4" }
+                             "net6.0", new SortedSet<string> { "10.2.0", "12.0.3", "12.0.4", "13.0.2" }
                         }
                     },
                 }
@@ -68,18 +66,18 @@ namespace PortingAssistant.Client.Tests
             Targets = new Dictionary<string, SortedSet<string>> {
                 {
                     "netcoreapp3.1",
-                    new SortedSet<string> { "12.0.3", "12.0.4" }
+                    new SortedSet<string> { "12.0.3", "12.0.4", "13.0.2" }
                 },
                 {
                     "net6.0",
-                    new SortedSet<string> { "12.0.3", "12.0.4" }
+                    new SortedSet<string> { "12.0.3", "12.0.4", "13.0.2" }
                 }
             },
             License = new LicenseDetails
             {
                 License = new Dictionary<string, SortedSet<string>>
                 {
-                    { "MIT", new SortedSet<string> { "12.0.3", "12.0.4" } }
+                    { "MIT", new SortedSet<string> { "12.0.3", "12.0.4", "13.0.2" } }
                 }
             },
             Namespaces = new string[] { "TestNamespace" }
@@ -115,11 +113,15 @@ namespace PortingAssistant.Client.Tests
                     task.SetResult(_packageDetails);
                     return new Dictionary<PackageVersionPair, Task<PackageDetails>>
                     {
-                        {new PackageVersionPair{
-                            PackageId = "Newtonsoft.Json",
-                            Version = "11.0.1",
-                            PackageSourceType = PackageSourceType.NUGET
-                        }, task.Task }
+                        {
+                            new PackageVersionPair
+                            {
+                                PackageId = "Newtonsoft.Json",
+                                Version = "13.0.1",
+                                PackageSourceType = PackageSourceType.NUGET
+                            },
+                            task.Task 
+                        }
                     };
                 });
             _recommendationHandlerMock.Reset();
@@ -176,7 +178,7 @@ namespace PortingAssistant.Client.Tests
             var package = new PackageVersionPair
             {
                 PackageId = "Newtonsoft.Json",
-                Version = "11.0.1",
+                Version = "13.0.1",
                 PackageSourceType = PackageSourceType.NUGET
             };
             var result = _analysisHandler.AnalyzeSolution(_solutionFile, _projectPaths);
@@ -187,24 +189,24 @@ namespace PortingAssistant.Client.Tests
             var packageAnalysisResult = projectAnalysisResult.PackageAnalysisResults.First(p => p.Key.PackageId == "Newtonsoft.Json").Value.Result;
 
             Assert.AreEqual(package, packageAnalysisResult.PackageVersionPair);
-            Assert.AreEqual(Compatibility.INCOMPATIBLE, packageAnalysisResult.CompatibilityResults.GetValueOrDefault(DEFAULT_TARGET).Compatibility);
-            Assert.AreEqual("12.0.3", packageAnalysisResult.CompatibilityResults.GetValueOrDefault(DEFAULT_TARGET).CompatibleVersions.First());
-            Assert.AreEqual("12.0.3", packageAnalysisResult.Recommendations.RecommendedActions.First().Description);
+            Assert.AreEqual(Compatibility.COMPATIBLE, packageAnalysisResult.CompatibilityResults.GetValueOrDefault(DEFAULT_TARGET).Compatibility);
+            Assert.AreEqual("13.0.2", packageAnalysisResult.CompatibilityResults.GetValueOrDefault(DEFAULT_TARGET).CompatibleVersions.First());
+            Assert.AreEqual("13.0.2", packageAnalysisResult.Recommendations.RecommendedActions.First().Description);
             Assert.AreEqual(RecommendedActionType.UpgradePackage, packageAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
 
             var sourceFile = projectAnalysisResult.SourceFileAnalysisResults.Find(s => s.SourceFileName == "Program.cs");
             Assert.NotNull(sourceFile);
             Assert.NotNull(sourceFile.ApiAnalysisResults);
 
-            var apiAnalysisResult = sourceFile.ApiAnalysisResults.Find(r => r.CodeEntityDetails.OriginalDefinition == "Newtonsoft.Json.JsonConvert.SerializeObject(object)");
+            var apiAnalysisResult = sourceFile.ApiAnalysisResults.Find(r => r.CodeEntityDetails.OriginalDefinition == "Newtonsoft.Json.JsonConvert.SerializeObject(object?)");
             Assert.NotNull(apiAnalysisResult);
 
             Assert.AreEqual("Newtonsoft.Json", apiAnalysisResult.CodeEntityDetails.Package.PackageId);
-            Assert.AreEqual("11.0.1", apiAnalysisResult.CodeEntityDetails.Package.Version);
-            Assert.AreEqual("Newtonsoft.Json.JsonConvert.SerializeObject(object)",
+            Assert.AreEqual("13.0.1", apiAnalysisResult.CodeEntityDetails.Package.Version);
+            Assert.AreEqual("Newtonsoft.Json.JsonConvert.SerializeObject(object?)",
                 apiAnalysisResult.CodeEntityDetails.OriginalDefinition);
             Assert.AreEqual(Compatibility.COMPATIBLE, apiAnalysisResult.CompatibilityResults.GetValueOrDefault(DEFAULT_TARGET).Compatibility);
-            Assert.AreEqual("12.0.3", apiAnalysisResult.Recommendations.RecommendedActions.First().Description);
+            Assert.AreEqual("13.0.2", apiAnalysisResult.Recommendations.RecommendedActions.First().Description);
         }
 
         [Test]
@@ -213,7 +215,7 @@ namespace PortingAssistant.Client.Tests
             var package = new PackageVersionPair
             {
                 PackageId = "Newtonsoft.Json",
-                Version = "11.0.1",
+                Version = "13.0.1",
                 PackageSourceType = PackageSourceType.NUGET
             };
             var result = _analysisHandler.AnalyzeSolution(_vbSolutionFile, _vbProjectPaths);
@@ -224,9 +226,9 @@ namespace PortingAssistant.Client.Tests
             var packageAnalysisResult = projectAnalysisResult.PackageAnalysisResults.First(p => p.Key.PackageId == "Newtonsoft.Json").Value.Result;
 
             Assert.AreEqual(package, packageAnalysisResult.PackageVersionPair);
-            Assert.AreEqual(Compatibility.INCOMPATIBLE, packageAnalysisResult.CompatibilityResults.GetValueOrDefault(DEFAULT_TARGET).Compatibility);
-            Assert.AreEqual("12.0.3", packageAnalysisResult.CompatibilityResults.GetValueOrDefault(DEFAULT_TARGET).CompatibleVersions.First());
-            Assert.AreEqual("12.0.3", packageAnalysisResult.Recommendations.RecommendedActions.First().Description);
+            Assert.AreEqual(Compatibility.COMPATIBLE, packageAnalysisResult.CompatibilityResults.GetValueOrDefault(DEFAULT_TARGET).Compatibility);
+            Assert.AreEqual("13.0.2", packageAnalysisResult.CompatibilityResults.GetValueOrDefault(DEFAULT_TARGET).CompatibleVersions.First());
+            Assert.AreEqual("13.0.2", packageAnalysisResult.Recommendations.RecommendedActions.First().Description);
             Assert.AreEqual(RecommendedActionType.UpgradePackage, packageAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
 
             var sourceFile = projectAnalysisResult.SourceFileAnalysisResults.Find(s => s.SourceFileName == "Program.vb");
@@ -237,11 +239,11 @@ namespace PortingAssistant.Client.Tests
             Assert.NotNull(apiAnalysisResult);
 
             Assert.AreEqual("Newtonsoft.Json", apiAnalysisResult.CodeEntityDetails.Package.PackageId);
-            Assert.AreEqual("11.0.1", apiAnalysisResult.CodeEntityDetails.Package.Version);
+            Assert.AreEqual("13.0.1", apiAnalysisResult.CodeEntityDetails.Package.Version);
             Assert.AreEqual("Newtonsoft.Json.JsonConvert.SerializeObject(Object)",
                 apiAnalysisResult.CodeEntityDetails.OriginalDefinition);
             Assert.AreEqual(Compatibility.COMPATIBLE, apiAnalysisResult.CompatibilityResults.GetValueOrDefault(DEFAULT_TARGET).Compatibility);
-            Assert.AreEqual("12.0.3", apiAnalysisResult.Recommendations.RecommendedActions.First().Description);
+            Assert.AreEqual("13.0.2", apiAnalysisResult.Recommendations.RecommendedActions.First().Description);
         }
 
         [Test]
