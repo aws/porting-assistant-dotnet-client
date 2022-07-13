@@ -8,8 +8,6 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using PortingAssistant.Client.Analysis;
-using PortingAssistant.Client.Analysis.Utils;
-using PortingAssistant.Client.Client.FileParser;
 using PortingAssistant.Client.Model;
 using PortingAssistant.Client.NuGet;
 
