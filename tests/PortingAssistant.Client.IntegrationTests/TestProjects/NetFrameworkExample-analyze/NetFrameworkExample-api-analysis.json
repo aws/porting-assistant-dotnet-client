@@ -10,7 +10,7 @@
   "SourceFileAnalysisResults": [
     {
       "SourceFileName": "BundleConfig.cs",
-      "SourceFilePath": "C:\\Users\\longachr\\AppData\\Local\\Temp\\kopw45tf.cvq\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\BundleConfig.cs",
+      "SourceFilePath": "C:\\Users\\longachr\\AppData\\Local\\Temp\\ppwfye40.odt\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\BundleConfig.cs",
       "ApiAnalysisResults": [
         {
           "CodeEntityDetails": {
@@ -395,44 +395,6 @@
         {
           "CodeEntityDetails": {
             "CodeEntityType": "Declaration",
-            "Name": "Optimization",
-            "Namespace": "System.Web",
-            "Signature": "Optimization",
-            "OriginalDefinition": "Optimization",
-            "TextSpan": {
-              "StartCharPosition": 18,
-              "EndCharPosition": 30,
-              "StartLinePosition": 2,
-              "EndLinePosition": 2
-            },
-            "Package": {
-              "PackageId": "System.Web.Optimization",
-              "Version": "1.1.0",
-              "PackageSourceType": "NUGET"
-            }
-          },
-          "CompatibilityResults": {
-            "netcoreapp3.1": {
-              "Compatibility": "COMPATIBLE",
-              "CompatibleVersions": []
-            }
-          },
-          "Recommendations": {
-            "RecommendedActions": [
-              {
-                "CodeEntityDetails": null,
-                "RecommendedActionType": "NoRecommendation",
-                "Description": null,
-                "TextSpan": null,
-                "TargetCPU": null,
-                "TextChanges": null
-              }
-            ]
-          }
-        },
-        {
-          "CodeEntityDetails": {
-            "CodeEntityType": "Declaration",
             "Name": "BundleCollection",
             "Namespace": "System.Web.Optimization",
             "Signature": "BundleCollection",
@@ -472,7 +434,7 @@
           "CodeEntityDetails": {
             "CodeEntityType": "Declaration",
             "Name": "ScriptBundle",
-            "Namespace": "System.Web.Optimization",
+            "Namespace": "",
             "Signature": "ScriptBundle",
             "OriginalDefinition": "ScriptBundle",
             "TextSpan": {
@@ -482,9 +444,9 @@
               "EndLinePosition": 11
             },
             "Package": {
-              "PackageId": "System.Web.Optimization",
-              "Version": "1.1.0",
-              "PackageSourceType": "NUGET"
+              "PackageId": "",
+              "Version": "",
+              "PackageSourceType": "SDK"
             }
           },
           "CompatibilityResults": {
@@ -510,7 +472,7 @@
           "CodeEntityDetails": {
             "CodeEntityType": "Declaration",
             "Name": "ScriptBundle",
-            "Namespace": "System.Web.Optimization",
+            "Namespace": "",
             "Signature": "ScriptBundle",
             "OriginalDefinition": "ScriptBundle",
             "TextSpan": {
@@ -520,9 +482,9 @@
               "EndLinePosition": 14
             },
             "Package": {
-              "PackageId": "System.Web.Optimization",
-              "Version": "1.1.0",
-              "PackageSourceType": "NUGET"
+              "PackageId": "",
+              "Version": "",
+              "PackageSourceType": "SDK"
             }
           },
           "CompatibilityResults": {
@@ -548,7 +510,7 @@
           "CodeEntityDetails": {
             "CodeEntityType": "Declaration",
             "Name": "ScriptBundle",
-            "Namespace": "System.Web.Optimization",
+            "Namespace": "",
             "Signature": "ScriptBundle",
             "OriginalDefinition": "ScriptBundle",
             "TextSpan": {
@@ -558,9 +520,9 @@
               "EndLinePosition": 19
             },
             "Package": {
-              "PackageId": "System.Web.Optimization",
-              "Version": "1.1.0",
-              "PackageSourceType": "NUGET"
+              "PackageId": "",
+              "Version": "",
+              "PackageSourceType": "SDK"
             }
           },
           "CompatibilityResults": {
@@ -586,7 +548,7 @@
           "CodeEntityDetails": {
             "CodeEntityType": "Declaration",
             "Name": "ScriptBundle",
-            "Namespace": "System.Web.Optimization",
+            "Namespace": "",
             "Signature": "ScriptBundle",
             "OriginalDefinition": "ScriptBundle",
             "TextSpan": {
@@ -596,9 +558,9 @@
               "EndLinePosition": 22
             },
             "Package": {
-              "PackageId": "System.Web.Optimization",
-              "Version": "1.1.0",
-              "PackageSourceType": "NUGET"
+              "PackageId": "",
+              "Version": "",
+              "PackageSourceType": "SDK"
             }
           },
           "CompatibilityResults": {
@@ -624,7 +586,7 @@
           "CodeEntityDetails": {
             "CodeEntityType": "Declaration",
             "Name": "StyleBundle",
-            "Namespace": "System.Web.Optimization",
+            "Namespace": "",
             "Signature": "StyleBundle",
             "OriginalDefinition": "StyleBundle",
             "TextSpan": {
@@ -634,9 +596,9 @@
               "EndLinePosition": 25
             },
             "Package": {
-              "PackageId": "System.Web.Optimization",
-              "Version": "1.1.0",
-              "PackageSourceType": "NUGET"
+              "PackageId": "",
+              "Version": "",
+              "PackageSourceType": "SDK"
             }
           },
           "CompatibilityResults": {
@@ -663,7 +625,7 @@
     },
     {
       "SourceFileName": "FilterConfig.cs",
-      "SourceFilePath": "C:\\Users\\longachr\\AppData\\Local\\Temp\\kopw45tf.cvq\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\FilterConfig.cs",
+      "SourceFilePath": "C:\\Users\\longachr\\AppData\\Local\\Temp\\ppwfye40.odt\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\FilterConfig.cs",
       "ApiAnalysisResults": [
         {
           "CodeEntityDetails": {
@@ -745,7 +707,7 @@
           "CodeEntityDetails": {
             "CodeEntityType": "Declaration",
             "Name": "HandleErrorAttribute",
-            "Namespace": "System.Web.Mvc",
+            "Namespace": "",
             "Signature": "HandleErrorAttribute",
             "OriginalDefinition": "HandleErrorAttribute",
             "TextSpan": {
@@ -755,14 +717,14 @@
               "EndLinePosition": 10
             },
             "Package": {
-              "PackageId": "System.Web.Mvc",
-              "Version": "5.2.7",
-              "PackageSourceType": "NUGET"
+              "PackageId": "",
+              "Version": "",
+              "PackageSourceType": "SDK"
             }
           },
           "CompatibilityResults": {
             "netcoreapp3.1": {
-              "Compatibility": "INCOMPATIBLE",
+              "Compatibility": "UNKNOWN",
               "CompatibleVersions": []
             }
           },
@@ -800,7 +762,7 @@
             {
               "NewText": "using Microsoft.AspNetCore.Mvc;\r\n\r\nnamespace NetFrameworkExample\r\n{\r\n    public class FilterConfig\r\n    {\r\n        public static void RegisterGlobalFilters(GlobalFilterCollection filters)\r\n        {\r\n            filters.Add(new HandleErrorAttribute());\r\n        }\r\n    }\r\n}",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\longachr\\AppData\\Local\\Temp\\kopw45tf.cvq\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\FilterConfig.cs",
+                "Path": "C:\\Users\\longachr\\AppData\\Local\\Temp\\ppwfye40.odt\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\FilterConfig.cs",
                 "HasMappedPath": false,
                 "Span": {
                   "_start": {
@@ -826,7 +788,7 @@
             {
               "NewText": "\r\nnamespace NetFrameworkExample\r\n{\r\n    public class FilterConfig\r\n    {\r\n        public static void RegisterGlobalFilters(GlobalFilterCollection filters)\r\n        {\r\n            filters.Add(new HandleErrorAttribute());\r\n        }\r\n    }\r\n}",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\longachr\\AppData\\Local\\Temp\\kopw45tf.cvq\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\FilterConfig.cs",
+                "Path": "C:\\Users\\longachr\\AppData\\Local\\Temp\\ppwfye40.odt\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\FilterConfig.cs",
                 "HasMappedPath": false,
                 "Span": {
                   "_start": {
@@ -870,7 +832,7 @@
             {
               "NewText": "using Microsoft.AspNetCore.Mvc;\r\n\r\nnamespace NetFrameworkExample\r\n{\r\n    public class FilterConfig\r\n    {\r\n        public static void RegisterGlobalFilters(GlobalFilterCollection filters)\r\n        {\r\n            filters.Add(new HandleErrorAttribute());\r\n        }\r\n    }\r\n}",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\longachr\\AppData\\Local\\Temp\\kopw45tf.cvq\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\FilterConfig.cs",
+                "Path": "C:\\Users\\longachr\\AppData\\Local\\Temp\\ppwfye40.odt\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\FilterConfig.cs",
                 "HasMappedPath": false,
                 "Span": {
                   "_start": {
@@ -896,7 +858,7 @@
             {
               "NewText": "\r\nnamespace NetFrameworkExample\r\n{\r\n    public class FilterConfig\r\n    {\r\n        public static void RegisterGlobalFilters(GlobalFilterCollection filters)\r\n        {\r\n            filters.Add(new HandleErrorAttribute());\r\n        }\r\n    }\r\n}",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\longachr\\AppData\\Local\\Temp\\kopw45tf.cvq\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\FilterConfig.cs",
+                "Path": "C:\\Users\\longachr\\AppData\\Local\\Temp\\ppwfye40.odt\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\FilterConfig.cs",
                 "HasMappedPath": false,
                 "Span": {
                   "_start": {
@@ -925,7 +887,7 @@
     },
     {
       "SourceFileName": "RouteConfig.cs",
-      "SourceFilePath": "C:\\Users\\longachr\\AppData\\Local\\Temp\\kopw45tf.cvq\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\RouteConfig.cs",
+      "SourceFilePath": "C:\\Users\\longachr\\AppData\\Local\\Temp\\ppwfye40.odt\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\RouteConfig.cs",
       "ApiAnalysisResults": [
         {
           "CodeEntityDetails": {
@@ -1006,25 +968,25 @@
         {
           "CodeEntityDetails": {
             "CodeEntityType": "Declaration",
-            "Name": "Linq",
-            "Namespace": "System",
-            "Signature": "Linq",
-            "OriginalDefinition": "Linq",
+            "Name": "RouteCollection",
+            "Namespace": "System.Web.Routing",
+            "Signature": "RouteCollection",
+            "OriginalDefinition": "RouteCollection",
             "TextSpan": {
-              "StartCharPosition": 14,
-              "EndCharPosition": 18,
-              "StartLinePosition": 3,
-              "EndLinePosition": 3
+              "StartCharPosition": 43,
+              "EndCharPosition": 58,
+              "StartLinePosition": 12,
+              "EndLinePosition": 12
             },
             "Package": {
-              "PackageId": "System.Core",
+              "PackageId": "System.Web",
               "Version": "4.0.0",
               "PackageSourceType": "SDK"
             }
           },
           "CompatibilityResults": {
             "netcoreapp3.1": {
-              "Compatibility": "COMPATIBLE",
+              "Compatibility": "INCOMPATIBLE",
               "CompatibleVersions": []
             }
           },
@@ -1044,20 +1006,20 @@
         {
           "CodeEntityDetails": {
             "CodeEntityType": "Declaration",
-            "Name": "RouteCollection",
-            "Namespace": "System.Web.Routing",
-            "Signature": "RouteCollection",
-            "OriginalDefinition": "RouteCollection",
+            "Name": "UrlParameter",
+            "Namespace": "System.Web.Mvc",
+            "Signature": "UrlParameter",
+            "OriginalDefinition": "UrlParameter",
             "TextSpan": {
-              "StartCharPosition": 43,
-              "EndCharPosition": 58,
-              "StartLinePosition": 12,
-              "EndLinePosition": 12
+              "StartCharPosition": 77,
+              "EndCharPosition": 89,
+              "StartLinePosition": 19,
+              "EndLinePosition": 19
             },
             "Package": {
-              "PackageId": "System.Web",
-              "Version": "4.0.0",
-              "PackageSourceType": "SDK"
+              "PackageId": "System.Web.Mvc",
+              "Version": "5.2.7",
+              "PackageSourceType": "NUGET"
             }
           },
           "CompatibilityResults": {
@@ -1100,7 +1062,7 @@
             {
               "NewText": "using Microsoft.AspNetCore.Mvc;\r\n\r\nnamespace NetFrameworkExample\r\n{\r\n    public class RouteConfig\r\n    {\r\n        public static void RegisterRoutes(RouteCollection routes)\r\n        {\r\n            routes.IgnoreRoute(\"{resource}.axd/{*pathInfo}\");\r\n            routes.MapRoute(name: \"Default\", url: \"{controller}/{action}/{id}\", defaults: new\r\n            {\r\n            controller = \"Home\", action = \"Index\", id = UrlParameter.Optional\r\n            }\r\n\r\n            );\r\n        }\r\n    }\r\n}",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\longachr\\AppData\\Local\\Temp\\kopw45tf.cvq\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\RouteConfig.cs",
+                "Path": "C:\\Users\\longachr\\AppData\\Local\\Temp\\ppwfye40.odt\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\RouteConfig.cs",
                 "HasMappedPath": false,
                 "Span": {
                   "_start": {
@@ -1126,7 +1088,7 @@
             {
               "NewText": "Routing;\r\n\r\nnamespace NetFrameworkExample\r\n{\r\n    public class RouteConfig\r\n    {\r\n        public static void RegisterRoutes(RouteCollection routes)\r\n        {\r\n            routes.IgnoreRoute(\"{resource}.axd/{*pathInfo}\");\r\n            routes.MapRoute(name: \"Default\", url: \"{controller}/{action}/{id}\", defaults: new\r\n            {\r\n            controller = \"Home\", action = \"Index\", id = UrlParameter.Optional\r\n            }\r\n\r\n            );\r\n        }\r\n    }\r\n}",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\longachr\\AppData\\Local\\Temp\\kopw45tf.cvq\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\RouteConfig.cs",
+                "Path": "C:\\Users\\longachr\\AppData\\Local\\Temp\\ppwfye40.odt\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\RouteConfig.cs",
                 "HasMappedPath": false,
                 "Span": {
                   "_start": {
@@ -1170,7 +1132,7 @@
             {
               "NewText": "using Microsoft.AspNetCore.Mvc;\r\n\r\nnamespace NetFrameworkExample\r\n{\r\n    public class RouteConfig\r\n    {\r\n        public static void RegisterRoutes(RouteCollection routes)\r\n        {\r\n            routes.IgnoreRoute(\"{resource}.axd/{*pathInfo}\");\r\n            routes.MapRoute(name: \"Default\", url: \"{controller}/{action}/{id}\", defaults: new\r\n            {\r\n            controller = \"Home\", action = \"Index\", id = UrlParameter.Optional\r\n            }\r\n\r\n            );\r\n        }\r\n    }\r\n}",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\longachr\\AppData\\Local\\Temp\\kopw45tf.cvq\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\RouteConfig.cs",
+                "Path": "C:\\Users\\longachr\\AppData\\Local\\Temp\\ppwfye40.odt\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\RouteConfig.cs",
                 "HasMappedPath": false,
                 "Span": {
                   "_start": {
@@ -1196,7 +1158,7 @@
             {
               "NewText": "Routing;\r\n\r\nnamespace NetFrameworkExample\r\n{\r\n    public class RouteConfig\r\n    {\r\n        public static void RegisterRoutes(RouteCollection routes)\r\n        {\r\n            routes.IgnoreRoute(\"{resource}.axd/{*pathInfo}\");\r\n            routes.MapRoute(name: \"Default\", url: \"{controller}/{action}/{id}\", defaults: new\r\n            {\r\n            controller = \"Home\", action = \"Index\", id = UrlParameter.Optional\r\n            }\r\n\r\n            );\r\n        }\r\n    }\r\n}",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\longachr\\AppData\\Local\\Temp\\kopw45tf.cvq\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\RouteConfig.cs",
+                "Path": "C:\\Users\\longachr\\AppData\\Local\\Temp\\ppwfye40.odt\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\RouteConfig.cs",
                 "HasMappedPath": false,
                 "Span": {
                   "_start": {
@@ -1225,7 +1187,7 @@
     },
     {
       "SourceFileName": "HomeController.cs",
-      "SourceFilePath": "C:\\Users\\longachr\\AppData\\Local\\Temp\\kopw45tf.cvq\\NetFrameworkExample\\NetFrameworkExample\\Controllers\\HomeController.cs",
+      "SourceFilePath": "C:\\Users\\longachr\\AppData\\Local\\Temp\\ppwfye40.odt\\NetFrameworkExample\\NetFrameworkExample\\Controllers\\HomeController.cs",
       "ApiAnalysisResults": [
         {
           "CodeEntityDetails": {
@@ -1344,25 +1306,101 @@
         {
           "CodeEntityDetails": {
             "CodeEntityType": "Declaration",
-            "Name": "Linq",
-            "Namespace": "System",
-            "Signature": "Linq",
-            "OriginalDefinition": "Linq",
+            "Name": "NetFrameworkExample",
+            "Namespace": "",
+            "Signature": "NetFrameworkExample",
+            "OriginalDefinition": "NetFrameworkExample",
             "TextSpan": {
-              "StartCharPosition": 14,
-              "EndCharPosition": 18,
-              "StartLinePosition": 3,
-              "EndLinePosition": 3
+              "StartCharPosition": 11,
+              "EndCharPosition": 30,
+              "StartLinePosition": 7,
+              "EndLinePosition": 7
             },
             "Package": {
-              "PackageId": "System.Core",
-              "Version": "4.0.0",
+              "PackageId": "",
+              "Version": "",
               "PackageSourceType": "SDK"
             }
           },
           "CompatibilityResults": {
             "netcoreapp3.1": {
-              "Compatibility": "COMPATIBLE",
+              "Compatibility": "UNKNOWN",
+              "CompatibleVersions": []
+            }
+          },
+          "Recommendations": {
+            "RecommendedActions": [
+              {
+                "CodeEntityDetails": null,
+                "RecommendedActionType": "NoRecommendation",
+                "Description": null,
+                "TextSpan": null,
+                "TargetCPU": null,
+                "TextChanges": null
+              }
+            ]
+          }
+        },
+        {
+          "CodeEntityDetails": {
+            "CodeEntityType": "Declaration",
+            "Name": "Controllers",
+            "Namespace": "",
+            "Signature": "Controllers",
+            "OriginalDefinition": "Controllers",
+            "TextSpan": {
+              "StartCharPosition": 31,
+              "EndCharPosition": 42,
+              "StartLinePosition": 7,
+              "EndLinePosition": 7
+            },
+            "Package": {
+              "PackageId": "",
+              "Version": "",
+              "PackageSourceType": "SDK"
+            }
+          },
+          "CompatibilityResults": {
+            "netcoreapp3.1": {
+              "Compatibility": "UNKNOWN",
+              "CompatibleVersions": []
+            }
+          },
+          "Recommendations": {
+            "RecommendedActions": [
+              {
+                "CodeEntityDetails": null,
+                "RecommendedActionType": "NoRecommendation",
+                "Description": null,
+                "TextSpan": null,
+                "TargetCPU": null,
+                "TextChanges": null
+              }
+            ]
+          }
+        },
+        {
+          "CodeEntityDetails": {
+            "CodeEntityType": "Declaration",
+            "Name": "Controller",
+            "Namespace": "System.Web.Mvc",
+            "Signature": "Controller",
+            "OriginalDefinition": "Controller",
+            "TextSpan": {
+              "StartCharPosition": 35,
+              "EndCharPosition": 45,
+              "StartLinePosition": 9,
+              "EndLinePosition": 9
+            },
+            "Package": {
+              "PackageId": "System.Web.Mvc",
+              "Version": "5.2.7",
+              "PackageSourceType": "NUGET"
+            }
+          },
+          "CompatibilityResults": {
+            "netcoreapp3.1": {
+              "Compatibility": "INCOMPATIBLE",
               "CompatibleVersions": []
             }
           },
@@ -1514,7 +1552,7 @@
             {
               "NewText": "using Microsoft.AspNetCore.Mvc;\r\n\r\nnamespace NetFrameworkExample.Controllers\r\n{\r\n    public class HomeController : Controller\r\n    {\r\n        public ActionResult Index()\r\n        {\r\n            return View();\r\n        }\r\n\r\n        public ActionResult About()\r\n        {\r\n            ViewBag.Message = \"Your application description page.\";\r\n            return View();\r\n        }\r\n\r\n        public ActionResult Contact()\r\n        {\r\n            ViewBag.Message = \"Your contact page.\";",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\longachr\\AppData\\Local\\Temp\\kopw45tf.cvq\\NetFrameworkExample\\NetFrameworkExample\\Controllers\\HomeController.cs",
+                "Path": "C:\\Users\\longachr\\AppData\\Local\\Temp\\ppwfye40.odt\\NetFrameworkExample\\NetFrameworkExample\\Controllers\\HomeController.cs",
                 "HasMappedPath": false,
                 "Span": {
                   "_start": {
@@ -1540,7 +1578,7 @@
             {
               "NewText": "\r\nnamespace NetFrameworkExample.Controllers\r\n{\r\n    public class HomeController : Controller\r\n    {\r\n        public ActionResult Index()\r\n        {\r\n            return View();\r\n        }\r\n\r\n        public ActionResult About()\r\n        {\r\n            ViewBag.Message = \"Your application description page.\";\r\n            return View();\r\n        }\r\n\r\n        public ActionResult Contact()\r\n        {\r\n            ViewBag.Message = \"Your contact page.\";",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\longachr\\AppData\\Local\\Temp\\kopw45tf.cvq\\NetFrameworkExample\\NetFrameworkExample\\Controllers\\HomeController.cs",
+                "Path": "C:\\Users\\longachr\\AppData\\Local\\Temp\\ppwfye40.odt\\NetFrameworkExample\\NetFrameworkExample\\Controllers\\HomeController.cs",
                 "HasMappedPath": false,
                 "Span": {
                   "_start": {
@@ -1584,7 +1622,7 @@
             {
               "NewText": "using Microsoft.AspNetCore.Mvc;\r\n\r\nnamespace NetFrameworkExample.Controllers\r\n{\r\n    public class HomeController : Controller\r\n    {\r\n        public ActionResult Index()\r\n        {\r\n            return View();\r\n        }\r\n\r\n        public ActionResult About()\r\n        {\r\n            ViewBag.Message = \"Your application description page.\";\r\n            return View();\r\n        }\r\n\r\n        public ActionResult Contact()\r\n        {\r\n            ViewBag.Message = \"Your contact page.\";",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\longachr\\AppData\\Local\\Temp\\kopw45tf.cvq\\NetFrameworkExample\\NetFrameworkExample\\Controllers\\HomeController.cs",
+                "Path": "C:\\Users\\longachr\\AppData\\Local\\Temp\\ppwfye40.odt\\NetFrameworkExample\\NetFrameworkExample\\Controllers\\HomeController.cs",
                 "HasMappedPath": false,
                 "Span": {
                   "_start": {
@@ -1610,7 +1648,7 @@
             {
               "NewText": "\r\nnamespace NetFrameworkExample.Controllers\r\n{\r\n    public class HomeController : Controller\r\n    {\r\n        public ActionResult Index()\r\n        {\r\n            return View();\r\n        }\r\n\r\n        public ActionResult About()\r\n        {\r\n            ViewBag.Message = \"Your application description page.\";\r\n            return View();\r\n        }\r\n\r\n        public ActionResult Contact()\r\n        {\r\n            ViewBag.Message = \"Your contact page.\";",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\longachr\\AppData\\Local\\Temp\\kopw45tf.cvq\\NetFrameworkExample\\NetFrameworkExample\\Controllers\\HomeController.cs",
+                "Path": "C:\\Users\\longachr\\AppData\\Local\\Temp\\ppwfye40.odt\\NetFrameworkExample\\NetFrameworkExample\\Controllers\\HomeController.cs",
                 "HasMappedPath": false,
                 "Span": {
                   "_start": {
@@ -1639,7 +1677,7 @@
     },
     {
       "SourceFileName": "Global.asax.cs",
-      "SourceFilePath": "C:\\Users\\longachr\\AppData\\Local\\Temp\\kopw45tf.cvq\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
+      "SourceFilePath": "C:\\Users\\longachr\\AppData\\Local\\Temp\\ppwfye40.odt\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
       "ApiAnalysisResults": [
         {
           "CodeEntityDetails": {
@@ -1682,25 +1720,25 @@
         {
           "CodeEntityDetails": {
             "CodeEntityType": "Declaration",
-            "Name": "Linq",
-            "Namespace": "System",
-            "Signature": "Linq",
-            "OriginalDefinition": "Linq",
+            "Name": "System",
+            "Namespace": "",
+            "Signature": "System",
+            "OriginalDefinition": "System",
             "TextSpan": {
-              "StartCharPosition": 14,
-              "EndCharPosition": 18,
-              "StartLinePosition": 3,
-              "EndLinePosition": 3
+              "StartCharPosition": 35,
+              "EndCharPosition": 41,
+              "StartLinePosition": 11,
+              "EndLinePosition": 11
             },
             "Package": {
-              "PackageId": "System.Core",
-              "Version": "4.0.0",
+              "PackageId": "",
+              "Version": "",
               "PackageSourceType": "SDK"
             }
           },
           "CompatibilityResults": {
             "netcoreapp3.1": {
-              "Compatibility": "COMPATIBLE",
+              "Compatibility": "UNKNOWN",
               "CompatibleVersions": []
             }
           },
@@ -1720,25 +1758,25 @@
         {
           "CodeEntityDetails": {
             "CodeEntityType": "Declaration",
-            "Name": "Optimization",
-            "Namespace": "System.Web",
-            "Signature": "Optimization",
-            "OriginalDefinition": "Optimization",
+            "Name": "Web",
+            "Namespace": "",
+            "Signature": "Web",
+            "OriginalDefinition": "Web",
             "TextSpan": {
-              "StartCharPosition": 18,
-              "EndCharPosition": 30,
-              "StartLinePosition": 6,
-              "EndLinePosition": 6
+              "StartCharPosition": 42,
+              "EndCharPosition": 45,
+              "StartLinePosition": 11,
+              "EndLinePosition": 11
             },
             "Package": {
-              "PackageId": "System.Web.Optimization",
-              "Version": "1.1.0",
-              "PackageSourceType": "NUGET"
+              "PackageId": "",
+              "Version": "",
+              "PackageSourceType": "SDK"
             }
           },
           "CompatibilityResults": {
             "netcoreapp3.1": {
-              "Compatibility": "COMPATIBLE",
+              "Compatibility": "UNKNOWN",
               "CompatibleVersions": []
             }
           },
@@ -1792,6 +1830,158 @@
               }
             ]
           }
+        },
+        {
+          "CodeEntityDetails": {
+            "CodeEntityType": "Declaration",
+            "Name": "AreaRegistration",
+            "Namespace": "System.Web.Mvc",
+            "Signature": "AreaRegistration",
+            "OriginalDefinition": "AreaRegistration",
+            "TextSpan": {
+              "StartCharPosition": 13,
+              "EndCharPosition": 29,
+              "StartLinePosition": 15,
+              "EndLinePosition": 15
+            },
+            "Package": {
+              "PackageId": "System.Web.Mvc",
+              "Version": "5.2.7",
+              "PackageSourceType": "NUGET"
+            }
+          },
+          "CompatibilityResults": {
+            "netcoreapp3.1": {
+              "Compatibility": "INCOMPATIBLE",
+              "CompatibleVersions": []
+            }
+          },
+          "Recommendations": {
+            "RecommendedActions": [
+              {
+                "CodeEntityDetails": null,
+                "RecommendedActionType": "NoRecommendation",
+                "Description": null,
+                "TextSpan": null,
+                "TargetCPU": null,
+                "TextChanges": null
+              }
+            ]
+          }
+        },
+        {
+          "CodeEntityDetails": {
+            "CodeEntityType": "Declaration",
+            "Name": "GlobalFilters",
+            "Namespace": "System.Web.Mvc",
+            "Signature": "GlobalFilters",
+            "OriginalDefinition": "GlobalFilters",
+            "TextSpan": {
+              "StartCharPosition": 48,
+              "EndCharPosition": 61,
+              "StartLinePosition": 16,
+              "EndLinePosition": 16
+            },
+            "Package": {
+              "PackageId": "System.Web.Mvc",
+              "Version": "5.2.7",
+              "PackageSourceType": "NUGET"
+            }
+          },
+          "CompatibilityResults": {
+            "netcoreapp3.1": {
+              "Compatibility": "INCOMPATIBLE",
+              "CompatibleVersions": []
+            }
+          },
+          "Recommendations": {
+            "RecommendedActions": [
+              {
+                "CodeEntityDetails": null,
+                "RecommendedActionType": "NoRecommendation",
+                "Description": null,
+                "TextSpan": null,
+                "TargetCPU": null,
+                "TextChanges": null
+              }
+            ]
+          }
+        },
+        {
+          "CodeEntityDetails": {
+            "CodeEntityType": "Declaration",
+            "Name": "RouteTable",
+            "Namespace": "System.Web.Routing",
+            "Signature": "RouteTable",
+            "OriginalDefinition": "RouteTable",
+            "TextSpan": {
+              "StartCharPosition": 40,
+              "EndCharPosition": 50,
+              "StartLinePosition": 17,
+              "EndLinePosition": 17
+            },
+            "Package": {
+              "PackageId": "System.Web",
+              "Version": "4.0.0",
+              "PackageSourceType": "SDK"
+            }
+          },
+          "CompatibilityResults": {
+            "netcoreapp3.1": {
+              "Compatibility": "INCOMPATIBLE",
+              "CompatibleVersions": []
+            }
+          },
+          "Recommendations": {
+            "RecommendedActions": [
+              {
+                "CodeEntityDetails": null,
+                "RecommendedActionType": "NoRecommendation",
+                "Description": null,
+                "TextSpan": null,
+                "TargetCPU": null,
+                "TextChanges": null
+              }
+            ]
+          }
+        },
+        {
+          "CodeEntityDetails": {
+            "CodeEntityType": "Declaration",
+            "Name": "BundleTable",
+            "Namespace": "System.Web.Optimization",
+            "Signature": "BundleTable",
+            "OriginalDefinition": "BundleTable",
+            "TextSpan": {
+              "StartCharPosition": 42,
+              "EndCharPosition": 53,
+              "StartLinePosition": 18,
+              "EndLinePosition": 18
+            },
+            "Package": {
+              "PackageId": "System.Web.Optimization",
+              "Version": "1.1.0",
+              "PackageSourceType": "NUGET"
+            }
+          },
+          "CompatibilityResults": {
+            "netcoreapp3.1": {
+              "Compatibility": "UNKNOWN",
+              "CompatibleVersions": []
+            }
+          },
+          "Recommendations": {
+            "RecommendedActions": [
+              {
+                "CodeEntityDetails": null,
+                "RecommendedActionType": "NoRecommendation",
+                "Description": null,
+                "TextSpan": null,
+                "TargetCPU": null,
+                "TextChanges": null
+              }
+            ]
+          }
         }
       ],
       "RecommendedActions": [
@@ -1814,7 +2004,7 @@
             {
               "NewText": "using Microsoft.AspNetCore.Mvc;\r\n\r\nnamespace NetFrameworkExample\r\n{\r\n    public class MvcApplication : System.Web.HttpApplication\r\n    {\r\n        protected void Application_Start()\r\n        {\r\n            AreaRegistration.RegisterAllAreas();\r\n            FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);\r\n            RouteConfig.RegisterRoutes(RouteTable.Routes);\r\n            BundleConfig.RegisterBundles(BundleTable.Bundles);\r\n        }\r\n    }\r\n}",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\longachr\\AppData\\Local\\Temp\\kopw45tf.cvq\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
+                "Path": "C:\\Users\\longachr\\AppData\\Local\\Temp\\ppwfye40.odt\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
                 "HasMappedPath": false,
                 "Span": {
                   "_start": {
@@ -1840,7 +2030,7 @@
             {
               "NewText": "Optimization;\r\nusing System.Web.Routing;\r\n\r\nnamespace NetFrameworkExample\r\n{\r\n    public class MvcApplication : System.Web.HttpApplication\r\n    {\r\n        protected void Application_Start()\r\n        {\r\n            AreaRegistration.RegisterAllAreas();\r\n            FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);\r\n            RouteConfig.RegisterRoutes(RouteTable.Routes);\r\n            BundleConfig.RegisterBundles(BundleTable.Bundles);\r\n        }\r\n    }\r\n}",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\longachr\\AppData\\Local\\Temp\\kopw45tf.cvq\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
+                "Path": "C:\\Users\\longachr\\AppData\\Local\\Temp\\ppwfye40.odt\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
                 "HasMappedPath": false,
                 "Span": {
                   "_start": {
@@ -1884,7 +2074,7 @@
             {
               "NewText": "using Microsoft.AspNetCore.Mvc;\r\n\r\nnamespace NetFrameworkExample\r\n{\r\n    public class MvcApplication : System.Web.HttpApplication\r\n    {\r\n        protected void Application_Start()\r\n        {\r\n            AreaRegistration.RegisterAllAreas();\r\n            FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);\r\n            RouteConfig.RegisterRoutes(RouteTable.Routes);\r\n            BundleConfig.RegisterBundles(BundleTable.Bundles);\r\n        }\r\n    }\r\n}",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\longachr\\AppData\\Local\\Temp\\kopw45tf.cvq\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
+                "Path": "C:\\Users\\longachr\\AppData\\Local\\Temp\\ppwfye40.odt\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
                 "HasMappedPath": false,
                 "Span": {
                   "_start": {
@@ -1910,7 +2100,7 @@
             {
               "NewText": "Optimization;\r\nusing System.Web.Routing;\r\n\r\nnamespace NetFrameworkExample\r\n{\r\n    public class MvcApplication : System.Web.HttpApplication\r\n    {\r\n        protected void Application_Start()\r\n        {\r\n            AreaRegistration.RegisterAllAreas();\r\n            FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);\r\n            RouteConfig.RegisterRoutes(RouteTable.Routes);\r\n            BundleConfig.RegisterBundles(BundleTable.Bundles);\r\n        }\r\n    }\r\n}",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\longachr\\AppData\\Local\\Temp\\kopw45tf.cvq\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
+                "Path": "C:\\Users\\longachr\\AppData\\Local\\Temp\\ppwfye40.odt\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
                 "HasMappedPath": false,
                 "Span": {
                   "_start": {
@@ -1934,18 +2124,288 @@
               }
             }
           ]
+        },
+        {
+          "RecommendedActionType": "ReplaceNamespace",
+          "Description": "Remove IHttpHandler in namespace System.Web and replace HttpContext in namespace Microsoft.AspNetCore.Http.",
+          "TextSpan": {
+            "StartCharPosition": 5,
+            "EndCharPosition": 6,
+            "StartLinePosition": 11,
+            "EndLinePosition": 20
+          },
+          "TargetCPU": [
+            "x86",
+            "x64",
+            "ARM32",
+            "ARM64"
+          ],
+          "TextChanges": [
+            {
+              "NewText": ".Mvc;\r\nusing System.Web.Optimization;\r\nusing System.Web.Routing;\r\n\r\nnamespace NetFrameworkExample\r\n{\r\n    public class MvcApplication : System.Web.HttpApplication\r\n    {\r\n        protected void Application_Start()\r\n        {\r\n            AreaRegistration.RegisterAllAreas();\r\n            FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);\r\n            RouteConfig.RegisterRoutes(RouteTable.Routes);\r\n            BundleConfig.RegisterBundles(BundleTable.Bundles);\r\n        }\r\n    }\r\n}",
+              "FileLinePositionSpan": {
+                "Path": "C:\\Users\\longachr\\AppData\\Local\\Temp\\ppwfye40.odt\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
+                "HasMappedPath": false,
+                "Span": {
+                  "_start": {
+                    "_line": 3,
+                    "_character": 16
+                  },
+                  "_end": {
+                    "_line": 21,
+                    "_character": 0
+                  }
+                },
+                "StartLinePosition": {
+                  "_line": 3,
+                  "_character": 16
+                },
+                "EndLinePosition": {
+                  "_line": 21,
+                  "_character": 0
+                },
+                "IsValid": true
+              }
+            },
+            {
+              "NewText": "using Microsoft.AspNetCore.Http;\r\n\r\nnamespace NetFrameworkExample\r\n{\r\n    public class MvcApplication : System.Web.HttpApplication\r\n    {\r\n        protected void Application_Start()\r\n        {\r\n            AreaRegistration.RegisterAllAreas();\r\n            FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);\r\n            RouteConfig.RegisterRoutes(RouteTable.Routes);\r\n            BundleConfig.RegisterBundles(BundleTable.Bundles);\r\n        }\r\n    }\r\n}",
+              "FileLinePositionSpan": {
+                "Path": "C:\\Users\\longachr\\AppData\\Local\\Temp\\ppwfye40.odt\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
+                "HasMappedPath": false,
+                "Span": {
+                  "_start": {
+                    "_line": 7,
+                    "_character": 0
+                  },
+                  "_end": {
+                    "_line": 21,
+                    "_character": 0
+                  }
+                },
+                "StartLinePosition": {
+                  "_line": 7,
+                  "_character": 0
+                },
+                "EndLinePosition": {
+                  "_line": 21,
+                  "_character": 0
+                },
+                "IsValid": true
+              }
+            },
+            {
+              "NewText": "using System.Threading.Tasks;\r\n\r\nnamespace NetFrameworkExample\r\n{\r\n    public class MvcApplication : System.Web.HttpApplication\r\n    {\r\n        protected void Application_Start()\r\n        {\r\n            AreaRegistration.RegisterAllAreas();\r\n            FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);\r\n            RouteConfig.RegisterRoutes(RouteTable.Routes);\r\n            BundleConfig.RegisterBundles(BundleTable.Bundles);\r\n        }\r\n    }\r\n}",
+              "FileLinePositionSpan": {
+                "Path": "C:\\Users\\longachr\\AppData\\Local\\Temp\\ppwfye40.odt\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
+                "HasMappedPath": false,
+                "Span": {
+                  "_start": {
+                    "_line": 7,
+                    "_character": 0
+                  },
+                  "_end": {
+                    "_line": 21,
+                    "_character": 0
+                  }
+                },
+                "StartLinePosition": {
+                  "_line": 7,
+                  "_character": 0
+                },
+                "EndLinePosition": {
+                  "_line": 21,
+                  "_character": 0
+                },
+                "IsValid": true
+              }
+            },
+            {
+              "NewText": "",
+              "FileLinePositionSpan": {
+                "Path": "C:\\Users\\longachr\\AppData\\Local\\Temp\\ppwfye40.odt\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
+                "HasMappedPath": false,
+                "Span": {
+                  "_start": {
+                    "_line": 10,
+                    "_character": 32
+                  },
+                  "_end": {
+                    "_line": 11,
+                    "_character": 0
+                  }
+                },
+                "StartLinePosition": {
+                  "_line": 10,
+                  "_character": 32
+                },
+                "EndLinePosition": {
+                  "_line": 11,
+                  "_character": 0
+                },
+                "IsValid": true
+              }
+            },
+            {
+              "NewText": "public class MvcApplication : System.Web.HttpApplication\r\n{\r\n    RequestDelegate _next = null;\r\n    protected void Application_Start()\r\n    {\r\n        AreaRegistration.RegisterAllAreas();\r\n        FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);\r\n        RouteConfig.RegisterRoutes(RouteTable.Routes);\r\n        BundleConfig.RegisterBundles(BundleTable.Bundles);\r\n    }\r\n}",
+              "FileLinePositionSpan": {
+                "Path": "C:\\Users\\longachr\\AppData\\Local\\Temp\\ppwfye40.odt\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
+                "HasMappedPath": false,
+                "Span": {
+                  "_start": {
+                    "_line": 10,
+                    "_character": 0
+                  },
+                  "_end": {
+                    "_line": 20,
+                    "_character": 0
+                  }
+                },
+                "StartLinePosition": {
+                  "_line": 10,
+                  "_character": 0
+                },
+                "EndLinePosition": {
+                  "_line": 20,
+                  "_character": 0
+                },
+                "IsValid": true
+              }
+            },
+            {
+              "NewText": "public class MvcApplication : System.Web.HttpApplication\r\n{\r\n    protected void Application_Start()\r\n    {\r\n        AreaRegistration.RegisterAllAreas();\r\n        FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);\r\n        RouteConfig.RegisterRoutes(RouteTable.Routes);\r\n        BundleConfig.RegisterBundles(BundleTable.Bundles);\r\n    }\r\n\r\n    public MvcApplication(RequestDelegate next)\r\n    {\r\n    }\r\n}",
+              "FileLinePositionSpan": {
+                "Path": "C:\\Users\\longachr\\AppData\\Local\\Temp\\ppwfye40.odt\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
+                "HasMappedPath": false,
+                "Span": {
+                  "_start": {
+                    "_line": 10,
+                    "_character": 0
+                  },
+                  "_end": {
+                    "_line": 20,
+                    "_character": 0
+                  }
+                },
+                "StartLinePosition": {
+                  "_line": 10,
+                  "_character": 0
+                },
+                "EndLinePosition": {
+                  "_line": 20,
+                  "_character": 0
+                },
+                "IsValid": true
+              }
+            }
+          ]
+        },
+        {
+          "RecommendedActionType": "ReplaceNamespace",
+          "Description": "Remove IHttpHandler in namespace System.Web and replace HttpContext in namespace Microsoft.AspNetCore.Http.",
+          "TextSpan": {
+            "StartCharPosition": 5,
+            "EndCharPosition": 6,
+            "StartLinePosition": 11,
+            "EndLinePosition": 20
+          },
+          "TargetCPU": [
+            "x86",
+            "x64",
+            "ARM32",
+            "ARM64"
+          ],
+          "TextChanges": [
+            {
+              "NewText": ".Mvc;\r\nusing System.Web.Optimization;\r\nusing System.Web.Routing;\r\n\r\nnamespace NetFrameworkExample\r\n{\r\n    public class MvcApplication : System.Web.HttpApplication\r\n    {\r\n        protected void Application_Start()\r\n        {\r\n            AreaRegistration.RegisterAllAreas();\r\n            FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);\r\n            RouteConfig.RegisterRoutes(RouteTable.Routes);\r\n            BundleConfig.RegisterBundles(BundleTable.Bundles);\r\n        }\r\n    }\r\n}",
+              "FileLinePositionSpan": {
+                "Path": "C:\\Users\\longachr\\AppData\\Local\\Temp\\ppwfye40.odt\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
+                "HasMappedPath": false,
+                "Span": {
+                  "_start": {
+                    "_line": 3,
+                    "_character": 16
+                  },
+                  "_end": {
+                    "_line": 21,
+                    "_character": 0
+                  }
+                },
+                "StartLinePosition": {
+                  "_line": 3,
+                  "_character": 16
+                },
+                "EndLinePosition": {
+                  "_line": 21,
+                  "_character": 0
+                },
+                "IsValid": true
+              }
+            },
+            {
+              "NewText": "using Microsoft.AspNetCore.Http;\r\n\r\nnamespace NetFrameworkExample\r\n{\r\n    public class MvcApplication : System.Web.HttpApplication\r\n    {\r\n        protected void Application_Start()\r\n        {\r\n            AreaRegistration.RegisterAllAreas();\r\n            FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);\r\n            RouteConfig.RegisterRoutes(RouteTable.Routes);\r\n            BundleConfig.RegisterBundles(BundleTable.Bundles);\r\n        }\r\n    }\r\n}",
+              "FileLinePositionSpan": {
+                "Path": "C:\\Users\\longachr\\AppData\\Local\\Temp\\ppwfye40.odt\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
+                "HasMappedPath": false,
+                "Span": {
+                  "_start": {
+                    "_line": 7,
+                    "_character": 0
+                  },
+                  "_end": {
+                    "_line": 21,
+                    "_character": 0
+                  }
+                },
+                "StartLinePosition": {
+                  "_line": 7,
+                  "_character": 0
+                },
+                "EndLinePosition": {
+                  "_line": 21,
+                  "_character": 0
+                },
+                "IsValid": true
+              }
+            },
+            {
+              "NewText": "using System.Threading.Tasks;\r\n\r\nnamespace NetFrameworkExample\r\n{\r\n    public class MvcApplication : System.Web.HttpApplication\r\n    {\r\n        protected void Application_Start()\r\n        {\r\n            AreaRegistration.RegisterAllAreas();\r\n            FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);\r\n            RouteConfig.RegisterRoutes(RouteTable.Routes);\r\n            BundleConfig.RegisterBundles(BundleTable.Bundles);\r\n        }\r\n    }\r\n}",
+              "FileLinePositionSpan": {
+                "Path": "C:\\Users\\longachr\\AppData\\Local\\Temp\\ppwfye40.odt\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
+                "HasMappedPath": false,
+                "Span": {
+                  "_start": {
+                    "_line": 7,
+                    "_character": 0
+                  },
+                  "_end": {
+                    "_line": 21,
+                    "_character": 0
+                  }
+                },
+                "StartLinePosition": {
+                  "_line": 7,
+                  "_character": 0
+                },
+                "EndLinePosition": {
+                  "_line": 21,
+                  "_character": 0
+                },
+                "IsValid": true
+              }
+            }
+          ]
         }
       ]
     },
     {
       "SourceFileName": "AssemblyInfo.cs",
-      "SourceFilePath": "C:\\Users\\longachr\\AppData\\Local\\Temp\\kopw45tf.cvq\\NetFrameworkExample\\NetFrameworkExample\\Properties\\AssemblyInfo.cs",
+      "SourceFilePath": "C:\\Users\\longachr\\AppData\\Local\\Temp\\ppwfye40.odt\\NetFrameworkExample\\NetFrameworkExample\\Properties\\AssemblyInfo.cs",
       "ApiAnalysisResults": [],
       "RecommendedActions": []
     },
     {
       "SourceFileName": ".NETFramework,Version=v4.8.AssemblyAttributes.cs",
-      "SourceFilePath": "C:\\Users\\longachr\\AppData\\Local\\Temp\\kopw45tf.cvq\\NetFrameworkExample\\NetFrameworkExample\\obj\\Debug\\.NETFramework,Version=v4.8.AssemblyAttributes.cs",
+      "SourceFilePath": "C:\\Users\\longachr\\AppData\\Local\\Temp\\ppwfye40.odt\\NetFrameworkExample\\NetFrameworkExample\\obj\\Debug\\.NETFramework,Version=v4.8.AssemblyAttributes.cs",
       "ApiAnalysisResults": [],
       "RecommendedActions": []
     }
