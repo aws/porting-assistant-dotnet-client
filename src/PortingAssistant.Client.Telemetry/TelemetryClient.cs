@@ -40,7 +40,7 @@ namespace PortingAssistant.Client.Telemetry
         }
     }
 
-    public class TelemetryClientFactory
+    public static class TelemetryClientFactory
     {
         public static bool TryGetClient(string profile, TelemetryConfiguration config, out ITelemetryClient client, bool enabledDefaultCredentials = false)
         {

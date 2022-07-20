@@ -39,7 +39,7 @@ namespace PortingAssistant.Client.UnitTests
             bool actualSuccessStatus = false;
             if (TelemetryClientFactory.TryGetClient(profile, teleConfig, out ITelemetryClient client))
             {
-                actualSuccessStatus = Uploader.Upload(teleConfig, profile, client);
+                actualSuccessStatus = new Uploader(teleConfig, client).Upload(true, "portingAssistant-client-cli");
             }
             Assert.IsTrue(actualSuccessStatus);
         }
@@ -64,7 +64,7 @@ namespace PortingAssistant.Client.UnitTests
             bool actualSuccessStatus = false;
             if (TelemetryClientFactory.TryGetClient(profile, teleConfig, out ITelemetryClient client, true))
             {
-                actualSuccessStatus = Uploader.Upload(teleConfig, profile, client);
+                actualSuccessStatus = new Uploader(teleConfig, client).Upload(true, "portingAssistant-client-cli");
             }
             Assert.IsTrue(actualSuccessStatus);
         }
@@ -85,7 +85,6 @@ namespace PortingAssistant.Client.UnitTests
                 })
                 .Verifiable();
 
-            var profile = "default";
             var roamingFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             var logs = Path.Combine(roamingFolder, "Porting Assistant for .NET", "logs");
             var logFilePath = Path.Combine(logs, "portingAssistant-client-cli-test-2.log");
@@ -111,7 +110,7 @@ namespace PortingAssistant.Client.UnitTests
                 Suffix = new List<string> { ".log", ".metrics" }
             };
             var lastReadTokenFile = Path.Combine(teleConfig.LogsPath, "lastToken.json");
-            bool result = Uploader.Upload(teleConfig, profile, telemetryClientMock.Object);
+            bool result = new Uploader(teleConfig, telemetryClientMock.Object).Upload(true, "portingAssistant-client-cli");
             Assert.IsTrue(result);
             var fileLineNumberMap = JsonConvert.DeserializeObject<Dictionary<string, int>>(File.ReadAllText(lastReadTokenFile));
             Assert.AreEqual(fileLineNumberMap[logFilePath], 3);

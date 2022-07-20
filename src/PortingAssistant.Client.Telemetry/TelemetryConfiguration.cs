@@ -14,5 +14,6 @@ namespace PortingAssistantExtensionTelemetry.Model
         public List<string> Suffix { get; set; }
         public string LogFilePath { get; set; }
         public string MetricsFilePath { get; set; }
+        public int KeepLogsForDays { get; set; }
     }
 }

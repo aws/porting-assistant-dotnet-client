@@ -154,7 +154,7 @@ namespace PortingAssistant.Client.CLI
 
                 if (TelemetryClientFactory.TryGetClient(profile, telemetryConfiguration, out ITelemetryClient client, enabledDefaultCredentials))
                 {
-                    isSuccess = Uploader.Upload(telemetryConfiguration, profile, client);
+                    isSuccess = new Uploader(telemetryConfiguration, client).Upload(!string.IsNullOrEmpty(profile), "portingAssistant-client-cli");
                 }
                 else
                 {

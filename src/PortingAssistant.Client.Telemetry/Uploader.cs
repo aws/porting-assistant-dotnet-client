@@ -12,104 +12,74 @@ using System.Linq;
 using System.Net.Http;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
-using Amazon;
 
 namespace PortingAssistant.Client.Telemetry
 {
     public class Uploader
     {
-        public static bool Upload(TelemetryConfiguration teleConfig, string profile, ITelemetryClient teleClient)
+        private readonly TelemetryConfiguration _configuration;
+        private readonly ITelemetryClient _client;
+        private Dictionary<string, int> _fileLineNumberMap = new Dictionary<string, int>();
+        private Dictionary<string, int> _updatedFileLineNumberMap = new Dictionary<string, int>();
+        private string _lastReadTokenFile;
+
+        public Uploader(TelemetryConfiguration telemetryConfig, ITelemetryClient telemetryClient)
+        {
+            _configuration = telemetryConfig;
+            _client = telemetryClient;
+            ReadFileLineMap();
+            GetLogName = GetLogNameDefault;
+        }
+
+        public Func<string, string> GetLogName { get; set; }
+
+        private static string GetLogNameDefault(string file)
+        {
+            var logName = Path.GetFileNameWithoutExtension(file);
+            var fileExtension = Path.GetExtension(file);
+            if (fileExtension == ".log")
+            {
+                logName = $"{logName}-logs";
+            }
+            else if (fileExtension == ".metrics")
+            {
+                logName = $"{logName}-metrics";
+            }
+            return logName;
+        }
+
+        public bool Upload(bool shareMetrics = true, string logPrefix = "")
         {
             try
             {
-                var fileEntries = Directory.GetFiles(teleConfig.LogsPath)
+                var fileEntries = Directory.GetFiles(_configuration.LogsPath)
                     .Where(f =>
                         Path.GetFileName(f)
-                            .StartsWith("portingAssistant-client-cli") &&
-                        teleConfig.Suffix.ToArray().Any(x => f.EndsWith(x))
+                            .StartsWith(logPrefix) &&
+                        _configuration.Suffix.ToArray().Any(f.EndsWith)
                     ).ToList();
 
-                var lastReadTokenFile = Path.Combine(teleConfig.LogsPath, "lastToken.json");
-                var fileLineNumberMap = new Dictionary<string, int>();
-                if (File.Exists(lastReadTokenFile))
-                {
-                    fileLineNumberMap = JsonConvert.DeserializeObject<Dictionary<string, int>>(File.ReadAllText(lastReadTokenFile));
-                }
                 foreach (var file in fileEntries)
                 {
-                    var logName = Path.GetFileNameWithoutExtension(file);
-                    var fileExtension = Path.GetExtension(file);
-                    if (fileExtension == ".log")
+                    var logName = GetLogName(file);
+                    bool uploaded = true;
+                    if (shareMetrics)
                     {
-                        logName = $"{logName}-logs";
+                        uploaded = UploadFile(file, logName);
                     }
-                    else if (fileExtension == ".metrics")
+                    if (uploaded)
                     {
-                        logName = $"{logName}-metrics";
+                        // either uploaded is true because we don't share metrics
+                        // or upload is successful, either way remove old files.
+                        RemoveFileIfOld(file);
                     }
+                }
 
-                    // Add new files to fileLineNumberMap
-                    if (!fileLineNumberMap.ContainsKey(file))
-                    {
-                        fileLineNumberMap[file] = 0;
-                    }
-                    var initLineNumber = fileLineNumberMap[file];
-
-                    FileInfo fileInfo = new FileInfo(file);
-                    var success = false;
-                    using (FileStream fs = fileInfo.Open(FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                    {
-                        using (StreamReader reader = new StreamReader(fs))
-                        {
-                            // If put-log api works keep sending logs else wait and do it next time
-                            var logs = new ArrayList();
-
-                            int currLineNumber = 0;
-                            for (; currLineNumber < initLineNumber; currLineNumber++)
-                            {
-                                string line = reader.ReadLine();
-                                if (line == null)
-                                {
-                                    return true;
-                                }
-                            }
-
-                            while (!reader.EndOfStream)
-                            {
-                                currLineNumber++;
-                                logs.Add(reader.ReadLine());
-
-                                // send 1000 lines of logs each time when there are large files
-                                if (logs.Count >= 1000)
-                                {
-                                    // logs.TrimToSize();
-                                    success = PutLogData(logName, JsonConvert.SerializeObject(logs), profile, teleConfig, teleClient).Result;
-                                    if (success) { logs = new ArrayList(); }
-                                    else
-                                    {
-                                        return false;
-                                    }
-                                }
-                            }
-
-                            if (logs.Count != 0)
-                            {
-                                success = PutLogData(logName, JsonConvert.SerializeObject(logs), profile, teleConfig, teleClient).Result;
-                                if (!success)
-                                {
-                                    return false;
-                                }
-                            }
-
-                            if (success)
-                            {
-                                fileLineNumberMap[file] = currLineNumber;
-                                string jsonString = JsonConvert.SerializeObject(fileLineNumberMap);
-                                File.WriteAllText(lastReadTokenFile, jsonString);
-                            }
-                        }
-                    }
+                if (_updatedFileLineNumberMap.Any())
+                {
+                    UpdateFileLineMapJson();
                 }
 
                 return true;
@@ -120,22 +90,159 @@ namespace PortingAssistant.Client.Telemetry
                 return false;
             }
         }
-        private static async Task<bool> PutLogData
-           (
-           string logName,
-           string logData,
-           string profile,
-           TelemetryConfiguration telemetryConfiguration,
-           ITelemetryClient client
-           )
+
+        private void RemoveFileIfOld(string file)
+        {
+            DateTime lastModified = File.GetLastWriteTime(file);
+            if (lastModified < DateTime.Now.AddDays(_configuration.KeepLogsForDays * -1))
+            {
+                File.Delete(file);
+                if (_fileLineNumberMap.ContainsKey(file))
+                {
+                    _fileLineNumberMap.Remove(file);
+                }
+            }
+        }
+
+        private void ReadFileLineMap()
+        {
+            _lastReadTokenFile = Path.Combine(_configuration.LogsPath, "lastToken.json");
+            if (File.Exists(_lastReadTokenFile))
+            {
+                _fileLineNumberMap = JsonConvert.DeserializeObject<Dictionary<string, int>>(File.ReadAllText(_lastReadTokenFile));
+                if (_fileLineNumberMap == null)
+                {
+                    _fileLineNumberMap = new Dictionary<string, int>();
+                }
+            }
+        }
+
+        private void UpdateFileLineMapJson()
+        {
+            ReadFileLineMap();
+            using FileStream fs = WaitForFile(_lastReadTokenFile,
+                FileMode.OpenOrCreate,
+                FileAccess.ReadWrite,
+                FileShare.Read);
+            foreach (var pair in _updatedFileLineNumberMap)
+            {
+                if (_fileLineNumberMap.ContainsKey(pair.Key))
+                {
+                    _fileLineNumberMap[pair.Key] = pair.Value;
+                }
+                else
+                {
+                    _fileLineNumberMap.Add(pair.Key, pair.Value);
+                }
+            }
+            using (StreamWriter writer = new StreamWriter(fs))
+            {
+                writer.Write(JsonConvert.SerializeObject(_fileLineNumberMap));
+            }
+        }
+
+        private FileStream WaitForFile(string fullPath,
+            FileMode mode,
+            FileAccess access,
+            FileShare share)
+        {
+            for (int numTries = 0; numTries < 10; numTries++)
+            {
+                FileStream fs = null;
+                try
+                {
+                    fs = new FileStream(fullPath, mode, access, share);
+                    return fs;
+                }
+                catch (IOException)
+                {
+                    if (fs != null)
+                    {
+                        fs.Dispose();
+                    }
+                    Thread.Sleep(50);
+                }
+            }
+            return null;
+        }
+
+        private bool UploadFile(string file, string logName)
+        {
+            var initLineNumber = _fileLineNumberMap.ContainsKey(file) ? _fileLineNumberMap[file] : 0;
+
+            FileInfo fileInfo = new FileInfo(file);
+            var success = false;
+            using (FileStream fs = fileInfo.Open(FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            {
+                using (StreamReader reader = new StreamReader(fs))
+                {
+                    // If put-log api works keep sending logs else wait and do it next time
+                    var logs = new ArrayList();
+
+                    int currLineNumber = 0;
+                    for (; currLineNumber < initLineNumber; currLineNumber++)
+                    {
+                        string line = reader.ReadLine();
+                        if (line == null)
+                        {
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                    while (!reader.EndOfStream)
+                    {
+                        currLineNumber++;
+                        logs.Add(reader.ReadLine());
+
+                        // send 1000 lines of logs each time when there are large files
+                        if (logs.Count >= 1000)
+                        {
+                            // logs.TrimToSize();
+                            success = PutLogData(logName, JsonConvert.SerializeObject(logs)).Result;
+                            if (success)
+                            {
+                                logs = new ArrayList();
+                            }
+                            else
+                            {
+                                {
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+                    if (logs.Count != 0)
+                    {
+                        success = PutLogData(logName, JsonConvert.SerializeObject(logs)).Result;
+                        if (!success)
+                        {
+                            {
+                                return false;
+                            }
+                        }
+                    }
+                    if (success)
+                    {
+                        _updatedFileLineNumberMap.Add(file, currLineNumber);
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        private async Task<bool> PutLogData(
+            string logName,
+            string logData)
         {
             try
             {
                 dynamic requestMetadata = new JObject();
                 requestMetadata.version = "1.0";
-                requestMetadata.service = telemetryConfiguration.ServiceName;
+                requestMetadata.service = _configuration.ServiceName;
                 requestMetadata.token = "12345678";
-                requestMetadata.description = telemetryConfiguration.Description;
+                requestMetadata.description = _configuration.Description;
 
                 dynamic log = new JObject();
                 log.timestamp = DateTime.Now.ToString();
@@ -150,8 +257,8 @@ namespace PortingAssistant.Client.Telemetry
                 var requestContent = new StringContent(body.ToString(Formatting.None), Encoding.UTF8, "application/json");
                     
                 var contentString = await requestContent.ReadAsStringAsync();
-                var telemetryRequest = new TelemetryRequest(telemetryConfiguration.ServiceName, contentString);
-                var telemetryResponse = await client.SendAsync(telemetryRequest);
+                var telemetryRequest = new TelemetryRequest(_configuration.ServiceName, contentString);
+                var telemetryResponse = await _client.SendAsync(telemetryRequest);
 
                 if (telemetryResponse.HttpStatusCode != HttpStatusCode.OK)
                 {
