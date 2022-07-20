@@ -4,6 +4,7 @@ using NUnit.Framework;
 using PortingAssistantExtensionTelemetry.Model;
 using PortingAssistant.Client.Telemetry;
 using System.Collections.Generic;
+using System.Linq;
 using Moq;
 using System.Net.Http;
 using Moq.Protected;
@@ -39,7 +40,13 @@ namespace PortingAssistant.Client.UnitTests
             bool actualSuccessStatus = false;
             if (TelemetryClientFactory.TryGetClient(profile, teleConfig, out ITelemetryClient client))
             {
-                actualSuccessStatus = new Uploader(teleConfig, client).Upload(true, "portingAssistant-client-cli");
+                var fileEntries = Directory.GetFiles(teleConfig.LogsPath)
+                    .Where(f =>
+                        Path.GetFileName(f)
+                            .StartsWith("portingAssistant-client-cli") &&
+                        teleConfig.Suffix.ToArray().Any(f.EndsWith)
+                    ).ToList();
+                actualSuccessStatus = new Uploader(teleConfig, client).Upload(fileEntries, true);
             }
             Assert.IsTrue(actualSuccessStatus);
         }
@@ -64,7 +71,13 @@ namespace PortingAssistant.Client.UnitTests
             bool actualSuccessStatus = false;
             if (TelemetryClientFactory.TryGetClient(profile, teleConfig, out ITelemetryClient client, true))
             {
-                actualSuccessStatus = new Uploader(teleConfig, client).Upload(true, "portingAssistant-client-cli");
+                var fileEntries = Directory.GetFiles(teleConfig.LogsPath)
+                    .Where(f =>
+                        Path.GetFileName(f)
+                            .StartsWith("portingAssistant-client-cli") &&
+                        teleConfig.Suffix.ToArray().Any(f.EndsWith)
+                    ).ToList();
+                actualSuccessStatus = new Uploader(teleConfig, client).Upload(fileEntries, true);
             }
             Assert.IsTrue(actualSuccessStatus);
         }
@@ -110,7 +123,13 @@ namespace PortingAssistant.Client.UnitTests
                 Suffix = new List<string> { ".log", ".metrics" }
             };
             var lastReadTokenFile = Path.Combine(teleConfig.LogsPath, "lastToken.json");
-            bool result = new Uploader(teleConfig, telemetryClientMock.Object).Upload(true, "portingAssistant-client-cli");
+            var fileEntries = Directory.GetFiles(teleConfig.LogsPath)
+                .Where(f =>
+                    Path.GetFileName(f)
+                        .StartsWith("portingAssistant-client-cli") &&
+                    teleConfig.Suffix.ToArray().Any(f.EndsWith)
+                ).ToList();
+            bool result = new Uploader(teleConfig, telemetryClientMock.Object).Upload(fileEntries, true);
             Assert.IsTrue(result);
             var fileLineNumberMap = JsonConvert.DeserializeObject<Dictionary<string, int>>(File.ReadAllText(lastReadTokenFile));
             Assert.AreEqual(fileLineNumberMap[logFilePath], 3);

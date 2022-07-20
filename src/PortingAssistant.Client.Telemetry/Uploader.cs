@@ -50,17 +50,10 @@ namespace PortingAssistant.Client.Telemetry
             return logName;
         }
 
-        public bool Upload(bool shareMetrics = true, string logPrefix = "")
+        public bool Upload(IEnumerable<string> fileEntries, bool shareMetrics = false)
         {
             try
             {
-                var fileEntries = Directory.GetFiles(_configuration.LogsPath)
-                    .Where(f =>
-                        Path.GetFileName(f)
-                            .StartsWith(logPrefix) &&
-                        _configuration.Suffix.ToArray().Any(f.EndsWith)
-                    ).ToList();
-
                 foreach (var file in fileEntries)
                 {
                     var logName = GetLogName(file);
