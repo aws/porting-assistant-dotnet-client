@@ -144,38 +144,31 @@ namespace PortingAssistant.Client.CLI
 
         private static void UploadLogs(string profile, TelemetryConfiguration telemetryConfiguration, string logFilePath, string metricsFilePath, string logsPath, bool enabledDefaultCredentials = false)
         {
+            telemetryConfiguration.LogFilePath = logFilePath;
+            telemetryConfiguration.MetricsFilePath = metricsFilePath;
+            telemetryConfiguration.LogsPath = logsPath;
+            telemetryConfiguration.Suffix = new List<string> {".log", ".metrics"};
+
+            TelemetryClientFactory.TryGetClient(profile, telemetryConfiguration, out ITelemetryClient client, enabledDefaultCredentials);
+            var uploader = new Uploader(telemetryConfiguration, client, Log.Logger);
             if (!string.IsNullOrEmpty(profile) || enabledDefaultCredentials)
             {
-                var isSuccess = false;
-                telemetryConfiguration.LogFilePath = logFilePath;
-                telemetryConfiguration.MetricsFilePath = metricsFilePath;
-                telemetryConfiguration.LogsPath = logsPath;
-                telemetryConfiguration.Suffix = new List<string> {".log", ".metrics"};
-
-                if (TelemetryClientFactory.TryGetClient(profile, telemetryConfiguration, out ITelemetryClient client, enabledDefaultCredentials))
-                {
-                    var fileEntries = Directory.GetFiles(telemetryConfiguration.LogsPath)
-                        .Where(f =>
-                            Path.GetFileName(f)
-                                .StartsWith("portingAssistant-client-cli") &&
-                            telemetryConfiguration.Suffix.ToArray().Any(f.EndsWith)
-                        ).ToList();
-                    isSuccess = new Uploader(telemetryConfiguration, client, Log.Logger).Upload(fileEntries, !string.IsNullOrEmpty(profile));
-                }
-                else
-                {
-                    Log.Logger.Error("Invalid Credentials.");
-                }
-
-                if (!isSuccess)
-                {
-                    Log.Logger.Error("Upload Metrics/Logs Failed!");
-                }
-                else
+                var fileEntries = Directory.GetFiles(telemetryConfiguration.LogsPath)
+                    .Where(f =>
+                        Path.GetFileName(f)
+                            .StartsWith("portingAssistant-client-cli") &&
+                        telemetryConfiguration.Suffix.ToArray().Any(f.EndsWith)
+                    ).ToList();
+                if (uploader.Upload(fileEntries))
                 {
                     Log.Logger.Information("Upload Metrics/Logs Success!");
                 }
+                else
+                {
+                    Log.Logger.Error("Upload Metrics/Logs Failed!");
+                }
             }
+            uploader.CleanupLogFolder();
         }
 
         private static async Task<SolutionAnalysisResult> AnalyzeSolutionGenerator(IPortingAssistantClient portingAssistantClient, string solutionPath, AnalyzerSettings solutionSettings)

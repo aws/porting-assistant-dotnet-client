@@ -51,31 +51,22 @@ namespace PortingAssistant.Client.Telemetry
             return logName;
         }
 
-        public bool Upload(IEnumerable<string> fileEntries, bool shareMetrics = false)
+        public bool Upload(IEnumerable<string> fileEntries)
         {
             try
             {
                 foreach (var file in fileEntries)
                 {
                     var logName = GetLogName(file);
-                    bool uploaded = true;
-                    if (shareMetrics)
+                    if (_client != null)
                     {
-                        uploaded = _client != null && UploadFile(file, logName);
-                    }
-                    if (uploaded)
-                    {
-                        // either uploaded is true because we don't share metrics
-                        // or upload is successful, either way remove old files.
-                        RemoveFileIfOld(file);
+                        UploadFile(file, logName);
                     }
                 }
-
                 if (_updatedFileLineNumberMap.Any())
                 {
                     UpdateFileLineMapJson();
                 }
-
                 return true;
             }
             catch (Exception ex)
@@ -85,17 +76,36 @@ namespace PortingAssistant.Client.Telemetry
             }
         }
 
-        private void RemoveFileIfOld(string file)
+        public void CleanupLogFolder()
         {
-            var keepLogForDays = _configuration.KeepLogsForDays != 0 ? _configuration.KeepLogsForDays : 90;
-            DateTime lastModified = File.GetLastWriteTime(file);
-            if (lastModified < DateTime.Now.AddDays(keepLogForDays * -1))
+            long folderSizeLimit = _configuration.LogsFolderSizeLimit != 0
+                ? _configuration.LogsFolderSizeLimit
+                : 250000000;
+            long currentSize = 0;
+            ReadFileLineMap();
+            var logsDirectory = new DirectoryInfo(_configuration.LogsPath);
+            bool updateLastTokenJson = false;
+            foreach (var file in logsDirectory
+                         .GetFiles()
+                         .Where(file => _configuration.Suffix.ToArray().Any(file.Name.EndsWith))
+                         .OrderByDescending(f => f.LastWriteTime))
             {
-                File.Delete(file);
-                if (_fileLineNumberMap.ContainsKey(file))
+                if (currentSize <= folderSizeLimit)
                 {
-                    _fileLineNumberMap.Remove(file);
+                    currentSize += file.Length;
+                    continue;
                 }
+
+                File.Delete(file.FullName);
+                if (_fileLineNumberMap.ContainsKey(file.FullName))
+                {
+                    updateLastTokenJson = true;
+                    _fileLineNumberMap.Remove(file.FullName);
+                }
+            }
+            if (updateLastTokenJson)
+            {
+                UpdateFileLineMapJson();
             }
         }
 
@@ -115,10 +125,6 @@ namespace PortingAssistant.Client.Telemetry
         private void UpdateFileLineMapJson()
         {
             ReadFileLineMap();
-            using FileStream fs = WaitForFile(_lastReadTokenFile,
-                FileMode.OpenOrCreate,
-                FileAccess.ReadWrite,
-                FileShare.Read);
             foreach (var pair in _updatedFileLineNumberMap)
             {
                 if (_fileLineNumberMap.ContainsKey(pair.Key))
@@ -130,10 +136,12 @@ namespace PortingAssistant.Client.Telemetry
                     _fileLineNumberMap.Add(pair.Key, pair.Value);
                 }
             }
-            using (StreamWriter writer = new StreamWriter(fs))
-            {
-                writer.Write(JsonConvert.SerializeObject(_fileLineNumberMap));
-            }
+            using FileStream fs = WaitForFile(_lastReadTokenFile,
+                FileMode.OpenOrCreate,
+                FileAccess.ReadWrite,
+                FileShare.Read);
+            using StreamWriter writer = new StreamWriter(fs);
+            writer.Write(JsonConvert.SerializeObject(_fileLineNumberMap));
         }
 
         private FileStream WaitForFile(string fullPath,
@@ -250,16 +258,10 @@ namespace PortingAssistant.Client.Telemetry
                 body.log = log;
 
                 var requestContent = new StringContent(body.ToString(Formatting.None), Encoding.UTF8, "application/json");
-                    
+                
                 var contentString = await requestContent.ReadAsStringAsync();
                 var telemetryRequest = new TelemetryRequest(_configuration.ServiceName, contentString);
                 var telemetryResponse = await _client.SendAsync(telemetryRequest);
-
-                if (telemetryResponse.HttpStatusCode != HttpStatusCode.OK)
-                {
-                    _logger.Error("Http response failed with status code: " + telemetryResponse.HttpStatusCode.ToString());
-                }
-
                 return telemetryResponse.HttpStatusCode == HttpStatusCode.OK;
             }
             catch (Exception ex)

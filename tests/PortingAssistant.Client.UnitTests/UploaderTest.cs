@@ -42,7 +42,7 @@ namespace PortingAssistant.Client.UnitTests
                             .StartsWith("portingAssistant-client-cli") &&
                         teleConfig.Suffix.ToArray().Any(f.EndsWith)
                     ).ToList();
-                actualSuccessStatus = new Uploader(teleConfig, client, Log.Logger).Upload(fileEntries, true);
+                actualSuccessStatus = new Uploader(teleConfig, client, Log.Logger).Upload(fileEntries);
             }
             Assert.IsTrue(actualSuccessStatus);
         }
@@ -73,7 +73,7 @@ namespace PortingAssistant.Client.UnitTests
                             .StartsWith("portingAssistant-client-cli") &&
                         teleConfig.Suffix.ToArray().Any(f.EndsWith)
                     ).ToList();
-                actualSuccessStatus = new Uploader(teleConfig, client, Log.Logger).Upload(fileEntries, true);
+                actualSuccessStatus = new Uploader(teleConfig, client, Log.Logger).Upload(fileEntries);
             }
             Assert.IsTrue(actualSuccessStatus);
         }
@@ -125,7 +125,7 @@ namespace PortingAssistant.Client.UnitTests
                         .StartsWith("portingAssistant-client-cli") &&
                     teleConfig.Suffix.ToArray().Any(f.EndsWith)
                 ).ToList();
-            bool result = new Uploader(teleConfig, telemetryClientMock.Object, Log.Logger).Upload(fileEntries, true);
+            bool result = new Uploader(teleConfig, telemetryClientMock.Object, Log.Logger).Upload(fileEntries);
             Assert.IsTrue(result);
             var fileLineNumberMap = JsonConvert.DeserializeObject<Dictionary<string, int>>(File.ReadAllText(lastReadTokenFile));
             Assert.AreEqual(fileLineNumberMap[logFilePath], 3);
