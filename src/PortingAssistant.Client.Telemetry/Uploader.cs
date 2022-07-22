@@ -1,6 +1,4 @@
-﻿using Amazon.Runtime;
-using Amazon.Runtime.CredentialManagement;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PortingAssistantExtensionTelemetry.Model;
 using Serilog;
@@ -21,16 +19,18 @@ namespace PortingAssistant.Client.Telemetry
     {
         private readonly TelemetryConfiguration _configuration;
         private readonly ITelemetryClient _client;
-        private Dictionary<string, int> _fileLineNumberMap = new Dictionary<string, int>();
-        private Dictionary<string, int> _updatedFileLineNumberMap = new Dictionary<string, int>();
+        private readonly ILogger _logger;
+        private Dictionary<string, int> _fileLineNumberMap = new();
+        private readonly Dictionary<string, int> _updatedFileLineNumberMap = new();
         private string _lastReadTokenFile;
 
-        public Uploader(TelemetryConfiguration telemetryConfig, ITelemetryClient telemetryClient)
+        public Uploader(TelemetryConfiguration telemetryConfig, ITelemetryClient telemetryClient, ILogger logger)
         {
             _configuration = telemetryConfig;
             _client = telemetryClient;
             ReadFileLineMap();
             GetLogName = GetLogNameDefault;
+            _logger = logger;
         }
 
         public Func<string, string> GetLogName { get; set; }
@@ -39,13 +39,14 @@ namespace PortingAssistant.Client.Telemetry
         {
             var logName = Path.GetFileNameWithoutExtension(file);
             var fileExtension = Path.GetExtension(file);
+            string logNameWithoutDate = int.TryParse(logName.Split('-').LastOrDefault() ?? "", out _) ? string.Join('-', logName.Split('-').SkipLast(1)) : logName;
             if (fileExtension == ".log")
             {
-                logName = $"{logName}-logs";
+                logName = $"{logNameWithoutDate}-logs";
             }
             else if (fileExtension == ".metrics")
             {
-                logName = $"{logName}-metrics";
+                logName = $"{logNameWithoutDate}-metrics";
             }
             return logName;
         }
@@ -60,7 +61,7 @@ namespace PortingAssistant.Client.Telemetry
                     bool uploaded = true;
                     if (shareMetrics)
                     {
-                        uploaded = UploadFile(file, logName);
+                        uploaded = _client != null && UploadFile(file, logName);
                     }
                     if (uploaded)
                     {
@@ -79,15 +80,16 @@ namespace PortingAssistant.Client.Telemetry
             }
             catch (Exception ex)
             {
-                Log.Logger.Error(ex.Message);
+                _logger.Error(ex.Message);
                 return false;
             }
         }
 
         private void RemoveFileIfOld(string file)
         {
+            var keepLogForDays = _configuration.KeepLogsForDays != 0 ? _configuration.KeepLogsForDays : 90;
             DateTime lastModified = File.GetLastWriteTime(file);
-            if (lastModified < DateTime.Now.AddDays(_configuration.KeepLogsForDays * -1))
+            if (lastModified < DateTime.Now.AddDays(keepLogForDays * -1))
             {
                 File.Delete(file);
                 if (_fileLineNumberMap.ContainsKey(file))
@@ -255,14 +257,14 @@ namespace PortingAssistant.Client.Telemetry
 
                 if (telemetryResponse.HttpStatusCode != HttpStatusCode.OK)
                 {
-                    Log.Logger.Error("Http response failed with status code: " + telemetryResponse.HttpStatusCode.ToString());
+                    _logger.Error("Http response failed with status code: " + telemetryResponse.HttpStatusCode.ToString());
                 }
 
                 return telemetryResponse.HttpStatusCode == HttpStatusCode.OK;
             }
             catch (Exception ex)
             {
-                Log.Logger.Error(ex.Message);
+                _logger.Error(ex.Message);
                 return false;
             }
         }

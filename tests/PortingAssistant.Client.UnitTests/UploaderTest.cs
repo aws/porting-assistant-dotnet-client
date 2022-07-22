@@ -6,14 +6,10 @@ using PortingAssistant.Client.Telemetry;
 using System.Collections.Generic;
 using System.Linq;
 using Moq;
-using System.Net.Http;
-using Moq.Protected;
-using System.Threading.Tasks;
-using System.Threading;
 using System.Net;
 using Newtonsoft.Json;
 using Amazon.Runtime;
-using System.Text;
+using Serilog;
 
 namespace PortingAssistant.Client.UnitTests
 {
@@ -46,7 +42,7 @@ namespace PortingAssistant.Client.UnitTests
                             .StartsWith("portingAssistant-client-cli") &&
                         teleConfig.Suffix.ToArray().Any(f.EndsWith)
                     ).ToList();
-                actualSuccessStatus = new Uploader(teleConfig, client).Upload(fileEntries, true);
+                actualSuccessStatus = new Uploader(teleConfig, client, Log.Logger).Upload(fileEntries, true);
             }
             Assert.IsTrue(actualSuccessStatus);
         }
@@ -77,7 +73,7 @@ namespace PortingAssistant.Client.UnitTests
                             .StartsWith("portingAssistant-client-cli") &&
                         teleConfig.Suffix.ToArray().Any(f.EndsWith)
                     ).ToList();
-                actualSuccessStatus = new Uploader(teleConfig, client).Upload(fileEntries, true);
+                actualSuccessStatus = new Uploader(teleConfig, client, Log.Logger).Upload(fileEntries, true);
             }
             Assert.IsTrue(actualSuccessStatus);
         }
@@ -129,7 +125,7 @@ namespace PortingAssistant.Client.UnitTests
                         .StartsWith("portingAssistant-client-cli") &&
                     teleConfig.Suffix.ToArray().Any(f.EndsWith)
                 ).ToList();
-            bool result = new Uploader(teleConfig, telemetryClientMock.Object).Upload(fileEntries, true);
+            bool result = new Uploader(teleConfig, telemetryClientMock.Object, Log.Logger).Upload(fileEntries, true);
             Assert.IsTrue(result);
             var fileLineNumberMap = JsonConvert.DeserializeObject<Dictionary<string, int>>(File.ReadAllText(lastReadTokenFile));
             Assert.AreEqual(fileLineNumberMap[logFilePath], 3);

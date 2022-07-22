@@ -160,7 +160,7 @@ namespace PortingAssistant.Client.CLI
                                 .StartsWith("portingAssistant-client-cli") &&
                             telemetryConfiguration.Suffix.ToArray().Any(f.EndsWith)
                         ).ToList();
-                    isSuccess = new Uploader(telemetryConfiguration, client).Upload(fileEntries, !string.IsNullOrEmpty(profile));
+                    isSuccess = new Uploader(telemetryConfiguration, client, Log.Logger).Upload(fileEntries, !string.IsNullOrEmpty(profile));
                 }
                 else
                 {
