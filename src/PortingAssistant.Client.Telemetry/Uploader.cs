@@ -23,8 +23,6 @@ namespace PortingAssistant.Client.Telemetry
         private readonly Dictionary<string, int> _updatedFileLineNumberMap = new();
         private string _lastReadTokenFile;
 
-        public Dictionary<string, string> ErrorList = new();
-
         public Uploader(TelemetryConfiguration telemetryConfig, ITelemetryClient telemetryClient)
         {
             _configuration = telemetryConfig;
@@ -33,6 +31,10 @@ namespace PortingAssistant.Client.Telemetry
             GetLogName = GetLogNameDefault;
         }
 
+        /// <summary>
+        /// List of errors during upload actions. Key is error category and Value is Exception
+        /// </summary>
+        public readonly Dictionary<string, Exception> ErrorList = new();
         public Func<string, string> GetLogName { get; set; }
 
         private static string GetLogNameDefault(string file)
@@ -75,7 +77,7 @@ namespace PortingAssistant.Client.Telemetry
             }
             catch (Exception ex)
             {
-                ErrorList.Add(ex.Message, ex.StackTrace);
+                ErrorList.Add("UploadFilesError", ex);
                 return false;
             }
         }
@@ -117,7 +119,7 @@ namespace PortingAssistant.Client.Telemetry
             }
             catch (Exception e)
             {
-                ErrorList.Add(e.Message, e.StackTrace);
+                ErrorList.Add("CleanupLogFolderError", e);
             }
         }
 
@@ -273,7 +275,7 @@ namespace PortingAssistant.Client.Telemetry
             }
             catch (Exception ex)
             {
-                ErrorList.Add(ex.Message, ex.StackTrace);
+                ErrorList.Add("PutLogDataError", ex);
                 return false;
             }
         }
