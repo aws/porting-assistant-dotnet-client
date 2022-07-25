@@ -58,6 +58,10 @@ namespace PortingAssistant.Client.Telemetry
                 foreach (var file in fileEntries)
                 {
                     var logName = GetLogName(file);
+                    if (string.IsNullOrEmpty(logName))
+                    {
+                        continue;
+                    }
                     if (_client != null)
                     {
                         UploadFile(file, logName);
@@ -175,61 +179,56 @@ namespace PortingAssistant.Client.Telemetry
 
             FileInfo fileInfo = new FileInfo(file);
             var success = false;
-            using (FileStream fs = fileInfo.Open(FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            if (!IsFileLocked(fileInfo))
             {
-                using (StreamReader reader = new StreamReader(fs))
+                using FileStream fs = fileInfo.Open(FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                using StreamReader reader = new StreamReader(fs);
+                // If put-log api works keep sending logs else wait and do it next time
+                var logs = new ArrayList();
+
+                int currLineNumber = 0;
+                for (; currLineNumber < initLineNumber; currLineNumber++)
                 {
-                    // If put-log api works keep sending logs else wait and do it next time
-                    var logs = new ArrayList();
-
-                    int currLineNumber = 0;
-                    for (; currLineNumber < initLineNumber; currLineNumber++)
+                    string line = reader.ReadLine();
+                    if (line == null)
                     {
-                        string line = reader.ReadLine();
-                        if (line == null)
                         {
-                            {
-                                return true;
-                            }
+                            return true;
                         }
                     }
-                    while (!reader.EndOfStream)
-                    {
-                        currLineNumber++;
-                        logs.Add(reader.ReadLine());
+                }
+                while (!reader.EndOfStream)
+                {
+                    currLineNumber++;
+                    logs.Add(reader.ReadLine());
 
-                        // send 1000 lines of logs each time when there are large files
-                        if (logs.Count >= 1000)
-                        {
-                            // logs.TrimToSize();
-                            success = PutLogData(logName, JsonConvert.SerializeObject(logs)).Result;
-                            if (success)
-                            {
-                                logs = new ArrayList();
-                            }
-                            else
-                            {
-                                {
-                                    return false;
-                                }
-                            }
-                        }
-                    }
-                    if (logs.Count != 0)
+                    // send 1000 lines of logs each time when there are large files
+                    if (logs.Count >= 1000)
                     {
+                        // logs.TrimToSize();
                         success = PutLogData(logName, JsonConvert.SerializeObject(logs)).Result;
-                        if (!success)
+                        if (success)
                         {
-                            {
-                                return false;
-                            }
+                            logs = new ArrayList();
+                        }
+                        else
+                        {
+                            return false;
                         }
                     }
-                    if (success)
+                }
+                if (logs.Count != 0)
+                {
+                    success = PutLogData(logName, JsonConvert.SerializeObject(logs)).Result;
+                    if (!success)
                     {
-                        _updatedFileLineNumberMap.Add(file, currLineNumber);
-                        return true;
+                        return false;
                     }
+                }
+                if (success)
+                {
+                    _updatedFileLineNumberMap.Add(file, currLineNumber);
+                    return true;
                 }
             }
             return false;
@@ -269,6 +268,30 @@ namespace PortingAssistant.Client.Telemetry
                 _logger.Error(ex.Message);
                 return false;
             }
+        }
+
+        private static bool IsFileLocked(FileInfo file)
+        {
+            FileStream stream = null;
+            try
+            {
+                stream = file.Open
+                (
+                    FileMode.Open,
+                    FileAccess.Read,
+                    FileShare.ReadWrite
+                );
+            }
+            catch (IOException)
+            {
+                return true;
+            }
+            finally
+            {
+                if (stream != null)
+                    stream.Close();
+            }
+            return false;
         }
     }
 }
