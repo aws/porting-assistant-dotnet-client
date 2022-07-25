@@ -150,7 +150,7 @@ namespace PortingAssistant.Client.CLI
             telemetryConfiguration.Suffix = new List<string> {".log", ".metrics"};
 
             TelemetryClientFactory.TryGetClient(profile, telemetryConfiguration, out ITelemetryClient client, enabledDefaultCredentials);
-            var uploader = new Uploader(telemetryConfiguration, client, Log.Logger);
+            var uploader = new Uploader(telemetryConfiguration, client);
             if (!string.IsNullOrEmpty(profile) || enabledDefaultCredentials)
             {
                 var fileEntries = Directory.GetFiles(telemetryConfiguration.LogsPath)

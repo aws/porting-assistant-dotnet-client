@@ -19,18 +19,18 @@ namespace PortingAssistant.Client.Telemetry
     {
         private readonly TelemetryConfiguration _configuration;
         private readonly ITelemetryClient _client;
-        private readonly ILogger _logger;
         private Dictionary<string, int> _fileLineNumberMap = new();
         private readonly Dictionary<string, int> _updatedFileLineNumberMap = new();
         private string _lastReadTokenFile;
 
-        public Uploader(TelemetryConfiguration telemetryConfig, ITelemetryClient telemetryClient, ILogger logger)
+        public Dictionary<string, string> ErrorList = new();
+
+        public Uploader(TelemetryConfiguration telemetryConfig, ITelemetryClient telemetryClient)
         {
             _configuration = telemetryConfig;
             _client = telemetryClient;
             ReadFileLineMap();
             GetLogName = GetLogNameDefault;
-            _logger = logger;
         }
 
         public Func<string, string> GetLogName { get; set; }
@@ -75,41 +75,49 @@ namespace PortingAssistant.Client.Telemetry
             }
             catch (Exception ex)
             {
-                _logger.Error(ex.Message);
+                ErrorList.Add(ex.Message, ex.StackTrace);
                 return false;
             }
         }
 
         public void CleanupLogFolder()
         {
-            long folderSizeLimit = _configuration.LogsFolderSizeLimit != 0
-                ? _configuration.LogsFolderSizeLimit
-                : 250000000;
-            long currentSize = 0;
-            ReadFileLineMap();
-            var logsDirectory = new DirectoryInfo(_configuration.LogsPath);
-            bool updateLastTokenJson = false;
-            foreach (var file in logsDirectory
-                         .GetFiles()
-                         .Where(file => _configuration.Suffix.ToArray().Any(file.Name.EndsWith))
-                         .OrderByDescending(f => f.LastWriteTime))
+            try
             {
-                if (currentSize <= folderSizeLimit)
+                long folderSizeLimit = _configuration.LogsFolderSizeLimit != 0
+                    ? _configuration.LogsFolderSizeLimit
+                    : 250000000;
+                long currentSize = 0;
+                ReadFileLineMap();
+                var logsDirectory = new DirectoryInfo(_configuration.LogsPath);
+                bool updateLastTokenJson = false;
+                foreach (var file in logsDirectory
+                             .GetFiles()
+                             .Where(file => _configuration.Suffix.ToArray().Any(file.Name.EndsWith))
+                             .OrderByDescending(f => f.LastWriteTime))
                 {
-                    currentSize += file.Length;
-                    continue;
+                    if (currentSize <= folderSizeLimit)
+                    {
+                        currentSize += file.Length;
+                        continue;
+                    }
+
+                    File.Delete(file.FullName);
+                    if (_fileLineNumberMap.ContainsKey(file.FullName))
+                    {
+                        updateLastTokenJson = true;
+                        _fileLineNumberMap.Remove(file.FullName);
+                    }
                 }
 
-                File.Delete(file.FullName);
-                if (_fileLineNumberMap.ContainsKey(file.FullName))
+                if (updateLastTokenJson)
                 {
-                    updateLastTokenJson = true;
-                    _fileLineNumberMap.Remove(file.FullName);
+                    UpdateFileLineMapJson();
                 }
             }
-            if (updateLastTokenJson)
+            catch (Exception e)
             {
-                UpdateFileLineMapJson();
+                ErrorList.Add(e.Message, e.StackTrace);
             }
         }
 
@@ -265,7 +273,7 @@ namespace PortingAssistant.Client.Telemetry
             }
             catch (Exception ex)
             {
-                _logger.Error(ex.Message);
+                ErrorList.Add(ex.Message, ex.StackTrace);
                 return false;
             }
         }
