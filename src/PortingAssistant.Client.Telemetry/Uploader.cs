@@ -54,16 +54,20 @@ namespace PortingAssistant.Client.Telemetry
                     Upload();
                 }
                 CleanupLogFolder();
-                foreach (var error in _errors)
-                {
-                    _logger.Error($"Log Upload Error({error.Value}): {error.Key}");
-                }
                 return true;
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                AddError(ex);
                 return false;
+            }
+        }
+
+        public void WriteLogUploadErrors()
+        {
+            foreach (var error in _errors)
+            {
+                _logger.Error($"Log Upload Error({error.Value}): {error.Key}");
             }
         }
 

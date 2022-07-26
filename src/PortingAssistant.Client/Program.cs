@@ -153,7 +153,9 @@ namespace PortingAssistant.Client.CLI
             bool uploadSuccess = false;
             if (TelemetryClientFactory.TryGetClient(profile, telemetryConfiguration, out ITelemetryClient client, enabledDefaultCredentials))
             {
-                uploadSuccess = new Uploader(telemetryConfiguration, client, Log.Logger, shareMetrics).Run();
+                var uploader = new Uploader(telemetryConfiguration, client, Log.Logger, shareMetrics);
+                uploadSuccess = uploader.Run();
+                uploader.WriteLogUploadErrors();
             }
             if (uploadSuccess)
             {
