@@ -21,42 +21,65 @@ namespace PortingAssistant.Client.Telemetry
         private readonly ITelemetryClient _client;
         private Dictionary<string, int> _fileLineNumberMap = new();
         private readonly Dictionary<string, int> _updatedFileLineNumberMap = new();
+        private readonly ILogger _logger;
         private string _lastReadTokenFile;
+        private readonly Dictionary<string, int> _errors = new();
+        private const long LogDirectorySizeLimit = 250000000;
+        private readonly bool _shareMetrics;
 
-        public Uploader(TelemetryConfiguration telemetryConfig, ITelemetryClient telemetryClient)
+        public Uploader(TelemetryConfiguration telemetryConfig,
+            ITelemetryClient telemetryClient,
+            ILogger logger,
+            bool shareMetrics)
         {
             _configuration = telemetryConfig;
             _client = telemetryClient;
+            _logger = logger;
+            _shareMetrics = shareMetrics;
             ReadFileLineMap();
             GetLogName = GetLogNameDefault;
         }
 
         /// <summary>
-        /// List of errors during upload actions. Key is error category and Value is Exception
+        /// Takes file name and returns log name for upload. Returning blank will skip the file
         /// </summary>
-        public readonly Dictionary<string, Exception> ErrorList = new();
         public Func<string, string> GetLogName { get; set; }
 
-        private static string GetLogNameDefault(string file)
-        {
-            var logName = Path.GetFileNameWithoutExtension(file);
-            var fileExtension = Path.GetExtension(file);
-            string logNameWithoutDate = int.TryParse(logName.Split('-').LastOrDefault() ?? "", out _) ? string.Join('-', logName.Split('-').SkipLast(1)) : logName;
-            if (fileExtension == ".log")
-            {
-                logName = $"{logNameWithoutDate}-logs";
-            }
-            else if (fileExtension == ".metrics")
-            {
-                logName = $"{logNameWithoutDate}-metrics";
-            }
-            return logName;
-        }
-
-        public bool Upload(IEnumerable<string> fileEntries)
+        public bool Run()
         {
             try
             {
+                if (_shareMetrics)
+                {
+                    Upload();
+                }
+                CleanupLogFolder();
+                foreach (var error in _errors)
+                {
+                    _logger.Error($"Log Upload Error({error.Value}): {error.Key}");
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+        }
+
+        private bool Upload()
+        {
+            try
+            {
+                string[] fileEntries = Directory
+                    .GetFiles(_configuration.LogsPath)
+                    .Where(f => _configuration.Suffix.ToArray()
+                                    .Any(f.EndsWith) &&
+                                (string.IsNullOrEmpty(_configuration
+                                     .LogPrefix) ||
+                                 f.StartsWith(_configuration.LogPrefix)))
+                    .ToArray();
+
                 foreach (var file in fileEntries)
                 {
                     var logName = GetLogName(file);
@@ -77,18 +100,18 @@ namespace PortingAssistant.Client.Telemetry
             }
             catch (Exception ex)
             {
-                ErrorList.Add("UploadFilesError", ex);
+                AddError(ex);
                 return false;
             }
         }
 
-        public void CleanupLogFolder()
+        private void CleanupLogFolder()
         {
             try
             {
                 long folderSizeLimit = _configuration.LogsFolderSizeLimit != 0
                     ? _configuration.LogsFolderSizeLimit
-                    : 250000000;
+                    : LogDirectorySizeLimit;
                 long currentSize = 0;
                 ReadFileLineMap();
                 var logsDirectory = new DirectoryInfo(_configuration.LogsPath);
@@ -104,11 +127,18 @@ namespace PortingAssistant.Client.Telemetry
                         continue;
                     }
 
-                    File.Delete(file.FullName);
-                    if (_fileLineNumberMap.ContainsKey(file.FullName))
+                    try
                     {
-                        updateLastTokenJson = true;
-                        _fileLineNumberMap.Remove(file.FullName);
+                        File.Delete(file.FullName);
+                        if (_fileLineNumberMap.ContainsKey(file.FullName))
+                        {
+                            updateLastTokenJson = true;
+                            _fileLineNumberMap.Remove(file.FullName);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        AddError(e);
                     }
                 }
 
@@ -119,8 +149,33 @@ namespace PortingAssistant.Client.Telemetry
             }
             catch (Exception e)
             {
-                ErrorList.Add("CleanupLogFolderError", e);
+                AddError(e);
             }
+        }
+
+        private static string GetLogNameDefault(string file)
+        {
+            var logName = Path.GetFileNameWithoutExtension(file);
+            var fileExtension = Path.GetExtension(file);
+            string logNameWithoutDate = int.TryParse(logName.Split('-').LastOrDefault() ?? "", out _) ? string.Join('-', logName.Split('-').SkipLast(1)) : logName;
+            if (fileExtension == ".log")
+            {
+                logName = $"{logNameWithoutDate}-logs";
+            }
+            else if (fileExtension == ".metrics")
+            {
+                logName = $"{logNameWithoutDate}-metrics";
+            }
+            return logName;
+        }
+
+        private void AddError(Exception e)
+        {
+            if (_errors.ContainsKey(e.Message))
+            {
+                _errors[e.Message] += 1;
+            }
+            _errors[e.Message] = 1;
         }
 
         private void ReadFileLineMap()
@@ -163,7 +218,7 @@ namespace PortingAssistant.Client.Telemetry
             FileAccess access,
             FileShare share)
         {
-            for (int numTries = 0; numTries < 10; numTries++)
+            for (int numTries = 0; numTries < 5; numTries++)
             {
                 FileStream fs = null;
                 try
@@ -177,7 +232,7 @@ namespace PortingAssistant.Client.Telemetry
                     {
                         fs.Dispose();
                     }
-                    Thread.Sleep(50);
+                    Thread.Sleep(5000);
                 }
             }
             return null;
@@ -275,7 +330,7 @@ namespace PortingAssistant.Client.Telemetry
             }
             catch (Exception ex)
             {
-                ErrorList.Add("PutLogDataError", ex);
+                AddError(ex);
                 return false;
             }
         }

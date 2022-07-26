@@ -148,27 +148,21 @@ namespace PortingAssistant.Client.CLI
             telemetryConfiguration.MetricsFilePath = metricsFilePath;
             telemetryConfiguration.LogsPath = logsPath;
             telemetryConfiguration.Suffix = new List<string> {".log", ".metrics"};
-
-            TelemetryClientFactory.TryGetClient(profile, telemetryConfiguration, out ITelemetryClient client, enabledDefaultCredentials);
-            var uploader = new Uploader(telemetryConfiguration, client);
-            if (!string.IsNullOrEmpty(profile) || enabledDefaultCredentials)
+            telemetryConfiguration.LogPrefix = "portingAssistant-client-cli";
+            bool shareMetrics = !string.IsNullOrEmpty(profile) || enabledDefaultCredentials;
+            bool uploadSuccess = false;
+            if (TelemetryClientFactory.TryGetClient(profile, telemetryConfiguration, out ITelemetryClient client, enabledDefaultCredentials))
             {
-                var fileEntries = Directory.GetFiles(telemetryConfiguration.LogsPath)
-                    .Where(f =>
-                        Path.GetFileName(f)
-                            .StartsWith("portingAssistant-client-cli") &&
-                        telemetryConfiguration.Suffix.ToArray().Any(f.EndsWith)
-                    ).ToList();
-                if (uploader.Upload(fileEntries))
-                {
-                    Log.Logger.Information("Upload Metrics/Logs Success!");
-                }
-                else
-                {
-                    Log.Logger.Error("Upload Metrics/Logs Failed!");
-                }
+                uploadSuccess = new Uploader(telemetryConfiguration, client, Log.Logger, shareMetrics).Run();
             }
-            uploader.CleanupLogFolder();
+            if (uploadSuccess)
+            {
+                Log.Logger.Information("Upload Metrics/Logs Success!");
+            }
+            else
+            {
+                Log.Logger.Error("Upload Metrics/Logs Failed!");
+            }
         }
 
         private static async Task<SolutionAnalysisResult> AnalyzeSolutionGenerator(IPortingAssistantClient portingAssistantClient, string solutionPath, AnalyzerSettings solutionSettings)
