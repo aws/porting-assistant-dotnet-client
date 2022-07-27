@@ -75,13 +75,11 @@ namespace PortingAssistant.Client.Telemetry
         {
             try
             {
-                string[] fileEntries = Directory
-                    .GetFiles(_configuration.LogsPath)
+                string[] fileEntries = Directory.GetFiles(_configuration.LogsPath)
                     .Where(f => _configuration.Suffix.ToArray()
                                     .Any(f.EndsWith) &&
-                                (string.IsNullOrEmpty(_configuration
-                                     .LogPrefix) ||
-                                 f.StartsWith(_configuration.LogPrefix)))
+                                (string.IsNullOrEmpty(_configuration.LogPrefix) ||
+                                 Path.GetFileName(f).StartsWith(_configuration.LogPrefix)))
                     .ToArray();
 
                 foreach (var file in fileEntries)
