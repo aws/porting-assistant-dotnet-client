@@ -144,31 +144,26 @@ namespace PortingAssistant.Client.CLI
 
         private static void UploadLogs(string profile, TelemetryConfiguration telemetryConfiguration, string logFilePath, string metricsFilePath, string logsPath, bool enabledDefaultCredentials = false)
         {
-            if (!string.IsNullOrEmpty(profile) || enabledDefaultCredentials)
+            telemetryConfiguration.LogFilePath = logFilePath;
+            telemetryConfiguration.MetricsFilePath = metricsFilePath;
+            telemetryConfiguration.LogsPath = logsPath;
+            telemetryConfiguration.Suffix = new List<string> {".log", ".metrics"};
+            telemetryConfiguration.LogPrefix = "portingAssistant-client-cli";
+            bool shareMetrics = !string.IsNullOrEmpty(profile) || enabledDefaultCredentials;
+            bool uploadSuccess = false;
+            if (TelemetryClientFactory.TryGetClient(profile, telemetryConfiguration, out ITelemetryClient client, enabledDefaultCredentials))
             {
-                var isSuccess = false;
-                telemetryConfiguration.LogFilePath = logFilePath;
-                telemetryConfiguration.MetricsFilePath = metricsFilePath;
-                telemetryConfiguration.LogsPath = logsPath;
-                telemetryConfiguration.Suffix = new List<string> {".log", ".metrics"};
-
-                if (TelemetryClientFactory.TryGetClient(profile, telemetryConfiguration, out ITelemetryClient client, enabledDefaultCredentials))
-                {
-                    isSuccess = Uploader.Upload(telemetryConfiguration, profile, client);
-                }
-                else
-                {
-                    Log.Logger.Error("Invalid Credentials.");
-                }
-
-                if (!isSuccess)
-                {
-                    Log.Logger.Error("Upload Metrics/Logs Failed!");
-                }
-                else
-                {
-                    Log.Logger.Information("Upload Metrics/Logs Success!");
-                }
+                var uploader = new Uploader(telemetryConfiguration, client, Log.Logger, shareMetrics);
+                uploadSuccess = uploader.Run();
+                uploader.WriteLogUploadErrors();
+            }
+            if (uploadSuccess)
+            {
+                Log.Logger.Information("Upload Metrics/Logs Success!");
+            }
+            else
+            {
+                Log.Logger.Error("Upload Metrics/Logs Failed!");
             }
         }
 

@@ -4,15 +4,12 @@ using NUnit.Framework;
 using PortingAssistantExtensionTelemetry.Model;
 using PortingAssistant.Client.Telemetry;
 using System.Collections.Generic;
+using System.Linq;
 using Moq;
-using System.Net.Http;
-using Moq.Protected;
-using System.Threading.Tasks;
-using System.Threading;
 using System.Net;
 using Newtonsoft.Json;
 using Amazon.Runtime;
-using System.Text;
+using Serilog;
 
 namespace PortingAssistant.Client.UnitTests
 {
@@ -39,7 +36,7 @@ namespace PortingAssistant.Client.UnitTests
             bool actualSuccessStatus = false;
             if (TelemetryClientFactory.TryGetClient(profile, teleConfig, out ITelemetryClient client))
             {
-                actualSuccessStatus = Uploader.Upload(teleConfig, profile, client);
+                actualSuccessStatus = new Uploader(teleConfig, client, null, true).Run();
             }
             Assert.IsTrue(actualSuccessStatus);
         }
@@ -64,7 +61,7 @@ namespace PortingAssistant.Client.UnitTests
             bool actualSuccessStatus = false;
             if (TelemetryClientFactory.TryGetClient(profile, teleConfig, out ITelemetryClient client, true))
             {
-                actualSuccessStatus = Uploader.Upload(teleConfig, profile, client);
+                actualSuccessStatus = new Uploader(teleConfig, client, null, true).Run();
             }
             Assert.IsTrue(actualSuccessStatus);
         }
@@ -85,7 +82,6 @@ namespace PortingAssistant.Client.UnitTests
                 })
                 .Verifiable();
 
-            var profile = "default";
             var roamingFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             var logs = Path.Combine(roamingFolder, "Porting Assistant for .NET", "logs");
             var logFilePath = Path.Combine(logs, "portingAssistant-client-cli-test-2.log");
@@ -111,7 +107,7 @@ namespace PortingAssistant.Client.UnitTests
                 Suffix = new List<string> { ".log", ".metrics" }
             };
             var lastReadTokenFile = Path.Combine(teleConfig.LogsPath, "lastToken.json");
-            bool result = Uploader.Upload(teleConfig, profile, telemetryClientMock.Object);
+            bool result = new Uploader(teleConfig, telemetryClientMock.Object, null, true).Run();
             Assert.IsTrue(result);
             var fileLineNumberMap = JsonConvert.DeserializeObject<Dictionary<string, int>>(File.ReadAllText(lastReadTokenFile));
             Assert.AreEqual(fileLineNumberMap[logFilePath], 3);

@@ -14,5 +14,7 @@ namespace PortingAssistantExtensionTelemetry.Model
         public List<string> Suffix { get; set; }
         public string LogFilePath { get; set; }
         public string MetricsFilePath { get; set; }
+        public long LogsFolderSizeLimit { get; set; }
+        public string LogPrefix { get; set; }
     }
 }
