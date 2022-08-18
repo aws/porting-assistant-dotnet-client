@@ -41,9 +41,9 @@ namespace PortingAssistant.Client.Client
                 Dictionary<string, ProjectAnalysisResult> projectAnalysisResultsDict;
 
                 if (settings.ContiniousEnabled)
-                    projectAnalysisResultsDict = await _analysisHandler.AnalyzeSolutionIncremental(solutionFilePath, projects, targetFramework);
+                    projectAnalysisResultsDict = await _analysisHandler.AnalyzeSolutionIncremental(solutionFilePath, projects, targetFramework, settings.msBuildPath, settings.msBuildArguments);
                 else
-                    projectAnalysisResultsDict = await _analysisHandler.AnalyzeSolution(solutionFilePath, projects, targetFramework);
+                    projectAnalysisResultsDict = await _analysisHandler.AnalyzeSolution(solutionFilePath, projects, targetFramework, settings.msBuildPath, settings.msBuildArguments);
 
                 var projectAnalysisResults = projects.Select(p =>
                 {
