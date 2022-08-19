@@ -16,5 +16,6 @@ namespace PortingAssistant.Client.Client
         Task<List<SourceFileAnalysisResult>> AnalyzeFileAsync(string filePath, string fileContent, string projectFile, string solutionFilePath,
             List<string> preportReferences, List<string> currentReferences, RootNodes rules, ExternalReferences externalReferences, AnalyzerSettings settings);
         List<PortingResult> ApplyPortingChanges(PortingRequest request);
+        Task<SolutionAnalysisResult> AnalyzeSolutionAsyncUsingVSWorkspace(string solutionFilePath, AnalyzerSettings settings, string workspaceConfig = null);
     }
 }
