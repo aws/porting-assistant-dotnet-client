@@ -49,12 +49,13 @@ namespace PortingAssistant.Client.Telemetry
         {
             try
             {
-                if (_shareMetrics)
+                bool uploadResult = true;
+                if (_shareMetrics && _client != null)
                 {
-                    Upload();
+                    uploadResult = Upload();
                 }
                 CleanupLogFolder();
-                return true;
+                return uploadResult;
             }
             catch (Exception ex)
             {
