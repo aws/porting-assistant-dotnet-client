@@ -35,7 +35,11 @@ namespace PortingAssistant.Client.Analysis
             _recommendationHandler = recommendationHandler;
         }
 
-        private async Task<List<AnalyzerResult>> RunCoderlyzerAnalysis(string solutionFilename, List<string> projects, string msBuildPath, List<string> msBuildArguments)
+        private async Task<List<AnalyzerResult>> RunCoderlyzerAnalysis(
+            string solutionFilename,
+            List<string> projects,
+            string msBuildPath,
+            List<string> msBuildArguments)
         {
             MemoryUtils.LogSystemInfo(_logger);
             MemoryUtils.LogSolutiontSize(_logger, solutionFilename);
@@ -60,8 +64,18 @@ namespace PortingAssistant.Client.Analysis
             return analyzerResults;
         }
 
-        public async Task<List<SourceFileAnalysisResult>> AnalyzeFileIncremental(string filePath, string fileContent, string projectFile, string solutionFilePath, List<string> preportReferences
-            , List<string> currentReferences, RootNodes projectRules, ExternalReferences externalReferences, bool actionsOnly = false, bool compatibleOnly = false, string targetFramework = DEFAULT_TARGET)
+        public async Task<List<SourceFileAnalysisResult>> AnalyzeFileIncremental(
+            string filePath,
+            string fileContent,
+            string projectFile,
+            string solutionFilePath,
+            List<string> preportReferences,
+            List<string> currentReferences,
+            RootNodes projectRules,
+            ExternalReferences externalReferences,
+            bool actionsOnly = false,
+            bool compatibleOnly = false,
+            string targetFramework = DEFAULT_TARGET)
         {
             try
             {
@@ -170,7 +184,11 @@ namespace PortingAssistant.Client.Analysis
         }
 
         public async Task<Dictionary<string, ProjectAnalysisResult>> AnalyzeSolutionIncremental(
-            string solutionFilename, List<string> projects, string targetFramework = DEFAULT_TARGET, string msBuildPath = null, List<string> msBuildArguments = null)
+            string solutionFilename,
+            List<string> projects,
+            string targetFramework = DEFAULT_TARGET,
+            string msBuildPath = null,
+            List<string> msBuildArguments = null)
         {
             try
             {
@@ -266,7 +284,13 @@ namespace PortingAssistant.Client.Analysis
         {
             try
             {
+                MemoryUtils.LogMemoryConsumption(_logger);
+                var startTime = DateTime.Now;
+                
                 var analyzerResults = await RunCoderlyzerAnalysis(solutionFilename, projects, msBuildPath, msBuildArguments);
+
+                var totalMilliseconds = DateTime.Now.Subtract(startTime).TotalMilliseconds;
+                MemoryUtils.LogMemoryConsumption(_logger);
 
                 var analysisActions = AnalyzeActions(projects, targetFramework, analyzerResults, solutionFilename);
 
@@ -559,7 +583,12 @@ namespace PortingAssistant.Client.Analysis
             };
         }
 
-        private async Task<List<AnalyzerResult>> RunCoderlyzerAnalysisUsingVSWorkspace(string solutionFilename, List<string> projects, string msBuildPath, List<string> msBuildArguments, string workspace)
+        private async Task<List<AnalyzerResult>> RunCoderlyzerAnalysisUsingVSWorkspace(
+            string solutionFilename,
+            List<string> projects,
+            string msBuildPath,
+            List<string> msBuildArguments,
+            string workspace)
         {
             MemoryUtils.LogSystemInfo(_logger);
             MemoryUtils.LogSolutiontSize(_logger, solutionFilename);
@@ -584,11 +613,22 @@ namespace PortingAssistant.Client.Analysis
         }
 
         public async Task<Dictionary<string, ProjectAnalysisResult>> AnalyzeSolutionUsingVSWorkspace(
-         string solutionFilename, List<string> projects, string targetFramework = DEFAULT_TARGET, string msBuildPath = null, List<string> msBuildArguments = null, string workspace = null)
+            string solutionFilename,
+            List<string> projects,
+            string targetFramework = DEFAULT_TARGET,
+            string msBuildPath = null,
+            List<string> msBuildArguments = null,
+            string workspace = null)
         {
             try
             {
+                MemoryUtils.LogMemoryConsumption(_logger);
+                var startTime = DateTime.Now;
+
                 var analyzerResults = await RunCoderlyzerAnalysisUsingVSWorkspace(solutionFilename, projects, msBuildPath, msBuildArguments, workspace);
+
+                var totalMilliseconds = DateTime.Now.Subtract(startTime).TotalMilliseconds;
+                MemoryUtils.LogMemoryConsumption(_logger);
 
                 var analysisActions = AnalyzeActions(projects, targetFramework, analyzerResults, solutionFilename);
 
@@ -604,6 +644,11 @@ namespace PortingAssistant.Client.Analysis
                 _logger.LogError("Analyze solution {0} with error {1}", solutionFilename, e);
                 MemoryUtils.LogMemoryConsumption(_logger);
                 throw e;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Analyze solution {0} with error {1}", solutionFilename, ex);
+                throw ex;
             }
             finally
             {
