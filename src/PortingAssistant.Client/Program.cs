@@ -169,47 +169,51 @@ namespace PortingAssistant.Client.CLI
 
         private static async Task<SolutionAnalysisResult> AnalyzeSolutionGenerator(IPortingAssistantClient portingAssistantClient, string solutionPath, AnalyzerSettings solutionSettings)
         {
-            var projectAnalysisResults = new List<ProjectAnalysisResult>();
-            var failedProjects = new List<string>();
-            var projectAnalysisResultEnumerator = portingAssistantClient.AnalyzeSolutionGeneratorAsync(solutionPath, solutionSettings).GetAsyncEnumerator();
+            try {
+                var projectAnalysisResults = new List<ProjectAnalysisResult>();
+                var failedProjects = new List<string>();
+                var projectAnalysisResultEnumerator = portingAssistantClient.AnalyzeSolutionGeneratorAsync(solutionPath, solutionSettings).GetAsyncEnumerator();
 
-            while (await projectAnalysisResultEnumerator.MoveNextAsync().ConfigureAwait(false))
-            {
-                var result = projectAnalysisResultEnumerator.Current;
-                projectAnalysisResults.Add(result);
-
-                if (result.IsBuildFailed)
+                while (await projectAnalysisResultEnumerator.MoveNextAsync().ConfigureAwait(false))
                 {
-                    failedProjects.Add(result.ProjectFilePath);
+                    var result = projectAnalysisResultEnumerator.Current;
+                    projectAnalysisResults.Add(result);
+
+                    if (result.IsBuildFailed)
+                    {
+                        failedProjects.Add(result.ProjectFilePath);
+                    }
                 }
-            }
 
 
-            var solutionDetails = new SolutionDetails
-            {
-                SolutionName = Path.GetFileNameWithoutExtension(solutionPath),
-                SolutionFilePath = solutionPath,
-                Projects = projectAnalysisResults.ConvertAll(p => new ProjectDetails
+                var solutionDetails = new SolutionDetails
                 {
-                    PackageReferences = p.PackageReferences,
-                    ProjectFilePath = p.ProjectFilePath,
-                    ProjectGuid = p.ProjectGuid,
-                    ProjectName = p.ProjectName,
-                    ProjectReferences = p.ProjectReferences,
-                    ProjectType = p.ProjectType,
-                    TargetFrameworks = p.TargetFrameworks,
-                    IsBuildFailed = p.IsBuildFailed
-                }),
+                    SolutionName = Path.GetFileNameWithoutExtension(solutionPath),
+                    SolutionFilePath = solutionPath,
+                    Projects = projectAnalysisResults.ConvertAll(p => new ProjectDetails
+                    {
+                        PackageReferences = p.PackageReferences,
+                        ProjectFilePath = p.ProjectFilePath,
+                        ProjectGuid = p.ProjectGuid,
+                        ProjectName = p.ProjectName,
+                        ProjectReferences = p.ProjectReferences,
+                        ProjectType = p.ProjectType,
+                        TargetFrameworks = p.TargetFrameworks,
+                        IsBuildFailed = p.IsBuildFailed
+                    }),
 
-                FailedProjects = failedProjects
-            };
+                    FailedProjects = failedProjects
+                };
 
-            return new SolutionAnalysisResult
-            {
-                FailedProjects = failedProjects,
-                SolutionDetails = solutionDetails,
-                ProjectAnalysisResults = projectAnalysisResults
-            };
+                return new SolutionAnalysisResult
+                {
+                    FailedProjects = failedProjects,
+                    SolutionDetails = solutionDetails,
+                    ProjectAnalysisResults = projectAnalysisResults
+                };
+            } catch (Exception ex) {
+                throw new PortingAssistantException($"Cannot Analyze solution {solutionPath}", ex);
+            }
         }
     }
 }
