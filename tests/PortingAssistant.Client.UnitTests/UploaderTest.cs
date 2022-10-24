@@ -71,7 +71,7 @@ namespace PortingAssistant.Client.UnitTests
         {
             var telemetryClientMock = new Mock<ITelemetryClient>();
 
-            
+
             telemetryClientMock
                 .Setup(
                     x => x.SendAsync(It.IsAny<TelemetryRequest>()).Result
@@ -134,7 +134,23 @@ namespace PortingAssistant.Client.UnitTests
             "[2021 - 12 - 08 11:52:02 INF](Porting Assistant Client CLI)(1.11.19 - alpha + a0d7b74f85)(client) PortingAssistant.Client.Analysis.PortingAssistantAnalysisHandler: Current process is 64bit.",
             "[2021 - 12 - 08 11:52:02 INF](Porting Assistant Client CLI)(1.11.19 - alpha + a0d7b74f85)(client) PortingAssistant.Client.Analysis.PortingAssistantAnalysisHandler: Total size for C:\\Users\\longachr\\AppData\\Local\\Temp\\u03lvutv.1mn\\NetFrameworkExample\\NetFrameworkExample.sln in bytes: 4673"
         };
-    }
 
-    
+        [Test]
+        public void TestBlankProfilePassedIntoFactory()
+        {
+            var teleConfig = new TelemetryConfiguration();
+            bool actualSuccessStatus = TelemetryClientFactory.TryGetClient("", teleConfig, out ITelemetryClient client);
+            Assert.IsFalse(actualSuccessStatus);
+            Assert.IsNull(client);
+        }
+
+        [Test]
+        public void TestNullProfilePassedIntoFactory()
+        {
+            var teleConfig = new TelemetryConfiguration();
+            bool actualSuccessStatus = TelemetryClientFactory.TryGetClient(null, teleConfig, out ITelemetryClient client);
+            Assert.IsFalse(actualSuccessStatus);
+            Assert.IsNull(client);
+        }
+    }
 }
