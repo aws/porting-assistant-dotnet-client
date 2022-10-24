@@ -43,8 +43,9 @@ namespace PortingAssistant.Client.Telemetry
     public static class TelemetryClientFactory
     {
         public static bool TryGetClient(string profile, TelemetryConfiguration config, out ITelemetryClient client, bool enabledDefaultCredentials = false)
-        {
+        {   
             client = null;
+            if (string.IsNullOrEmpty(profile)) { return false; }
             var chain = new CredentialProfileStoreChain();
             AWSCredentials awsCredentials;
             if (enabledDefaultCredentials)
