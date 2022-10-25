@@ -17,6 +17,7 @@ namespace PortingAssistant.Client.IntegrationTests
         private string _tmpTestProjectsExtractionPath;
         private string _vbTmpTestProjectsExtractionPath;
         private Task<SolutionAnalysisResult> solutionAnalysisResultTask;
+        private IAsyncEnumerable<ProjectAnalysisResult> solutionAnalysisResultGeneratorTask;
         private Task<SolutionAnalysisResult> vbSolutionAnalysisResultTask;
         private Task<SolutionAnalysisResult> vbSolutionAnalysisResultIncTask;
 
@@ -50,6 +51,7 @@ namespace PortingAssistant.Client.IntegrationTests
 
             var netFrameworkProjectPath = Path.Combine(_tmpTestProjectsExtractionPath, "NetFrameworkExample", "NetFrameworkExample.sln");
             solutionAnalysisResultTask = portingAssistantClient.AnalyzeSolutionAsync(netFrameworkProjectPath, new AnalyzerSettings() { TargetFramework = "netcoreapp3.1" });
+            solutionAnalysisResultGeneratorTask = portingAssistantClient.AnalyzeSolutionGeneratorAsync(netFrameworkProjectPath, new AnalyzerSettings() { TargetFramework = "netcoreapp3.1" });
 
             var vbNetFrameworkProjectPath = Path.Combine(_vbTmpTestProjectsExtractionPath, "VBWebApi", "VBWebApi.sln");
             vbSolutionAnalysisResultTask = portingAssistantClient.AnalyzeSolutionAsync(vbNetFrameworkProjectPath, new AnalyzerSettings() { TargetFramework = "netcoreapp3.1" });
@@ -79,6 +81,25 @@ namespace PortingAssistant.Client.IntegrationTests
             });
             Assert.AreEqual(0, solutionAnalysisResultTask.Result.FailedProjects.Count);
             Assert.Null(solutionAnalysisResultTask.Result.Errors);
+        }
+
+        [Test]
+        public void AnalyzeGeneratorNetFrameworkProjectSucceeds()
+        {
+            var projectAnalysisResultEnumerator = solutionAnalysisResultGeneratorTask.GetAsyncEnumerator();
+            var failedProjects = new List<string>();
+            Assert.DoesNotThrowAsync(async () =>
+            {
+                while (await projectAnalysisResultEnumerator.MoveNextAsync().ConfigureAwait(false))
+                {
+                    ProjectAnalysisResult result = projectAnalysisResultEnumerator.Current;
+                    if (result.IsBuildFailed)
+                    {
+                        failedProjects.Add(result.ProjectFilePath);
+                    }
+                };
+            });
+            Assert.AreEqual(0, failedProjects.Count);
         }
 
         [Test]
