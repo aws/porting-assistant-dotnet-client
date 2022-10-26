@@ -1,11 +1,11 @@
-﻿using System;
+﻿using PortingAssistant.Client.Common.Model;
+using System;
 using System.Collections.Generic;
 
 namespace PortingAssistant.Client.Model
 {
     public class PortingAssistantConfiguration
     {
-
         public PortingAssistantConfiguration()
         {
             this.UseDataStoreSettings = true;
@@ -20,6 +20,7 @@ namespace PortingAssistant.Client.Model
             {
                 NugetServerEndpoint = "NugetServerEndpoint",
             };
+            this.SupportedVersionConfiguration = new SupportedVersionConfiguration();
         }
 
         public bool UseDataStoreSettings { get; set; }
@@ -28,6 +29,7 @@ namespace PortingAssistant.Client.Model
         public DataStoreSettings DataStoreSettings { get; set; }
 
         public NuGetServerSettings InternalNuGetServerSettings { get; set; } //optional
+        public SupportedVersionConfiguration SupportedVersionConfiguration { get; set; }
 
         public PortingAssistantConfiguration DeepCopy()
         {
@@ -36,7 +38,8 @@ namespace PortingAssistant.Client.Model
                 UseDataStoreSettings = this.UseDataStoreSettings,
                 UseInternalNuGetServer = this.UseInternalNuGetServer,
                 DataStoreSettings = this.DataStoreSettings.DeepCopy(),
-                InternalNuGetServerSettings = this.InternalNuGetServerSettings.DeepCopy()
+                InternalNuGetServerSettings = this.InternalNuGetServerSettings.DeepCopy(),
+                SupportedVersionConfiguration = this.SupportedVersionConfiguration.DeepCopy()
             };
         }
 
@@ -46,6 +49,7 @@ namespace PortingAssistant.Client.Model
             that.UseInternalNuGetServer = this.UseInternalNuGetServer;
             that.DataStoreSettings = this.DataStoreSettings.DeepCopy();
             that.InternalNuGetServerSettings = this.InternalNuGetServerSettings.DeepCopy();
+            that.SupportedVersionConfiguration = this.SupportedVersionConfiguration.DeepCopy();
             return that;
         }
     }
