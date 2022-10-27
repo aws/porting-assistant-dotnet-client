@@ -111,12 +111,15 @@ namespace PortingAssistant.Client.Tests
             var _testPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestXml", "TestPorting");
             projectCompatibilityResult.ProjectPath = _testPath;
             projectCompatibilityResult.IsPorted = true;
-            var type = "Debug";
+            var actualStr = projectCompatibilityResult.ToString();
+            Console.WriteLine(actualStr);
             var expectedStr = "Ported Project Compatibilities for D:\\repos\\porting-assistant-dotnet-client\\tests\\PortingAssistant.Client.UnitTests\\bin\\{0}\\net6.0\\TestXml\\TestPorting:\r\nAnnotation: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\nMethod: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\nDeclaration: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\nEnum: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\nStruct: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\n";
-            Assert.IsTrue(string.Equals(projectCompatibilityResult.ToString(), String.Format(expectedStr, "Debug")) || string.Equals(projectCompatibilityResult.ToString(), String.Format(expectedStr, "Release")));
+            Console.WriteLine(expectedStr);
+            Assert.IsTrue(string.Equals(actualStr, String.Format(expectedStr, "Debug")) || string.Equals(actualStr, String.Format(expectedStr, "Release")));
             projectCompatibilityResult.IsPorted = false;
+            actualStr = projectCompatibilityResult.ToString();
             expectedStr = "Analyzed Project Compatibilities for D:\\repos\\porting-assistant-dotnet-client\\tests\\PortingAssistant.Client.UnitTests\\bin\\{0}\\net6.0\\TestXml\\TestPorting:\r\nAnnotation: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\nMethod: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\nDeclaration: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\nEnum: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\nStruct: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\n";
-            Assert.IsTrue(string.Equals(projectCompatibilityResult.ToString(), String.Format(expectedStr, "Debug")) || string.Equals(projectCompatibilityResult.ToString(), String.Format(expectedStr, "Release")));
+            Assert.IsTrue(string.Equals(actualStr, String.Format(expectedStr, "Debug")) || string.Equals(actualStr, String.Format(expectedStr, "Release")));
         }
 
         [Test]
