@@ -13,6 +13,7 @@ using PortingAssistant.Client.Client.FileParser;
 using System;
 using PortingAssistant.Client.Common.Model;
 using PortingAssistant.Client.Common.Utils;
+using System.Xml.Linq;
 
 namespace PortingAssistant.Client.Tests
 {
@@ -110,11 +111,12 @@ namespace PortingAssistant.Client.Tests
             var _testPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestXml", "TestPorting");
             projectCompatibilityResult.ProjectPath = _testPath;
             projectCompatibilityResult.IsPorted = true;
-            var expectedStr = "Ported Project Compatibilities for D:\\repos\\porting-assistant-dotnet-client\\tests\\PortingAssistant.Client.UnitTests\\bin\\Debug\\net6.0\\TestXml\\TestPorting:\r\nAnnotation: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\nMethod: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\nDeclaration: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\nEnum: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\nStruct: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\n";
-            Assert.AreEqual(projectCompatibilityResult.ToString(), expectedStr);
+            var type = "Debug";
+            var expectedStr = "Ported Project Compatibilities for D:\\repos\\porting-assistant-dotnet-client\\tests\\PortingAssistant.Client.UnitTests\\bin\\{0}\\net6.0\\TestXml\\TestPorting:\r\nAnnotation: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\nMethod: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\nDeclaration: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\nEnum: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\nStruct: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\n";
+            Assert.IsTrue(string.Equals(projectCompatibilityResult.ToString(), String.Format(expectedStr, "Debug")) || string.Equals(projectCompatibilityResult.ToString(), String.Format(expectedStr, "Release")));
             projectCompatibilityResult.IsPorted = false;
-            expectedStr = "Analyzed Project Compatibilities for D:\\repos\\porting-assistant-dotnet-client\\tests\\PortingAssistant.Client.UnitTests\\bin\\Debug\\net6.0\\TestXml\\TestPorting:\r\nAnnotation: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\nMethod: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\nDeclaration: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\nEnum: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\nStruct: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\n";
-            Assert.AreEqual(projectCompatibilityResult.ToString(), expectedStr);
+            expectedStr = "Analyzed Project Compatibilities for D:\\repos\\porting-assistant-dotnet-client\\tests\\PortingAssistant.Client.UnitTests\\bin\\{0}\\net6.0\\TestXml\\TestPorting:\r\nAnnotation: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\nMethod: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\nDeclaration: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\nEnum: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\nStruct: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\n";
+            Assert.IsTrue(string.Equals(projectCompatibilityResult.ToString(), String.Format(expectedStr, "Debug")) || string.Equals(projectCompatibilityResult.ToString(), String.Format(expectedStr, "Release")));
         }
 
         [Test]
