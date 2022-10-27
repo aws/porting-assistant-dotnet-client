@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using PortingAssistant.Client.Model;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 
@@ -34,6 +35,7 @@ namespace PortingAssistant.Client.PortingProjectFile
         /// <param name="upgradeVersions">List of key/value pairs where key is package and value is version number</param>
         /// <returns>A PortingProjectFileResult object, representing the result of the porting operation</returns>
         /// 
+        [ExcludeFromCodeCoverage]
         public List<PortingResult> ApplyProjectChanges(
             List<ProjectDetails> projects, string solutionPath, string targetFramework,
             Dictionary<string, Tuple<string, string>> upgradeVersions)
@@ -50,6 +52,7 @@ namespace PortingAssistant.Client.PortingProjectFile
         /// <param name="upgradeVersions">List of key/value pairs where key is package and value is version number</param>
         /// <returns>A PortingProjectFileResult object, representing the result of the porting operation</returns>
         /// 
+        [ExcludeFromCodeCoverage]
         public List<PortingResult> ApplyProjectChanges(
             List<ProjectDetails> projects, string solutionPath, string targetFramework,
             bool includeCodeFix,
@@ -136,6 +139,7 @@ namespace PortingAssistant.Client.PortingProjectFile
         /// <returns>
         /// Valid projects with access, Porting result for projects without access
         /// </returns>
+        [ExcludeFromCodeCoverage]
         private (List<ProjectDetails>, List<PortingResult>) VerifyFileAccess(List<ProjectDetails> projects)
         {
             var noAccessPortingResults = new List<PortingResult>();

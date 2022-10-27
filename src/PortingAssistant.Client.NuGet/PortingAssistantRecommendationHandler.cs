@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using System.IO;
 using PortingAssistant.Client.NuGet.Interfaces;
 using Newtonsoft.Json.Linq;
+using System.Diagnostics.CodeAnalysis;
 
 namespace PortingAssistant.Client.NuGet
 {
@@ -93,6 +94,7 @@ namespace PortingAssistant.Client.NuGet
             }
         }
 
+        [ExcludeFromCodeCoverage]
         private async void ProcessCompatibility(IEnumerable<string> namespaces,
             Dictionary<string, List<string>> foundPackages,
             Dictionary<string, TaskCompletionSource<RecommendationDetails>> recommendationTaskCompletionSources)
@@ -166,6 +168,7 @@ namespace PortingAssistant.Client.NuGet
             }
         }
 
+        [ExcludeFromCodeCoverage]
         public PackageSourceType GetCompatibilityCheckerType()
         {
             return PackageSourceType.RECOMMENDATION;

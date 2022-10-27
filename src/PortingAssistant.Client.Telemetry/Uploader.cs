@@ -12,6 +12,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Diagnostics.CodeAnalysis;
 
 namespace PortingAssistant.Client.Telemetry
 {
@@ -71,6 +72,7 @@ namespace PortingAssistant.Client.Telemetry
             }
         }
 
+        [ExcludeFromCodeCoverage]
         private bool Upload()
         {
             try
@@ -106,7 +108,7 @@ namespace PortingAssistant.Client.Telemetry
                 return false;
             }
         }
-
+        [ExcludeFromCodeCoverage]
         private void CleanupLogFolder()
         {
             try
@@ -171,6 +173,7 @@ namespace PortingAssistant.Client.Telemetry
             return logName;
         }
 
+        [ExcludeFromCodeCoverage]
         private void AddError(Exception e)
         {
             if (_errors.ContainsKey(e.Message))
@@ -180,6 +183,7 @@ namespace PortingAssistant.Client.Telemetry
             _errors[e.Message] = 1;
         }
 
+        [ExcludeFromCodeCoverage]
         private void ReadFileLineMap()
         {
             _lastReadTokenFile = Path.Combine(_configuration.LogsPath, "lastToken.json");
@@ -193,6 +197,7 @@ namespace PortingAssistant.Client.Telemetry
             }
         }
 
+        [ExcludeFromCodeCoverage]
         private void UpdateFileLineMapJson()
         {
             ReadFileLineMap();
@@ -215,6 +220,7 @@ namespace PortingAssistant.Client.Telemetry
             writer.Write(JsonConvert.SerializeObject(_fileLineNumberMap));
         }
 
+        [ExcludeFromCodeCoverage]
         private FileStream WaitForFile(string fullPath,
             FileMode mode,
             FileAccess access,
@@ -240,6 +246,7 @@ namespace PortingAssistant.Client.Telemetry
             return null;
         }
 
+        [ExcludeFromCodeCoverage]
         private bool UploadFile(string file, string logName)
         {
             var initLineNumber = _fileLineNumberMap.ContainsKey(file) ? _fileLineNumberMap[file] : 0;
@@ -301,6 +308,7 @@ namespace PortingAssistant.Client.Telemetry
             return false;
         }
 
+        [ExcludeFromCodeCoverage]
         private async Task<bool> PutLogData(
             string logName,
             string logData)
@@ -337,6 +345,7 @@ namespace PortingAssistant.Client.Telemetry
             }
         }
 
+        [ExcludeFromCodeCoverage]
         private static bool IsFileLocked(FileInfo file)
         {
             FileStream stream = null;

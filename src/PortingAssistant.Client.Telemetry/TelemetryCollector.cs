@@ -3,6 +3,7 @@ using PortingAssistant.Client.Model;
 using PortingAssistant.Client.Telemetry.Model;
 using Serilog;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
@@ -26,6 +27,7 @@ namespace PortingAssistantExtensionTelemetry
             }
         }
 
+        [ExcludeFromCodeCoverage]
         private static void ConfigureDefault()
         {
             var AppData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
@@ -40,6 +42,7 @@ namespace PortingAssistantExtensionTelemetry
             _logger = logConfiguration.CreateLogger();
         }
 
+        [ExcludeFromCodeCoverage]
         private static void WriteToFile(string content)
         {
             _readWriteLock.EnterWriteLock();
@@ -212,6 +215,7 @@ namespace PortingAssistantExtensionTelemetry
 
         }
 
+        [ExcludeFromCodeCoverage]
         private static string GetProjectLanguage(string projectFilePath)
         {
             if (projectFilePath.EndsWith(".csproj", StringComparison.InvariantCultureIgnoreCase))

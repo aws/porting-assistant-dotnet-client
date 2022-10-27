@@ -9,9 +9,11 @@ using Amazon.Runtime.Internal;
 using Amazon.Runtime.Internal.Auth;
 using Amazon.Runtime.Internal.Transform;
 using PortingAssistantExtensionTelemetry.Model;
+using System.Diagnostics.CodeAnalysis;
 
 namespace PortingAssistant.Client.Telemetry
 {
+    [ExcludeFromCodeCoverage]
     public class TelemetryClient : AmazonServiceClient, ITelemetryClient
     {
         public TelemetryClient(TelemetryClientConfig config)
@@ -76,7 +78,7 @@ namespace PortingAssistant.Client.Telemetry
             return false;
         }
     }
-
+    [ExcludeFromCodeCoverage]
     internal class TelemetryRequestMarshaller : IMarshaller<IRequest, TelemetryRequest>, IMarshaller<IRequest, AmazonWebServiceRequest>
     {
         private TelemetryRequestMarshaller()
@@ -99,6 +101,7 @@ namespace PortingAssistant.Client.Telemetry
 
         public static TelemetryRequestMarshaller Instance = new TelemetryRequestMarshaller();
     }
+    [ExcludeFromCodeCoverage]
     internal class TelemetryResponseUnmarshaller : JsonResponseUnmarshaller
     {
         private TelemetryResponseUnmarshaller()

@@ -16,6 +16,7 @@ using NuGet.Frameworks;
 using NuGet.Versioning;
 using PortingAssistant.Client.PortingProjectFile;
 using CTA.Rules.Models;
+using PortingAssistant.Client.CLI;
 
 namespace PortingAssistant.Client.Tests
 {
