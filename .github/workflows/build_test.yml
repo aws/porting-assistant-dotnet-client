@@ -48,9 +48,7 @@ jobs:
         "aws_access_key_id = $env:aws_access_key_id" | Out-File -FilePath "~\.aws\credentials" -Append
         "aws_secret_access_key = $env:aws_secret_access_key" | Out-File -FilePath "~\.aws\credentials" -Append
     - name: Test
-      run: dotnet test --configuration Release --no-restore --verbosity normal  --collect:"XPlat Code Coverage" --results-directory ./coverage
-    - name: Copy Coverage Report Location
-      run: cp coverage/**/coverage.cobertura.xml coverage.cobertura.xml
+      run: dotnet test --configuration Release --no-restore --verbosity normal 
     - name: Pack
       if: ${{ github.event_name == 'push' }}
       run: |
