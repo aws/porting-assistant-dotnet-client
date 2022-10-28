@@ -48,25 +48,9 @@ jobs:
         "aws_access_key_id = $env:aws_access_key_id" | Out-File -FilePath "~\.aws\credentials" -Append
         "aws_secret_access_key = $env:aws_secret_access_key" | Out-File -FilePath "~\.aws\credentials" -Append
     - name: Test
-      run: dotnet test --configuration Release --no-restore --verbosity normal
-    - name: Code Coverage Summary
-      uses: irongut/CodeCoverageSummary@v1.3.0
-      with:
-        filename: coverage/**/coverage.cobertura.xml
-        badge: true
-        fail_below_min: true
-        format: markdown
-        hide_branch_rate: false
-        hide_complexity: true
-        indicators: true
-        output: both
-        thresholds: '60 80'
-    - name: Add Coverage PR Comment
-      uses: marocchino/sticky-pull-request-comment@v2
-      if: github.event_name == 'pull_request'
-      with:
-        recreate: true
-        path: code-coverage-results.md
+      run: dotnet test --configuration Release --no-restore --verbosity normal  --collect:"XPlat Code Coverage" --results-directory ./coverage
+    - name: Copy Coverage Report Location
+      run: cp coverage/**/coverage.cobertura.xml coverage.cobertura.xml
     - name: Pack
       if: ${{ github.event_name == 'push' }}
       run: |
