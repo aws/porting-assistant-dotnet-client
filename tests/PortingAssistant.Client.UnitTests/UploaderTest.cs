@@ -10,6 +10,10 @@ using System.Net;
 using Newtonsoft.Json;
 using Amazon.Runtime;
 using Serilog;
+using Amazon.Util.Internal;
+using System.Security.Claims;
+using Amazon.Runtime.CredentialManagement;
+using Amazon;
 
 namespace PortingAssistant.Client.UnitTests
 {
@@ -152,5 +156,15 @@ namespace PortingAssistant.Client.UnitTests
             Assert.IsFalse(actualSuccessStatus);
             Assert.IsNull(client);
         }
+
+        [Test]
+        public void TelemetryClientConfigTest()
+        {
+            TelemetryClientConfig config = new TelemetryClientConfig();
+            Assert.AreEqual(config.AuthenticationServiceName, "execute-api");
+            Assert.AreEqual(config.ServiceVersion, "");
+            Assert.AreEqual(config.UserAgent, InternalSDKUtils.BuildUserAgentString("3.5.0.9"));
+        }
+
     }
 }

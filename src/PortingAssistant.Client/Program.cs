@@ -14,6 +14,7 @@ using System.Text.Json;
 using PortingAssistant.Client.Telemetry;
 using System.Diagnostics;
 using System.Reflection;
+using System.Diagnostics.CodeAnalysis;
 
 namespace PortingAssistant.Client.CLI
 
@@ -141,7 +142,7 @@ namespace PortingAssistant.Client.CLI
                 }
             }
         }
-
+        [ExcludeFromCodeCoverage]
         private static void UploadLogs(string profile, TelemetryConfiguration telemetryConfiguration, string logFilePath, string metricsFilePath, string logsPath, bool enabledDefaultCredentials = false)
         {
             if (string.IsNullOrEmpty(profile))
@@ -170,7 +171,7 @@ namespace PortingAssistant.Client.CLI
                 Log.Logger.Error("Upload Metrics/Logs Failed!");
             }
         }
-
+        [ExcludeFromCodeCoverage]
         private static async Task<SolutionAnalysisResult> AnalyzeSolutionGenerator(IPortingAssistantClient portingAssistantClient, string solutionPath, AnalyzerSettings solutionSettings)
         {
             try {

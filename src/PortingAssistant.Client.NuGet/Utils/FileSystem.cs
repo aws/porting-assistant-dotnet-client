@@ -1,11 +1,13 @@
 ﻿using PortingAssistant.Client.NuGet.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
 
 namespace PortingAssistant.Client.NuGet.Utils
 {
+    [ExcludeFromCodeCoverage]
     class FileSystem : IFileSystem
     {
         public string GetTempPath()

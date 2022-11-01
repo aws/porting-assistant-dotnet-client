@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 
@@ -40,6 +41,7 @@ namespace PortingAssistant.Client.Common.Utils
                  DirectoryHasWriteableCSharpFile(Path.GetDirectoryName(projectFilePath));
         }
 
+        [ExcludeFromCodeCoverage]
         private static bool DirectoryHasWriteableCSharpFile(string directoryPath)
         {
             if (string.IsNullOrEmpty(directoryPath))
@@ -55,6 +57,7 @@ namespace PortingAssistant.Client.Common.Utils
                 Directory.GetDirectories(directoryPath).Any(subDirectory => DirectoryHasWriteableCSharpFile(subDirectory));
         }
 
+        [ExcludeFromCodeCoverage]
         private static bool CanWriteFile(string filePath)
         {
             try
@@ -68,6 +71,7 @@ namespace PortingAssistant.Client.Common.Utils
             }
         }
 
+        [ExcludeFromCodeCoverage]
         private static bool CanWriteToDirectory(string directoryPath)
         {
             try

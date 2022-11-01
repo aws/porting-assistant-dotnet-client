@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 
 namespace NUnit.Framework
@@ -11,6 +12,7 @@ namespace NUnit.Framework
             return logger;
         }
 
+        [ExcludeFromCodeCoverage]
         class NUnitLogger<T> : ILogger<T>, IDisposable
         {
             private readonly Action<string> output = Console.WriteLine;

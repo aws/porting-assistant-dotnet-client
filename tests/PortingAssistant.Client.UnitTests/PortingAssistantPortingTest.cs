@@ -11,6 +11,9 @@ using NuGet.Frameworks;
 using NuGet.Versioning;
 using PortingAssistant.Client.Client.FileParser;
 using System;
+using PortingAssistant.Client.Common.Model;
+using PortingAssistant.Client.Common.Utils;
+using System.Xml.Linq;
 
 namespace PortingAssistant.Client.Tests
 {
@@ -101,6 +104,25 @@ namespace PortingAssistant.Client.Tests
             return projects;
         }
 
+        // Disabling due to inconsistency with the github workflow vs local test run
+        //[Test]
+        //public void ProjectCompatabilityResultTest()
+        //{
+        //    ProjectCompatibilityResult projectCompatibilityResult = new ProjectCompatibilityResult();
+        //    var _testPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestXml", "TestPorting");
+        //    projectCompatibilityResult.ProjectPath = _testPath;
+        //    projectCompatibilityResult.IsPorted = true;
+        //    var actualStr = projectCompatibilityResult.ToString();
+        //    var expectedStrDebug = "Ported Project Compatibilities for D:\\repos\\porting-assistant-dotnet-client\\tests\\PortingAssistant.Client.UnitTests\\bin\\Debug\\net6.0\\TestXml\\TestPorting:\r\nAnnotation: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\nMethod: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\nDeclaration: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\nEnum: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\nStruct: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\n";
+        //    var expectedStrRelease = "Ported Project Compatibilities for D:\\repos\\porting-assistant-dotnet-client\\tests\\PortingAssistant.Client.UnitTests\\bin\\Release\\net6.0\\TestXml\\TestPorting:\r\nAnnotation: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\nMethod: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\nDeclaration: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\nEnum: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\nStruct: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\n";
+        //    Assert.IsTrue(string.Equals(actualStr, expectedStrDebug) || string.Equals(actualStr, expectedStrRelease));
+        //    projectCompatibilityResult.IsPorted = false;
+        //    actualStr = projectCompatibilityResult.ToString();
+        //    expectedStrDebug = "Analyzed Project Compatibilities for D:\\repos\\porting-assistant-dotnet-client\\tests\\PortingAssistant.Client.UnitTests\\bin\\Debug\\net6.0\\TestXml\\TestPorting:\r\nAnnotation: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\nMethod: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\nDeclaration: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\nEnum: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\nStruct: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\n";
+        //    expectedStrRelease = "Analyzed Project Compatibilities for D:\\repos\\porting-assistant-dotnet-client\\tests\\PortingAssistant.Client.UnitTests\\bin\\Release\\net6.0\\TestXml\\TestPorting:\r\nAnnotation: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\nMethod: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\nDeclaration: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\nEnum: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\nStruct: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\n";
+        //    Assert.IsTrue(string.Equals(actualStr, expectedStrDebug) || string.Equals(actualStr, expectedStrRelease));
+        //}
+
         [Test]
         public void PortingProjectSucceedsWithOriginalVerson()
         {
@@ -189,6 +211,15 @@ namespace PortingAssistant.Client.Tests
                 });
 
             Assert.AreEqual(1, result.Count);
+        }
+
+        [Test]
+        public void WriteAccessCheckTest()
+        {
+
+             var res= FileSystemAccess.CheckWriteAccessForDirectory(_tmpDirectory);
+             Assert.AreEqual("", res);
+
         }
     }
 }

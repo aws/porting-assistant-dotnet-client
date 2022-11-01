@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using CommandLine;
@@ -8,6 +9,7 @@ using CommandLine.Text;
 namespace PortingAssistant.Client.CLI
 {
     [Verb("assess", HelpText = "Assess an .NET solution file.")]
+    [ExcludeFromCodeCoverage]
     class AssessOptions
     {
         [Option('s', "solution-path", Required = true, HelpText = "Solution file path to be analyzed")]
@@ -130,6 +132,7 @@ namespace PortingAssistant.Client.CLI
                 }); ;
         }
 
+        [ExcludeFromCodeCoverage]
         static void HandleParseError(IEnumerable<Error> errs)
         {
             Environment.Exit(-1);

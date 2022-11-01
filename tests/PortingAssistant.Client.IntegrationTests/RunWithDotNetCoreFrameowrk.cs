@@ -16,6 +16,7 @@ namespace PortingAssistant.Client.IntegrationTests
         private IPortingAssistantClient portingAssistantClient;
         private string _tmpTestProjectsExtractionPath;
         private Task<SolutionAnalysisResult> solutionAnalysisResultTask;
+        private IAsyncEnumerable<ProjectAnalysisResult> solutionAnalysisResultGeneratorTask;
 
         [OneTimeSetUp]
         public void OneTimeSetup()
@@ -38,6 +39,8 @@ namespace PortingAssistant.Client.IntegrationTests
 
             var netCoreProjectPath = Path.Combine(_tmpTestProjectsExtractionPath, "Miniblog.Core-master", "Miniblog.Core.sln");
             solutionAnalysisResultTask = portingAssistantClient.AnalyzeSolutionAsync(netCoreProjectPath, new AnalyzerSettings() { TargetFramework="netcoreapp3.1"});
+            solutionAnalysisResultGeneratorTask = portingAssistantClient.AnalyzeSolutionGeneratorAsync(netCoreProjectPath, new AnalyzerSettings() { TargetFramework = "netcoreapp3.1" });
+
         }
 
         static private void ConfigureServices(IServiceCollection serviceCollection, PortingAssistantConfiguration config)
@@ -61,6 +64,24 @@ namespace PortingAssistant.Client.IntegrationTests
             });
             Assert.AreEqual(0, solutionAnalysisResultTask.Result.FailedProjects.Count);
             Assert.Null(solutionAnalysisResultTask.Result.Errors);
+        }
+
+        [Test]
+        public void AnalyzeGeneratorNetCoreProjectSucceeds()
+        {
+            var projectAnalysisResultEnumerator = solutionAnalysisResultGeneratorTask.GetAsyncEnumerator();
+            var failedProjects = new List<string>();
+            Assert.DoesNotThrowAsync(async () => {
+                while (await projectAnalysisResultEnumerator.MoveNextAsync().ConfigureAwait(false))
+                {
+                    ProjectAnalysisResult result = projectAnalysisResultEnumerator.Current;
+                    if (result.IsBuildFailed)
+                    {
+                        failedProjects.Add(result.ProjectFilePath);
+                    }
+                };
+            });
+            Assert.AreEqual(0, failedProjects.Count);
         }
 
         [Test]

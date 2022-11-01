@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
 
 namespace Test2
 {
+    [ExcludeFromCodeCoverage]
     class Program
     {
         static void print()

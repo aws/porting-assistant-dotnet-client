@@ -11,6 +11,7 @@ using PortingAssistant.Client.Model;
 using Newtonsoft.Json.Linq;
 using Amazon.S3;
 using PortingAssistant.Client.NuGet.Interfaces;
+using System.Diagnostics.CodeAnalysis;
 
 namespace PortingAssistant.Client.NuGet
 {
@@ -122,6 +123,7 @@ namespace PortingAssistant.Client.NuGet
         /// <param name="packageVersions">Collection of package versions to check</param>
         /// <param name="foundPackages">Collection of packages found</param>
         /// <param name="compatibilityTaskCompletionSources">The results of the compatibility check to process</param>
+        [ExcludeFromCodeCoverage]
         private async void ProcessCompatibility(IEnumerable<PackageVersionPair> packageVersions,
             Dictionary<string, List<PackageVersionPair>> foundPackages,
             Dictionary<PackageVersionPair, TaskCompletionSource<PackageDetails>> compatibilityTaskCompletionSources)
