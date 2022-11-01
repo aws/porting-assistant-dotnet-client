@@ -145,6 +145,10 @@ namespace PortingAssistant.Client.CLI
         [ExcludeFromCodeCoverage]
         private static void UploadLogs(string profile, TelemetryConfiguration telemetryConfiguration, string logFilePath, string metricsFilePath, string logsPath, bool enabledDefaultCredentials = false)
         {
+            if (string.IsNullOrEmpty(profile))
+            {
+                return;
+            }
             telemetryConfiguration.LogFilePath = logFilePath;
             telemetryConfiguration.MetricsFilePath = metricsFilePath;
             telemetryConfiguration.LogsPath = logsPath;
