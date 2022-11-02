@@ -34,7 +34,10 @@ namespace PortingAssistant.Client.Common.Model
         /// including assess, port and deploy. Adding a dependency to a public S3 bucket configuration file is not 
         /// introducing extra internet dependency.
         /// </summary>
-        public const string S3SupportedVersionFilePath = "https://s3.us-west-2.amazonaws.com/mingxue-global-test/PAConfigurations/SupportedVersion.json";
+        public const string S3Region = "us-west-2";
+        public const string S3BucketName = "mingxue-global-test";
+        public const string S3File = "PAConfigurations/SupportedVersion.json";
+        public const string ExpectedBucketOwnerId = "412081997838";
         public string FormatVersion { get; set; }
         public List<SupportedVersion> Versions { get; set; }
 
