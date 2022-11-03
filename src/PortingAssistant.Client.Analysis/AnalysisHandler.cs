@@ -226,7 +226,8 @@ namespace PortingAssistant.Client.Analysis
         }
 
         /// <returns>The IDE project result; may be null if there were errors while analyzing files.</returns>
-        private async Task<IDEProjectResult> AnalyzeProjectFiles(string projectPath, string fileContent, string filePath, List<string> preportReferences, List<string> currentReferences)
+        #nullable enable
+        private async Task<IDEProjectResult?> AnalyzeProjectFiles(string projectPath, string fileContent, string filePath, List<string> preportReferences, List<string> currentReferences)
         {
             try
             {
@@ -260,6 +261,7 @@ namespace PortingAssistant.Client.Analysis
             }
             return null;
         }
+        #nullable disable
 
         public async Task<Dictionary<string, ProjectAnalysisResult>> AnalyzeSolution(
             string solutionFilename, List<string> projects, string targetFramework = DEFAULT_TARGET)
