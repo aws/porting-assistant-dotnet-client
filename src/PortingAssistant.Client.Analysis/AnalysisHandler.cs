@@ -17,7 +17,6 @@ using AnalyzerConfiguration = Codelyzer.Analysis.AnalyzerConfiguration;
 using IDEProjectResult = Codelyzer.Analysis.Build.IDEProjectResult;
 using PortingAssistant.Client.Common.Model;
 using Codelyzer.Analysis.Analyzer;
-using NJsonSchema.Annotations;
 
 namespace PortingAssistant.Client.Analysis
 {
@@ -65,7 +64,7 @@ namespace PortingAssistant.Client.Analysis
                 var fileAnalysis = await AnalyzeProjectFiles(projectFile, fileContent, filePath, preportReferences, currentReferences);
                 if (fileAnalysis == null)
                 {
-                    return new List<SourceFileAnalysisResult>();
+                    return sourceFileAnalysisResults;
                 }
 
                 var fileActions = AnalyzeFileActionsIncremental(projectFile, projectRules, targetFramework, solutionFilePath, filePath, fileAnalysis);
