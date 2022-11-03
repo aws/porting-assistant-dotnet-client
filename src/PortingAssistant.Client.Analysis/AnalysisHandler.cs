@@ -225,7 +225,6 @@ namespace PortingAssistant.Client.Analysis
             return solutionPort.RunIncremental(rootNodes, filePath);
         }
 
-        /// <returns>The IDE project result; may be null if there were errors while analyzing files.</returns>
         #nullable enable
         private async Task<IDEProjectResult?> AnalyzeProjectFiles(string projectPath, string fileContent, string filePath, List<string> preportReferences, List<string> currentReferences)
         {
