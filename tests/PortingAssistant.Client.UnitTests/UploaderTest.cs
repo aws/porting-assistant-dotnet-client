@@ -15,8 +15,9 @@ namespace PortingAssistant.Client.UnitTests
 {
     public class UploaderTests
     {
-
+        // Temporarily remove this test as it requires AWS creds to be setup on the codebuild 
         [Test]
+        [Ignore("Requires AWS profile configured in the environment")]
         public void Upload_Empty_File_Returns_Success_Status()
         {
             var profile = "default";
