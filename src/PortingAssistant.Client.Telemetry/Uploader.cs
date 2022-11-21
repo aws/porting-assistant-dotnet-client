@@ -79,7 +79,8 @@ namespace PortingAssistant.Client.Telemetry
                     .Where(f => _configuration.Suffix.ToArray()
                                     .Any(f.EndsWith) &&
                                 (string.IsNullOrEmpty(_configuration.LogPrefix) ||
-                                 Path.GetFileName(f).StartsWith(_configuration.LogPrefix)))
+                                 Path.GetFileName(f).StartsWith(_configuration.LogPrefix)) &&
+                                File.GetLastWriteTime(f) > DateTime.Now.Subtract(TimeSpan.FromDays(21)))
                     .ToArray();
 
                 foreach (var file in fileEntries)
@@ -117,7 +118,6 @@ namespace PortingAssistant.Client.Telemetry
                 long currentSize = 0;
                 ReadFileLineMap();
                 var logsDirectory = new DirectoryInfo(_configuration.LogsPath);
-                bool updateLastTokenJson = false;
                 foreach (var file in logsDirectory
                              .GetFiles()
                              .Where(file => _configuration.Suffix.ToArray().Any(file.Name.EndsWith))
@@ -132,21 +132,11 @@ namespace PortingAssistant.Client.Telemetry
                     try
                     {
                         File.Delete(file.FullName);
-                        if (_fileLineNumberMap.ContainsKey(file.FullName))
-                        {
-                            updateLastTokenJson = true;
-                            _fileLineNumberMap.Remove(file.FullName);
-                        }
                     }
                     catch (Exception e)
                     {
                         AddError(e);
                     }
-                }
-
-                if (updateLastTokenJson)
-                {
-                    UpdateFileLineMapJson();
                 }
             }
             catch (Exception e)
@@ -185,11 +175,25 @@ namespace PortingAssistant.Client.Telemetry
             _lastReadTokenFile = Path.Combine(_configuration.LogsPath, "lastToken.json");
             if (File.Exists(_lastReadTokenFile))
             {
-                _fileLineNumberMap = JsonConvert.DeserializeObject<Dictionary<string, int>>(File.ReadAllText(_lastReadTokenFile));
-                if (_fileLineNumberMap == null)
+                using FileStream fs = WaitForFile(_lastReadTokenFile, FileMode.Open, FileAccess.Read, FileShare.Read);
+                using StreamReader reader = new StreamReader(fs);
+                var content = reader.ReadToEnd();
+                try
+                {
+                    _fileLineNumberMap = JsonConvert.DeserializeObject<Dictionary<string, int>>(content);
+                    if (_fileLineNumberMap == null)
+                    {
+                        _fileLineNumberMap = new Dictionary<string, int>();
+                    }
+                }
+                catch
                 {
                     _fileLineNumberMap = new Dictionary<string, int>();
                 }
+            }
+            else
+            {
+                _fileLineNumberMap = new Dictionary<string, int>();
             }
         }
 
@@ -210,7 +214,7 @@ namespace PortingAssistant.Client.Telemetry
             using FileStream fs = WaitForFile(_lastReadTokenFile,
                 FileMode.OpenOrCreate,
                 FileAccess.ReadWrite,
-                FileShare.Read);
+                FileShare.None);
             using StreamWriter writer = new StreamWriter(fs);
             writer.Write(JsonConvert.SerializeObject(_fileLineNumberMap));
         }
@@ -294,7 +298,14 @@ namespace PortingAssistant.Client.Telemetry
                 }
                 if (success)
                 {
-                    _updatedFileLineNumberMap.Add(file, currLineNumber);
+                    if (_updatedFileLineNumberMap.ContainsKey(file))
+                    {
+                        _updatedFileLineNumberMap[file] = currLineNumber;
+                    }
+                    else
+                    {
+                        _updatedFileLineNumberMap.Add(file, currLineNumber);
+                    }
                     return true;
                 }
             }
