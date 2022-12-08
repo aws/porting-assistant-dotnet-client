@@ -317,5 +317,16 @@ namespace PortingAssistant.Client.Tests
                 _loggerMock.Verify(x => x.LogError(It.IsAny<Exception>(), "Error while analyzing files"), Times.Once);
             });
         }
+
+        [Test]
+        public void AnalyzeFileIncrementalReturnsEmptyCollection() 
+        {
+            var analysisHandlerWithException = GetPortingAssistantAnalysisHandlerWithException();
+            var incrementalResult = analysisHandlerWithException.AnalyzeFileIncremental("IncorrectPath", "", "IncorrectPath", _solutionFile, new List<string>(), new List<string>(),
+                null, null, false, true, "netcoreapp3.1");
+            Task.WaitAll(incrementalResult);
+            Assert.IsEmpty(incrementalResult.Result);
+        }
+
     }
 }
