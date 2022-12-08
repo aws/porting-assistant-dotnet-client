@@ -62,6 +62,11 @@ namespace PortingAssistant.Client.Analysis
                 List<SourceFileAnalysisResult> sourceFileAnalysisResults = new List<SourceFileAnalysisResult>();
 
                 var fileAnalysis = await AnalyzeProjectFiles(projectFile, fileContent, filePath, preportReferences, currentReferences);
+                if (fileAnalysis == null)
+                {
+                    return sourceFileAnalysisResults;
+                }
+
                 var fileActions = AnalyzeFileActionsIncremental(projectFile, projectRules, targetFramework, solutionFilePath, filePath, fileAnalysis);
 
                 var sourceFileResult = fileAnalysis.RootNodes.FirstOrDefault();
@@ -220,7 +225,8 @@ namespace PortingAssistant.Client.Analysis
             return solutionPort.RunIncremental(rootNodes, filePath);
         }
 
-        private async Task<IDEProjectResult> AnalyzeProjectFiles(string projectPath, string fileContent, string filePath, List<string> preportReferences, List<string> currentReferences)
+        #nullable enable
+        private async Task<IDEProjectResult?> AnalyzeProjectFiles(string projectPath, string fileContent, string filePath, List<string> preportReferences, List<string> currentReferences)
         {
             try
             {
@@ -254,6 +260,7 @@ namespace PortingAssistant.Client.Analysis
             }
             return null;
         }
+        #nullable disable
 
         public async Task<Dictionary<string, ProjectAnalysisResult>> AnalyzeSolution(
             string solutionFilename, List<string> projects, string targetFramework = DEFAULT_TARGET)
