@@ -212,7 +212,7 @@ namespace PortingAssistant.Client.Telemetry
                 }
             }
             using FileStream fs = WaitForFile(_lastReadTokenFile,
-                FileMode.OpenOrCreate,
+                FileMode.Create,
                 FileAccess.ReadWrite,
                 FileShare.None);
             using StreamWriter writer = new StreamWriter(fs);

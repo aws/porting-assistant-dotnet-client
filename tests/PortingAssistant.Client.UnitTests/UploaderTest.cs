@@ -9,6 +9,7 @@ using Moq;
 using System.Net;
 using Newtonsoft.Json;
 using Amazon.Runtime;
+using NUnit.Framework.Internal;
 using Serilog;
 
 namespace PortingAssistant.Client.UnitTests
@@ -113,6 +114,25 @@ namespace PortingAssistant.Client.UnitTests
             var fileLineNumberMap = JsonConvert.DeserializeObject<Dictionary<string, int>>(File.ReadAllText(lastReadTokenFile));
             Assert.AreEqual(fileLineNumberMap[logFilePath], 3);
             Assert.AreEqual(fileLineNumberMap[metricsFilePath], 2);
+
+            // cleanup lastToken.json 
+            fileLineNumberMap.Remove(logFilePath);
+            fileLineNumberMap.Remove(metricsFilePath);
+            string jsonStringEmpty = JsonConvert.SerializeObject(fileLineNumberMap);
+            File.WriteAllText(lastReadTokenFile, jsonStringEmpty);
+
+            // write an invalid lastToken.json file
+            var lastReadTokenLines = new Dictionary<String, string>();
+            lastReadTokenLines.Add("A", "/a  ");
+            lastReadTokenLines.Add("B", "\b");
+            lastReadTokenLines.Add("C", null);
+            string lastReadTokenLinesJson = JsonConvert.SerializeObject(lastReadTokenLines);
+            File.WriteAllText(lastReadTokenFile, lastReadTokenLinesJson);
+
+            // re-run Uploader, it should overwrite the invalid lastToken.json file.
+            bool resultNew = new Uploader(teleConfig, telemetryClientMock.Object, null, true).Run();
+            Assert.IsTrue(resultNew);
+            Assert.AreEqual(fileLineNumberMap.ContainsKey("a"), false);
 
             //cleanup 
             File.Delete(logFilePath);
