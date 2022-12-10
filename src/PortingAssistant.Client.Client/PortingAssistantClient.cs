@@ -172,12 +172,21 @@ namespace PortingAssistant.Client.Client
         private List<string> ProjectsToAnalyze(string solutionFilePath, AnalyzerSettings settings)
         {
             var solution = SolutionFile.Parse(solutionFilePath);
-            return solution.ProjectsInOrder.Where(p =>
-                (p.ProjectType == SolutionProjectType.KnownToBeMSBuildFormat ||
-                p.ProjectType == SolutionProjectType.WebProject) &&
-                (settings.IgnoreProjects?.Contains(p.AbsolutePath) != true))
-                .Select(p => p.AbsolutePath)
-                .ToList();
+            return 
+                solution
+                    .ProjectsInOrder
+                        // is a MSBuild or Web Project
+                    .Where(p => (p.ProjectType == SolutionProjectType.KnownToBeMSBuildFormat || p.ProjectType == SolutionProjectType.WebProject))
+                        // hasn't been ignored
+                    .Where(p => (settings.IgnoreProjects?.Contains(p.AbsolutePath) != true))
+                        // is VB or C# project
+                    .Where(p =>
+                    {
+                        var projectFileExtension = Path.GetExtension(p.AbsolutePath ?? "").ToLower();
+                        return projectFileExtension == ".csproj" || projectFileExtension == ".vbproj";
+                    })
+                    .Select(p => p.AbsolutePath)
+                    .ToList();
         }
     }
 }
