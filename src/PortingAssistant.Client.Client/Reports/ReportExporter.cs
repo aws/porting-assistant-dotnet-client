@@ -27,7 +27,7 @@ namespace PortingAssistant.Client.Client.Reports
         {
             portingResults.ForEach(portingResult =>
             {
-                string FileName = portingResult.ProjectFile + "-porting-result.json";
+                string FileName =Path.GetFileName(portingResult.ProjectFile) + "-porting-result.json";
                 string FileDir = Path.Combine(outputFolder, SolutionName + AnalyzeRootFolder, PortingResultFolder, FileName);
                 Directory.CreateDirectory(FileDir);
                 var writeToFile = WriteReportToFileAsync(portingResult, Path.Combine(FileDir, FileName));
@@ -127,7 +127,7 @@ namespace PortingAssistant.Client.Client.Reports
         {
             try
             {
-                await File.WriteAllTextAsync(FilePath, JsonConvert.SerializeObject(obj, Formatting.Indented));
+                await File.AppendAllTextAsync(FilePath, JsonConvert.SerializeObject(obj, Formatting.Indented));
                 _logger.LogInformation("file generated at: {0}", FilePath);
                 return true;
             }
