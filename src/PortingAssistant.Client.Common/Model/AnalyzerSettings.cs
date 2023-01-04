@@ -16,5 +16,8 @@ namespace PortingAssistant.Client.Model
         public bool ActionsOnly { get; set; }
 
         public bool UseGenerator { get; set; }
+        public string msBuildPath { get; set; }
+
+        public List<string> msBuildArguments { get; set; }
     }
 }

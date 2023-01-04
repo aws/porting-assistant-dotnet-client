@@ -41,9 +41,9 @@ namespace PortingAssistant.Client.Client
                 Dictionary<string, ProjectAnalysisResult> projectAnalysisResultsDict;
 
                 if (settings.ContiniousEnabled)
-                    projectAnalysisResultsDict = await _analysisHandler.AnalyzeSolutionIncremental(solutionFilePath, projects, targetFramework);
+                    projectAnalysisResultsDict = await _analysisHandler.AnalyzeSolutionIncremental(solutionFilePath, projects, targetFramework, settings.msBuildPath, settings.msBuildArguments);
                 else
-                    projectAnalysisResultsDict = await _analysisHandler.AnalyzeSolution(solutionFilePath, projects, targetFramework);
+                    projectAnalysisResultsDict = await _analysisHandler.AnalyzeSolution(solutionFilePath, projects, targetFramework, settings.msBuildPath, settings.msBuildArguments);
 
                 var projectAnalysisResults = projects.Select(p =>
                 {
@@ -178,6 +178,80 @@ namespace PortingAssistant.Client.Client
                 (settings.IgnoreProjects?.Contains(p.AbsolutePath) != true))
                 .Select(p => p.AbsolutePath)
                 .ToList();
+        }
+
+        public async Task<SolutionAnalysisResult> AnalyzeSolutionAsyncUsingVSWorkspace(string solutionFilePath, AnalyzerSettings settings, string workspace = null)
+        {
+            try
+            {
+                var solution = SolutionFile.Parse(solutionFilePath);
+                var failedProjects = new List<string>();
+
+                var projects = ProjectsToAnalyze(solutionFilePath, settings);
+
+                var targetFramework = settings.TargetFramework ?? DEFAULT_TARGET;
+
+                Dictionary<string, ProjectAnalysisResult> projectAnalysisResultsDict;
+
+                if (settings.ContiniousEnabled)
+                    projectAnalysisResultsDict = await _analysisHandler.AnalyzeSolutionIncrementalUsingVSWorkspace(solutionFilePath, projects, targetFramework, settings.msBuildPath, settings.msBuildArguments, workspace);
+                else
+                    projectAnalysisResultsDict = await _analysisHandler.AnalyzeSolutionUsingVSWorkspace(solutionFilePath, projects, targetFramework, settings.msBuildPath, settings.msBuildArguments, workspace);
+
+                var projectAnalysisResults = projects.Select(p =>
+                {
+                    var projectAnalysisResult = projectAnalysisResultsDict.GetValueOrDefault(p, null);
+                    if (projectAnalysisResult != null)
+                    {
+                        if (projectAnalysisResult.IsBuildFailed)
+                        {
+                            failedProjects.Add(p);
+                        }
+                        return projectAnalysisResult;
+                    }
+                    return null;
+                }).Where(p => p != null).ToList();
+
+                string solutionGuid = FileParser.SolutionFileParser.getSolutionGuid(solutionFilePath);
+                var solutionDetails = new SolutionDetails
+                {
+                    SolutionName = Path.GetFileNameWithoutExtension(solutionFilePath),
+                    SolutionFilePath = solutionFilePath,
+                    SolutionGuid = solutionGuid,
+                    RepositoryUrl = FileParser.GitConfigFileParser.getGitRepositoryUrl(
+                        FileParser.GitConfigFileParser.getGitRepositoryRootPath(solutionFilePath)),
+                    ApplicationGuid = solutionGuid ?? Utils.HashUtils.GenerateGuid(
+                        projectAnalysisResults.Select(p => p.ProjectGuid).ToList()),
+                    Projects = projectAnalysisResults.ConvertAll(p => new ProjectDetails
+                    {
+                        PackageReferences = p.PackageReferences,
+                        ProjectFilePath = p.ProjectFilePath,
+                        ProjectGuid = p.ProjectGuid,
+                        FeatureType = p.FeatureType,
+                        ProjectName = p.ProjectName,
+                        ProjectReferences = p.ProjectReferences,
+                        ProjectType = p.ProjectType,
+                        TargetFrameworks = p.TargetFrameworks,
+                        IsBuildFailed = p.IsBuildFailed
+                    }),
+
+                    FailedProjects = failedProjects
+                };
+
+
+                return new SolutionAnalysisResult
+                {
+                    FailedProjects = failedProjects,
+                    SolutionDetails = solutionDetails,
+                    ProjectAnalysisResults = projectAnalysisResults
+                };
+
+            }
+            catch (Exception ex)
+            {
+                throw new PortingAssistantException($"Cannot Analyze solution {solutionFilePath}", ex);
+            }
+
         }
     }
 }

@@ -25,7 +25,6 @@ namespace PortingAssistant.Client.Analysis
         private readonly ILogger<PortingAssistantAnalysisHandler> _logger;
         private readonly IPortingAssistantNuGetHandler _handler;
         private readonly IPortingAssistantRecommendationHandler _recommendationHandler;
-
         private const string DEFAULT_TARGET = "net6.0";
 
         public PortingAssistantAnalysisHandler(ILogger<PortingAssistantAnalysisHandler> logger,
@@ -36,7 +35,7 @@ namespace PortingAssistant.Client.Analysis
             _recommendationHandler = recommendationHandler;
         }
 
-        private async Task<List<AnalyzerResult>> RunCoderlyzerAnalysis(string solutionFilename, List<string> projects)
+        private async Task<List<AnalyzerResult>> RunCoderlyzerAnalysis(string solutionFilename, List<string> projects, string msBuildPath, List<string> msBuildArguments)
         {
             MemoryUtils.LogSystemInfo(_logger);
             MemoryUtils.LogSolutiontSize(_logger, solutionFilename);
@@ -45,7 +44,14 @@ namespace PortingAssistant.Client.Analysis
 
             var configuration = GetAnalyzerConfiguration(projects);
             CodeAnalyzerByLanguage analyzer = new CodeAnalyzerByLanguage(configuration, _logger);
-            
+            configuration.BuildSettings = new BuildSettings();
+            configuration.BuildSettings.MSBuildPath = msBuildPath == null ? string.Empty : msBuildPath;
+
+            if (msBuildArguments != null && msBuildArguments.Count > 0)
+            {
+                configuration.BuildSettings.BuildArguments = msBuildArguments;
+            }
+
             var analyzerResults = await analyzer.AnalyzeSolution(solutionFilename);
 
             _logger.LogInformation("Memory usage after RunCoderlyzerAnalysis: ");
@@ -164,11 +170,11 @@ namespace PortingAssistant.Client.Analysis
         }
 
         public async Task<Dictionary<string, ProjectAnalysisResult>> AnalyzeSolutionIncremental(
-            string solutionFilename, List<string> projects, string targetFramework = DEFAULT_TARGET)
+            string solutionFilename, List<string> projects, string targetFramework = DEFAULT_TARGET, string msBuildPath = null, List<string> msBuildArguments = null)
         {
             try
             {
-                var analyzerResults = await RunCoderlyzerAnalysis(solutionFilename, projects);
+                var analyzerResults = await RunCoderlyzerAnalysis(solutionFilename, projects, msBuildPath, msBuildArguments);
 
                 var analysisActions = AnalyzeActions(projects, targetFramework, analyzerResults, solutionFilename);
 
@@ -256,11 +262,11 @@ namespace PortingAssistant.Client.Analysis
         }
 
         public async Task<Dictionary<string, ProjectAnalysisResult>> AnalyzeSolution(
-            string solutionFilename, List<string> projects, string targetFramework = DEFAULT_TARGET)
+            string solutionFilename, List<string> projects, string targetFramework = DEFAULT_TARGET, string msBuildPath = null, List<string> msBuildArguments = null)
         {
             try
             {
-                var analyzerResults = await RunCoderlyzerAnalysis(solutionFilename, projects);
+                var analyzerResults = await RunCoderlyzerAnalysis(solutionFilename, projects, msBuildPath, msBuildArguments);
 
                 var analysisActions = AnalyzeActions(projects, targetFramework, analyzerResults, solutionFilename);
 
@@ -551,6 +557,94 @@ namespace PortingAssistant.Client.Analysis
                     },
                 ConcurrentThreads = 1
             };
+        }
+
+        private async Task<List<AnalyzerResult>> RunCoderlyzerAnalysisUsingVSWorkspace(string solutionFilename, List<string> projects, string msBuildPath, List<string> msBuildArguments, string workspace)
+        {
+            MemoryUtils.LogSystemInfo(_logger);
+            MemoryUtils.LogSolutiontSize(_logger, solutionFilename);
+            _logger.LogInformation("Memory usage before RunCoderlyzerAnalysis: ");
+            MemoryUtils.LogMemoryConsumption(_logger);
+
+            var configuration = GetAnalyzerConfiguration(projects);
+            CodeAnalyzerByLanguage analyzer = new CodeAnalyzerByLanguage(configuration, _logger);
+            configuration.BuildSettings = new BuildSettings();
+            configuration.BuildSettings.MSBuildPath = msBuildPath == null ? string.Empty : msBuildPath;
+
+            if (msBuildArguments != null && msBuildArguments.Count > 0)
+            {
+                configuration.BuildSettings.BuildArguments = msBuildArguments;
+            }
+
+            var analyzerResults = await analyzer.AnalyzeSolutionUsingVSWorkspace(solutionFilename, workspace);
+            _logger.LogInformation("Memory usage after RunCoderlyzerAnalysis: ");
+            MemoryUtils.LogMemoryConsumption(_logger);
+
+            return analyzerResults;
+        }
+
+        public async Task<Dictionary<string, ProjectAnalysisResult>> AnalyzeSolutionUsingVSWorkspace(
+         string solutionFilename, List<string> projects, string targetFramework = DEFAULT_TARGET, string msBuildPath = null, List<string> msBuildArguments = null, string workspace = null)
+        {
+            try
+            {
+                var analyzerResults = await RunCoderlyzerAnalysisUsingVSWorkspace(solutionFilename, projects, msBuildPath, msBuildArguments, workspace);
+
+                var analysisActions = AnalyzeActions(projects, targetFramework, analyzerResults, solutionFilename);
+
+                var solutionAnalysisResult = AnalyzeProjects(
+                    solutionFilename, projects,
+                    analyzerResults, analysisActions,
+                    isIncremental: false, targetFramework);
+
+                return solutionAnalysisResult;
+            }
+            catch (OutOfMemoryException e)
+            {
+                _logger.LogError("Analyze solution {0} with error {1}", solutionFilename, e);
+                MemoryUtils.LogMemoryConsumption(_logger);
+                throw e;
+            }
+            finally
+            {
+                CommonUtils.RunGarbageCollection(_logger, "PortingAssistantAnalysisHandler.AnalyzeSolution");
+            }
+
+        }
+
+        public async Task<Dictionary<string, ProjectAnalysisResult>> AnalyzeSolutionIncrementalUsingVSWorkspace(
+           string solutionFilename, List<string> projects, string targetFramework = DEFAULT_TARGET, string msBuildPath = null, List<string> msBuildArguments = null, string workspace = null)
+        {
+            try
+            {
+                var analyzerResults = await RunCoderlyzerAnalysisUsingVSWorkspace(solutionFilename, projects, msBuildPath, msBuildArguments, workspace);
+
+                var analysisActions = AnalyzeActions(projects, targetFramework, analyzerResults, solutionFilename);
+
+                var solutionAnalysisResult = AnalyzeProjects(
+                    solutionFilename, projects,
+                    analyzerResults, analysisActions,
+                    isIncremental: true, targetFramework);
+
+                var projectActions = projects
+                       .Select((project) => new KeyValuePair<string, ProjectActions>
+                       (project, analysisActions.FirstOrDefault(p => p.ProjectFile == project)?.ProjectActions ?? new ProjectActions()))
+                       .Where(p => p.Value != null)
+                       .ToDictionary(p => p.Key, p => p.Value);
+
+
+                return solutionAnalysisResult;
+            }
+            catch (OutOfMemoryException e)
+            {
+                _logger.LogError("Analyze solution {0} with error {1}", solutionFilename, e);
+                MemoryUtils.LogMemoryConsumption(_logger);
+                throw e;
+            }
+            finally
+            {
+                CommonUtils.RunGarbageCollection(_logger, "PortingAssistantAnalysisHandler.AnalyzeSolutionIncremental");
+            }
         }
     }
 }
