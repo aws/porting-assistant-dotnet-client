@@ -18,7 +18,6 @@ namespace PortingAssistant.Client.NuGet.Utils
         {
             _S3httpClient = httpClientFactory.CreateClient("s3");
             _S3httpClient.BaseAddress = new Uri(options.Value.DataStoreSettings.HttpsEndpoint);
-            _S3httpClient.Timeout = TimeSpan.FromMilliseconds(1);
             _GitHubHttpClient = httpClientFactory.CreateClient("github");
             _GitHubHttpClient.BaseAddress = new Uri(options.Value.DataStoreSettings.GitHubEndpoint);
         }
