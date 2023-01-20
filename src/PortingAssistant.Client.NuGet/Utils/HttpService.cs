@@ -5,6 +5,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using PortingAssistant.Client.Model;
+using System.Threading;
 
 namespace PortingAssistant.Client.NuGet.Utils
 {
@@ -17,18 +18,37 @@ namespace PortingAssistant.Client.NuGet.Utils
         {
             _S3httpClient = httpClientFactory.CreateClient("s3");
             _S3httpClient.BaseAddress = new Uri(options.Value.DataStoreSettings.HttpsEndpoint);
+            _S3httpClient.Timeout = TimeSpan.FromMilliseconds(1);
             _GitHubHttpClient = httpClientFactory.CreateClient("github");
             _GitHubHttpClient.BaseAddress = new Uri(options.Value.DataStoreSettings.GitHubEndpoint);
         }
 
         public async Task<Stream> DownloadS3FileAsync(string fileToDownload)
         {
-            return await _S3httpClient.GetStreamAsync(fileToDownload);
+            CancellationTokenSource tokenSource = new CancellationTokenSource();
+            try
+            {
+                return await _S3httpClient.GetStreamAsync(fileToDownload, tokenSource.Token);
+            }
+            catch (TaskCanceledException e) when (!tokenSource.Token.IsCancellationRequested) 
+            {
+                // cancellation due to the http request timeout
+                throw new TimeoutException(e.Message);
+            }
         }
 
         public async Task<Stream> DownloadGitHubFileAsync(string fileToDownload)
         {
-            return await _GitHubHttpClient.GetStreamAsync(fileToDownload);
+            CancellationTokenSource tokenSource = new CancellationTokenSource();
+            try
+            {
+                return await _GitHubHttpClient.GetStreamAsync(fileToDownload);
+            }
+            catch (TaskCanceledException e) when (!tokenSource.Token.IsCancellationRequested)
+            {
+                // cancellation due to the http request timeout
+                throw new TimeoutException(e.Message);
+            }
         }
     }
 }
