@@ -18,6 +18,7 @@ namespace PortingAssistantExtensionTelemetry
         private static string _filePath;
         private static ILogger _logger;
         private static ReaderWriterLockSlim _readWriteLock = new ReaderWriterLockSlim();
+        private static ILogger metricsLogger;
 
         public static void Builder(ILogger logger, string filePath)
         {
@@ -26,7 +27,7 @@ namespace PortingAssistantExtensionTelemetry
                 _logger = logger;
                 _filePath = filePath;
             }
-            Log.Logger = new LoggerConfiguration().WriteTo.File(
+            metricsLogger = new LoggerConfiguration().WriteTo.File(
                 new ExpressionTemplate("{@m}\n"),
                 _filePath,
                 rollingInterval: RollingInterval.Month,
@@ -77,7 +78,7 @@ namespace PortingAssistantExtensionTelemetry
         public static void Collect<T>(T t)
         {
             //WriteToFile(JsonConvert.SerializeObject(t));
-            Log.Logger.Information("{t}", JsonConvert.SerializeObject(t));
+            metricsLogger.Information("{t}", JsonConvert.SerializeObject(t));
         }
 
         public static SolutionMetrics createSolutionMetric(SolutionDetails solutionDetail, string targetFramework, string version, string source, double analysisTime, string tag, SHA256 sha256hash, DateTime date) {
