@@ -2,11 +2,13 @@
 using PortingAssistant.Client.Model;
 using PortingAssistant.Client.Telemetry.Model;
 using Serilog;
+using Serilog.Formatting.Compact;
 using System;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
+using Serilog.Templates;
 using ILogger = Serilog.ILogger;
 
 namespace PortingAssistantExtensionTelemetry
@@ -24,8 +26,14 @@ namespace PortingAssistantExtensionTelemetry
                 _logger = logger;
                 _filePath = filePath;
             }
-        }
-
+            Log.Logger = new LoggerConfiguration().WriteTo.File(
+                new ExpressionTemplate("{@m}\n"),
+                _filePath,
+                rollingInterval: RollingInterval.Month,
+                rollOnFileSizeLimit: true
+                                ).CreateLogger();
+                        }
+  
         private static void ConfigureDefault()
         {
             var AppData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
@@ -68,7 +76,8 @@ namespace PortingAssistantExtensionTelemetry
 
         public static void Collect<T>(T t)
         {
-            WriteToFile(JsonConvert.SerializeObject(t));
+            //WriteToFile(JsonConvert.SerializeObject(t));
+            Log.Logger.Information("{t}", JsonConvert.SerializeObject(t));
         }
 
         public static SolutionMetrics createSolutionMetric(SolutionDetails solutionDetail, string targetFramework, string version, string source, double analysisTime, string tag, SHA256 sha256hash, DateTime date) {
