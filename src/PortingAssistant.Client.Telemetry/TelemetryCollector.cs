@@ -30,7 +30,7 @@ namespace PortingAssistantExtensionTelemetry
             metricsLogger = new LoggerConfiguration().WriteTo.File(
                 new ExpressionTemplate("{@m}\n"),
                 _filePath,
-                rollingInterval: RollingInterval.Month,
+                rollingInterval: RollingInterval.Day,
                 rollOnFileSizeLimit: true
                                 ).CreateLogger();
                         }

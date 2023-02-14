@@ -36,7 +36,7 @@ namespace PortingAssistant.Client.CLI
             var roamingFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             var logs = Path.Combine(roamingFolder, "Porting Assistant for .NET", "logs");
             var logFilePath = Path.Combine(logs, "portingAssistant-client-cli-.log");
-            var metricsFilePath = Path.Combine(logs, $"portingAssistant-client-cli-{DateTime.Today:yyyyMMdd}.metrics");
+            var metricsFilePath = Path.Combine(logs, $"portingAssistant-client-cli-.metrics");
 
             var version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
 
