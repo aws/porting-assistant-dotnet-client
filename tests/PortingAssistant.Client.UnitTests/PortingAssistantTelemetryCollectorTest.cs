@@ -34,6 +34,7 @@ namespace PortingAssistant.Client.UnitTests
                 SolutionGuid = "test-solution-guid", 
                 RepositoryUrl = "https://github.com/test-project",
             };
+            var numLogicalCores = Environment.ProcessorCount;
             var actualSolutionMetric = TelemetryCollector.createSolutionMetric(solutionDetail, targetFramework, version, source, analysisTime, tag, sha256hash, date);
             Assert.AreEqual(actualSolutionMetric.solutionPath, encryptedSolutionPath);
             Assert.AreEqual(actualSolutionMetric.solutionName, encryptedSolutionName);
@@ -67,9 +68,14 @@ namespace PortingAssistant.Client.UnitTests
             string source = "test_cli";
             string tag = "test";
             double analysisTime = 0;
-            var actualProjectMetric = TelemetryCollector.createProjectMetric(projectDetails, targetFramework, version, source, analysisTime, tag, sha256hash, date);
+            string solutionPath = "test";
+            string solutionGuid = "test";
+            string encryptedSolutionPath = "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08";
+            var actualProjectMetric = TelemetryCollector.createProjectMetric(projectDetails, targetFramework, version, source, analysisTime, tag, sha256hash, date, solutionPath, solutionGuid);
             Assert.AreEqual(actualProjectMetric.projectGuid, projectGuid);
             Assert.AreEqual(actualProjectMetric.projectName, encryptedProjectName);
+            Assert.AreEqual(actualProjectMetric.solutionPath, encryptedSolutionPath);
+            Assert.AreEqual(actualProjectMetric.SolutionGuid, solutionGuid);
         }
 
         [Test]

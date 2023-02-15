@@ -489,7 +489,6 @@ namespace PortingAssistant.Client.Analysis
                 var SourceFileAnalysisResults = CodeEntityModelToCodeEntities.AnalyzeResults(
                     sourceFileToCodeEntityDetails, packageResults, recommendationResults, portingActionResults, targetFramework);
                 var compatibilityResults = AnalysisUtils.GenerateCompatibilityResults(SourceFileAnalysisResults, analyzer.ProjectResult.ProjectFilePath, analyzer.ProjectBuildResult?.PrePortCompilation != null);
-                
                 return new ProjectAnalysisResult
                 {
                     ProjectName = analyzer.ProjectResult.ProjectName,
@@ -509,7 +508,8 @@ namespace PortingAssistant.Client.Analysis
                     ProjectRules = projectActions.ProjectRules,
                     VisualBasicProjectRules = projectActions.VbProjectRules,
                     ExternalReferences = analyzer.ProjectResult.ExternalReferences,
-                    ProjectCompatibilityResult = compatibilityResults
+                    ProjectCompatibilityResult = compatibilityResults,
+                    LinesOfCode = analyzer.ProjectResult.LinesOfCode,
                 };
             }
             catch (Exception ex)

@@ -13,5 +13,6 @@ namespace PortingAssistant.Client.Model
         public List<PackageVersionPair> PackageReferences { get; set; }
         public List<ProjectReference> ProjectReferences { get; set; }
         public bool IsBuildFailed { get; set; }
+        public int LinesOfCode { get; set; }
     }
 }

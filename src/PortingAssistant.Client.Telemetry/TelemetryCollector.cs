@@ -10,6 +10,8 @@ using System.Text;
 using System.Threading;
 using Serilog.Templates;
 using ILogger = Serilog.ILogger;
+using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace PortingAssistantExtensionTelemetry
 {
@@ -19,6 +21,8 @@ namespace PortingAssistantExtensionTelemetry
         private static ILogger _logger;
         private static ReaderWriterLockSlim _readWriteLock = new ReaderWriterLockSlim();
         private static ILogger metricsLogger;
+        private static int _numLogicalCores;
+        private static double _systemMemory;
 
         public static void Builder(ILogger logger, string filePath)
         {
@@ -33,8 +37,13 @@ namespace PortingAssistantExtensionTelemetry
                 rollingInterval: RollingInterval.Day,
                 rollOnFileSizeLimit: true
                                 ).CreateLogger();
-                        }
-  
+            _numLogicalCores = Environment.ProcessorCount;
+            var gcMemoryInfo = GC.GetGCMemoryInfo();
+            var installedMemory = gcMemoryInfo.TotalAvailableMemoryBytes;
+            _systemMemory = (double)installedMemory / 1048576.0;
+
+        }
+
         private static void ConfigureDefault()
         {
             var AppData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
@@ -97,10 +106,13 @@ namespace PortingAssistantExtensionTelemetry
                 SolutionGuid = solutionDetail.SolutionGuid,
                 RepositoryUrl = solutionDetail.RepositoryUrl,
                 analysisTime = analysisTime,
-            };
+                linesOfCode = solutionDetail.Projects.Sum(p => p.LinesOfCode),
+                numLogicalCores = _numLogicalCores,
+                systemMemory = _systemMemory
+        };
         }
 
-        public static ProjectMetrics createProjectMetric(ProjectDetails project, string targetFramework, string version, string source, double analysisTime, string tag, SHA256 sha256hash, DateTime date
+        public static ProjectMetrics createProjectMetric(ProjectDetails project, string targetFramework, string version, string source, double analysisTime, string tag, SHA256 sha256hash, DateTime date, string solutionPath, string solutionGuid
             ) {
             return new ProjectMetrics
             {
@@ -117,12 +129,15 @@ namespace PortingAssistantExtensionTelemetry
                 numNugets = project.PackageReferences.Count,
                 numReferences = project.ProjectReferences.Count,
                 isBuildFailed = project.IsBuildFailed,
-                language = GetProjectLanguage(project.ProjectFilePath)
+                language = GetProjectLanguage(project.ProjectFilePath),
+                linesOfCode = project.LinesOfCode,
+                solutionPath = GetHash(sha256hash, solutionPath),
+                SolutionGuid= solutionGuid,
             };
             
         }
 
-        public static NugetMetrics createNugetMetric(string targetFramework, string version, string source, double analysisTime, string tag, DateTime date, string packageId, string packageVersion, Compatibility compatibility) {
+        public static NugetMetrics createNugetMetric(string targetFramework, string version, string source, double analysisTime, string tag, DateTime date, string packageId, string packageVersion, Compatibility compatibility, string projectGuid) {
             return new NugetMetrics
             {
                 metricsType = MetricsType.nuget,
@@ -134,10 +149,11 @@ namespace PortingAssistantExtensionTelemetry
                 pacakgeName = packageId,
                 packageVersion = packageVersion,
                 compatibility = compatibility,
+                projectGuid = projectGuid
             };
         }
 
-        public static APIMetrics createAPIMetric(ApiAnalysisResult apiAnalysisResult, string targetFramework, string version, string source, string tag, DateTime date)
+        public static APIMetrics createAPIMetric(ApiAnalysisResult apiAnalysisResult, string targetFramework, string version, string source, string tag, DateTime date, string projectGuid)
         { 
             return new APIMetrics
             {
@@ -152,7 +168,8 @@ namespace PortingAssistantExtensionTelemetry
                 originalDefinition = apiAnalysisResult.CodeEntityDetails.OriginalDefinition,
                 compatibility = apiAnalysisResult.CompatibilityResults[targetFramework].Compatibility,
                 packageId = apiAnalysisResult.CodeEntityDetails.Package.PackageId,
-                packageVersion = apiAnalysisResult.CodeEntityDetails.Package.Version
+                packageVersion = apiAnalysisResult.CodeEntityDetails.Package.Version,
+                projectGuid= projectGuid
             };
         }
 
@@ -167,7 +184,7 @@ namespace PortingAssistantExtensionTelemetry
 
             foreach (var project in solutionDetail.Projects)
             {
-                var projectMetrics = createProjectMetric(project, targetFramework, version, source, analysisTime, tag, sha256hash, date);
+                var projectMetrics = createProjectMetric(project, targetFramework, version, source, analysisTime, tag, sha256hash, date, solutionDetail.SolutionFilePath, solutionDetail.SolutionGuid);
                 TelemetryCollector.Collect<ProjectMetrics>(projectMetrics);
             }
 
@@ -180,24 +197,24 @@ namespace PortingAssistantExtensionTelemetry
                     var packageID = nuget.Value.Result.PackageVersionPair.PackageId;
                     var packageVersion = nuget.Value.Result.PackageVersionPair.Version;
                     var compatability = nuget.Value.Result.CompatibilityResults[targetFramework].Compatibility;
-                    var nugetMetrics = createNugetMetric(targetFramework, version, source, analysisTime, tag, date, packageID, packageVersion, compatability);
+                    var nugetMetrics = createNugetMetric(targetFramework, version, source, analysisTime, tag, date, packageID, packageVersion, compatability, project.ProjectGuid);
                     TelemetryCollector.Collect<NugetMetrics>(nugetMetrics);
                 }
 
                 foreach (var sourceFile in project.SourceFileAnalysisResults)
                 {
-                    FileAssessmentCollect(sourceFile, targetFramework, version, source, tag);
+                    FileAssessmentCollect(sourceFile, targetFramework, version, source, tag, project.ProjectGuid);
                 }
             });
         }
 
 
-        public static void FileAssessmentCollect(SourceFileAnalysisResult result, string targetFramework, string version, string source, string tag)
+        public static void FileAssessmentCollect(SourceFileAnalysisResult result, string targetFramework, string version, string source, string tag, string projectGuid)
         {
             var date = DateTime.Now;
             foreach (var api in result.ApiAnalysisResults)
             {
-                var apiMetrics = createAPIMetric(api, targetFramework, version, source, tag, date);
+                var apiMetrics = createAPIMetric(api, targetFramework, version, source, tag, date, projectGuid);
                 TelemetryCollector.Collect<APIMetrics>(apiMetrics);
             }
         }

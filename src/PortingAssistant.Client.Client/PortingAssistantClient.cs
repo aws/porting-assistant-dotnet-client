@@ -79,7 +79,8 @@ namespace PortingAssistant.Client.Client
                         ProjectReferences = p.ProjectReferences,
                         ProjectType = p.ProjectType,
                         TargetFrameworks = p.TargetFrameworks,
-                        IsBuildFailed = p.IsBuildFailed
+                        IsBuildFailed = p.IsBuildFailed,
+                        LinesOfCode = p.LinesOfCode,
                     }),
 
                     FailedProjects = failedProjects

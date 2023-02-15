@@ -31,6 +31,7 @@ namespace PortingAssistant.Client.Model
             VisualBasicProjectRules = null;
             ExternalReferences = null;
             ProjectCompatibilityResult = null;
+            LinesOfCode= 0;
         }
     }
 }

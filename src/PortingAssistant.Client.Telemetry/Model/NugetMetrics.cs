@@ -10,5 +10,7 @@ namespace PortingAssistant.Client.Telemetry.Model
         public string packageVersion { get; set; }
         [JsonConverter(typeof(StringEnumConverter))]
         public Compatibility compatibility { get; set; }
+        public string projectGuid { get; set; }
+
     }
 }
