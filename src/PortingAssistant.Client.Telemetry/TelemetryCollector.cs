@@ -2,7 +2,6 @@
 using PortingAssistant.Client.Model;
 using PortingAssistant.Client.Telemetry.Model;
 using Serilog;
-using Serilog.Formatting.Compact;
 using System;
 using System.IO;
 using System.Security.Cryptography;
@@ -11,7 +10,7 @@ using System.Threading;
 using Serilog.Templates;
 using ILogger = Serilog.ILogger;
 using System.Linq;
-using System.Runtime.InteropServices;
+using System.Net.NetworkInformation;
 
 namespace PortingAssistantExtensionTelemetry
 {
@@ -24,6 +23,7 @@ namespace PortingAssistantExtensionTelemetry
         private static int _numLogicalCores;
         private static double _systemMemory;
         private static string _sessionId;
+        private static SHA256 _sha256hash;
 
         public static void Builder(ILogger logger, string filePath)
         {
@@ -43,6 +43,7 @@ namespace PortingAssistantExtensionTelemetry
             var gcMemoryInfo = GC.GetGCMemoryInfo();
             var installedMemory = gcMemoryInfo.TotalAvailableMemoryBytes;
             _systemMemory = (double)installedMemory / 1048576.0;
+            _sha256hash = SHA256.Create();
         }
 
         public static void Collect<T>(T t)
@@ -70,7 +71,8 @@ namespace PortingAssistantExtensionTelemetry
                 numLogicalCores = _numLogicalCores,
                 systemMemory = _systemMemory,
                 SessionId = _sessionId,
-        };
+                ApplicationId = GetDeploymentHashId(solutionDetail.SolutionFilePath)
+            };
         }
 
         public static ProjectMetrics createProjectMetric(ProjectDetails project, string targetFramework, string version, string source, double analysisTime, string tag, SHA256 sha256hash, DateTime date, string solutionPath, string solutionGuid
@@ -94,7 +96,8 @@ namespace PortingAssistantExtensionTelemetry
                 linesOfCode = project.LinesOfCode,
                 solutionPath = GetHash(sha256hash, solutionPath),
                 SolutionGuid= solutionGuid,
-                SessionId = _sessionId
+                SessionId = _sessionId,
+                ApplicationId = GetDeploymentHashId(solutionPath)
             };
             
         }
@@ -139,16 +142,15 @@ namespace PortingAssistantExtensionTelemetry
 
         public static void SolutionAssessmentCollect(SolutionAnalysisResult result, string targetFramework, string version, string source, double analysisTime, string tag)
         {
-            var sha256hash = SHA256.Create();
             var date = DateTime.Now;
             var solutionDetail = result.SolutionDetails;
             // Solution Metrics
-            var solutionMetrics = createSolutionMetric(solutionDetail, targetFramework, version, source, analysisTime, tag, sha256hash, date);
+            var solutionMetrics = createSolutionMetric(solutionDetail, targetFramework, version, source, analysisTime, tag, _sha256hash, date);
             TelemetryCollector.Collect<SolutionMetrics>(solutionMetrics);
 
             foreach (var project in solutionDetail.Projects)
             {
-                var projectMetrics = createProjectMetric(project, targetFramework, version, source, analysisTime, tag, sha256hash, date, solutionDetail.SolutionFilePath, solutionDetail.SolutionGuid);
+                var projectMetrics = createProjectMetric(project, targetFramework, version, source, analysisTime, tag, _sha256hash, date, solutionDetail.SolutionFilePath, solutionDetail.SolutionGuid);
                 TelemetryCollector.Collect<ProjectMetrics>(projectMetrics);
             }
 
@@ -201,6 +203,24 @@ namespace PortingAssistantExtensionTelemetry
 
             return sBuilder.ToString();
 
+        }
+
+        private static string GetDeploymentHashId(string solutionPath, string projectName = "")
+        {
+            //ID has to be started with letter due to a  restriction for ECR names 
+            //current a2c regex  is ^[a - z] +[a - z0 - 9 -] *$, minimum 5 chars maximum 32 chars
+            string macId = NetworkInterface.GetAllNetworkInterfaces().Where(nic => nic.OperationalStatus == OperationalStatus.Up).Select(nic => nic.GetPhysicalAddress().ToString()).FirstOrDefault();
+            if (!String.IsNullOrEmpty(projectName))
+            {
+                var proj = projectName.ToLower().Length > 10 ? projectName.ToLower().Substring(0, 10) : projectName.ToLower();
+                var appId = "d" + proj + GetHash(_sha256hash, macId + solutionPath + projectName);
+                return appId.Substring(0, 32);
+            }
+            else
+            {
+                var deploymentId = GetHash(_sha256hash, macId + solutionPath);
+                return deploymentId.Substring(0, 32);
+            }
         }
 
         private static string GetProjectLanguage(string projectFilePath)
