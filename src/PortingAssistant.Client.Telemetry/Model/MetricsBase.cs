@@ -12,5 +12,7 @@ namespace PortingAssistant.Client.Telemetry.Model
         public string version { get; set; }
         public string targetFramework { get; set; }
         public string timeStamp { get; set; }
+        public string SessionId { get; set; }
+        public string ApplicationId { get; set; }
     }
 }

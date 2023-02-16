@@ -23,13 +23,15 @@ namespace PortingAssistantExtensionTelemetry
         private static ILogger metricsLogger;
         private static int _numLogicalCores;
         private static double _systemMemory;
+        private static string _sessionId;
 
         public static void Builder(ILogger logger, string filePath)
         {
-            if (_logger == null && _filePath == null)
+            if (_logger == null && _filePath == null && _sessionId == null)
             {
                 _logger = logger;
                 _filePath = filePath;
+                _sessionId = Guid.NewGuid().ToString();
             }
             metricsLogger = new LoggerConfiguration().WriteTo.File(
                 new ExpressionTemplate("{@m}\n"),
@@ -41,52 +43,10 @@ namespace PortingAssistantExtensionTelemetry
             var gcMemoryInfo = GC.GetGCMemoryInfo();
             var installedMemory = gcMemoryInfo.TotalAvailableMemoryBytes;
             _systemMemory = (double)installedMemory / 1048576.0;
-
-        }
-
-        private static void ConfigureDefault()
-        {
-            var AppData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            var metricsFilePath = Path.Combine(AppData, "logs", "metrics.metrics");
-            _filePath = metricsFilePath;
-            var outputTemplate = "[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] {SourceContext}: {Message:lj}{NewLine}{Exception}";
-            var logConfiguration = new LoggerConfiguration().Enrich.FromLogContext()
-            .MinimumLevel.Warning()
-            .WriteTo.File(
-                Path.Combine(AppData, "logs", "metrics.log"),
-                outputTemplate: outputTemplate);
-            _logger = logConfiguration.CreateLogger();
-        }
-
-        private static void WriteToFile(string content)
-        {
-            _readWriteLock.EnterWriteLock();
-            try
-            {
-                if (_filePath == null)
-                {
-                    ConfigureDefault();
-                }
-                using (StreamWriter sw = File.AppendText(_filePath))
-                {
-                    sw.WriteLine(content);
-                    sw.Close();
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.Error("Failed to write to the metrics file with error", ex);
-            }
-            finally
-            {
-                // Release lock
-                _readWriteLock.ExitWriteLock();
-            }
         }
 
         public static void Collect<T>(T t)
         {
-            //WriteToFile(JsonConvert.SerializeObject(t));
             metricsLogger.Information("{t}", JsonConvert.SerializeObject(t));
         }
 
@@ -108,7 +68,8 @@ namespace PortingAssistantExtensionTelemetry
                 analysisTime = analysisTime,
                 linesOfCode = solutionDetail.Projects.Sum(p => p.LinesOfCode),
                 numLogicalCores = _numLogicalCores,
-                systemMemory = _systemMemory
+                systemMemory = _systemMemory,
+                SessionId = _sessionId,
         };
         }
 
@@ -133,6 +94,7 @@ namespace PortingAssistantExtensionTelemetry
                 linesOfCode = project.LinesOfCode,
                 solutionPath = GetHash(sha256hash, solutionPath),
                 SolutionGuid= solutionGuid,
+                SessionId = _sessionId
             };
             
         }
@@ -149,7 +111,8 @@ namespace PortingAssistantExtensionTelemetry
                 pacakgeName = packageId,
                 packageVersion = packageVersion,
                 compatibility = compatibility,
-                projectGuid = projectGuid
+                projectGuid = projectGuid,
+                SessionId = _sessionId
             };
         }
 
@@ -169,7 +132,8 @@ namespace PortingAssistantExtensionTelemetry
                 compatibility = apiAnalysisResult.CompatibilityResults[targetFramework].Compatibility,
                 packageId = apiAnalysisResult.CodeEntityDetails.Package.PackageId,
                 packageVersion = apiAnalysisResult.CodeEntityDetails.Package.Version,
-                projectGuid= projectGuid
+                projectGuid= projectGuid,
+                SessionId= _sessionId
             };
         }
 
