@@ -1,4 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using CTA.Rules.Models;
+using Microsoft.CodeAnalysis;
+using Newtonsoft.Json;
+using NuGet.Packaging.Signing;
 using PortingAssistant.Client.Model;
 using PortingAssistant.Client.Telemetry.Model;
 using Serilog;
@@ -72,44 +75,58 @@ namespace PortingAssistantExtensionTelemetry
         }
 
         public static SolutionMetrics createSolutionMetric(SolutionDetails solutionDetail, string targetFramework, string version, string source, double analysisTime, string tag, SHA256 sha256hash, DateTime date) {
-            
-            return new SolutionMetrics
+            var solutionMetrics = new SolutionMetrics();
+            try
             {
-                metricsType = MetricsType.solution,
-                version = version,
-                portingAssistantSource = source,
-                tag = tag,
-                targetFramework = targetFramework,
-                timeStamp = date.ToString("MM/dd/yyyy HH:mm"),
-                solutionName = GetHash(sha256hash, solutionDetail.SolutionName),
-                solutionPath = GetHash(sha256hash, solutionDetail.SolutionFilePath),
-                ApplicationGuid = solutionDetail.ApplicationGuid,
-                SolutionGuid = solutionDetail.SolutionGuid,
-                RepositoryUrl = solutionDetail.RepositoryUrl,
-                analysisTime = analysisTime,
-            };
+                solutionMetrics.metricsType = MetricsType.solution;
+                solutionMetrics.version = version;
+                solutionMetrics.portingAssistantSource = source;
+                solutionMetrics.tag = tag;
+                solutionMetrics.targetFramework = targetFramework;
+                solutionMetrics.timeStamp = date.ToString("MM/dd/yyyy HH:mm");
+                solutionMetrics.solutionName = GetHash(sha256hash, solutionDetail.SolutionName);
+                solutionMetrics.solutionPath = GetHash(sha256hash, solutionDetail.SolutionFilePath);
+                solutionMetrics.ApplicationGuid = solutionDetail.ApplicationGuid;
+                solutionMetrics.SolutionGuid = solutionDetail.SolutionGuid;
+                solutionMetrics.RepositoryUrl = solutionDetail.RepositoryUrl;
+                solutionMetrics.analysisTime = analysisTime;
+
+            }
+            catch(Exception ex)
+            {
+                // logging to check what causes solution detail to be null
+                _logger.Error("Failed to create solution metric object", ex);
+            }
+            return solutionMetrics;
         }
 
         public static ProjectMetrics createProjectMetric(ProjectDetails project, string targetFramework, string version, string source, double analysisTime, string tag, SHA256 sha256hash, DateTime date
             ) {
-            return new ProjectMetrics
+            var projectMetrics = new ProjectMetrics();
+            try
             {
-                metricsType = MetricsType.project,
-                portingAssistantSource = source,
-                tag = tag,
-                version = version,
-                targetFramework = targetFramework,
-                sourceFrameworks = project.TargetFrameworks,
-                timeStamp = date.ToString("MM/dd/yyyy HH:mm"),
-                projectName = GetHash(sha256hash, project.ProjectName),
-                projectGuid = project.ProjectGuid,
-                projectType = project.ProjectType,
-                numNugets = project.PackageReferences.Count,
-                numReferences = project.ProjectReferences.Count,
-                isBuildFailed = project.IsBuildFailed,
-                language = GetProjectLanguage(project.ProjectFilePath)
-            };
-            
+                projectMetrics.metricsType = MetricsType.project;
+                projectMetrics.portingAssistantSource = source;
+                projectMetrics.tag = tag;
+                projectMetrics.version = version;
+                projectMetrics.targetFramework = targetFramework;
+                projectMetrics.sourceFrameworks = project.TargetFrameworks;
+                projectMetrics.timeStamp = date.ToString("MM/dd/yyyy HH:mm");
+                projectMetrics.projectName = GetHash(sha256hash, project.ProjectName);
+                projectMetrics.projectGuid = project.ProjectGuid;
+                projectMetrics.projectType = project.ProjectType;
+                projectMetrics.numNugets = project.PackageReferences.Count;
+                projectMetrics.numReferences = project.ProjectReferences.Count;
+                projectMetrics.isBuildFailed = project.IsBuildFailed;
+                projectMetrics.language = GetProjectLanguage(project.ProjectFilePath);
+            }
+            catch(Exception ex)
+            {
+                // logging to check what causes project detail to be null
+                _logger.Error("Failed to create project metric object", ex);
+            }
+            return projectMetrics;
+
         }
 
         public static NugetMetrics createNugetMetric(string targetFramework, string version, string source, double analysisTime, string tag, DateTime date, string packageId, string packageVersion, Compatibility compatibility) {
