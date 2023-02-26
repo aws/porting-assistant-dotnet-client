@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -36,7 +36,7 @@ namespace PortingAssistant.Client.CLI
             var roamingFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             var logs = Path.Combine(roamingFolder, "Porting Assistant for .NET", "logs");
             var logFilePath = Path.Combine(logs, "portingAssistant-client-cli-.log");
-            var metricsFilePath = Path.Combine(logs, $"portingAssistant-client-cli-.metrics");
+            var metricsFilePath = Path.Combine(logs, "portingAssistant-client-cli-.metrics");
 
             var version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
 
@@ -204,7 +204,7 @@ namespace PortingAssistant.Client.CLI
                         ProjectType = p.ProjectType,
                         TargetFrameworks = p.TargetFrameworks,
                         IsBuildFailed = p.IsBuildFailed,
-                        LinesOfCode = p.LinesOfCode,
+                        LinesOfCode = p.LinesOfCode
                     }),
 
                     FailedProjects = failedProjects

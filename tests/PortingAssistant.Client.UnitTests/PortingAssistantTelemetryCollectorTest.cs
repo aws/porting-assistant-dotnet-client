@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Collections.Generic;
 using NUnit.Framework;
@@ -16,8 +16,10 @@ namespace PortingAssistant.Client.UnitTests
         public void CreateSolutionMetric_Returns_Expected_Metric()
         {
             var solutionPath = "C:/Users/CustomerName/nopCommerce/src/NopCommerce.sln";
+            // encryptedSolutionPath is the sha256 hash of the solutionPath string
             var encryptedSolutionPath = "462eb7f46af82bd5155ef9f28ca3f5f638f702a7423b105478fa3d9267a344da";
             var solutionName = "testSolution";
+            // encryptedSolutionName is the sha256 hash of the solutionName string
             var encryptedSolutionName = "204ca3d6a6e14bf11f8e0992afc0276d262585065fe37ab595a5cba5bbbcb766";
             var targetFramework = "netcoreapp3.1"; 
             string version = "testVersion";
@@ -35,7 +37,7 @@ namespace PortingAssistant.Client.UnitTests
                 RepositoryUrl = "https://github.com/test-project",
             };
             var numLogicalCores = Environment.ProcessorCount;
-            var actualSolutionMetric = TelemetryCollector.createSolutionMetric(solutionDetail, targetFramework, version, source, analysisTime, tag, sha256hash, date);
+            var actualSolutionMetric = TelemetryCollector.CreateSolutionMetric(solutionDetail, targetFramework, version, source, analysisTime, tag, sha256hash, date);
             Assert.AreEqual(actualSolutionMetric.solutionPath, encryptedSolutionPath);
             Assert.AreEqual(actualSolutionMetric.solutionName, encryptedSolutionName);
             Assert.AreEqual(actualSolutionMetric.ApplicationGuid, "test-application-guid");
@@ -71,7 +73,7 @@ namespace PortingAssistant.Client.UnitTests
             string solutionPath = "test";
             string solutionGuid = "test";
             string encryptedSolutionPath = "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08";
-            var actualProjectMetric = TelemetryCollector.createProjectMetric(projectDetails, targetFramework, version, source, analysisTime, tag, sha256hash, date, solutionPath, solutionGuid);
+            var actualProjectMetric = TelemetryCollector.CreateProjectMetric(projectDetails, targetFramework, version, source, analysisTime, tag, sha256hash, date, solutionPath, solutionGuid);
             Assert.AreEqual(actualProjectMetric.projectGuid, projectGuid);
             Assert.AreEqual(actualProjectMetric.projectName, encryptedProjectName);
             Assert.AreEqual(actualProjectMetric.solutionPath, encryptedSolutionPath);

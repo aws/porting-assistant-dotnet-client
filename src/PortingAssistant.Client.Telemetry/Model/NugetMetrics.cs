@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using PortingAssistant.Client.Model;
 
@@ -11,6 +11,5 @@ namespace PortingAssistant.Client.Telemetry.Model
         [JsonConverter(typeof(StringEnumConverter))]
         public Compatibility compatibility { get; set; }
         public string projectGuid { get; set; }
-
     }
 }

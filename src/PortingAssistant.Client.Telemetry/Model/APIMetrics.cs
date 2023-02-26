@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using PortingAssistant.Client.Model;
 
@@ -14,6 +14,5 @@ namespace PortingAssistant.Client.Telemetry.Model
         public string packageId { get; set; }
         public string packageVersion { get; set; }
         public string projectGuid { get; set; }
-
     }
 }
