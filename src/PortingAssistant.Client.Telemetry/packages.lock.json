@@ -958,6 +958,15 @@
           "NETStandard.Library": "1.6.1"
         }
       },
+      "Serilog.Extensions.Logging": {
+        "type": "Transitive",
+        "resolved": "3.0.1",
+        "contentHash": "U0xbGoZuxJRjE3C5vlCfrf9a4xHTmbrCXKmaA14cHAqiT1Qir0rkV7Xss9GpPJR3MRYH19DFUUqZ9hvWeJrzdQ==",
+        "dependencies": {
+          "Microsoft.Extensions.Logging": "2.0.0",
+          "Serilog": "2.8.0"
+        }
+      },
       "System.AppContext": {
         "type": "Transitive",
         "resolved": "4.3.0",
@@ -1934,6 +1943,7 @@
           "CTA.Rules.PortCore": "[2.7.15, )",
           "Newtonsoft.Json": "[13.0.1, )",
           "NuGet.Protocol": "[6.0.0, )",
+          "Serilog.Extensions.Logging": "[3.0.1, )",
           "semver": "[2.0.6, )"
         }
       }

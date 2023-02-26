@@ -7,7 +7,6 @@ using PortingAssistant.Client.Porting;
 using Microsoft.Build.Construction;
 using System.IO;
 using System.Threading.Tasks;
-using Codelyzer.Analysis;
 using CTA.Rules.Models;
 using Codelyzer.Analysis.Model;
 
@@ -20,7 +19,8 @@ namespace PortingAssistant.Client.Client
 
         private const string DEFAULT_TARGET = "net6.0";
 
-        public PortingAssistantClient(IPortingAssistantAnalysisHandler AnalysisHandler,
+        public PortingAssistantClient(
+            IPortingAssistantAnalysisHandler AnalysisHandler,
             IPortingHandler portingHandler)
         {
             _analysisHandler = AnalysisHandler;
@@ -31,7 +31,7 @@ namespace PortingAssistant.Client.Client
         {
             try
             {
-                var solution = SolutionFile.Parse(solutionFilePath);
+                var _ = SolutionFile.Parse(solutionFilePath);
                 var failedProjects = new List<string>();
 
                 var projects = ProjectsToAnalyze(solutionFilePath, settings);
@@ -59,7 +59,7 @@ namespace PortingAssistant.Client.Client
                     return null;
                 }).Where(p => p != null).ToList();
 
-                string solutionGuid = FileParser.SolutionFileParser.getSolutionGuid(solutionFilePath);
+                var solutionGuid = FileParser.SolutionFileParser.getSolutionGuid(solutionFilePath);
                 var solutionDetails = new SolutionDetails
                 {
                     SolutionName = Path.GetFileNameWithoutExtension(solutionFilePath),
@@ -85,20 +85,17 @@ namespace PortingAssistant.Client.Client
                     FailedProjects = failedProjects
                 };
 
-
                 return new SolutionAnalysisResult
                 {
                     FailedProjects = failedProjects,
                     SolutionDetails = solutionDetails,
                     ProjectAnalysisResults = projectAnalysisResults
                 };
-
             }
             catch (Exception ex)
             {
                 throw new PortingAssistantException($"Cannot Analyze solution {solutionFilePath}", ex);
             }
-
         }
 
         public async IAsyncEnumerable<ProjectAnalysisResult> AnalyzeSolutionGeneratorAsync(string solutionFilePath, AnalyzerSettings settings)
@@ -111,7 +108,6 @@ namespace PortingAssistant.Client.Client
             {
                 while (await resultEnumerator.MoveNextAsync().ConfigureAwait(false))
                 {
-
                     var result = resultEnumerator.Current;
                     yield return result;
                 }
@@ -122,16 +118,31 @@ namespace PortingAssistant.Client.Client
             }
         }
 
-        public async Task<List<SourceFileAnalysisResult>> AnalyzeFileAsync(string filePath, string projectFile, string solutionFilePath,
-    List<string> preportReferences, List<string> currentReferences, RootNodes rules, ExternalReferences externalReferences, AnalyzerSettings settings)
+        public async Task<List<SourceFileAnalysisResult>> AnalyzeFileAsync(
+            string filePath, 
+            string projectFile, 
+            string solutionFilePath,
+            List<string> preportReferences, 
+            List<string> currentReferences, 
+            RootNodes rules, 
+            ExternalReferences externalReferences, 
+            AnalyzerSettings settings)
         {
             var targetFramework = settings.TargetFramework ?? DEFAULT_TARGET;
 
             return await _analysisHandler.AnalyzeFileIncremental(filePath, projectFile, solutionFilePath,
                 preportReferences, currentReferences, rules, externalReferences, settings.ActionsOnly, settings.CompatibleOnly, targetFramework);
         }
-        public async Task<List<SourceFileAnalysisResult>> AnalyzeFileAsync(string filePath, string fileContent, string projectFile, string solutionFilePath,
-            List<string> preportReferences, List<string> currentReferences, RootNodes rules, ExternalReferences externalReferences, AnalyzerSettings settings)
+        public async Task<List<SourceFileAnalysisResult>> AnalyzeFileAsync(
+            string filePath, 
+            string fileContent, 
+            string projectFile, 
+            string solutionFilePath,
+            List<string> preportReferences, 
+            List<string> currentReferences, 
+            RootNodes rules, 
+            ExternalReferences externalReferences, 
+            AnalyzerSettings settings)
         {
             var targetFramework = settings.TargetFramework ?? DEFAULT_TARGET;
 
