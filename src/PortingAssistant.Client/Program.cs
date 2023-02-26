@@ -102,10 +102,10 @@ namespace PortingAssistant.Client.CLI
                     // Collect telemetry
                     if (analyzeResults.IsCompletedSuccessfully)
                     {
-                        TraceEvent.Start(Log.Logger, $"Telemetry Collection: {cli.SolutionPath}");
+                        TraceEvent.Start(Log.Logger, $"Telemetry collection for {cli.SolutionPath}");
                         reportExporter.GenerateJsonReport(analyzeResults.Result, cli.OutputPath);
                         TelemetryCollector.SolutionAssessmentCollect(analyzeResults.Result, cli.Target, "1.8.0", "Porting Assistant Client CLI", DateTime.Now.Subtract(startTime).TotalMilliseconds, cli.Tag);
-                        TraceEvent.End(Log.Logger, $"Telemetry Collection: {cli.SolutionPath}");
+                        TraceEvent.End(Log.Logger, $"Telemetry collection for {cli.SolutionPath}");
                     }
                     else
                     {
@@ -134,15 +134,15 @@ namespace PortingAssistant.Client.CLI
                             IncludeCodeFix = true
                         };
 
-                        TraceEvent.Start(Log.Logger, $"Applying porting actions: {cli.SolutionPath}");
+                        TraceEvent.Start(Log.Logger, $"Applying porting actions to projects in {cli.SolutionPath}");
                         var portingResults = portingAssistantClient.ApplyPortingChanges(portingRequest);
                         reportExporter.GenerateJsonReport(portingResults, cli.SolutionPath, cli.OutputPath);
-                        TraceEvent.End(Log.Logger, $"Applying porting actions: {cli.SolutionPath}");
+                        TraceEvent.End(Log.Logger, $"Applying porting actions to projects in {cli.SolutionPath}");
                     }
 
-                    TraceEvent.Start(Log.Logger, $"Upload log: {cli.SolutionPath}");
+                    TraceEvent.Start(Log.Logger, $"Upload telemetry for {cli.SolutionPath}");
                     UploadLogs(cli.Profile, telemetryConfiguration, logFilePath, metricsFilePath, logs, cli.EnabledDefaultCredentials);
-                    TraceEvent.End(Log.Logger, $"Upload log: {cli.SolutionPath}");
+                    TraceEvent.End(Log.Logger, $"Upload telemetry for {cli.SolutionPath}");
                 }
                 catch (Exception ex)
                 {
