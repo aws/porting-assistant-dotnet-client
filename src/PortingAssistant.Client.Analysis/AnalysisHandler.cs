@@ -72,7 +72,7 @@ namespace PortingAssistant.Client.Analysis
         {
             try
             {
-                TraceEvent.End(_logger, $"Incremental file assessment: {filePath}");
+                TraceEvent.Start(_logger, $"Incremental file assessment: {filePath}");
                 List<SourceFileAnalysisResult> sourceFileAnalysisResults = new List<SourceFileAnalysisResult>();
 
                 var fileAnalysis = await AnalyzeProjectFiles(projectFile, fileContent, filePath, preportReferences, currentReferences);
