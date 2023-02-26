@@ -38,6 +38,12 @@ namespace PortingAssistant.Client.IntegrationTests
         [Test]
         public void FrameworkProjectAnalysisProduceExpectedJsonResult()
         {
+            // Note: This test will suddenly begin to fail if one or more of the dependent packages
+            //       publish a new versions and their compatibility is stored to the
+            //       porting-assistant-dotnet-datastore.
+            //       To fix the test, set a breakpoint in CompareAnalysisResult, verify the diff between .json files,
+            //       and make appropriate adjustments to the file used as truth:
+            //       PortingAssistant.Client.IntegrationTests\TestProjects\NetFrameworkExample-analyze\NetFrameworkExample-package-analysis.json
             RunCLIToAnalyzeSolution();
             Assert.IsTrue(Directory.Exists(Path.Combine(
                 actualAnalysisResultRootDir, "NetFrameworkExample-analyze")));
