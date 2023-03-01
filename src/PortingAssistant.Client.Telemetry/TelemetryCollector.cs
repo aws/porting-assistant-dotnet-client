@@ -24,7 +24,7 @@ namespace PortingAssistantExtensionTelemetry
         private static ILogger _metricsLogger;
         private static int _numLogicalCores;
         private static double _systemMemory;
-        private static SHA256 _sha256hash;
+        private static SHA256 _sha256hash = SHA256.Create();
         private static string _sessionId = Guid.NewGuid().ToString();
 
         public static void Builder(ILogger logger, string filePath)
@@ -44,7 +44,6 @@ namespace PortingAssistantExtensionTelemetry
             var gcMemoryInfo = GC.GetGCMemoryInfo();
             var installedMemory = gcMemoryInfo.TotalAvailableMemoryBytes;
             _systemMemory = (double)installedMemory / 1048576.0;
-            _sha256hash = SHA256.Create();
         }
 
         public static void Collect<T>(T t)

@@ -33,9 +33,11 @@ namespace PortingAssistant.Client.UnitTests
                 SolutionName = solutionName,
                 SolutionFilePath = solutionPath,
                 ApplicationGuid = "test-application-guid",
-                SolutionGuid = "test-solution-guid", 
+                SolutionGuid = "test-solution-guid",
                 RepositoryUrl = "https://github.com/test-project",
+                Projects = new List<ProjectDetails>()
             };
+            solutionDetail.Projects.Add(new ProjectDetails() { LinesOfCode = 100 });
             var numLogicalCores = Environment.ProcessorCount;
             var actualSolutionMetric = TelemetryCollector.CreateSolutionMetric(solutionDetail, targetFramework, version, source, analysisTime, tag, sha256hash, date);
             Assert.AreEqual(actualSolutionMetric.solutionPath, encryptedSolutionPath);
