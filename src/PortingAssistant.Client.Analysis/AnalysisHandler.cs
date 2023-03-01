@@ -548,7 +548,7 @@ namespace PortingAssistant.Client.Analysis
 
                 var sourceFileAnalysisResults = CodeEntityModelToCodeEntities.AnalyzeResults(
                     sourceFileToCodeEntityDetails, packageResults, recommendationResults, portingActionResults, targetFramework);
-                var compatibilityResults = AnalysisUtils.GenerateCompatibilityResults(SourceFileAnalysisResults, analyzer.ProjectResult.ProjectFilePath, analyzer.ProjectBuildResult?.PrePortCompilation != null);
+                var compatibilityResults = AnalysisUtils.GenerateCompatibilityResults(sourceFileAnalysisResults, analyzer.ProjectResult.ProjectFilePath, analyzer.ProjectBuildResult?.PrePortCompilation != null);
                 TraceEvent.End(_logger, $"Compatibility assessment of project {project}");
                 return new ProjectAnalysisResult
                 {
