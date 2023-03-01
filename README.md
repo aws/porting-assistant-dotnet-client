@@ -3,11 +3,11 @@
 # Porting Assistant for .NET SDK
 ![Build Test](https://github.com/aws/porting-assistant-dotnet-client/workflows/Build%20Test/badge.svg)
  
-Porting Assistant for .NET provides tools such as Porting Assistant for .NET standalone tool and Porting Assistant for .NET Visual Studio IDE Extension. Both tools provide functionality that scans .NET Framework applications and generates a .NET Core compatibility assessment, helping customers port their applications to Linux faster.
+Porting Assistant for .NET provides tools such as Porting Assistant for .NET standalone tool and Porting Assistant for .NET Visual Studio IDE Extension. Both tools provide functionality that scans .NET Framework applications and generates a .NET compatibility assessment, helping customers port their applications to Linux faster.
  
-Porting Assistant for .NET tools quickly scans .NET Framework applications to identify incompatibilities with .NET Core, finds known replacements, and generates detailed compatibility assessment reports. This reduces the manual effort involved in modernizing applications to Linux.
+Porting Assistant for .NET tools quickly scans .NET Framework applications to identify incompatibilities with .NET, finds known replacements, and generates detailed compatibility assessment reports. This reduces the manual effort involved in modernizing applications to Linux.
  
-**PortingAssistant.Client**  SDK package provides interfaces to analyze .NET applications, find the incompatibilities, and port applications to .NET Core. Please note that current support for porting is limited.
+**PortingAssistant.Client**  SDK package provides interfaces to analyze .NET applications, find the incompatibilities, and port applications to .NET. Please note that current support for porting is limited.
  
 For more information about Porting Assistant and to try the tool, please refer to the documenation: https://aws.amazon.com/porting-assistant-dotnet/
 
@@ -49,7 +49,7 @@ For more information about Porting Assistant and to try the tool, please refer t
 
    var filteredProjects = new List<string> {"projectname1", "projectname2"};
 
-   /* Porting the application to .NET Core project */
+   /* Porting the application to .NET project */
    var projects = analyzeResults.SolutionDetails.Projects.Where(p => !filteredProjects.Contains(p.ProjectName)).ToList();
    var PortingProjectResults = analyzeResults.ProjectAnalysisResults
        .Where(project => !filteredProjects.Contains(project.ProjectName));

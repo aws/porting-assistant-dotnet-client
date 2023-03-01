@@ -86,24 +86,23 @@ namespace PortingAssistant.Client.Analysis.Utils
                     };
                 }
                 
-                var compatibleVersionsToRecommend = version.FindGreaterCompatibleVersions(compatibleVersionsForTargetFramework).ToList();
-                compatibleVersionsToRecommend.Sort( (a, b) => NuGetVersion.Parse(a).CompareTo(NuGetVersion.Parse(b)));
-
                 Compatibility compatibility;
-                var maxCompatibleVersion = NugetVersionHelper.GetMaxVersion(compatibleVersionsForTargetFramework);
-                if (maxCompatibleVersion != null
-                    && !maxCompatibleVersion.IsZeroVersion()
-                    && version.IsGreaterThan(maxCompatibleVersion))
+                var maxVersionInDatastore =
+                    NugetVersionHelper.GetMaxVersion(packageDetails.Result.Versions.ToNugetVersionCollection());
+                var compatibleVersionsToRecommend = version.FindGreaterCompatibleVersions(compatibleVersionsForTargetFramework).ToList();
+                compatibleVersionsToRecommend.Sort((a, b) => NuGetVersion.Parse(a).CompareTo(NuGetVersion.Parse(b)));
+
+                if (compatibleVersionsForTargetFramework.Contains(version.OriginalVersion))
                 {
-                    compatibility = version.HasSameMajorAs(maxCompatibleVersion)
-                        ? Compatibility.COMPATIBLE
-                        : Compatibility.INCOMPATIBLE;
+                    compatibility = Compatibility.COMPATIBLE;
+                }
+                else if (version.IsGreaterThan(maxVersionInDatastore))
+                {
+                    compatibility = Compatibility.UNKNOWN;
                 }
                 else
                 {
-                    compatibility = version.HasLowerOrEqualCompatibleVersion(compatibleVersionsForTargetFramework)
-                        ? Compatibility.COMPATIBLE
-                        : Compatibility.INCOMPATIBLE;
+                    compatibility = Compatibility.INCOMPATIBLE;
                 }
 
                 return new CompatibilityResult

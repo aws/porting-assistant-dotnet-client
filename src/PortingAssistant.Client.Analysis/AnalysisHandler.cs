@@ -15,7 +15,6 @@ using PortingAssistant.Client.Model;
 using PortingAssistant.Client.NuGet;
 using AnalyzerConfiguration = Codelyzer.Analysis.AnalyzerConfiguration;
 using IDEProjectResult = Codelyzer.Analysis.Build.IDEProjectResult;
-using PortingAssistant.Client.Common.Model;
 using Codelyzer.Analysis.Analyzer;
 
 namespace PortingAssistant.Client.Analysis
@@ -28,8 +27,10 @@ namespace PortingAssistant.Client.Analysis
 
         private const string DEFAULT_TARGET = "net6.0";
 
-        public PortingAssistantAnalysisHandler(ILogger<PortingAssistantAnalysisHandler> logger,
-            IPortingAssistantNuGetHandler handler, IPortingAssistantRecommendationHandler recommendationHandler)
+        public PortingAssistantAnalysisHandler(
+            ILogger<PortingAssistantAnalysisHandler> logger,
+            IPortingAssistantNuGetHandler handler, 
+            IPortingAssistantRecommendationHandler recommendationHandler)
         {
             _logger = logger;
             _handler = handler;
@@ -45,8 +46,10 @@ namespace PortingAssistant.Client.Analysis
 
             var configuration = GetAnalyzerConfiguration(projects);
             CodeAnalyzerByLanguage analyzer = new CodeAnalyzerByLanguage(configuration, _logger);
-            
+
+            TraceEvent.Start(_logger, $"Codelyzer analysis: {solutionFilename}");
             var analyzerResults = await analyzer.AnalyzeSolution(solutionFilename);
+            TraceEvent.End(_logger, $"Codelyzer analysis: {solutionFilename}");
 
             _logger.LogInformation("Memory usage after RunCoderlyzerAnalysis: ");
             MemoryUtils.LogMemoryConsumption(_logger);
@@ -54,11 +57,22 @@ namespace PortingAssistant.Client.Analysis
             return analyzerResults;
         }
 
-        public async Task<List<SourceFileAnalysisResult>> AnalyzeFileIncremental(string filePath, string fileContent, string projectFile, string solutionFilePath, List<string> preportReferences
-            , List<string> currentReferences, RootNodes projectRules, ExternalReferences externalReferences, bool actionsOnly = false, bool compatibleOnly = false, string targetFramework = DEFAULT_TARGET)
+        public async Task<List<SourceFileAnalysisResult>> AnalyzeFileIncremental(
+            string filePath, 
+            string fileContent, 
+            string projectFile, 
+            string solutionFilePath, 
+            List<string> preportReferences, 
+            List<string> currentReferences, 
+            RootNodes projectRules, 
+            ExternalReferences externalReferences, 
+            bool actionsOnly = false,
+            bool compatibleOnly = false, 
+            string targetFramework = DEFAULT_TARGET)
         {
             try
             {
+                TraceEvent.Start(_logger, $"Incremental file assessment: {filePath}");
                 List<SourceFileAnalysisResult> sourceFileAnalysisResults = new List<SourceFileAnalysisResult>();
 
                 var fileAnalysis = await AnalyzeProjectFiles(projectFile, fileContent, filePath, preportReferences, currentReferences);
@@ -96,7 +110,7 @@ namespace PortingAssistant.Client.Analysis
                         .Select(r => CodeEntityModelToCodeEntities.ReferenceToPackageVersionPair(r))
                         .ToHashSet();
 
-                    var sdkPackages = namespaces.Select(n =>
+                    var sdkPackages = namespaces.Select(n => 
                             new PackageVersionPair
                             {
                                 PackageId = n,
@@ -152,7 +166,7 @@ namespace PortingAssistant.Client.Analysis
 
                 sourceFileAnalysisResults.AddRange(sourceFileAnalysisResult);
 
-
+                TraceEvent.End(_logger, $"Incremental file assessment: {filePath}");
                 return sourceFileAnalysisResults;
             }
             finally
@@ -161,18 +175,30 @@ namespace PortingAssistant.Client.Analysis
             }
         }
 
-        public async Task<List<SourceFileAnalysisResult>> AnalyzeFileIncremental(string filePath, string projectFile, string solutionFilePath, List<string> preportReferences
-            , List<string> currentReferences, RootNodes projectRules, ExternalReferences externalReferences, bool actionsOnly, bool compatibleOnly, string targetFramework = DEFAULT_TARGET)
+        public async Task<List<SourceFileAnalysisResult>> AnalyzeFileIncremental(
+            string filePath, 
+            string projectFile, 
+            string solutionFilePath, 
+            List<string> preportReferences, 
+            List<string> currentReferences, 
+            RootNodes projectRules, 
+            ExternalReferences externalReferences, 
+            bool actionsOnly, 
+            bool compatibleOnly, 
+            string targetFramework = DEFAULT_TARGET)
         {
             var fileContent = File.ReadAllText(filePath);
             return await AnalyzeFileIncremental(filePath, fileContent, projectFile, solutionFilePath, preportReferences, currentReferences, projectRules, externalReferences, actionsOnly, compatibleOnly, targetFramework);
         }
 
         public async Task<Dictionary<string, ProjectAnalysisResult>> AnalyzeSolutionIncremental(
-            string solutionFilename, List<string> projects, string targetFramework = DEFAULT_TARGET)
+            string solutionFilename, 
+            List<string> projects, 
+            string targetFramework = DEFAULT_TARGET)
         {
             try
             {
+                TraceEvent.Start(_logger, $"Incremental solution assessment: {solutionFilename}");
                 var analyzerResults = await RunCoderlyzerAnalysis(solutionFilename, projects);
 
                 var analysisActions = AnalyzeActions(projects, targetFramework, analyzerResults, solutionFilename);
@@ -188,7 +214,7 @@ namespace PortingAssistant.Client.Analysis
                        .Where(p => p.Value != null)
                        .ToDictionary(p => p.Key, p => p.Value);
 
-
+                TraceEvent.End(_logger, $"Incremental solution assessment: {solutionFilename}");
                 return solutionAnalysisResult;
             }
             catch (OutOfMemoryException e)
@@ -203,9 +229,15 @@ namespace PortingAssistant.Client.Analysis
             }
         }
 
-        private List<IDEFileActions> AnalyzeFileActionsIncremental(string project, RootNodes rootNodes, string targetFramework
-            , string pathToSolution, string filePath, IDEProjectResult projectResult)
+        private List<IDEFileActions> AnalyzeFileActionsIncremental(
+            string project, 
+            RootNodes rootNodes,
+            string targetFramework, 
+            string pathToSolution, 
+            string filePath, 
+            IDEProjectResult projectResult)
         {
+            TraceEvent.Start(_logger, $"Incremental file action analysis: {filePath}");
             List<PortCoreConfiguration> configs = new List<PortCoreConfiguration>();
 
             PortCoreConfiguration projectConfiguration = new PortCoreConfiguration()
@@ -222,11 +254,17 @@ namespace PortingAssistant.Client.Analysis
             configs.Add(projectConfiguration);
 
             var solutionPort = new SolutionPort(pathToSolution, projectResult, configs);
+            TraceEvent.End(_logger, $"Incremental file action analysis: {filePath}");
             return solutionPort.RunIncremental(rootNodes, filePath);
         }
 
         #nullable enable
-        private async Task<IDEProjectResult?> AnalyzeProjectFiles(string projectPath, string fileContent, string filePath, List<string> preportReferences, List<string> currentReferences)
+        private async Task<IDEProjectResult?> AnalyzeProjectFiles(
+            string projectPath,
+			string fileContent,
+			string filePath,
+			List<string> preportReferences,
+			List<string> currentReferences)
         {
             try
             {
@@ -263,10 +301,13 @@ namespace PortingAssistant.Client.Analysis
         #nullable disable
 
         public async Task<Dictionary<string, ProjectAnalysisResult>> AnalyzeSolution(
-            string solutionFilename, List<string> projects, string targetFramework = DEFAULT_TARGET)
+            string solutionFilename,
+			List<string> projects,
+			string targetFramework = DEFAULT_TARGET)
         {
             try
             {
+                TraceEvent.Start(_logger, $"Compatibility assessment of solution without generator: {solutionFilename}");
                 var analyzerResults = await RunCoderlyzerAnalysis(solutionFilename, projects);
 
                 var analysisActions = AnalyzeActions(projects, targetFramework, analyzerResults, solutionFilename);
@@ -276,6 +317,7 @@ namespace PortingAssistant.Client.Analysis
                     analyzerResults, analysisActions,
                     isIncremental: false, targetFramework);
 
+                TraceEvent.End(_logger, $"Compatibility assessment of solution without generator: {solutionFilename}");
                 return solutionAnalysisResult;
             }
             catch (OutOfMemoryException e)
@@ -291,20 +333,25 @@ namespace PortingAssistant.Client.Analysis
 
         }
 
-        public async IAsyncEnumerable<ProjectAnalysisResult> AnalyzeSolutionGeneratorAsync(string solutionFilename, List<string> projects, string targetFramework = "net6.0")
+        public async IAsyncEnumerable<ProjectAnalysisResult> AnalyzeSolutionGeneratorAsync(
+            string solutionFilename,
+			List<string> projects,
+			string targetFramework = "net6.0")
         {
             var configuration = GetAnalyzerConfiguration(projects);
-            CodeAnalyzerByLanguage analyzer = new CodeAnalyzerByLanguage(configuration, _logger);
+            var analyzer = new CodeAnalyzerByLanguage(configuration, _logger);
+            TraceEvent.Start(_logger, $"Assessment of solution via generator: {solutionFilename}");
             var resultEnumerator = analyzer.AnalyzeSolutionGeneratorAsync(solutionFilename).GetAsyncEnumerator();
             try
             {
-                SolutionPort solutionPort = new SolutionPort(solutionFilename);
+                var solutionPort = new SolutionPort(solutionFilename);
 
                 while (await resultEnumerator.MoveNextAsync().ConfigureAwait(false))
                 {
                     var result = resultEnumerator.Current;
                     var projectPath = result?.ProjectResult?.ProjectFilePath;
-                    PortCoreConfiguration projectConfiguration = new PortCoreConfiguration()
+                    
+                    var projectConfiguration = new PortCoreConfiguration
                     {
                         ProjectPath = projectPath,
                         UseDefaultRules = true,
@@ -320,8 +367,8 @@ namespace PortingAssistant.Client.Analysis
                     var analysisResult = AnalyzeProject(projectPath, solutionFilename, new List<AnalyzerResult> { result }, analysisActions, isIncremental: false, targetFramework);
                     result.Dispose();
                     yield return analysisResult;
-
                 }
+                TraceEvent.End(_logger, $"Assessment of solution via generator: {solutionFilename}");
             }
             finally
             {
@@ -329,23 +376,28 @@ namespace PortingAssistant.Client.Analysis
             }
         }
 
-        private List<ProjectResult> AnalyzeActions(List<string> projects, string targetFramework, List<AnalyzerResult> analyzerResults, string pathToSolution)
+        private List<ProjectResult> AnalyzeActions(
+            List<string> projects,
+			string targetFramework,
+			List<AnalyzerResult> analyzerResults,
+			string pathToSolution)
         {
+            TraceEvent.Start(_logger, $"Analyzing solution for applicable porting actions: {pathToSolution}");
             _logger.LogInformation("Memory Consumption before AnalyzeActions: ");
             MemoryUtils.LogMemoryConsumption(_logger);
 
             List<PortCoreConfiguration> configs = new List<PortCoreConfiguration>();
 
-            var anaylyzedProjects = projects.Where(p =>
+            var analyzedProjects = projects.Where(p =>
             {
                 var project = analyzerResults.Find((a) => a.ProjectResult?.ProjectFilePath != null &&
                     a.ProjectResult.ProjectFilePath.Equals(p));
                 return project != null;
             }).ToList();
 
-            foreach (var proj in anaylyzedProjects)
+            foreach (var proj in analyzedProjects)
             {
-                PortCoreConfiguration projectConfiguration = new PortCoreConfiguration()
+                PortCoreConfiguration projectConfiguration = new PortCoreConfiguration
                 {
                     ProjectPath = proj,
                     UseDefaultRules = true,
@@ -359,6 +411,7 @@ namespace PortingAssistant.Client.Analysis
             var solutionPort = new SolutionPort(pathToSolution, analyzerResults, configs, _logger);
             var projectResults = solutionPort.Run().ProjectResults.ToList();
 
+            TraceEvent.End(_logger, $"Analyzing solution for applicable porting actions: {pathToSolution}");
             _logger.LogInformation("Memory Consumption after AnalyzeActions: ");
             MemoryUtils.LogMemoryConsumption(_logger);
 
@@ -410,10 +463,17 @@ namespace PortingAssistant.Client.Analysis
         }
 
         private ProjectAnalysisResult AnalyzeProject(
-            string project, string solutionFileName, List<AnalyzerResult> analyzers, List<ProjectResult> analysisActions, bool isIncremental = false, string targetFramework = DEFAULT_TARGET)
+            string project,
+			string solutionFileName,
+			List<AnalyzerResult> analyzers,
+			List<ProjectResult> analysisActions,
+			bool isIncremental = false,
+			string targetFramework = DEFAULT_TARGET)
         {
             try
             {
+                TraceEvent.Start(_logger, $"Compatibility assessment of project {project}");
+
                 var analyzer = analyzers.Find((a) => a.ProjectResult?.ProjectFilePath != null &&
                     a.ProjectResult.ProjectFilePath.Equals(project));
 
@@ -486,9 +546,10 @@ namespace PortingAssistant.Client.Analysis
 
                 var portingActionResults = ProjectActionsToRecommendedActions.Convert(projectActions);
 
-                var SourceFileAnalysisResults = CodeEntityModelToCodeEntities.AnalyzeResults(
+                var sourceFileAnalysisResults = CodeEntityModelToCodeEntities.AnalyzeResults(
                     sourceFileToCodeEntityDetails, packageResults, recommendationResults, portingActionResults, targetFramework);
                 var compatibilityResults = AnalysisUtils.GenerateCompatibilityResults(SourceFileAnalysisResults, analyzer.ProjectResult.ProjectFilePath, analyzer.ProjectBuildResult?.PrePortCompilation != null);
+                TraceEvent.End(_logger, $"Compatibility assessment of project {project}");
                 return new ProjectAnalysisResult
                 {
                     ProjectName = analyzer.ProjectResult.ProjectName,
@@ -502,7 +563,7 @@ namespace PortingAssistant.Client.Analysis
                     ProjectGuid = analyzer.ProjectResult.ProjectGuid,
                     ProjectType = analyzer.ProjectResult.ProjectType,
                     FeatureType = projectFeatureType,
-                    SourceFileAnalysisResults = SourceFileAnalysisResults,
+                    SourceFileAnalysisResults = sourceFileAnalysisResults,
                     MetaReferences = analyzer.ProjectBuildResult.Project.MetadataReferences.Select(m => m.Display).ToList(),
                     PreportMetaReferences = analyzer.ProjectBuildResult.PreportReferences,
                     ProjectRules = projectActions.ProjectRules,

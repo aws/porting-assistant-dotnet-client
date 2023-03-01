@@ -14,6 +14,7 @@ using System.Text.Json;
 using PortingAssistant.Client.Telemetry;
 using System.Diagnostics;
 using System.Reflection;
+using PortingAssistant.Client.Common.Utils;
 
 namespace PortingAssistant.Client.CLI
 
@@ -46,10 +47,10 @@ namespace PortingAssistant.Client.CLI
                 new Serilog.Formatting.Display.MessageTemplateTextFormatter(outputTemplate, CultureInfo.InvariantCulture);
 
             logConfiguration.WriteTo.File(
-                    logFilePath,
-                    rollingInterval: RollingInterval.Day,
-                    rollOnFileSizeLimit: false,
-                    outputTemplate: outputTemplate);
+                logFilePath,
+                rollingInterval: RollingInterval.Day,
+                rollOnFileSizeLimit: false,
+                outputTemplate: outputTemplate);
             Log.Logger = logConfiguration.CreateLogger();
 
             if (cli.isSchema)
@@ -87,6 +88,7 @@ namespace PortingAssistant.Client.CLI
                     var startTime = DateTime.Now;
                     Task<SolutionAnalysisResult> analyzeResults;
 
+                    // Assess solution
                     if (solutionSettings.UseGenerator)
                     {
                         analyzeResults = AnalyzeSolutionGenerator(portingAssistantClient, cli.SolutionPath, solutionSettings);
@@ -96,21 +98,26 @@ namespace PortingAssistant.Client.CLI
                         analyzeResults = portingAssistantClient.AnalyzeSolutionAsync(cli.SolutionPath, solutionSettings);
                         analyzeResults.Wait();
                     }
+
+                    // Collect telemetry
                     if (analyzeResults.IsCompletedSuccessfully)
                     {
+                        TraceEvent.Start(Log.Logger, $"Telemetry collection for {cli.SolutionPath}");
                         reportExporter.GenerateJsonReport(analyzeResults.Result, cli.OutputPath);
-                        TelemetryCollector.SolutionAssessmentCollect(analyzeResults.Result, cli.Target, "1.8.0", $"Porting Assistant Client CLI", DateTime.Now.Subtract(startTime).TotalMilliseconds, cli.Tag);
+                        TelemetryCollector.SolutionAssessmentCollect(analyzeResults.Result, cli.Target, "1.8.0", "Porting Assistant Client CLI", DateTime.Now.Subtract(startTime).TotalMilliseconds, cli.Tag);
+                        TraceEvent.End(Log.Logger, $"Telemetry collection for {cli.SolutionPath}");
                     }
                     else
                     {
                         Log.Logger.Error("err generated solution analysis report");
                     }
+
+                    // Port projects
                     if (cli.PortingProjects != null && cli.PortingProjects.Count != 0)
                     {
-
-                        var PortingProjectResults = analyzeResults.Result.ProjectAnalysisResults
+                        var portingProjectResults = analyzeResults.Result.ProjectAnalysisResults
                             .Where(project => cli.PortingProjects.Contains(project.ProjectName));
-                        var FilteredRecommendedActions = PortingProjectResults
+                        var filteredRecommendedActions = portingProjectResults
                             .SelectMany(project => project.PackageAnalysisResults.Values
                             .Where(package =>
                             {
@@ -118,20 +125,24 @@ namespace PortingAssistant.Client.CLI
                                 return comp.Compatibility != Compatibility.COMPATIBLE && comp.CompatibleVersions.Count != 0;
                             })
                             .SelectMany(package => package.Result.Recommendations.RecommendedActions));
-                        var PortingRequest = new PortingRequest
+                        var portingRequest = new PortingRequest
                         {
-
                             Projects = analyzeResults.Result.SolutionDetails.Projects.Where(p => cli.PortingProjects.Contains(p.ProjectName)).ToList(),
                             SolutionPath = cli.SolutionPath,
-                            TargetFramework = cli.Target.ToString(),
-                            RecommendedActions = FilteredRecommendedActions.ToList(),
+                            TargetFramework = cli.Target,
+                            RecommendedActions = filteredRecommendedActions.ToList(),
                             IncludeCodeFix = true
                         };
-                        var portingResults = portingAssistantClient.ApplyPortingChanges(PortingRequest);
-                        reportExporter.GenerateJsonReport(portingResults, cli.SolutionPath, cli.OutputPath);
 
+                        TraceEvent.Start(Log.Logger, $"Applying porting actions to projects in {cli.SolutionPath}");
+                        var portingResults = portingAssistantClient.ApplyPortingChanges(portingRequest);
+                        reportExporter.GenerateJsonReport(portingResults, cli.SolutionPath, cli.OutputPath);
+                        TraceEvent.End(Log.Logger, $"Applying porting actions to projects in {cli.SolutionPath}");
                     }
+
+                    TraceEvent.Start(Log.Logger, $"Upload telemetry for {cli.SolutionPath}");
                     UploadLogs(cli.Profile, telemetryConfiguration, logFilePath, metricsFilePath, logs, cli.EnabledDefaultCredentials);
+                    TraceEvent.End(Log.Logger, $"Upload telemetry for {cli.SolutionPath}");
                 }
                 catch (Exception ex)
                 {
@@ -142,7 +153,13 @@ namespace PortingAssistant.Client.CLI
             }
         }
 
-        private static void UploadLogs(string profile, TelemetryConfiguration telemetryConfiguration, string logFilePath, string metricsFilePath, string logsPath, bool enabledDefaultCredentials = false)
+        private static void UploadLogs(
+            string profile, 
+            TelemetryConfiguration telemetryConfiguration, 
+            string logFilePath, 
+            string metricsFilePath, 
+            string logsPath, 
+            bool enabledDefaultCredentials = false)
         {
             if (string.IsNullOrEmpty(profile))
             {
@@ -171,9 +188,13 @@ namespace PortingAssistant.Client.CLI
             }
         }
 
-        private static async Task<SolutionAnalysisResult> AnalyzeSolutionGenerator(IPortingAssistantClient portingAssistantClient, string solutionPath, AnalyzerSettings solutionSettings)
+        private static async Task<SolutionAnalysisResult> AnalyzeSolutionGenerator(
+            IPortingAssistantClient portingAssistantClient, 
+            string solutionPath, 
+            AnalyzerSettings solutionSettings)
         {
-            try {
+            try 
+            {
                 var projectAnalysisResults = new List<ProjectAnalysisResult>();
                 var failedProjects = new List<string>();
                 var projectAnalysisResultEnumerator = portingAssistantClient.AnalyzeSolutionGeneratorAsync(solutionPath, solutionSettings).GetAsyncEnumerator();
@@ -188,7 +209,6 @@ namespace PortingAssistant.Client.CLI
                         failedProjects.Add(result.ProjectFilePath);
                     }
                 }
-
 
                 var solutionDetails = new SolutionDetails
                 {
@@ -206,7 +226,6 @@ namespace PortingAssistant.Client.CLI
                         IsBuildFailed = p.IsBuildFailed,
                         LinesOfCode = p.LinesOfCode
                     }),
-
                     FailedProjects = failedProjects
                 };
 
@@ -216,7 +235,9 @@ namespace PortingAssistant.Client.CLI
                     SolutionDetails = solutionDetails,
                     ProjectAnalysisResults = projectAnalysisResults
                 };
-            } catch (Exception ex) {
+            } 
+            catch (Exception ex) 
+            {
                 throw new PortingAssistantException($"Cannot Analyze solution {solutionPath}", ex);
             }
         }

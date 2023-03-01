@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Codelyzer.Analysis;
 using Codelyzer.Analysis.Model;
 using CTA.Rules.Models;
 using PortingAssistant.Client.Model;
