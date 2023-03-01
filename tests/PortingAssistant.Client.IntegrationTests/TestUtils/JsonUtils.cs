@@ -53,6 +53,26 @@ namespace PortingAssistant.Client.IntegrationTests.TestUtils
             return patch.Count == 0;
         }
 
+        public static bool IsJsonFileSubset(
+            string jsonSubsetFilePath, 
+            string jsonSupersetFilePath, 
+            string[] propertiesToBeRemoved)
+        {
+            dynamic jObjectSubset = JsonConvert.DeserializeObject(
+                File.ReadAllText(jsonSubsetFilePath));
+            dynamic jObjectSuperset = JsonConvert.DeserializeObject(
+                File.ReadAllText(jsonSupersetFilePath));
+
+            if (!IsNullOrEmpty(propertiesToBeRemoved))
+            {
+                RemoveProperties(jObjectSubset, propertiesToBeRemoved);
+                RemoveProperties(jObjectSuperset, propertiesToBeRemoved);
+            }
+
+            JObject patch = FindJsonDiff(jObjectSubset, jObjectSuperset);
+            return !patch.ContainsKey("-");
+        }
+
         public static JObject FindJsonDiff(this JToken Current, JToken Model)
         {
             var diff = new JObject();

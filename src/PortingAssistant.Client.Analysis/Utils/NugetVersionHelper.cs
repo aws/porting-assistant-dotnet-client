@@ -34,5 +34,20 @@ namespace PortingAssistant.Client.Analysis.Utils
                 && nugetVersion.HasSameMajorAs(v)
             );
         }
+
+        public static IEnumerable<NuGetVersion> ToNugetVersionCollection(IEnumerable<string> nugetStringVersions)
+        {
+            var nugetVersions = new List<NuGetVersion>();
+
+            foreach (var nugetStringVersion in nugetStringVersions)
+            {
+                if (NuGetVersion.TryParse(nugetStringVersion, out var nugetVersion))
+                {
+                    nugetVersions.Add(nugetVersion);
+                }
+            }
+
+            return nugetVersions;
+        }
     }
 }

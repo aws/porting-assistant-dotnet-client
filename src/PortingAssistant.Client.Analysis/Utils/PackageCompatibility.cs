@@ -88,7 +88,7 @@ namespace PortingAssistant.Client.Analysis.Utils
                 
                 Compatibility compatibility;
                 var maxVersionInDatastore =
-                    NugetVersionHelper.GetMaxVersion(packageDetails.Result.Versions.ToNugetVersionCollection());
+                    NugetVersionHelper.GetMaxVersion(NugetVersionHelper.ToNugetVersionCollection(packageDetails.Result.Versions));
                 var compatibleVersionsToRecommend = version.FindGreaterCompatibleVersions(compatibleVersionsForTargetFramework).ToList();
                 compatibleVersionsToRecommend.Sort((a, b) => NuGetVersion.Parse(a).CompareTo(NuGetVersion.Parse(b)));
 

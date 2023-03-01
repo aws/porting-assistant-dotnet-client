@@ -119,20 +119,5 @@ namespace PortingAssistant.Client.Analysis.Utils
                 return false;
             });
         }
-
-        public static IEnumerable<NuGetVersion> ToNugetVersionCollection(this IEnumerable<string> nugetStringVersions)
-        {
-            var nugetVersions = new List<NuGetVersion>();
-
-            foreach (var nugetStringVersion in nugetStringVersions)
-            {
-                if (NuGetVersion.TryParse(nugetStringVersion, out var nugetVersion))
-                {
-                    nugetVersions.Add(nugetVersion);
-                }
-            }
-
-            return nugetVersions;
-        }
     }
 }
