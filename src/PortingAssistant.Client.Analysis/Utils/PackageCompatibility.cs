@@ -6,7 +6,6 @@ using PortingAssistant.Client.Model;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using NuGet.Versioning;
-using YamlDotNet.Core;
 
 namespace PortingAssistant.Client.Analysis.Utils
 {
@@ -110,10 +109,10 @@ namespace PortingAssistant.Client.Analysis.Utils
                 }
 
                 return new CompatibilityResult
-                    {
-                        Compatibility = compatibility,
-                        CompatibleVersions = compatibleVersionsToRecommend
-                    };
+                {
+                    Compatibility = compatibility,
+                    CompatibleVersions = compatibleVersionsToRecommend
+                };
             }
             catch (OutOfMemoryException e)
             {
