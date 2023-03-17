@@ -6,6 +6,7 @@ using PortingAssistant.Client.Model;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using NuGet.Versioning;
+using YamlDotNet.Core;
 
 namespace PortingAssistant.Client.Analysis.Utils
 {
@@ -67,7 +68,8 @@ namespace PortingAssistant.Client.Analysis.Utils
                     };
                 }
 
-                var compatibleVersionsForTargetFramework = packageDetails.Result.Targets.GetValueOrDefault(target, null);
+                var compatibleVersionsForTargetFramework =
+                    packageDetails.Result.Targets.GetValueOrDefault(target, null);
                 if (compatibleVersionsForTargetFramework == null)
                 {
                     return new CompatibilityResult
@@ -85,31 +87,33 @@ namespace PortingAssistant.Client.Analysis.Utils
                         CompatibleVersions = new List<string>()
                     };
                 }
-                
-                Compatibility compatibility;
-                var maxVersionInDatastore =
-                    NugetVersionHelper.GetMaxVersion(NugetVersionHelper.ToNugetVersionCollection(packageDetails.Result.Versions));
-                var compatibleVersionsToRecommend = version.FindGreaterCompatibleVersions(compatibleVersionsForTargetFramework).ToList();
+
+                var compatibleVersionsToRecommend =
+                    version.FindGreaterCompatibleVersions(compatibleVersionsForTargetFramework).ToList();
                 compatibleVersionsToRecommend.Sort((a, b) => NuGetVersion.Parse(a).CompareTo(NuGetVersion.Parse(b)));
 
-                if (compatibleVersionsForTargetFramework.Contains(version.OriginalVersion))
+                Compatibility compatibility;
+                var maxCompatibleVersion = NugetVersionHelper.GetMaxVersion(compatibleVersionsForTargetFramework);
+                if (maxCompatibleVersion != null
+                    && !maxCompatibleVersion.IsZeroVersion()
+                    && version.IsGreaterThan(maxCompatibleVersion))
                 {
-                    compatibility = Compatibility.COMPATIBLE;
-                }
-                else if (version.IsGreaterThan(maxVersionInDatastore))
-                {
-                    compatibility = Compatibility.UNKNOWN;
+                    compatibility = version.HasSameMajorAs(maxCompatibleVersion)
+                        ? Compatibility.COMPATIBLE
+                        : Compatibility.INCOMPATIBLE;
                 }
                 else
                 {
-                    compatibility = Compatibility.INCOMPATIBLE;
+                    compatibility = version.HasLowerOrEqualCompatibleVersion(compatibleVersionsForTargetFramework)
+                        ? Compatibility.COMPATIBLE
+                        : Compatibility.INCOMPATIBLE;
                 }
 
                 return new CompatibilityResult
-                {
-                    Compatibility = compatibility,
-                    CompatibleVersions = compatibleVersionsToRecommend
-                };
+                    {
+                        Compatibility = compatibility,
+                        CompatibleVersions = compatibleVersionsToRecommend
+                    };
             }
             catch (OutOfMemoryException e)
             {
