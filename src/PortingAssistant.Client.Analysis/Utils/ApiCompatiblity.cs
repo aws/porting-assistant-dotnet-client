@@ -59,7 +59,7 @@ namespace PortingAssistant.Client.Analysis.Utils
                 {
                     compatibilityResult.Compatibility = Compatibility.INCOMPATIBLE;
                 }
-                
+
                 return compatibilityResult;
             }
         }
@@ -220,6 +220,11 @@ namespace PortingAssistant.Client.Analysis.Utils
             }
 
             var index = packageDetailsWithApiIndices.IndexDict.GetValueOrDefault(apiMethodSignature.Replace("?", ""), -1);
+            
+            if (index < 0)
+            {
+                index = packageDetailsWithApiIndices.IndexDict.GetValueOrDefault(apiMethodSignature, -1);
+            }
 
             if (index >= 0 && index < packageDetailsWithApiIndices.PackageDetails.Api.Length)
             {

@@ -12,8 +12,8 @@ namespace PortingAssistant.Client.Model
             this.UseInternalNuGetServer = false;
             this.DataStoreSettings = new DataStoreSettings
             {
-                HttpsEndpoint = "https://s3.us-west-2.amazonaws.com/aws.portingassistant.dotnet.datastore/",
-                S3Endpoint = "aws.portingassistant.dotnet.datastore",
+                HttpsEndpoint = "https://s3.us-west-2.amazonaws.com/portingassistantdatastorebeta/",
+                S3Endpoint = "portingassistantdatastorebeta",
                 GitHubEndpoint = "https://raw.githubusercontent.com/aws/porting-assistant-dotnet-datastore/master/"
             };
             this.InternalNuGetServerSettings = new NuGetServerSettings
