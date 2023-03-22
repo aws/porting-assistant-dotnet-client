@@ -50,6 +50,20 @@ namespace PortingAssistant.Client.Tests
                 },
                 new ApiDetails
                 {
+                    MethodName = "Setup(Object)",
+                    MethodSignature = "Newtonsoft.Json.JsonConvert.SerializeObject(object?)",
+                    Targets = new Dictionary<string, SortedSet<string>>
+                    {
+                        {
+                            "netcoreapp3.1", new SortedSet<string> { "10.2.0", "12.0.3", "12.0.4", "13.0.2" }
+                        },
+                        {
+                            "net6.0", new SortedSet<string> { "10.2.0", "12.0.3", "12.0.4", "13.0.2" }
+                        }
+                    },
+                },
+                new ApiDetails
+                {
                     MethodName = "SerializeObject",
                     MethodSignature = "Public Shared Overloads Function SerializeObject(value As Object) As String",
                     Targets = new Dictionary<string, SortedSet<string>>
