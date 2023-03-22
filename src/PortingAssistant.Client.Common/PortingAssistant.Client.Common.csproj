@@ -6,7 +6,7 @@
   <ItemGroup>
     <PackageReference Include="CTA.Rules.PortCore" Version="2.8.11" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="NuGet.Protocol" Version="6.0.0" />
+    <PackageReference Include="NuGet.Protocol" Version="6.5.0" />
     <PackageReference Include="semver" Version="2.0.6" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="3.0.1" />
   </ItemGroup>
