@@ -19,9 +19,9 @@ using PortingAssistant.Client.Common.Utils;
 namespace PortingAssistant.Client.CLI
 
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             PortingAssistantCLI cli = new PortingAssistantCLI();
             cli.HandleCommand(args);
