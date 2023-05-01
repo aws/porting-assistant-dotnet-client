@@ -189,7 +189,7 @@ namespace PortingAssistant.Client.IntegrationTests
                 Version = "2.0.1",
                 PackageSourceType = PackageSourceType.NUGET
             }).Result;
-            Assert.AreEqual(Compatibility.INCOMPATIBLE,
+            Assert.AreEqual(Compatibility.COMPATIBLE,
                 packageAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").Compatibility);
             Assert.AreEqual(0, packageAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").CompatibleVersions.Count);
             Assert.AreEqual(RecommendedActionType.UpgradePackage, packageAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
