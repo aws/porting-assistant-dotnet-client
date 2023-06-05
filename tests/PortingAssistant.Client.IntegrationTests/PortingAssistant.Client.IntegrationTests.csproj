@@ -24,6 +24,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="TestProjects\eShopOnBlazor-ported.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestProjects\eShopOnBlazor.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="TestProjects\Miniblog.Core-master.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
