@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace PortingAssistant.Client.IntegrationTests
 {
-    class RunPortingWithWebFormFrameowrk 
+    class RunPortingWithWebFormFramework 
     {
         private string expectedPortedTestSolutionExtractionPath;
         private string actualTestSolutionExtractionPath;
@@ -65,7 +65,7 @@ namespace PortingAssistant.Client.IntegrationTests
         }
 
         [Test]
-        public void PortingFrameworkProjectProducesExpectedPortedProject()
+        public void RunPortingWithWebFormFrameowork()
         {
             RunCLIToPortSolution();
             string expectedPortedTestSolutionPath = Path.Combine(
