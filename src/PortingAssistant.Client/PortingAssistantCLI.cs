@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using CommandLine;
 using CommandLine.Text;
+using Serilog.Events;
 
 namespace PortingAssistant.Client.CLI
 {
@@ -35,6 +36,9 @@ namespace PortingAssistant.Client.CLI
 
         [Option('d', "enable-default-credentials", Required = false, HelpText = "Set if default credentials is being used.")]
         public bool EnabledDefaultCredentials { get; set; }
+
+        [Option('l', "logging-level", Required = false, Default = "debug", HelpText = "Set the minimum logging level: debug (default), info, warn, error, fatal, or silent.")]
+        public string MinimumLoggingLevel { get; set; }
 
 
         [Usage(ApplicationAlias = "Porting Assistant Client")]
@@ -68,6 +72,8 @@ namespace PortingAssistant.Client.CLI
         public string Tag;
         public string Profile;
         public bool EnabledDefaultCredentials = false;
+        public bool EnabledMetrics = true;
+        public LogEventLevel MinimumLoggingLevel;
 
         public bool isAssess = false;
         public bool isSchema = false;
@@ -117,6 +123,32 @@ namespace PortingAssistant.Client.CLI
                     if (o.PortingProjects != null)
                     {
                         PortingProjects = o.PortingProjects.ToList();
+                    }
+
+                    switch (o.MinimumLoggingLevel)
+                    {
+                        case "silent":
+                            MinimumLoggingLevel = Serilog.Events.LogEventLevel.Fatal + 1;
+                            break;
+                        case "fatal":
+                            MinimumLoggingLevel = Serilog.Events.LogEventLevel.Fatal;
+                            break;
+                        case "error":
+                            MinimumLoggingLevel = Serilog.Events.LogEventLevel.Error;
+                            break;
+                        case "warn":
+                            MinimumLoggingLevel = Serilog.Events.LogEventLevel.Warning;
+                            break;
+                        case "info":
+                            MinimumLoggingLevel = Serilog.Events.LogEventLevel.Information;
+                            break;
+                        case "debug":
+                            MinimumLoggingLevel = Serilog.Events.LogEventLevel.Debug;
+                            break;
+                        default:
+                            Console.WriteLine("Invalid logging level.");
+                            Environment.Exit(-1);
+                            break;
                     }
                 })
                 .WithParsed<SchemaOptions>(o =>

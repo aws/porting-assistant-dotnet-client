@@ -15,6 +15,7 @@ using PortingAssistant.Client.Telemetry;
 using System.Diagnostics;
 using System.Reflection;
 using PortingAssistant.Client.Common.Utils;
+using Serilog.Core;
 
 namespace PortingAssistant.Client.CLI
 
@@ -26,8 +27,11 @@ namespace PortingAssistant.Client.CLI
             PortingAssistantCLI cli = new PortingAssistantCLI();
             cli.HandleCommand(args);
 
+            var levelSwitch = new LoggingLevelSwitch();
+            levelSwitch.MinimumLevel = cli.MinimumLoggingLevel;
+
             var logConfiguration = new LoggerConfiguration().Enrich.FromLogContext()
-                .MinimumLevel.Debug()
+                .MinimumLevel.ControlledBy(levelSwitch)
                 .WriteTo.Console();
 
             var assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
