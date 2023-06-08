@@ -16,5 +16,7 @@ namespace PortingAssistant.Client.Model
         public bool ActionsOnly { get; set; }
 
         public bool UseGenerator { get; set; }
+
+        public VisualStudioVersion? VisualStudioVersion { get; set; }
     }
 }

@@ -29,9 +29,9 @@ namespace PortingAssistant.Client.Porting
         /// <returns>A PortingProjectFileResult object, representing the result of the porting operation</returns>
         public List<PortingResult> ApplyPortProjectFileChanges(
             List<ProjectDetails> projects, string solutionPath, string targetFramework,
-            Dictionary<string, Tuple<string, string>> upgradeVersions)
+            Dictionary<string, Tuple<string, string>> upgradeVersions, VisualStudioVersion? visualStudioVersion = null)
         {
-            return ApplyPortProjectFileChanges(projects, solutionPath, targetFramework, true, upgradeVersions);
+            return ApplyPortProjectFileChanges(projects, solutionPath, targetFramework, true, upgradeVersions, visualStudioVersion);
         }
 
         /// <summary>
@@ -45,9 +45,9 @@ namespace PortingAssistant.Client.Porting
         public List<PortingResult> ApplyPortProjectFileChanges(
             List<ProjectDetails> projects, string solutionPath, string targetFramework,
             bool includeCodeFix,
-            Dictionary<string, Tuple<string, string>> upgradeVersions)
+            Dictionary<string, Tuple<string, string>> upgradeVersions,  VisualStudioVersion? visualStudioVersion = null)
         {
-            return _portingProjectFileHandler.ApplyProjectChanges(projects, solutionPath, targetFramework, includeCodeFix, upgradeVersions);
+            return _portingProjectFileHandler.ApplyProjectChanges(projects, solutionPath, targetFramework, includeCodeFix, upgradeVersions, visualStudioVersion);
         }
 
     }

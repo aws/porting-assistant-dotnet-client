@@ -21,7 +21,7 @@ namespace PortingAssistant.Client.Porting
             List<ProjectDetails> projects,
             string solutionPath,
             string targetFramework,
-            Dictionary<string, Tuple<string, string>> upgradeVersions);
+            Dictionary<string, Tuple<string, string>> upgradeVersions, VisualStudioVersion? visualStudioVersion = null);
 
         /// <summary>
         /// Ports a list of projects
@@ -36,6 +36,6 @@ namespace PortingAssistant.Client.Porting
             string solutionPath,
             string targetFramework,
             bool includeCodeFix,
-            Dictionary<string, Tuple<string, string>> upgradeVersions);
+            Dictionary<string, Tuple<string, string>> upgradeVersions, VisualStudioVersion? visualStudioVersion = null);
     }
 }

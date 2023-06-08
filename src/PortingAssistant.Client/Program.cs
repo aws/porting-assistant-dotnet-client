@@ -131,7 +131,8 @@ namespace PortingAssistant.Client.CLI
                             SolutionPath = cli.SolutionPath,
                             TargetFramework = cli.Target,
                             RecommendedActions = filteredRecommendedActions.ToList(),
-                            IncludeCodeFix = true
+                            IncludeCodeFix = true,
+                            VisualStudioVersion = solutionSettings.VisualStudioVersion
                         };
 
                         TraceEvent.Start(Log.Logger, $"Applying porting actions to projects in {cli.SolutionPath}");
