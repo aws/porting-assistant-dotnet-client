@@ -104,7 +104,11 @@ namespace PortingAssistant.Client.CLI
                     }
 
                     // Collect telemetry
-                    if (analyzeResults.IsCompletedSuccessfully)
+                    if (cli.DisabledMetrics)
+                    {
+                        Log.Logger.Information("Report was not generated because metrics have been disabled.");
+                    }
+                    else if (analyzeResults.IsCompletedSuccessfully)
                     {
                         TraceEvent.Start(Log.Logger, $"Telemetry collection for {cli.SolutionPath}");
                         reportExporter.GenerateJsonReport(analyzeResults.Result, cli.OutputPath);
@@ -140,7 +144,10 @@ namespace PortingAssistant.Client.CLI
 
                         TraceEvent.Start(Log.Logger, $"Applying porting actions to projects in {cli.SolutionPath}");
                         var portingResults = portingAssistantClient.ApplyPortingChanges(portingRequest);
-                        reportExporter.GenerateJsonReport(portingResults, cli.SolutionPath, cli.OutputPath);
+                        if (!cli.DisabledMetrics)
+                        {
+                            reportExporter.GenerateJsonReport(portingResults, cli.SolutionPath, cli.OutputPath);
+                        }
                         TraceEvent.End(Log.Logger, $"Applying porting actions to projects in {cli.SolutionPath}");
                     }
 

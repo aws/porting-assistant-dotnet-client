@@ -37,9 +37,11 @@ namespace PortingAssistant.Client.CLI
         [Option('d', "enable-default-credentials", Required = false, HelpText = "Set if default credentials is being used.")]
         public bool EnabledDefaultCredentials { get; set; }
 
+        [Option('m', "disable-metrics", Required = false, Default = false, HelpText = "Prevents the metrics report from being generated.")]
+        public bool DisabledMetrics { get; set; }
+
         [Option('l', "logging-level", Required = false, Default = "debug", HelpText = "Set the minimum logging level: debug (default), info, warn, error, fatal, or silent.")]
         public string MinimumLoggingLevel { get; set; }
-
 
         [Usage(ApplicationAlias = "Porting Assistant Client")]
         public static IEnumerable<Example> Examples
@@ -72,7 +74,7 @@ namespace PortingAssistant.Client.CLI
         public string Tag;
         public string Profile;
         public bool EnabledDefaultCredentials = false;
-        public bool EnabledMetrics = true;
+        public bool DisabledMetrics;
         public LogEventLevel MinimumLoggingLevel;
 
         public bool isAssess = false;
@@ -114,6 +116,8 @@ namespace PortingAssistant.Client.CLI
                     Profile = o.Profile;
 
                     EnabledDefaultCredentials = o.EnabledDefaultCredentials;
+
+                    DisabledMetrics = o.DisabledMetrics;
 
                     if (o.IgnoreProjects != null)
                     {
