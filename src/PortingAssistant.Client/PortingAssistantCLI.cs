@@ -129,7 +129,7 @@ namespace PortingAssistant.Client.CLI
                         PortingProjects = o.PortingProjects.ToList();
                     }
 
-                    switch (o.MinimumLoggingLevel)
+                    switch (o.MinimumLoggingLevel.ToLower())
                     {
                         case "silent":
                             MinimumLoggingLevel = Serilog.Events.LogEventLevel.Fatal + 1;
@@ -150,8 +150,8 @@ namespace PortingAssistant.Client.CLI
                             MinimumLoggingLevel = Serilog.Events.LogEventLevel.Debug;
                             break;
                         default:
-                            Console.WriteLine("Invalid logging level.");
-                            Environment.Exit(-1);
+                            MinimumLoggingLevel = Serilog.Events.LogEventLevel.Debug;
+                            Console.WriteLine("Invalid logging level: \"" + o.MinimumLoggingLevel + "\". Minimum logging level has instead been set to \"debug\".");
                             break;
                     }
                 })
