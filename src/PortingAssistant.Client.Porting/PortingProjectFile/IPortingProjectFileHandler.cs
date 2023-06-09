@@ -19,7 +19,7 @@ namespace PortingAssistant.Client.PortingProjectFile
         /// <returns>A PortingProjectFileResult object, representing the result of the porting operation</returns>
         List<PortingResult> ApplyProjectChanges(
             List<ProjectDetails> projects, string solutionPath, string targetFramework,
-            Dictionary<string, Tuple<string, string>> upgradeVersions, VisualStudioVersion? visualStudioVersion = null);
+            Dictionary<string, Tuple<string, string>> upgradeVersions);
 
         /// <summary>
         /// Ports a list of projects

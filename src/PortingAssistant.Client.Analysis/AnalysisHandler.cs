@@ -410,7 +410,7 @@ namespace PortingAssistant.Client.Analysis
 
                 configs.Add(projectConfiguration);
             }
-            var solutionPort = new SolutionPort(pathToSolution, analyzerResults, configs, _logger, analyzerSettings?.VisualStudioVersion.ToString());
+            var solutionPort = new SolutionPort(pathToSolution, analyzerResults, configs, _logger);
             var projectResults = solutionPort.Run().ProjectResults.ToList();
 
             TraceEvent.End(_logger, $"Analyzing solution for applicable porting actions: {pathToSolution}");

@@ -38,9 +38,9 @@ namespace PortingAssistant.Client.PortingProjectFile
             List<ProjectDetails> projects, 
             string solutionPath, 
             string targetFramework,
-            Dictionary<string, Tuple<string, string>> upgradeVersions, VisualStudioVersion? visualStudioVersion = null)
+            Dictionary<string, Tuple<string, string>> upgradeVersions)
         {
-            return ApplyProjectChanges(projects, solutionPath, targetFramework, true, upgradeVersions, visualStudioVersion);
+            return ApplyProjectChanges(projects, solutionPath, targetFramework, true, upgradeVersions);
         }
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace PortingAssistant.Client.PortingProjectFile
 
             try
             {
-                SolutionPort solutionPort = new SolutionPort(solutionPath, configs, _logger, visualStudioVersion?.ToString());
+                SolutionPort solutionPort = new SolutionPort(solutionPath, configs, _logger, visualStudioVersion: visualStudioVersion?.ToString());
                 solutionPort.Run();
             }
             catch (Exception ex)
