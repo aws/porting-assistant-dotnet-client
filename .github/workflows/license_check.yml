@@ -1,0 +1,31 @@
+name: license-check
+
+on:
+  push:
+    branches: 
+    - main
+    - release/*
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  licence-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout latest code
+        uses: actions/checkout@v3
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v3.3.0
+        with:
+          node-version: 16.x
+      - name: Authenticate with GitHub package registry
+        run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.ACCESS_TOKEN }}" >> ~/.npmrc
+      - name: Run npm install
+        run: npm install
+      - name: Check licenses
+        uses: tangro/actions-license-check@v1.0.9
+        with:
+          allowed-licenses: 'MIT; ISC; Apache-2.0; BSD'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_CONTEXT: ${{ toJson(github) }}
