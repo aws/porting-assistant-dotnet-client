@@ -40,7 +40,7 @@ namespace PortingAssistant.Client.Analysis
         private async Task<List<AnalyzerResult>> RunCoderlyzerAnalysis(string solutionFilename, List<string> projects, AnalyzerSettings analyzerSettings = null)
         {
             MemoryUtils.LogSystemInfo(_logger);
-            MemoryUtils.LogSolutiontSize(_logger, solutionFilename);
+            MemoryUtils.LogSolutionSize(_logger, solutionFilename);
             _logger.LogInformation("Memory usage before RunCoderlyzerAnalysis: ");
             MemoryUtils.LogMemoryConsumption(_logger);
 
