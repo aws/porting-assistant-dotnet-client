@@ -41,9 +41,9 @@ namespace PortingAssistant.Client.Client
                 Dictionary<string, ProjectAnalysisResult> projectAnalysisResultsDict;
 
                 if (settings.ContiniousEnabled)
-                    projectAnalysisResultsDict = await _analysisHandler.AnalyzeSolutionIncremental(solutionFilePath, projects, targetFramework);
+                    projectAnalysisResultsDict = await _analysisHandler.AnalyzeSolutionIncremental(solutionFilePath, projects, targetFramework, settings);
                 else
-                    projectAnalysisResultsDict = await _analysisHandler.AnalyzeSolution(solutionFilePath, projects, targetFramework);
+                    projectAnalysisResultsDict = await _analysisHandler.AnalyzeSolution(solutionFilePath, projects, targetFramework, settings);
 
                 var projectAnalysisResults = projects.Select(p =>
                 {
@@ -172,7 +172,7 @@ namespace PortingAssistant.Client.Client
                     request.SolutionPath,
                     request.TargetFramework,
                     request.IncludeCodeFix,
-                    upgradeVersions);
+                    upgradeVersions, request.VisualStudioVersion);
             }
             catch (Exception ex)
             {

@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Reflection.Metadata;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
@@ -47,7 +48,7 @@ namespace PortingAssistant.Client.UnitTests
         }
 
         [Test]
-        public void TestLogSolutiontSize()
+        public void TestLogSolutionSize()
         {
             var testSolutionPath = Path.Combine(
                 tmpTestFixturePath, "mvcmusicstore", "MvcMusicStore.sln");
@@ -59,34 +60,12 @@ namespace PortingAssistant.Client.UnitTests
                 "*.cs", SearchOption.AllDirectories).Count();
             Assert.AreEqual(csFileCount, 41);
 
-            // Run explicit GC
-            GC.Collect();
+            // NOTE: This size will change if mvcMusicStore is modified
+            var expectedSize = 202736;
+            var size = MemoryUtils.LogSolutionSize(testLogger, testSolutionPath);
 
-            for (int i = 0; i <= 10; i++)
-            {
-                // Before the execution
-                long kbBeforeExecution = GC.GetTotalMemory(false) / 1024;
-
-                var watch = Stopwatch.StartNew();
-                MemoryUtils.LogSolutiontSize(testLogger, testSolutionPath);
-                watch.Stop();
-                var elapsedMs = watch.ElapsedMilliseconds;
-
-                long kbAfterExecution = GC.GetTotalMemory(false) / 1024;
-                // This will force garbage collection
-                long kbAfterGC = GC.GetTotalMemory(true) / 1024;
-
-                Console.WriteLine("----------Iteration " + i + "----------");
-                Console.WriteLine(elapsedMs + "ms to run LogSolutiontSize");
-                Console.WriteLine(kbBeforeExecution + "kb before LogSolutionSize.");
-                Console.WriteLine(kbAfterExecution + "kb after LogSolutionSize.");
-                Console.WriteLine(kbAfterGC + "kb after Garbage Collection");
-                Console.WriteLine(kbAfterExecution - kbBeforeExecution + "kb allocated during LogSolutionSize.");
-                Console.WriteLine(kbAfterExecution - kbAfterGC + "kb got collected by GC.");
-
-                // Verify All the short-lived objects in LogSolutiontSize are gabage collected
-                Assert.GreaterOrEqual(kbBeforeExecution - kbAfterGC, 0);
-            }
+            // Verify that the solution size is correct
+            Assert.AreEqual(expectedSize, size);
         }
 
         [OneTimeTearDown]

@@ -57,7 +57,7 @@ namespace PortingAssistant.Client.PortingProjectFile
             string solutionPath, 
             string targetFramework,
             bool includeCodeFix,
-            Dictionary<string, Tuple<string, string>> upgradeVersions)
+            Dictionary<string, Tuple<string, string>> upgradeVersions, VisualStudioVersion? visualStudioVersion = null)
         {
             var results = new List<PortingResult>();
 
@@ -97,7 +97,7 @@ namespace PortingAssistant.Client.PortingProjectFile
 
             try
             {
-                SolutionPort solutionPort = new SolutionPort(solutionPath, configs, _logger);
+                SolutionPort solutionPort = new SolutionPort(solutionPath, configs, _logger, visualStudioVersion: visualStudioVersion?.ToString());
                 solutionPort.Run();
             }
             catch (Exception ex)

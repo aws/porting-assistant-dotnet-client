@@ -140,8 +140,8 @@ namespace PortingAssistant.Client.Tests
             _tmpProjectPath = Path.Combine(_tmpSolutionDirectory, "Libraries", "Nop.Core", "Nop.Core.csproj");
 
             _apiAnalysisHandlerMock.Reset();
-            _apiAnalysisHandlerMock.Setup(analyzer => analyzer.AnalyzeSolution(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
-                .Returns((string solutionFilePath, List<string> projects, string targetFramework) =>
+            _apiAnalysisHandlerMock.Setup(analyzer => analyzer.AnalyzeSolution(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>(), It.IsAny<AnalyzerSettings>()))
+                .Returns((string solutionFilePath, List<string> projects, string targetFramework, AnalyzerSettings analyzerSettings) =>
                 {
                     return Task.Run(() => projects.Select(project =>
                     {
@@ -199,8 +199,8 @@ namespace PortingAssistant.Client.Tests
                         return new KeyValuePair<string, ProjectAnalysisResult>(project, projectAnalysisResult);
                     }).ToDictionary(k => k.Key, v => v.Value));
                 });
-            _apiAnalysisHandlerMock.Setup(analyzer => analyzer.AnalyzeSolutionIncremental(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
-                .Returns((string solutionFilePath, List<string> projects, string targetFramework) =>
+            _apiAnalysisHandlerMock.Setup(analyzer => analyzer.AnalyzeSolutionIncremental(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>(), It.IsAny<AnalyzerSettings>()))
+                .Returns((string solutionFilePath, List<string> projects, string targetFramework, AnalyzerSettings analyzerSettings) =>
                 {
                     return Task.Run(() =>
                     {

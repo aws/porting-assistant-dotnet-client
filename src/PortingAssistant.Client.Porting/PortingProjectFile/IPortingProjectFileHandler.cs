@@ -32,6 +32,6 @@ namespace PortingAssistant.Client.PortingProjectFile
         List<PortingResult> ApplyProjectChanges(
             List<ProjectDetails> projects, string solutionPath, string targetFramework,
             bool includeCodeFix,
-            Dictionary<string, Tuple<string, string>> upgradeVersions);
+            Dictionary<string, Tuple<string, string>> upgradeVersions, VisualStudioVersion? visualStudioVersion = null);
     }
 }
