@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using CommandLine;
 using CommandLine.Text;
+using PortingAssistant.Client.Common.Utils;
+using PortingAssistantExtensionTelemetry;
 using Serilog.Events;
 
 namespace PortingAssistant.Client.CLI
@@ -117,8 +119,6 @@ namespace PortingAssistant.Client.CLI
 
                     EnabledDefaultCredentials = o.EnabledDefaultCredentials;
 
-                    DisabledMetrics = o.DisabledMetrics;
-
                     if (o.IgnoreProjects != null)
                     {
                         IgnoreProjects = o.IgnoreProjects.ToList();
@@ -128,6 +128,10 @@ namespace PortingAssistant.Client.CLI
                     {
                         PortingProjects = o.PortingProjects.ToList();
                     }
+
+                    TelemetryCollector.ToggleMetrics(o.DisabledMetrics);
+                    TraceEvent.ToggleMetrics(o.DisabledMetrics);
+                    MemoryUtils.ToggleMetrics(o.DisabledMetrics);
 
                     switch (o.MinimumLoggingLevel.ToLower())
                     {

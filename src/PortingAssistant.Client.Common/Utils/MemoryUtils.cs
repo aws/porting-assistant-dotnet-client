@@ -9,6 +9,8 @@ namespace PortingAssistant.Client.Common.Utils
 {
     public static class MemoryUtils
     {
+        private static bool _disabledMetrics = false;
+
         private static string ConvertBytesToMegabytes(long bytes)
         {
             return ((bytes / 1024f) / 1024f).ToString("0.00");
@@ -21,6 +23,8 @@ namespace PortingAssistant.Client.Common.Utils
         //     of memory, in bytes, allocated for the associated process.
         public static void LogMemoryConsumption(ILogger logger)
         {
+            if (!_disabledMetrics) { return; }
+
             // Determine the best available approximation of the number
             // of bytes currently allocated in managed memory.
             logger.LogInformation(
@@ -67,6 +71,8 @@ namespace PortingAssistant.Client.Common.Utils
         //     returns the size.
         public static long LogSolutionSize(ILogger logger, string SolutionPath)
         {
+            if (!_disabledMetrics) { return -1; }
+
             DirectoryInfo solutionDir = Directory.GetParent(SolutionPath);
             var size = solutionDir.EnumerateFiles(
                 "*.cs", SearchOption.AllDirectories).Sum(fi => fi.Length);
@@ -84,12 +90,19 @@ namespace PortingAssistant.Client.Common.Utils
         //     64 bit.
         public static void LogSystemInfo(ILogger logger)
         {
+            if (!_disabledMetrics) { return; }
+
             int systemType = Environment.Is64BitOperatingSystem ? 64 : 32;
             logger.LogInformation("Operating system is {0}bit.", systemType);
 
             int processType = Environment.Is64BitProcess? 64 : 32;
             logger.LogInformation("Current process is {0}bit.", processType);
 
+        }
+
+        public static void ToggleMetrics(bool disabledMetrics)
+        {
+            _disabledMetrics = disabledMetrics;
         }
     }
 }

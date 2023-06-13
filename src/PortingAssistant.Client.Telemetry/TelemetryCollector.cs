@@ -22,6 +22,7 @@ namespace PortingAssistantExtensionTelemetry
         private static string _filePath;
         private static ILogger _logger;
         private static ILogger _metricsLogger;
+        private static bool _disabledMetrics = false;
         private static int _numLogicalCores;
         private static double _systemMemory;
         private static SHA256 _sha256hash = SHA256.Create();
@@ -29,7 +30,7 @@ namespace PortingAssistantExtensionTelemetry
 
         public static void Builder(ILogger logger, string filePath)
         {
-            if (_logger == null && _filePath == null )
+            if (_logger == null && _filePath == null)
             {
                 _logger = logger;
                 _filePath = filePath;
@@ -205,6 +206,8 @@ namespace PortingAssistantExtensionTelemetry
                 string tag
             )
         {
+            if (_disabledMetrics) { return; }
+
             var date = DateTime.Now;
             var solutionDetail = result.SolutionDetails;
             // Solution Metrics
@@ -248,12 +251,19 @@ namespace PortingAssistantExtensionTelemetry
                 string projectGuid
             )
         {
+            if (_disabledMetrics) { return; }
+
             var date = DateTime.Now;
             foreach (var api in result.ApiAnalysisResults)
             {
                 var apiMetrics = CreateAPIMetric(api, targetFramework, version, source, tag, date, projectGuid);
                 TelemetryCollector.Collect<APIMetrics>(apiMetrics);
             }
+        }
+
+        public static void ToggleMetrics(bool disabledMetrics)
+        {
+            _disabledMetrics = disabledMetrics;
         }
 
         private static string GetHash(HashAlgorithm hashAlgorithm, string input)
