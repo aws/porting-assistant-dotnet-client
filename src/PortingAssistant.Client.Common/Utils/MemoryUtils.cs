@@ -23,7 +23,7 @@ namespace PortingAssistant.Client.Common.Utils
         //     of memory, in bytes, allocated for the associated process.
         public static void LogMemoryConsumption(ILogger logger)
         {
-            if (!_disabledMetrics) { return; }
+            if (_disabledMetrics) { return; }
 
             // Determine the best available approximation of the number
             // of bytes currently allocated in managed memory.
@@ -71,7 +71,7 @@ namespace PortingAssistant.Client.Common.Utils
         //     returns the size.
         public static long LogSolutionSize(ILogger logger, string SolutionPath)
         {
-            if (!_disabledMetrics) { return -1; }
+            if (_disabledMetrics) { return -1; }
 
             DirectoryInfo solutionDir = Directory.GetParent(SolutionPath);
             var size = solutionDir.EnumerateFiles(
@@ -90,7 +90,7 @@ namespace PortingAssistant.Client.Common.Utils
         //     64 bit.
         public static void LogSystemInfo(ILogger logger)
         {
-            if (!_disabledMetrics) { return; }
+            if (_disabledMetrics) { return; }
 
             int systemType = Environment.Is64BitOperatingSystem ? 64 : 32;
             logger.LogInformation("Operating system is {0}bit.", systemType);
