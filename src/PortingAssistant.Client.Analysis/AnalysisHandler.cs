@@ -16,6 +16,8 @@ using PortingAssistant.Client.NuGet;
 using AnalyzerConfiguration = Codelyzer.Analysis.AnalyzerConfiguration;
 using IDEProjectResult = Codelyzer.Analysis.Build.IDEProjectResult;
 using Codelyzer.Analysis.Analyzer;
+using System.Threading;
+using System.Runtime.CompilerServices;
 
 namespace PortingAssistant.Client.Analysis
 {
@@ -336,7 +338,8 @@ namespace PortingAssistant.Client.Analysis
         public async IAsyncEnumerable<ProjectAnalysisResult> AnalyzeSolutionGeneratorAsync(
             string solutionFilename,
 			List<string> projects,
-			string targetFramework = "net6.0")
+			string targetFramework = "net6.0",
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var configuration = GetAnalyzerConfiguration(projects);
             var analyzer = new CodeAnalyzerByLanguage(configuration, _logger);
@@ -348,6 +351,7 @@ namespace PortingAssistant.Client.Analysis
 
                 while (await resultEnumerator.MoveNextAsync().ConfigureAwait(false))
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     var result = resultEnumerator.Current;
                     var projectPath = result?.ProjectResult?.ProjectFilePath;
                     

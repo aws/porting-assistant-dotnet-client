@@ -15,6 +15,8 @@ using PortingAssistant.Client.Telemetry;
 using System.Diagnostics;
 using System.Reflection;
 using PortingAssistant.Client.Common.Utils;
+using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace PortingAssistant.Client.CLI
 
@@ -88,10 +90,13 @@ namespace PortingAssistant.Client.CLI
                     var startTime = DateTime.Now;
                     Task<SolutionAnalysisResult> analyzeResults;
 
+                    solutionSettings.UseGenerator = true;
                     // Assess solution
                     if (solutionSettings.UseGenerator)
                     {
-                        analyzeResults = AnalyzeSolutionGenerator(portingAssistantClient, cli.SolutionPath, solutionSettings);
+                        var cancellationTokenSource = new CancellationTokenSource();
+                        // cancellationTokenSource.CancelAfter(60000);
+                        analyzeResults = AnalyzeSolutionGenerator(portingAssistantClient, cli.SolutionPath, solutionSettings, cancellationTokenSource.Token);
                     }
                     else
                     {
@@ -191,16 +196,18 @@ namespace PortingAssistant.Client.CLI
         private static async Task<SolutionAnalysisResult> AnalyzeSolutionGenerator(
             IPortingAssistantClient portingAssistantClient, 
             string solutionPath, 
-            AnalyzerSettings solutionSettings)
+            AnalyzerSettings solutionSettings,
+            CancellationToken cancellationToken = default)
         {
             try 
             {
                 var projectAnalysisResults = new List<ProjectAnalysisResult>();
                 var failedProjects = new List<string>();
-                var projectAnalysisResultEnumerator = portingAssistantClient.AnalyzeSolutionGeneratorAsync(solutionPath, solutionSettings).GetAsyncEnumerator();
+                var projectAnalysisResultEnumerator = portingAssistantClient.AnalyzeSolutionGeneratorAsync(solutionPath, solutionSettings).GetAsyncEnumerator(cancellationToken);
 
                 while (await projectAnalysisResultEnumerator.MoveNextAsync().ConfigureAwait(false))
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     var result = projectAnalysisResultEnumerator.Current;
                     projectAnalysisResults.Add(result);
 
@@ -236,6 +243,10 @@ namespace PortingAssistant.Client.CLI
                     ProjectAnalysisResults = projectAnalysisResults
                 };
             } 
+            catch (TaskCanceledException ex)
+            {
+                throw new PortingAssistantException($"Analyze solution Cancelled {solutionPath}", ex);
+            }
             catch (Exception ex) 
             {
                 throw new PortingAssistantException($"Cannot Analyze solution {solutionPath}", ex);

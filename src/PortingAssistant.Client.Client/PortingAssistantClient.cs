@@ -9,6 +9,8 @@ using System.IO;
 using System.Threading.Tasks;
 using CTA.Rules.Models;
 using Codelyzer.Analysis.Model;
+using System.Threading;
+using System.Runtime.CompilerServices;
 
 namespace PortingAssistant.Client.Client
 {
@@ -99,16 +101,17 @@ namespace PortingAssistant.Client.Client
             }
         }
 
-        public async IAsyncEnumerable<ProjectAnalysisResult> AnalyzeSolutionGeneratorAsync(string solutionFilePath, AnalyzerSettings settings)
+        public async IAsyncEnumerable<ProjectAnalysisResult> AnalyzeSolutionGeneratorAsync(string solutionFilePath, AnalyzerSettings settings, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var targetFramework = settings.TargetFramework ?? DEFAULT_TARGET;
 
             var projects = ProjectsToAnalyze(solutionFilePath, settings);
-            var resultEnumerator = _analysisHandler.AnalyzeSolutionGeneratorAsync(solutionFilePath, projects, targetFramework).GetAsyncEnumerator();
+            var resultEnumerator = _analysisHandler.AnalyzeSolutionGeneratorAsync(solutionFilePath, projects, targetFramework, cancellationToken).GetAsyncEnumerator();
             try
             {
                 while (await resultEnumerator.MoveNextAsync().ConfigureAwait(false))
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     var result = resultEnumerator.Current;
                     yield return result;
                 }
