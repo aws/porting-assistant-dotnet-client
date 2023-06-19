@@ -29,6 +29,10 @@ namespace PortingAssistant.Client.Client.Reports
             {
                 string FileName =Path.GetFileName(portingResult.ProjectFile) + "-porting-result.json";
                 string FileDir = Path.Combine(outputFolder, SolutionName + AnalyzeRootFolder, PortingResultFolder, FileName);
+                if (Directory.Exists(FileDir))
+                {
+                    Directory.Delete(FileDir, true);
+                }
                 Directory.CreateDirectory(FileDir);
                 var writeToFile = WriteReportToFileAsync(portingResult, Path.Combine(FileDir, FileName));
                 writeToFile.Wait();
@@ -55,6 +59,10 @@ namespace PortingAssistant.Client.Client.Reports
                     List<Task<bool>> writeToFiles = new List<Task<bool>>();
                     string ProjectName = projectAnalysResult.ProjectName;
                     string FileDir = Path.Combine(BaseDir, ProjectName);
+                    if (Directory.Exists(FileDir))
+                    {
+                        Directory.Delete(FileDir, true);
+                    }
                     Directory.CreateDirectory(FileDir);
                     List<PackageAnalysisResult> packageAnalysisResults = new List<PackageAnalysisResult>();
                     Dictionary<PackageVersionPair, string> packageAnalysisResultErrors = new Dictionary<PackageVersionPair, string>();
