@@ -193,7 +193,7 @@ namespace PortingAssistant.Client.CLI
             }
         }
 
-        private static async Task<SolutionAnalysisResult> AnalyzeSolutionGenerator(
+        public static async Task<SolutionAnalysisResult> AnalyzeSolutionGenerator(
             IPortingAssistantClient portingAssistantClient, 
             string solutionPath, 
             AnalyzerSettings solutionSettings,
