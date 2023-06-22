@@ -1,0 +1,13 @@
+{
+    "Region": "us-west-2",
+    "Targets": [
+        {
+            "Ami": "ami-05cc83e573412838f",
+            "IAMRole": "BENCHMARK_EC2_INSTANCE_PROFILE_ARN",
+            "Instances": [{"Value": "c4.large"},{"Value": "c4.xlarge"},{"Value": "c4.2xlarge"}],
+            "InstallDotNetSdk": true,
+            "InitializationPowershellScript": "Write-Host Initializing for Porting Assistant;if (!(test-path -PathType Container c:\\temp)){ mkdir c:\\temp};iwr https://go.microsoft.com/fwlink/?linkid=874338 -OutFile installer.exe; Start-Process .\\\\installer.exe -argumentlist \u0022/passive /norestart\u0022 -wait; Write-Host Installed .NET 4.7.2; iwr https://github.com/marknfawaz/TestProjects/archive/refs/heads/master.zip -OutFile c:\\\\temp\\\\master.zip; Expand-Archive -Path c:\\\\temp\\\\master.zip -DestinationPath c:\\\\temp\\\\; mv c:\\\\temp\\\\TestProjects-master\\\\net472\\\\OwinExtraAPI c:\\\\temp\\\\OwinExtraAPI; mkdir c:\\\\temp\\\\OwinExtraAPI_output; mv c:\\\\temp\\\\TestProjects-master\\\\net472\\\\OwinParadise c:\\\\temp\\\\OwinParadise; mkdir c:\\\\temp\\\\OwinParadise_output;Write-Host Final Temp Dir: ;dir c:\\\\temp"
+        }
+    ],
+    "S3BucketName": "BENCHMARK_BUCKET_NAME"
+}

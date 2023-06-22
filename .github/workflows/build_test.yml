@@ -27,6 +27,10 @@ jobs:
           echo "Added aws secret templates"
           git secrets --scan -r ../
           echo "Repository scan completed"
+    - name: Get Version Info
+      uses: dotnet/nbgv@master
+      with:
+        setAllVars: true
     - name: Setup .NET Versions
       uses: actions/setup-dotnet@v1
       with:
@@ -82,4 +86,51 @@ jobs:
         }
         $uploadLink = 's3://aws.portingassistant.dotnet.download/nuget/flatcontainer/portingassistant.client.cli/' + $version + '/'
         Echo $uploadLink
-        aws s3 cp ./dist/PortingAssistant.Client.CLI.exe $uploadLink
+        aws s3 cp ./dist/PortingAssistant.Client.CLI.exe $uploadLink    
+    - name: "Push tag"
+      uses: EndBug/latest-tag@latest
+      with:
+        # You can change the name of the tag with this input.
+        # Default: 'latest'
+        tag-name: "v${{env.NBGV_MajorMinorVersion}}"
+
+  benchmark-and-regression-check:
+    runs-on: windows-latest
+    steps: 
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Setup .NET Versions
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 7.0.x
+    - name: Get Version Info
+      uses: dotnet/nbgv@master
+      with:
+        setAllVars: true
+    - name: Install Benchmark Tool
+      run: |
+        dotnet new tool-manifest
+        dotnet tool install --add-source ${{ secrets.TUXNET_BENCHMARK_NUGET_FEED }} BenchmarkDotnetCliTool
+    - name: Prepare Benchmark AWS Config Json
+      run: |
+        # update config file with values from secrets
+        $awsConfigJson = Get-Content benchmark-aws-config.json 
+        $awsConfigJson = $awsConfigJson.Replace("BENCHMARK_EC2_INSTANCE_PROFILE_ARN", "${{ secrets.TUXNET_BENCHMARK_EC2_INSTANCE_PROFILE_ARN }}")
+        $awsConfigJson = $awsConfigJson.Replace("BENCHMARK_BUCKET_NAME", "${{ secrets.TUXNET_BENCHMARK_BUCKET_NAME }}")
+        $awsConfigJson | Out-File benchmark-aws-config.json
+        cat benchmark-aws-config.json
+    - name: "Configure AWS Credentials"
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+        aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+        aws-region: us-west-2
+    - name: Run Benchmark and check for Regression 
+      run: |
+        # baseline is the most recent git tag
+        $baseline=(git tag -l --sort=-v:refname)[0]
+        $tag="v${{env.NBGV_MajorMinorVersion}}"
+        $threshold=10.0
+        dotnet benchmark run aws managed src/PortingAssistant.Client/PortingAssistant.Client.CLI.csproj --targetApplicationRoot . -o . --tag $tag --baseline $baseline --threshold $threshold -c benchmark-targets.json -ac benchmark-aws-config.json 

@@ -1,0 +1,35 @@
+{
+    "Jobs": [
+        {
+            "JobName": "PA_Client_Benchmark",
+            "Profilers": [
+                "EventPipeProfiler(EventPipeProfile.CpuSampling)"
+            ],
+            "IncludeEC2Labels": true,
+            "Labels": {},
+            "JobRunStrategy": 1,
+            "JobLaunchCount": 1,
+            "JobWarmupCount": 2,
+            "JobIterationCount": 3,
+            "JobInvocationCount": 1,
+            "Targets": [
+                {
+                    "Name": "PortingAssistant_Client",
+                    "Class": "PortingAssistant.Client.CLI.Program",
+                    "Method": "Main",
+                    "MethodIsAsync": false,
+                    "MethodParameters": [
+                        {
+                            "Name": "Porting",
+                            "FullTypeName": "string[]",
+                            "JsonValues": [
+                                "[\u0022assess\u0022, \u0022-s\u0022, \u0022c:\\\\temp\\\\OwinExtraAPI\\\\OwinExtraAPI.sln\u0022, \u0022-o\u0022, \u0022c:\\\\temp\\\\OwinExtraAPI_output\u0022]",
+                                "[\u0022assess\u0022, \u0022-s\u0022, \u0022c:\\\\temp\\\\OwinParadise\\\\OwinParadise.sln\u0022, \u0022-p\u0022, \u0022OwinParadise\u0022, \u0022-o\u0022, \u0022c:\\\\temp\\\\OwinParadise_output\u0022]"
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
