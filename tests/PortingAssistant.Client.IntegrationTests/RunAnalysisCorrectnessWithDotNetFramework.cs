@@ -4,6 +4,9 @@ using System.IO.Compression;
 using System.Diagnostics;
 using NUnit.Framework;
 using PortingAssistant.Client.IntegrationTests.TestUtils;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using NuGet.Protocol;
 
 namespace PortingAssistant.Client.IntegrationTests
 {
@@ -129,6 +132,25 @@ namespace PortingAssistant.Client.IntegrationTests
                "Schemas",
                "api-analysis-schema.json");
             Assert.IsTrue(JsonUtils.ValidateSchema(actualApiAnalysisPath, apiAnalysisSchemaPath, false), "API analysis schema does not match expected");
+        }
+
+        [Test]
+        public void JsonDiffTest()
+        {
+            string apiAnalysisPath = Path.Combine(
+                expectedAnalysisResultRootDir,
+                "NetFrameworkExample-analyze",
+                "NetFrameworkExample-api-analysis.json");
+            string apiAnalysisSchemaPath = Path.Combine(
+                expectedAnalysisResultRootDir,
+                "Schemas",
+                "api-analysis-schema.json");
+            string[] propertiesToBeRemovedInApiAnalysisResult = Array.Empty<string>();
+            bool comparisonResult = JsonUtils.AreTwoJsonFilesEqual(
+                apiAnalysisPath, apiAnalysisSchemaPath,
+                propertiesToBeRemovedInApiAnalysisResult);
+
+            Assert.IsFalse(comparisonResult, "API analysis did not detect difference as expected.");
         }
     }
 }

@@ -81,12 +81,14 @@ namespace PortingAssistant.Client.CLI
                         ? new AnalyzerSettings
                         {
                             IgnoreProjects = cli.IgnoreProjects,
-                            TargetFramework = cli.Target
+                            TargetFramework = cli.Target,
+                            UseGenerator = cli.UseGenerator
                         }
                         : new AnalyzerSettings
                         {
                             IgnoreProjects = new List<string>(),
-                            TargetFramework = cli.Target
+                            TargetFramework = cli.Target,
+                            UseGenerator = cli.UseGenerator
                         };
 
                     var startTime = DateTime.Now;

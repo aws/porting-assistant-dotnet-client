@@ -92,6 +92,102 @@ namespace PortingAssistant.Client.IntegrationTests
                 filesToIgnore));
         }
 
+        [Test]
+        public void RunPortingGeneratorWithWebFormFramework()
+        {
+            RunCLIToPortSolutionWithGenerator();
+            string expectedPortedTestSolutionPath = Path.Combine(
+                expectedPortedTestSolutionExtractionPath,
+                "eShopOnBlazor-ported", "src\\eShopLegacyWebForms");
+            string actualPortedTestSolutionPath = Path.Combine(
+                actualTestSolutionExtractionPath,
+                "eShopOnBlazor", "src\\eShopLegacyWebForms");
+            string[] filesToIgnore = {
+                //Ignore PortSolutionResult.txt and eShopLegacyWebForms.csproj
+                // because it contains solution path which is different between
+                // baseline ported solution and actual test solution
+                "eShopLegacyWebForms.csproj",
+                "PortSolutionResult.txt",
+                "PortSolutionResult.json",
+                "eShopLegacyWebForms\\bin",
+                "eShopLegacyWebForms\\obj",
+                ".suo",
+                "applicationhost.config"
+            };
+            Assert.IsTrue(DirectoryUtils.AreTwoDirectoriesEqual(
+                expectedPortedTestSolutionPath,
+                actualPortedTestSolutionPath,
+                filesToIgnore));
+        }
+
+        [Test]
+        public void UseInvalidCliOptions()
+        {
+            string actualTestSolutionPath = Path.Combine(
+                actualTestSolutionExtractionPath,
+                "eShopOnBlazor",
+                "eShopOnBlazor.sln");
+            string actualTestProjectPath = Path.Combine(
+                actualTestSolutionExtractionPath,
+                "eShopOnBlazor",
+                "eShopOnBlazor",
+                "src",
+                "eShopLegacyWebForms",
+                "eShopLegacyWebForms.csproj");
+            string actualAnalysisResultRootDir = actualTestSolutionExtractionPath;
+
+
+            ProcessStartInfo startInfo = new ProcessStartInfo(
+                "PortingAssistant.Client.CLI.exe");
+            startInfo.WorkingDirectory = testDirectoryRoot;
+            startInfo.CreateNoWindow = false;
+            startInfo.UseShellExecute = false;
+            startInfo.RedirectStandardOutput = true;
+            startInfo.RedirectStandardError = true;
+            startInfo.WindowStyle = ProcessWindowStyle.Hidden;
+
+            startInfo.Arguments = "assess -s" + " " + "-o " + actualAnalysisResultRootDir
+                                  + " " + "-t " + "net6.0"
+                                  + " " + "-p " + "eShopLegacyWebForms";
+
+            using (Process exeProcess = Process.Start(startInfo))
+            {
+                exeProcess.WaitForExit();
+
+                Assert.AreEqual(-1, exeProcess.ExitCode);
+            }
+
+            Console.WriteLine("Invalid solution path was correctly detected.");
+
+            startInfo.Arguments = "assess -s " + actualTestSolutionPath
+                                  + " " + "-o"
+                                  + " " + "-t " + "net6.0"
+                                  + " " + "-p " + "eShopLegacyWebForms";
+
+            using (Process exeProcess = Process.Start(startInfo))
+            {
+                exeProcess.WaitForExit();
+
+                Assert.AreEqual(-1, exeProcess.ExitCode);
+            }
+
+            Console.WriteLine("Invalid output path was correctly detected.");
+
+            startInfo.Arguments = "assess -s " + actualTestSolutionPath
+                                  + " " + "-o " + actualAnalysisResultRootDir
+                                  + " " + "-t"
+                                  + " " + "-p " + "eShopLegacyWebForms";
+
+            using (Process exeProcess = Process.Start(startInfo))
+            {
+                exeProcess.WaitForExit();
+
+                Assert.AreEqual(-1, exeProcess.ExitCode);
+            }
+
+            Console.WriteLine("Invalid target framework was correctly detected.");
+        }
+
         private void RunCLIToPortSolution()
         {
             string actualTestSolutionPath = Path.Combine(
@@ -119,6 +215,55 @@ namespace PortingAssistant.Client.IntegrationTests
             startInfo.Arguments = "assess -s " + actualTestSolutionPath
                 + " " + "-o " + actualAnalysisResultRootDir
                 + " " + "-p " + "eShopLegacyWebForms";
+
+            try
+            {
+                // Start the process with the info we specified.
+                // Call WaitForExit and then the using statement will close.
+                using (Process exeProcess = Process.Start(startInfo))
+                {
+                    string stdout = exeProcess.StandardOutput.ReadToEnd();
+                    string stderr = exeProcess.StandardError.ReadToEnd();
+                    //Console.WriteLine(stdout);
+                    //Console.WriteLine(stderr);
+                    exeProcess.WaitForExit();
+                }
+            }
+            catch
+            {
+                Console.WriteLine("Fail to execute PA Client CLI!");
+                Assert.Fail();
+            }
+        }
+
+        private void RunCLIToPortSolutionWithGenerator()
+        {
+            string actualTestSolutionPath = Path.Combine(
+                actualTestSolutionExtractionPath,
+                "eShopOnBlazor",
+                "eShopOnBlazor.sln");
+            string actualTestProjectPath = Path.Combine(
+                actualTestSolutionExtractionPath,
+                "eShopOnBlazor",
+                "eShopOnBlazor",
+                "src",
+                "eShopLegacyWebForms",
+                "eShopLegacyWebForms.csproj");
+            string actualAnalysisResultRootDir = actualTestSolutionExtractionPath;
+
+
+            ProcessStartInfo startInfo = new ProcessStartInfo(
+                "PortingAssistant.Client.CLI.exe");
+            startInfo.WorkingDirectory = testDirectoryRoot;
+            startInfo.CreateNoWindow = false;
+            startInfo.UseShellExecute = false;
+            startInfo.RedirectStandardOutput = true;
+            startInfo.RedirectStandardError = true;
+            startInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            startInfo.Arguments = "assess -s " + actualTestSolutionPath
+                                               + " " + "-o " + actualAnalysisResultRootDir
+                                               + " " + "-p " + "eShopLegacyWebForms"
+                                               + " " + "-u";
 
             try
             {

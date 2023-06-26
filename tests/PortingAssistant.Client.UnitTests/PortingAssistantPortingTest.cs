@@ -11,6 +11,7 @@ using NuGet.Frameworks;
 using NuGet.Versioning;
 using PortingAssistant.Client.Client.FileParser;
 using System;
+using PortingAssistant.Client.Common.Utils;
 
 namespace PortingAssistant.Client.Tests
 {
@@ -189,6 +190,13 @@ namespace PortingAssistant.Client.Tests
                 });
 
             Assert.AreEqual(1, result.Count);
+        }
+
+        [Test]
+        public void FileSystemAccessMethodTests()
+        {
+            var itemsWithNoWriteAccess = FileSystemAccess.CheckWriteAccessForDirectory(_tmpDirectory);
+            Assert.AreEqual(Enumerable.Empty<string>(), itemsWithNoWriteAccess);
         }
     }
 }

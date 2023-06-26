@@ -42,6 +42,7 @@
     <ProjectReference Include="..\..\src\PortingAssistant.Client.Telemetry\PortingAssistant.Client.Telemetry.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Model\" />
     <Folder Include="TestProjects\" />
   </ItemGroup>
 
