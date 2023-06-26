@@ -32,9 +32,9 @@ namespace PortingAssistant.Client.Model
 
         public override bool Equals(object obj)
         {
-            return obj is Packages packages &&
-                   Name == packages.Name &&
-                   Type == packages.Name;
+            return obj is Packages model &&
+                   Type == model.Type &&
+                   Name == model.Name;
         }
 
         public override int GetHashCode()
