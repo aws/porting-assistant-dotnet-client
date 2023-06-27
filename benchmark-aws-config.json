@@ -1,5 +1,6 @@
 {
     "Region": "us-west-2",
+    "AdditionalEC2Tags" : {"tag:PortingAssistantBuildInfrastructure-PVRE-Testing":"PortingAssistantBuildInfrastructure-PVRE-Testing"},
     "Targets": [
         {
             "Ami": "ami-05cc83e573412838f",
