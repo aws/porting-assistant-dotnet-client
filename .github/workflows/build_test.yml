@@ -54,45 +54,6 @@ jobs:
         "aws_secret_access_key = $env:aws_secret_access_key" | Out-File -FilePath "~\.aws\credentials" -Append
     - name: Test
       run: dotnet test --configuration Release --no-restore --verbosity normal
-    - name: Pack
-      if: ${{ github.event_name == 'push' }}
-      run: |
-        dotnet pack --configuration Release --no-restore -o dist
-        $json = Get-Content src/PortingAssistant.Client/PortingAssistantTelemetryConfig.json | ConvertFrom-Json
-        $json.InvokeUrl = "https://encore-telemetry.us-east-1.amazonaws.com"
-        $json.ServiceName = "encore"
-        $json | ConvertTo-Json | Out-File src/PortingAssistant.Client/PortingAssistantTelemetryConfig.json
-        echo $json
-        dotnet publish src/PortingAssistant.Client/PortingAssistant.Client.CLI.csproj -r win-x64 -p:PublishSingleFile=true -p:IncludeAllContentForSelfExtract=true -p:IncludeSymbolsInSingleFile=false /p:DebugType=None /p:DebugSymbols=false --self-contained false -o dist
-    - name: Install Sleet
-      if: ${{ github.event_name == 'push' }}
-      run: dotnet tool install -g sleet --version 3.2.0   
-    - name: "Configure AWS Credentials"
-      if: ${{ github.event_name == 'push' }}
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-        aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-        aws-region: us-west-2  
-    - name: Publish
-      if: ${{ github.event_name == 'push' }}
-      run: sleet push dist --source s3Feed --verbose
-    - name: Publish CLI Executable
-      if: ${{ github.event_name == 'push' }}
-      run: |
-        Get-ChildItem ./dist/PortingAssistant.Client.CLI.*.nupkg | Foreach-Object { 
-        $version =  $_.Name -replace 'PortingAssistant.Client.CLI.', '' -replace ‘.nupkg’, ‘’
-        }
-        $uploadLink = 's3://aws.portingassistant.dotnet.download/nuget/flatcontainer/portingassistant.client.cli/' + $version + '/'
-        Echo $uploadLink
-        aws s3 cp ./dist/PortingAssistant.Client.CLI.exe $uploadLink    
-    - name: "Push tag"
-      uses: EndBug/latest-tag@latest
-      with:
-        # You can change the name of the tag with this input.
-        # Default: 'latest'
-        tag-name: "v${{env.NBGV_MajorMinorVersion}}"
 
   benchmark-and-regression-check:
     runs-on: windows-latest
@@ -134,3 +95,78 @@ jobs:
         $tag="v${{env.NBGV_MajorMinorVersion}}"
         $threshold=10.0
         dotnet benchmark run aws managed src/PortingAssistant.Client/PortingAssistant.Client.CLI.csproj --targetApplicationRoot . -o . --tag $tag --baseline $baseline --threshold $threshold -c benchmark-targets.json -ac benchmark-aws-config.json 
+
+  deploy:
+    needs: [build, benchmark-and-regression-check]
+    runs-on: windows-latest
+    env:
+      ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Check for secrets leak on the repo
+      run: |
+          git clone https://github.com/awslabs/git-secrets.git target
+          cd target
+          ./install.ps1
+          echo "Git-secrets installation completed"
+          git secrets --register-aws --global
+          echo "Added aws secret templates"
+          git secrets --scan -r ../
+          echo "Repository scan completed"
+    - name: Get Version Info
+      uses: dotnet/nbgv@master
+      with:
+        setAllVars: true   
+    - name: Install dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+    - name: Configure credentials to default profile
+      env:
+        aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY }}
+        aws_secret_access_key: ${{ secrets.AWS_SECRET_KEY }}
+      run: |
+        mkdir "~\.aws"
+        "[default]" | Out-File -FilePath "~\.aws\credentials"
+        "aws_access_key_id = $env:aws_access_key_id" | Out-File -FilePath "~\.aws\credentials" -Append
+        "aws_secret_access_key = $env:aws_secret_access_key" | Out-File -FilePath "~\.aws\credentials" -Append
+    - name: Pack
+      if: ${{ github.event_name == 'push' }}
+      run: |
+        dotnet pack --configuration Release --no-restore -o dist
+        $json = Get-Content src/PortingAssistant.Client/PortingAssistantTelemetryConfig.json | ConvertFrom-Json
+        $json.InvokeUrl = "https://encore-telemetry.us-east-1.amazonaws.com"
+        $json.ServiceName = "encore"
+        $json | ConvertTo-Json | Out-File src/PortingAssistant.Client/PortingAssistantTelemetryConfig.json
+        echo $json
+        dotnet publish src/PortingAssistant.Client/PortingAssistant.Client.CLI.csproj -r win-x64 -p:PublishSingleFile=true -p:IncludeAllContentForSelfExtract=true -p:IncludeSymbolsInSingleFile=false /p:DebugType=None /p:DebugSymbols=false --self-contained false -o dist
+    - name: Install Sleet
+      if: ${{ github.event_name == 'push' }}
+      run: dotnet tool install -g sleet --version 3.2.0   
+    - name: "Configure AWS Credentials"
+      if: ${{ github.event_name == 'push' }}
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+        aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+        aws-region: us-west-2  
+    - name: Publish
+      if: ${{ github.event_name == 'push' }}
+      run: sleet push dist --source s3Feed --verbose
+    - name: Publish CLI Executable
+      if: ${{ github.event_name == 'push' }}
+      run: |
+        Get-ChildItem ./dist/PortingAssistant.Client.CLI.*.nupkg | Foreach-Object { 
+        $version =  $_.Name -replace 'PortingAssistant.Client.CLI.', '' -replace ‘.nupkg’, ‘’
+        }
+        $uploadLink = 's3://aws.portingassistant.dotnet.download/nuget/flatcontainer/portingassistant.client.cli/' + $version + '/'
+        Echo $uploadLink
+        aws s3 cp ./dist/PortingAssistant.Client.CLI.exe $uploadLink    
+    - name: "Push tag"
+      if: ${{ github.event_name == 'push' }}
+      uses: EndBug/latest-tag@latest
+      with:
+        tag-name: "v${{env.NBGV_MajorMinorVersion}}"
