@@ -366,7 +366,7 @@ namespace PortingAssistant.Client.Tests
                             "Method: Compatible:1, Incompatible:0, Unknown:1, Deprecated:0, Actions:0" + Environment.NewLine +
                             "Declaration: Compatible:1, Incompatible:0, Unknown:17, Deprecated:0, Actions:0" + Environment.NewLine +
                             "Enum: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0" + Environment.NewLine +
-                            "Struct: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:" + Environment.NewLine, str);
+                            "Struct: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0" + Environment.NewLine, str);
         }
     }
 }
