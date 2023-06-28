@@ -361,12 +361,12 @@ namespace PortingAssistant.Client.Tests
 
             var str = projectCompatibilityResult.ToString();
 
-            Assert.AreEqual("Analyzed Project Compatibilities for " + _projectPaths[0] + ":\r\n" +
-                            "Annotation: Compatible:0, Incompatible:0, Unknown:2, Deprecated:0, Actions:0\r\n" +
-                            "Method: Compatible:1, Incompatible:0, Unknown:1, Deprecated:0, Actions:0\r\n" +
-                            "Declaration: Compatible:1, Incompatible:0, Unknown:17, Deprecated:0, Actions:0\r\n" +
-                            "Enum: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\n" +
-                            "Struct: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0\r\n", str);
+            Assert.AreEqual("Analyzed Project Compatibilities for " + _projectPaths[0] + ":" + Environment.NewLine +
+                            "Annotation: Compatible:0, Incompatible:0, Unknown:2, Deprecated:0, Actions:0" + Environment.NewLine +
+                            "Method: Compatible:1, Incompatible:0, Unknown:1, Deprecated:0, Actions:0" + Environment.NewLine +
+                            "Declaration: Compatible:1, Incompatible:0, Unknown:17, Deprecated:0, Actions:0" + Environment.NewLine +
+                            "Enum: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0" + Environment.NewLine +
+                            "Struct: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:" + Environment.NewLine, str);
         }
     }
 }
