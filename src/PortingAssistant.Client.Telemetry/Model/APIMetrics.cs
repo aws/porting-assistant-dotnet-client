@@ -14,5 +14,6 @@ namespace PortingAssistant.Client.Telemetry.Model
         public string packageId { get; set; }
         public string packageVersion { get; set; }
         public string projectGuid { get; set; }
+        public string solutionGuid { get; set; }
     }
 }
