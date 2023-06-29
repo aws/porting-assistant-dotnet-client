@@ -46,7 +46,6 @@ namespace PortingAssistant.Client.IntegrationTests
 
 
             netFrameworkProjectPath = Path.Combine(_tmpTestProjectsExtractionPath, "NetFrameworkExample", "NetFrameworkExample.sln");
-            //solutionAnalysisGenerator = portingAssistantClient.AnalyzeSolutionGeneratorAsync(netFrameworkProjectPath, new AnalyzerSettings() { TargetFramework = "netcoreapp3.1", UseGenerator = true }).GetAsyncEnumerator();
         }
 
 
