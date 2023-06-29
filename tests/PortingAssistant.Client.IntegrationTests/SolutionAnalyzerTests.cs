@@ -13,6 +13,8 @@ using System.IO;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.IO.Compression;
+using NUnit.Framework.Internal;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 
 namespace PortingAssistant.Client.IntegrationTests
 {
@@ -48,14 +50,17 @@ namespace PortingAssistant.Client.IntegrationTests
             netFrameworkProjectPath = Path.Combine(_tmpTestProjectsExtractionPath, "NetFrameworkExample", "NetFrameworkExample.sln");
         }
 
-
         [Test]
-        public void AnalyzeSolutionGenerator_ShouldThrowPortingAssistantException_WhenCancellationRequested()
+        [TestCase("netcoreapp3.1")]
+        [TestCase("net5.0")]
+        [TestCase("net6.0")]
+        [TestCase("net7.0")]
+        public void AnalyzeSolutionGenerator_ShouldThrowPortingAssistantException_WhenCancellationRequested( string targetFramework)
         {
             // Arrange
             var solutionSettings = new AnalyzerSettings()
             {
-                TargetFramework = "netcoreapp3.1",
+                TargetFramework = targetFramework,
                 UseGenerator = true
             };
             var cancellationTokenSource = new CancellationTokenSource();
@@ -72,6 +77,30 @@ namespace PortingAssistant.Client.IntegrationTests
                 )
             );
             Assert.That(exception.InnerException.Message, Is.EqualTo("The operation was canceled."));
+        }
+
+        [Test]
+        [TestCase("netcoreapp3.1")]
+        [TestCase("net5.0")]
+        [TestCase("net6.0")]
+        [TestCase("net7.0")]
+        public void AnalyzeSolutionGenerator_WithoutCancellationSucceeds(string targetFramework)
+        {
+            // Arrange
+            var solutionSettings = new AnalyzerSettings()
+            {
+                TargetFramework = targetFramework,
+                UseGenerator = true
+            };
+
+            // Act and Assert
+            Assert.DoesNotThrowAsync(() =>
+            Program.AnalyzeSolutionGenerator(
+                    portingAssistantClient,
+                    netFrameworkProjectPath,
+                    solutionSettings
+                    )
+            );
         }
 
         static private void ConfigureServices(IServiceCollection serviceCollection, PortingAssistantConfiguration config)
