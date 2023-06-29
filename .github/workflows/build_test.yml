@@ -97,7 +97,9 @@ jobs:
         dotnet benchmark run aws managed src/PortingAssistant.Client/PortingAssistant.Client.CLI.csproj --targetApplicationRoot . -o . --tag $tag --baseline $baseline --threshold $threshold -c benchmark-targets.json -ac benchmark-aws-config.json 
 
   deploy:
-    needs: [build, benchmark-and-regression-check]
+    # after trailing tuxnet benchmark tool, add 'benchmark-and-regression-check' to this array
+    # so deploy will block if perf regression detected.
+    needs: [build]
     runs-on: windows-latest
     env:
       ACTIONS_ALLOW_UNSECURE_COMMANDS: true
