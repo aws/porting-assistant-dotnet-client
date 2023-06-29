@@ -90,12 +90,10 @@ namespace PortingAssistant.Client.CLI
                     var startTime = DateTime.Now;
                     Task<SolutionAnalysisResult> analyzeResults;
 
-                    solutionSettings.UseGenerator = true;
                     // Assess solution
                     if (solutionSettings.UseGenerator)
                     {
                         var cancellationTokenSource = new CancellationTokenSource();
-                        // cancellationTokenSource.CancelAfter(60000);
                         analyzeResults = AnalyzeSolutionGenerator(portingAssistantClient, cli.SolutionPath, solutionSettings, cancellationTokenSource.Token);
                     }
                     else
