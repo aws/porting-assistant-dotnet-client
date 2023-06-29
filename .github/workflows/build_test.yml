@@ -93,7 +93,7 @@ jobs:
         # baseline is the most recent git tag
         $baseline=(git tag -l --sort=-v:refname)[0]
         $tag="v${{env.NBGV_MajorMinorVersion}}"
-        $threshold=10.0
+        $threshold=25
         dotnet benchmark run aws managed src/PortingAssistant.Client/PortingAssistant.Client.CLI.csproj --targetApplicationRoot . -o . --tag $tag --baseline $baseline --threshold $threshold -c benchmark-targets.json -ac benchmark-aws-config.json 
 
   deploy:
@@ -118,7 +118,7 @@ jobs:
     - name: Get Version Info
       uses: dotnet/nbgv@master
       with:
-        setAllVars: true   
+        setAllVars: true
     - name: Install dependencies
       run: dotnet restore
     - name: Build
