@@ -214,5 +214,50 @@ namespace PortingAssistant.Client.UnitTests
             Assert.AreEqual(0, compatResults.Result.CompatibleVersions.Count);
             Assert.AreEqual(Compatibility.INCOMPATIBLE, compatibilityResult.Compatibility);
         }
+
+        [Test]
+        public void PortingAssistantModelsTest()
+        {
+            var portingAction1 = new PortingAction();
+
+            portingAction1.TextSpan = null;
+            portingAction1.RecommendedAction = null;
+            portingAction1.TargetFramework = null;
+
+            var portingAction2 = new PortingAction();
+
+            portingAction2.TextSpan = null;
+            portingAction2.RecommendedAction = null;
+            portingAction2.TargetFramework = null;
+
+            Assert.True(portingAction1.Equals(portingAction2));
+            Assert.AreEqual(portingAction1.GetHashCode(), portingAction2.GetHashCode());
+
+            var actions1 = new Actions();
+
+            actions1.Type = null;
+            actions1.Value = null;
+
+            var actions2 = new Actions();
+
+            actions2.Type = null;
+            actions2.Value = null;
+
+            Assert.True(actions1.Equals(actions2));
+            Assert.AreEqual(actions1.GetHashCode(), actions2.GetHashCode());
+
+            var packages1 = new Model.Packages();
+
+            packages1.Type = null;
+            packages1.Name = null;
+
+            var packages2 = new Model.Packages();
+
+            packages2.Type = null;
+            packages2.Name = null;
+
+            Assert.True(packages1.Equals(packages2));
+            Assert.AreEqual(packages1.GetHashCode(), packages2.GetHashCode());
+        }
     }
 }

@@ -36,6 +36,6 @@ namespace PortingAssistant.Client.Porting
             string solutionPath,
             string targetFramework,
             bool includeCodeFix,
-            Dictionary<string, Tuple<string, string>> upgradeVersions);
+            Dictionary<string, Tuple<string, string>> upgradeVersions, VisualStudioVersion? visualStudioVersion = null);
     }
 }

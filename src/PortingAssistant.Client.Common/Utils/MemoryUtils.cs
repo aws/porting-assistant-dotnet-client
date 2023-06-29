@@ -9,6 +9,8 @@ namespace PortingAssistant.Client.Common.Utils
 {
     public static class MemoryUtils
     {
+        private static bool _disabledMetrics = false;
+
         private static string ConvertBytesToMegabytes(long bytes)
         {
             return ((bytes / 1024f) / 1024f).ToString("0.00");
@@ -21,6 +23,8 @@ namespace PortingAssistant.Client.Common.Utils
         //     of memory, in bytes, allocated for the associated process.
         public static void LogMemoryConsumption(ILogger logger)
         {
+            if (_disabledMetrics) { return; }
+
             // Determine the best available approximation of the number
             // of bytes currently allocated in managed memory.
             logger.LogInformation(
@@ -63,15 +67,22 @@ namespace PortingAssistant.Client.Common.Utils
         // Summary:
         //     This method takes a logger, path to a solution file, and logs
         //     the total size of the solution, in bytes, by suming up the
-        //     size of each cs file contained in the solution.
-        public static void LogSolutiontSize(ILogger logger, string SolutionPath)
+        //     size of each cs file contained in the solution. Then, it
+        //     returns the size.
+        public static long LogSolutionSize(ILogger logger, string SolutionPath)
         {
             DirectoryInfo solutionDir = Directory.GetParent(SolutionPath);
             var size = solutionDir.EnumerateFiles(
                 "*.cs", SearchOption.AllDirectories).Sum(fi => fi.Length);
-            logger.LogInformation(
-                "Total size for {0} in bytes: {1}",
-                SolutionPath, size);
+
+            if (!_disabledMetrics)
+            {
+                logger.LogInformation(
+                    "Total size for {0} in bytes: {1}",
+                    SolutionPath, size);
+            }
+
+            return size;
         }
 
         //
@@ -82,12 +93,19 @@ namespace PortingAssistant.Client.Common.Utils
         //     64 bit.
         public static void LogSystemInfo(ILogger logger)
         {
+            if (_disabledMetrics) { return; }
+
             int systemType = Environment.Is64BitOperatingSystem ? 64 : 32;
             logger.LogInformation("Operating system is {0}bit.", systemType);
 
             int processType = Environment.Is64BitProcess? 64 : 32;
             logger.LogInformation("Current process is {0}bit.", processType);
 
+        }
+
+        public static void ToggleMetrics(bool disabledMetrics)
+        {
+            _disabledMetrics = disabledMetrics;
         }
     }
 }

@@ -22,6 +22,7 @@ namespace PortingAssistantExtensionTelemetry
         private static string _filePath;
         private static ILogger _logger;
         private static ILogger _metricsLogger;
+        private static bool _disabledMetrics = false;
         private static int _numLogicalCores;
         private static double _systemMemory;
         private static SHA256 _sha256hash = SHA256.Create();
@@ -29,7 +30,7 @@ namespace PortingAssistantExtensionTelemetry
 
         public static void Builder(ILogger logger, string filePath)
         {
-            if (_logger == null && _filePath == null )
+            if (_logger == null && _filePath == null)
             {
                 _logger = logger;
                 _filePath = filePath;
@@ -148,7 +149,8 @@ namespace PortingAssistantExtensionTelemetry
                 string packageId,
                 string packageVersion,
                 Compatibility compatibility,
-                string projectGuid
+                string projectGuid,
+                string solutionGuid
             ) {
             return new NugetMetrics
             {
@@ -162,6 +164,7 @@ namespace PortingAssistantExtensionTelemetry
                 packageVersion = packageVersion,
                 compatibility = compatibility,
                 projectGuid = projectGuid,
+                solutionGuid = solutionGuid,
                 SessionId = _sessionId
             };
         }
@@ -174,7 +177,8 @@ namespace PortingAssistantExtensionTelemetry
                 string source,
                 string tag,
                 DateTime date,
-                string projectGuid
+                string projectGuid,
+                string solutionGuid
             )
         { 
             return new APIMetrics
@@ -192,6 +196,7 @@ namespace PortingAssistantExtensionTelemetry
                 packageId = apiAnalysisResult.CodeEntityDetails.Package.PackageId,
                 packageVersion = apiAnalysisResult.CodeEntityDetails.Package.Version,
                 projectGuid = projectGuid,
+                solutionGuid = solutionGuid,
                 SessionId = _sessionId
             };
         }
@@ -205,6 +210,8 @@ namespace PortingAssistantExtensionTelemetry
                 string tag
             )
         {
+            if (_disabledMetrics) { return; }
+
             var date = DateTime.Now;
             var solutionDetail = result.SolutionDetails;
             // Solution Metrics
@@ -226,13 +233,13 @@ namespace PortingAssistantExtensionTelemetry
                     var packageID = nuget.Value.Result.PackageVersionPair.PackageId;
                     var packageVersion = nuget.Value.Result.PackageVersionPair.Version;
                     var compatability = nuget.Value.Result.CompatibilityResults[targetFramework].Compatibility;
-                    var nugetMetrics = CreateNugetMetric(targetFramework, version, source, analysisTime, tag, date, packageID, packageVersion, compatability, project.ProjectGuid);
+                    var nugetMetrics = CreateNugetMetric(targetFramework, version, source, analysisTime, tag, date, packageID, packageVersion, compatability, project.ProjectGuid, solutionDetail.SolutionGuid);
                     TelemetryCollector.Collect<NugetMetrics>(nugetMetrics);
                 }
 
                 foreach (var sourceFile in project.SourceFileAnalysisResults)
                 {
-                    FileAssessmentCollect(sourceFile, targetFramework, version, source, tag, project.ProjectGuid);
+                    FileAssessmentCollect(sourceFile, targetFramework, version, source, tag, project.ProjectGuid, solutionDetail.SolutionGuid);
                 }
             });
         }
@@ -245,15 +252,23 @@ namespace PortingAssistantExtensionTelemetry
                 string version,
                 string source,
                 string tag,
-                string projectGuid
+                string projectGuid,
+                string solutionGuid
             )
         {
+            if (_disabledMetrics) { return; }
+
             var date = DateTime.Now;
             foreach (var api in result.ApiAnalysisResults)
             {
-                var apiMetrics = CreateAPIMetric(api, targetFramework, version, source, tag, date, projectGuid);
+                var apiMetrics = CreateAPIMetric(api, targetFramework, version, source, tag, date, projectGuid, solutionGuid);
                 TelemetryCollector.Collect<APIMetrics>(apiMetrics);
             }
+        }
+
+        public static void ToggleMetrics(bool disabledMetrics)
+        {
+            _disabledMetrics = disabledMetrics;
         }
 
         private static string GetHash(HashAlgorithm hashAlgorithm, string input)

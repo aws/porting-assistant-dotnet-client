@@ -140,8 +140,8 @@ namespace PortingAssistant.Client.Tests
             _tmpProjectPath = Path.Combine(_tmpSolutionDirectory, "Libraries", "Nop.Core", "Nop.Core.csproj");
 
             _apiAnalysisHandlerMock.Reset();
-            _apiAnalysisHandlerMock.Setup(analyzer => analyzer.AnalyzeSolution(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
-                .Returns((string solutionFilePath, List<string> projects, string targetFramework) =>
+            _apiAnalysisHandlerMock.Setup(analyzer => analyzer.AnalyzeSolution(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>(), It.IsAny<AnalyzerSettings>()))
+                .Returns((string solutionFilePath, List<string> projects, string targetFramework, AnalyzerSettings analyzerSettings) =>
                 {
                     return Task.Run(() => projects.Select(project =>
                     {
@@ -199,8 +199,8 @@ namespace PortingAssistant.Client.Tests
                         return new KeyValuePair<string, ProjectAnalysisResult>(project, projectAnalysisResult);
                     }).ToDictionary(k => k.Key, v => v.Value));
                 });
-            _apiAnalysisHandlerMock.Setup(analyzer => analyzer.AnalyzeSolutionIncremental(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
-                .Returns((string solutionFilePath, List<string> projects, string targetFramework) =>
+            _apiAnalysisHandlerMock.Setup(analyzer => analyzer.AnalyzeSolutionIncremental(It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>(), It.IsAny<AnalyzerSettings>()))
+                .Returns((string solutionFilePath, List<string> projects, string targetFramework, AnalyzerSettings analyzerSettings) =>
                 {
                     return Task.Run(() =>
                     {
@@ -457,5 +457,25 @@ namespace PortingAssistant.Client.Tests
             Assert.AreEqual(fileSourceFileAnalysis[0], _sourceFileAnalysisResult);
         }
 
+        [Test]
+        public void DisposeProjectAnalysisResultSucceedsTest()
+        {
+            var results = _portingAssistantClient.AnalyzeSolutionAsync(Path.Combine(_solutionFolder, "SolutionWithProjects.sln"), new AnalyzerSettings { TargetFramework = "net6.0" });
+            results.Wait();
+            var projectAnalysisResult = results.Result.ProjectAnalysisResults.Find(p => p.ProjectName == "Nop.Core");
+
+            projectAnalysisResult.Dispose();
+
+            Assert.AreEqual(null, projectAnalysisResult.Errors);
+            Assert.AreEqual(null, projectAnalysisResult.SourceFileAnalysisResults);
+            Assert.AreEqual(null, projectAnalysisResult.PackageAnalysisResults);
+            Assert.AreEqual(null, projectAnalysisResult.PreportMetaReferences);
+            Assert.AreEqual(null, projectAnalysisResult.MetaReferences);
+            Assert.AreEqual(null, projectAnalysisResult.ProjectRules);
+            Assert.AreEqual(null, projectAnalysisResult.VisualBasicProjectRules);
+            Assert.AreEqual(null, projectAnalysisResult.ExternalReferences);
+            Assert.AreEqual(null, projectAnalysisResult.ProjectCompatibilityResult);
+            Assert.AreEqual(0, projectAnalysisResult.LinesOfCode);
+        }
     }
 }

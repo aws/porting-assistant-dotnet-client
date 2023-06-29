@@ -17,6 +17,8 @@ using System.Reflection;
 using PortingAssistant.Client.Common.Utils;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using Serilog.Core;
+
 
 namespace PortingAssistant.Client.CLI
 
@@ -28,8 +30,11 @@ namespace PortingAssistant.Client.CLI
             PortingAssistantCLI cli = new PortingAssistantCLI();
             cli.HandleCommand(args);
 
+            var levelSwitch = new LoggingLevelSwitch();
+            levelSwitch.MinimumLevel = cli.MinimumLoggingLevel;
+
             var logConfiguration = new LoggerConfiguration().Enrich.FromLogContext()
-                .MinimumLevel.Debug()
+                .MinimumLevel.ControlledBy(levelSwitch)
                 .WriteTo.Console();
 
             var assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -79,12 +84,14 @@ namespace PortingAssistant.Client.CLI
                         ? new AnalyzerSettings
                         {
                             IgnoreProjects = cli.IgnoreProjects,
-                            TargetFramework = cli.Target
+                            TargetFramework = cli.Target,
+                            UseGenerator = cli.UseGenerator
                         }
                         : new AnalyzerSettings
                         {
                             IgnoreProjects = new List<string>(),
-                            TargetFramework = cli.Target
+                            TargetFramework = cli.Target,
+                            UseGenerator = cli.UseGenerator
                         };
 
                     var startTime = DateTime.Now;
@@ -134,7 +141,8 @@ namespace PortingAssistant.Client.CLI
                             SolutionPath = cli.SolutionPath,
                             TargetFramework = cli.Target,
                             RecommendedActions = filteredRecommendedActions.ToList(),
-                            IncludeCodeFix = true
+                            IncludeCodeFix = true,
+                            VisualStudioVersion = solutionSettings.VisualStudioVersion
                         };
 
                         TraceEvent.Start(Log.Logger, $"Applying porting actions to projects in {cli.SolutionPath}");

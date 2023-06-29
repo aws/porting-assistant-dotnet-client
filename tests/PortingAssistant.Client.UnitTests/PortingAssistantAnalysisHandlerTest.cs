@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using PortingAssistant.Client.Analysis;
+using PortingAssistant.Client.Common.Model;
 using PortingAssistant.Client.Model;
 using PortingAssistant.Client.NuGet;
 
@@ -342,5 +343,30 @@ namespace PortingAssistant.Client.Tests
             Assert.IsEmpty(incrementalResult.Result);
         }
 
+        [Test]
+        public void ProjectCompatibilityResultToStringTest()
+        {
+            var package = new PackageVersionPair
+            {
+                PackageId = "Newtonsoft.Json",
+                Version = "13.0.1",
+                PackageSourceType = PackageSourceType.NUGET
+            };
+            var result = _analysisHandler.AnalyzeSolution(_solutionFile, _projectPaths);
+            Task.WaitAll(result);
+
+            var projectAnalysisResult = result.Result.Values.First();
+            Task.WaitAll(projectAnalysisResult.PackageAnalysisResults.Values.ToArray());
+            var projectCompatibilityResult = projectAnalysisResult.ProjectCompatibilityResult;
+
+            var str = projectCompatibilityResult.ToString();
+
+            Assert.AreEqual("Analyzed Project Compatibilities for " + _projectPaths[0] + ":" + Environment.NewLine +
+                            "Annotation: Compatible:0, Incompatible:0, Unknown:2, Deprecated:0, Actions:0" + Environment.NewLine +
+                            "Method: Compatible:1, Incompatible:0, Unknown:1, Deprecated:0, Actions:0" + Environment.NewLine +
+                            "Declaration: Compatible:1, Incompatible:0, Unknown:17, Deprecated:0, Actions:0" + Environment.NewLine +
+                            "Enum: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0" + Environment.NewLine +
+                            "Struct: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0" + Environment.NewLine, str);
+        }
     }
 }

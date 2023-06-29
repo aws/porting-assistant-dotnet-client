@@ -43,6 +43,7 @@
     <ProjectReference Include="..\..\src\PortingAssistant.Client\PortingAssistant.Client.CLI.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Model\" />
     <Folder Include="TestProjects\" />
   </ItemGroup>
 
