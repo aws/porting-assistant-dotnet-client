@@ -65,7 +65,7 @@ namespace PortingAssistant.Client.IntegrationTests
             };
             var cancellationTokenSource = new CancellationTokenSource();
 
-            cancellationTokenSource.CancelAfter(5000);
+            cancellationTokenSource.CancelAfter(100);
 
             // Act and Assert
             var exception = Assert.ThrowsAsync<PortingAssistantException>(async () =>
