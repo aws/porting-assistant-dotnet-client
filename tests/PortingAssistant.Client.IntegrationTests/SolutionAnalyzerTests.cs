@@ -68,8 +68,8 @@ namespace PortingAssistant.Client.IntegrationTests
             cancellationTokenSource.CancelAfter(5000);
 
             // Act and Assert
-            var exception = Assert.ThrowsAsync<PortingAssistantException>(() =>
-            Program.AnalyzeSolutionGenerator(
+            var exception = Assert.ThrowsAsync<PortingAssistantException>(async () =>
+            await Program.AnalyzeSolutionGenerator(
                     portingAssistantClient,
                     netFrameworkProjectPath,
                     solutionSettings,
