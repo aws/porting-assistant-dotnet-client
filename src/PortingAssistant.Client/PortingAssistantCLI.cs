@@ -49,6 +49,9 @@ namespace PortingAssistant.Client.CLI
 
         [Option('l', "logging-level", Required = false, Default = "debug", HelpText = "Set the minimum logging level: debug (default), info, warn, error, fatal, or silent.")]
         public string MinimumLoggingLevel { get; set; }
+        
+        [Option('e', "egress-point", Required = false, Default = "", HelpText = "Set different egress point for logs and metrics upload.")]
+        public string EgressPoint { get; set; }
 
         [Usage(ApplicationAlias = "Porting Assistant Client")]
         public static IEnumerable<Example> Examples
@@ -83,6 +86,7 @@ namespace PortingAssistant.Client.CLI
         public bool UseGenerator;
         public bool EnabledDefaultCredentials;
         public LogEventLevel MinimumLoggingLevel;
+        public string EgressPoint;
 
         public bool isAssess = false;
         public bool isSchema = false;
@@ -125,6 +129,8 @@ namespace PortingAssistant.Client.CLI
                     UseGenerator = o.UseGenerator;
 
                     EnabledDefaultCredentials = o.EnabledDefaultCredentials;
+
+                    EgressPoint = o.EgressPoint;
 
                     if (o.IgnoreProjects != null)
                     {
