@@ -39,6 +39,11 @@ namespace PortingAssistant.Client.CLI
 
             var assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             var telemetryConfiguration = JsonSerializer.Deserialize<TelemetryConfiguration>(File.ReadAllText(Path.Combine(assemblyPath, "PortingAssistantTelemetryConfig.json")));
+            if (!string.IsNullOrEmpty(cli.EgressPoint))
+            {
+                telemetryConfiguration.InvokeUrl = cli.EgressPoint;
+                Console.WriteLine($"Change endpoint to {telemetryConfiguration.InvokeUrl}");
+            }
 
             var configuration = new PortingAssistantConfiguration();
             var roamingFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
