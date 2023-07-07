@@ -54,6 +54,9 @@
     <None Update="TestProjects\VBWebApi.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+	  <None Update="TestProjects\TestNet31Empty.zip">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
   </ItemGroup>
 
 </Project>
