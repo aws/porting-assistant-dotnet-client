@@ -9,7 +9,7 @@
             "Labels": {},
             "JobRunStrategy": 1,
             "JobLaunchCount": 1,
-            "JobWarmupCount": 1,
+            "JobWarmupCount": 0,
             "JobIterationCount": 2,
             "JobInvocationCount": 1,
             "Targets": [
