@@ -56,7 +56,7 @@ namespace PortingAssistant.Client.IntegrationTests
             startInfo.WindowStyle = ProcessWindowStyle.Hidden;
             startInfo.Arguments = "assess -s " + actualTestSolutionPath
                 + " " + "-o " + outputDirectory
-                + " " + "-e " + "https://8q2itpfg51.execute-api.us-east-1.amazonaws.com/beta";
+                + " " + "-e " + "https://8cvsix1u33.execute-api.us-east-1.amazonaws.com/gamma";
 
             try
             {
@@ -76,7 +76,7 @@ namespace PortingAssistant.Client.IntegrationTests
                 Console.WriteLine("Fail to execute PA Client CLI!");
                 Assert.Fail();
             }
-            Assert.IsTrue(stdout.Contains("Change endpoint to https://8q2itpfg51.execute-api.us-east-1.amazonaws.com/beta"));
+            Assert.IsTrue(stdout.Contains("Change endpoint to https://8cvsix1u33.execute-api.us-east-1.amazonaws.com/gamma"));
             Directory.Delete(outputDirectory, true);
         }
     }
