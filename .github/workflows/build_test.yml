@@ -69,32 +69,41 @@ jobs:
       uses: dotnet/nbgv@master
       with:
         setAllVars: true
+    - name: Install dependencies
+      run: dotnet restore
+    - name: Install .NET Framework 4.7.2
+      run: |
+        iwr https://go.microsoft.com/fwlink/?linkid=874338 -OutFile installer.exe; 
+        Start-Process .\\installer.exe -argumentlist "/passive /norestart" -wait; 
+        Write-Host Installed .NET 4.7.2
+    - name: Download Test Projects
+      run: |
+        if (!(test-path -PathType Container c:\\temp)){ mkdir c:\\temp}
+        iwr https://github.com/marknfawaz/TestProjects/archive/refs/heads/master.zip -OutFile c:\\temp\\master.zip
+        Expand-Archive -Path c:\\temp\\master.zip -DestinationPath c:\\temp\\
+        mv c:\\temp\\TestProjects-master\\net472\\OwinExtraAPI c:\\temp\\OwinExtraAPI
+        mkdir c:\\temp\\OwinExtraAPI_output
+        mv c:\\temp\\TestProjects-master\\net472\\OwinParadise c:\\temp\\OwinParadise
+        mkdir c:\\temp\\OwinParadise_output
+        Write-Host Final Temp Dir: 
+        dir c:\\temp
     - name: Install Benchmark Tool
       run: |
         dotnet new tool-manifest
         dotnet tool install --add-source ${{ secrets.TUXNET_BENCHMARK_NUGET_FEED }} BenchmarkDotnetCliTool
-    - name: Prepare Benchmark AWS Config Json
-      run: |
-        # update config file with values from secrets
-        $awsConfigJson = Get-Content benchmark-aws-config.json 
-        $awsConfigJson = $awsConfigJson.Replace("BENCHMARK_EC2_INSTANCE_PROFILE_ARN", "${{ secrets.TUXNET_BENCHMARK_EC2_INSTANCE_PROFILE_ARN }}")
-        $awsConfigJson = $awsConfigJson.Replace("BENCHMARK_BUCKET_NAME", "${{ secrets.TUXNET_BENCHMARK_BUCKET_NAME }}")
-        $awsConfigJson | Out-File benchmark-aws-config.json
-        cat benchmark-aws-config.json
-    - name: "Configure AWS Credentials"
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-        aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-        aws-region: us-west-2
     - name: Run Benchmark and check for Regression 
       run: |
         # baseline is the most recent git tag
-        $baseline=(git tag -l --sort=-v:refname)[0]
+        $baseline="static-baseline"
         $tag="v${{env.NBGV_MajorMinorVersion}}"
-        $threshold=25
-        dotnet benchmark run aws managed src/PortingAssistant.Client/PortingAssistant.Client.CLI.csproj --targetApplicationRoot . -o . --tag $tag --baseline $baseline --threshold $threshold -c benchmark-targets.json -ac benchmark-aws-config.json 
+        $threshold=10
+        dotnet benchmark run local managed src/PortingAssistant.Client/PortingAssistant.Client.CLI.csproj -o .\benchmark --tag $tag --baseline $baseline --threshold $threshold -c benchmark-targets.json
+    - name: Archive Benchmark results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: benchmark-results
+        path: .\benchmark\*
 
   deploy:
     # after trailing tuxnet benchmark tool, add 'benchmark-and-regression-check' to this array
