@@ -2,9 +2,7 @@
     "Jobs": [
         {
             "JobName": "PA_Client_Benchmark",
-            "Profilers": [
-                "EventPipeProfiler(EventPipeProfile.CpuSampling)"
-            ],
+            "Profilers": [],
             "IncludeEC2Labels": true,
             "Labels": {},
             "JobRunStrategy": 1,
