@@ -83,8 +83,8 @@ jobs:
         Expand-Archive -Path c:\\temp\\master.zip -DestinationPath c:\\temp\\
         mv c:\\temp\\TestProjects-master\\net472\\OwinExtraAPI c:\\temp\\OwinExtraAPI
         mkdir c:\\temp\\OwinExtraAPI_output
-        mv c:\\temp\\TestProjects-master\\net472\\OwinParadise c:\\temp\\OwinParadise
-        mkdir c:\\temp\\OwinParadise_output
+        mv c:\\temp\\TestProjects-master\\net472\\IonicZipSample c:\\temp\\IonicZipSample
+        mkdir c:\\temp\\IonicZipSample_output
         Write-Host Final Temp Dir: 
         dir c:\\temp
     - name: Install Benchmark Tool

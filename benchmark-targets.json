@@ -27,7 +27,7 @@
                     ]
                 },
                 {
-                    "Name": "Port_OwinParadise",
+                    "Name": "Port_IonicZipSample",
                     "Class": "PortingAssistant.Client.CLI.Program",
                     "Method": "Main",
                     "MethodIsAsync": false,
@@ -36,7 +36,7 @@
                             "Name": "Porting",
                             "FullTypeName": "string[]",
                             "JsonValues": [
-                                "[\u0022assess\u0022, \u0022-s\u0022, \u0022c:\\\\temp\\\\OwinParadise\\\\OwinParadise.sln\u0022, \u0022-p\u0022, \u0022OwinParadise\u0022, \u0022-o\u0022, \u0022c:\\\\temp\\\\OwinParadise_output\u0022]"
+                                "[\u0022assess\u0022, \u0022-s\u0022, \u0022c:\\\\temp\\\\IonicZipSample\\\\IonicZipSample.sln\u0022, \u0022-p\u0022, \u0022IonicZipSample\u0022, \u0022-o\u0022, \u0022c:\\\\temp\\\\IonicZipSample_output\u0022]"
                             ]
                         }
                     ]
