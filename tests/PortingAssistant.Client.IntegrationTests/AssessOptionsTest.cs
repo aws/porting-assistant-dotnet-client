@@ -77,6 +77,7 @@ namespace PortingAssistant.Client.IntegrationTests
                 Assert.Fail();
             }
             Assert.IsTrue(stdout.Contains("Change endpoint to https://8cvsix1u33.execute-api.us-east-1.amazonaws.com/gamma"));
+            Assert.IsTrue(stdout.Contains("Service name is portingassistant"));
             Directory.Delete(outputDirectory, true);
         }
     }
