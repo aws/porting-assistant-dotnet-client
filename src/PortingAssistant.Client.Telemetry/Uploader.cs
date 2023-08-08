@@ -68,9 +68,8 @@ namespace PortingAssistant.Client.Telemetry
             foreach (var error in _errors)
             {
                 _logger.Error($"Log Upload Error({error.Value}): {error.Key}");
-                return true;
             }
-            return false;
+            return _errors.Any();
         }
 
         private bool Upload()
