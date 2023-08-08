@@ -203,7 +203,10 @@ namespace PortingAssistant.Client.CLI
             {
                 var uploader = new Uploader(telemetryConfiguration, client, Log.Logger, shareMetrics);
                 uploadSuccess = uploader.Run();
-                uploader.WriteLogUploadErrors();
+                if (uploader.WriteLogUploadErrors())
+                {
+                    uploadSuccess = false;
+                }
             }
             if (uploadSuccess)
             {

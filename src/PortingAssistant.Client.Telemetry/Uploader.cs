@@ -63,12 +63,14 @@ namespace PortingAssistant.Client.Telemetry
             }
         }
 
-        public void WriteLogUploadErrors()
+        public bool WriteLogUploadErrors()
         {
             foreach (var error in _errors)
             {
                 _logger.Error($"Log Upload Error({error.Value}): {error.Key}");
+                return true;
             }
+            return false;
         }
 
         private bool Upload()
