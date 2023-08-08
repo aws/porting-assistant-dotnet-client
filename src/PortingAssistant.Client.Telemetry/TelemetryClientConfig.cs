@@ -8,9 +8,16 @@ namespace PortingAssistant.Client.Telemetry
     {
         private static readonly string userAgentString =
             InternalSDKUtils.BuildUserAgentString("3.5.0.9");
-        public TelemetryClientConfig()
+        public TelemetryClientConfig(string url)
         {
-            AuthenticationServiceName = "execute-api";
+            if (url.Contains("application-transformation"))
+            {
+                AuthenticationServiceName = "application-transformation";
+            }
+            else
+            {
+                AuthenticationServiceName = "execute-api";
+            }
         }
         public override string RegionEndpointServiceName => "encore";
         public override string ServiceVersion => "";
