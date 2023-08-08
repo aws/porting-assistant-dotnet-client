@@ -56,6 +56,7 @@ namespace PortingAssistant.Client.IntegrationTests
             startInfo.WindowStyle = ProcessWindowStyle.Hidden;
             startInfo.Arguments = "assess -s " + actualTestSolutionPath
                 + " " + "-o " + outputDirectory
+                + " " + "-r " + "default"
                 + " " + "-e " + "https://8cvsix1u33.execute-api.us-east-1.amazonaws.com/gamma";
 
             try
@@ -77,7 +78,7 @@ namespace PortingAssistant.Client.IntegrationTests
                 Assert.Fail();
             }
             Assert.IsTrue(stdout.Contains("Change endpoint to https://8cvsix1u33.execute-api.us-east-1.amazonaws.com/gamma"));
-            Assert.IsTrue(stdout.Contains("Service name is portingassistant"));
+            Assert.IsTrue(stdout.Contains("Service name is encore"));
             Directory.Delete(outputDirectory, true);
         }
     }

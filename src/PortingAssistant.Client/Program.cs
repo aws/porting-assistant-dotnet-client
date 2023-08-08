@@ -41,10 +41,19 @@ namespace PortingAssistant.Client.CLI
             var telemetryConfiguration = JsonSerializer.Deserialize<TelemetryConfiguration>(File.ReadAllText(Path.Combine(assemblyPath, "PortingAssistantTelemetryConfig.json")));
             if (!string.IsNullOrEmpty(cli.EgressPoint))
             {
-                telemetryConfiguration.ServiceName = "portingassistant";
                 telemetryConfiguration.InvokeUrl = cli.EgressPoint;
+                if (!cli.EgressPoint.Contains("execute-api") && !cli.EgressPoint.Contains("encore"))
+                {
+                    telemetryConfiguration.ServiceName = "portingassistant";
+                }
+                else
+                {
+                    telemetryConfiguration.ServiceName = "encore";
+                }
                 Console.WriteLine($"Service name is {telemetryConfiguration.ServiceName}");
                 Console.WriteLine($"Change endpoint to {telemetryConfiguration.InvokeUrl}");
+                Log.Logger.Information($"Service name is {telemetryConfiguration.ServiceName}");
+                Log.Logger.Information($"Change endpoint to {telemetryConfiguration.InvokeUrl}");
             }
 
             var configuration = new PortingAssistantConfiguration();

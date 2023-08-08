@@ -8,11 +8,13 @@ namespace PortingAssistant.Client.Telemetry
     {
         public string Content;
         public readonly RequestMetadata RequestMetadata;
+        public string CustomizedResourcePath;
 
-        public TelemetryRequest(string serviceName, string content)
+        public TelemetryRequest(string serviceName, string content, string customizedResourcePath)
         {
             Content = content;
             RequestMetadata = new RequestMetadata(serviceName);
+            CustomizedResourcePath = customizedResourcePath;
         }
     }
 

@@ -35,6 +35,14 @@ namespace PortingAssistant.Client.Telemetry
         {
             var options = new InvokeOptions();
             options.RequestMarshaller = TelemetryRequestMarshaller.Instance;
+            if (Config.ServiceURL.Contains("application-transformation"))
+            {
+                request.CustomizedResourcePath = "/PutLogData";
+            }
+            else
+            {
+                request.CustomizedResourcePath = "/put-log-data";
+            }
             options.ResponseUnmarshaller = TelemetryResponseUnmarshaller.Instance;
             return InvokeAsync<AmazonWebServiceResponse>(request, options, CancellationToken.None);
         }
@@ -65,7 +73,7 @@ namespace PortingAssistant.Client.Telemetry
             }
             if (awsCredentials != null)
             {
-                client = new TelemetryClient(awsCredentials, new TelemetryClientConfig
+                client = new TelemetryClient(awsCredentials, new TelemetryClientConfig(config.InvokeUrl)
                 {
                     RegionEndpoint = RegionEndpoint.GetBySystemName(config.Region),
                     MaxErrorRetry = 2,
@@ -91,7 +99,7 @@ namespace PortingAssistant.Client.Telemetry
             IRequest request = new DefaultRequest(publicRequest, publicRequest.RequestMetadata.Service);
             request.Headers["Content-Type"] = "application/json";
             request.HttpMethod = "POST";
-            request.ResourcePath = "/put-log-data";
+            request.ResourcePath = publicRequest.CustomizedResourcePath;
             request.MarshallerVersion = 2;
             request.Content = System.Text.Encoding.UTF8.GetBytes(publicRequest.Content);
             return request;

@@ -325,7 +325,14 @@ namespace PortingAssistant.Client.Telemetry
                 requestMetadata.description = _configuration.Description;
 
                 dynamic log = new JObject();
-                log.timestamp = DateTime.Now.ToString();
+                if (_configuration.InvokeUrl.Contains("application-transformation"))
+                {
+                    log.timeStamp = DateTimeOffset.Now.ToUnixTimeSeconds().ToString();
+                }
+                else
+                {
+                    log.timestamp = DateTime.Now.ToString();
+                }
                 log.logName = logName;
                 var logDataInBytes = System.Text.Encoding.UTF8.GetBytes(logData);
                 log.logData = System.Convert.ToBase64String(logDataInBytes);
@@ -337,7 +344,7 @@ namespace PortingAssistant.Client.Telemetry
                 var requestContent = new StringContent(body.ToString(Formatting.None), Encoding.UTF8, "application/json");
                 
                 var contentString = await requestContent.ReadAsStringAsync();
-                var telemetryRequest = new TelemetryRequest(_configuration.ServiceName, contentString);
+                var telemetryRequest = new TelemetryRequest(_configuration.ServiceName, contentString, _configuration.InvokeUrl);
                 var telemetryResponse = await _client.SendAsync(telemetryRequest);
                 return telemetryResponse.HttpStatusCode == HttpStatusCode.OK;
             }
