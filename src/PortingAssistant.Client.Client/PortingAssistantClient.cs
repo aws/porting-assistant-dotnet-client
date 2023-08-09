@@ -9,6 +9,7 @@ using System.IO;
 using System.Threading.Tasks;
 using CTA.Rules.Models;
 using Codelyzer.Analysis.Model;
+using Codelyzer.Analysis;
 using System.Threading;
 using System.Runtime.CompilerServices;
 
@@ -47,53 +48,12 @@ namespace PortingAssistant.Client.Client
                 else
                     projectAnalysisResultsDict = await _analysisHandler.AnalyzeSolution(solutionFilePath, projects, targetFramework, settings);
 
-                var projectAnalysisResults = projects.Select(p =>
+                var projectAnalysisResults = projects.Select(async p =>
                 {
-                    var projectAnalysisResult = projectAnalysisResultsDict.GetValueOrDefault(p, null);
-                    if (projectAnalysisResult != null)
-                    {
-                        if (projectAnalysisResult.IsBuildFailed)
-                        {
-                            failedProjects.Add(p);
-                        }
-                        return projectAnalysisResult;
-                    }
-                    return null;
-                }).Where(p => p != null).ToList();
+                    projectAnalysisResultsDict = await _analysisHandler.AnalyzeSolution(solutionFilePath, projects, targetFramework);
+                });
 
-                var solutionGuid = FileParser.SolutionFileParser.getSolutionGuid(solutionFilePath);
-                var solutionDetails = new SolutionDetails
-                {
-                    SolutionName = Path.GetFileNameWithoutExtension(solutionFilePath),
-                    SolutionFilePath = solutionFilePath,
-                    SolutionGuid = solutionGuid,
-                    RepositoryUrl = FileParser.GitConfigFileParser.getGitRepositoryUrl(
-                        FileParser.GitConfigFileParser.getGitRepositoryRootPath(solutionFilePath)),
-                    ApplicationGuid = solutionGuid ?? Utils.HashUtils.GenerateGuid(
-                        projectAnalysisResults.Select(p => p.ProjectGuid).ToList()),
-                    Projects = projectAnalysisResults.ConvertAll(p => new ProjectDetails
-                    {
-                        PackageReferences = p.PackageReferences,
-                        ProjectFilePath = p.ProjectFilePath,
-                        ProjectGuid = p.ProjectGuid,
-                        FeatureType = p.FeatureType,
-                        ProjectName = p.ProjectName,
-                        ProjectReferences = p.ProjectReferences,
-                        ProjectType = p.ProjectType,
-                        TargetFrameworks = p.TargetFrameworks,
-                        IsBuildFailed = p.IsBuildFailed,
-                        LinesOfCode = p.LinesOfCode,
-                    }),
-
-                    FailedProjects = failedProjects
-                };
-
-                return new SolutionAnalysisResult
-                {
-                    FailedProjects = failedProjects,
-                    SolutionDetails = solutionDetails,
-                    ProjectAnalysisResults = projectAnalysisResults
-                };
+                return GenerateSolutionAnalysisResult(solutionFilePath, projectAnalysisResultsDict, projects);
             }
             catch (Exception ex)
             {
@@ -184,7 +144,7 @@ namespace PortingAssistant.Client.Client
 
         }
 
-        private List<string> ProjectsToAnalyze(string solutionFilePath, AnalyzerSettings settings)
+        public List<string> ProjectsToAnalyze(string solutionFilePath, AnalyzerSettings settings)
         {
             var solution = SolutionFile.Parse(solutionFilePath);
             return solution.ProjectsInOrder.Where(p =>
@@ -194,5 +154,87 @@ namespace PortingAssistant.Client.Client
                 .Select(p => p.AbsolutePath)
                 .ToList();
         }
+
+
+        public SolutionAnalysisResult GetCompatibilityResults(string solutionFilePath, AnalyzerSettings settings, List<AnalyzerResult> analyzerResults)
+        {
+            try
+            {
+                var projects = ProjectsToAnalyze(solutionFilePath, settings);
+
+                var targetFramework = settings.TargetFramework ?? DEFAULT_TARGET;
+
+                Dictionary<string, ProjectAnalysisResult> projectAnalysisResultsDict;
+
+                if (settings.ContiniousEnabled)
+                {
+                    projectAnalysisResultsDict = _analysisHandler.GetCompatibilityResultsIncremental(solutionFilePath, projects, analyzerResults, targetFramework);
+                }
+                else
+                {
+                    projectAnalysisResultsDict = _analysisHandler.GetCompatibilityResults(solutionFilePath, projects, analyzerResults, targetFramework);
+                }
+
+                return GenerateSolutionAnalysisResult(solutionFilePath, projectAnalysisResultsDict, projects);
+            }
+            catch (Exception ex)
+            {
+                throw new PortingAssistantException($"Cannot Analyze solution {solutionFilePath}", ex);
+            }
+        }
+
+        private SolutionAnalysisResult GenerateSolutionAnalysisResult(string solutionFilePath, Dictionary<string, ProjectAnalysisResult> projectAnalysisResultsDict, List<string> projects)
+        {
+            var failedProjects = new List<string>();
+            var projectAnalysisResults = projects.Select(p =>
+            {
+                var projectAnalysisResult = projectAnalysisResultsDict.GetValueOrDefault(p, null);
+                if (projectAnalysisResult != null)
+                {
+                    if (projectAnalysisResult.IsBuildFailed)
+                    {
+                        failedProjects.Add(p);
+                    }
+                    return projectAnalysisResult;
+                }
+                return null;
+            }).Where(p => p != null).ToList();
+
+            var solutionGuid = FileParser.SolutionFileParser.getSolutionGuid(solutionFilePath);
+            var solutionDetails = new SolutionDetails
+            {
+                SolutionName = Path.GetFileNameWithoutExtension(solutionFilePath),
+                SolutionFilePath = solutionFilePath,
+                SolutionGuid = solutionGuid,
+                RepositoryUrl = FileParser.GitConfigFileParser.getGitRepositoryUrl(
+                    FileParser.GitConfigFileParser.getGitRepositoryRootPath(solutionFilePath)),
+                ApplicationGuid = solutionGuid ?? Utils.HashUtils.GenerateGuid(
+                    projectAnalysisResults.Select(p => p.ProjectGuid).ToList()),
+                Projects = projectAnalysisResults.ConvertAll(p => new ProjectDetails
+                {
+                    PackageReferences = p.PackageReferences,
+                    ProjectFilePath = p.ProjectFilePath,
+                    ProjectGuid = p.ProjectGuid,
+                    FeatureType = p.FeatureType,
+                    ProjectName = p.ProjectName,
+                    ProjectReferences = p.ProjectReferences,
+                    ProjectType = p.ProjectType,
+                    TargetFrameworks = p.TargetFrameworks,
+                    IsBuildFailed = p.IsBuildFailed,
+                    LinesOfCode = p.LinesOfCode,
+                }),
+
+                FailedProjects = failedProjects
+            };
+
+            return new SolutionAnalysisResult
+            {
+                FailedProjects = failedProjects,
+                SolutionDetails = solutionDetails,
+                ProjectAnalysisResults = projectAnalysisResults
+            };
+        }
     }
+
+    
 }
