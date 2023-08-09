@@ -42,7 +42,18 @@ namespace PortingAssistant.Client.CLI
             if (!string.IsNullOrEmpty(cli.EgressPoint))
             {
                 telemetryConfiguration.InvokeUrl = cli.EgressPoint;
+                if (!cli.EgressPoint.Contains("execute-api") && !cli.EgressPoint.Contains("encore"))
+                {
+                    telemetryConfiguration.ServiceName = "portingassistant";
+                }
+                else
+                {
+                    telemetryConfiguration.ServiceName = "encore";
+                }
+                Console.WriteLine($"Service name is {telemetryConfiguration.ServiceName}");
                 Console.WriteLine($"Change endpoint to {telemetryConfiguration.InvokeUrl}");
+                Log.Logger.Information($"Service name is {telemetryConfiguration.ServiceName}");
+                Log.Logger.Information($"Change endpoint to {telemetryConfiguration.InvokeUrl}");
             }
 
             var configuration = new PortingAssistantConfiguration();
@@ -192,7 +203,10 @@ namespace PortingAssistant.Client.CLI
             {
                 var uploader = new Uploader(telemetryConfiguration, client, Log.Logger, shareMetrics);
                 uploadSuccess = uploader.Run();
-                uploader.WriteLogUploadErrors();
+                if (uploader.WriteLogUploadErrors())
+                {
+                    uploadSuccess = false;
+                }
             }
             if (uploadSuccess)
             {
