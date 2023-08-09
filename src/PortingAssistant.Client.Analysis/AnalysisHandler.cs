@@ -18,6 +18,8 @@ using IDEProjectResult = Codelyzer.Analysis.Build.IDEProjectResult;
 using Codelyzer.Analysis.Analyzer;
 using System.Threading;
 using System.Runtime.CompilerServices;
+using Newtonsoft.Json;
+using AnalyzerResult = Codelyzer.Analysis.Model.AnalyzerResult;
 
 namespace PortingAssistant.Client.Analysis
 {
@@ -39,7 +41,7 @@ namespace PortingAssistant.Client.Analysis
             _recommendationHandler = recommendationHandler;
         }
 
-        private async Task<List<AnalyzerResult>> RunCoderlyzerAnalysis(string solutionFilename, List<string> projects, AnalyzerSettings analyzerSettings = null)
+        public async Task<List<AnalyzerResult>> RunCoderlyzerAnalysis(string solutionFilename, List<string> projects, AnalyzerSettings analyzerSettings = null)
         {
             MemoryUtils.LogSystemInfo(_logger);
             MemoryUtils.LogSolutionSize(_logger, solutionFilename);
@@ -102,7 +104,6 @@ namespace PortingAssistant.Client.Analysis
                         agg.UnionWith(cur.Value.Select(i => i.Namespace).Where(i => i != null));
                         return agg;
                     });
-
                     var nugetPackages = externalReferences?.NugetReferences?
                             .Select(r => CodeEntityModelToCodeEntities.ReferenceToPackageVersionPair(r))?
                             .ToHashSet();
@@ -204,21 +205,7 @@ namespace PortingAssistant.Client.Analysis
                 TraceEvent.Start(_logger, $"Incremental solution assessment: {solutionFilename}");
                 var analyzerResults = await RunCoderlyzerAnalysis(solutionFilename, projects, analyzerSettings);
 
-                var analysisActions = AnalyzeActions(projects, targetFramework, analyzerResults, solutionFilename, analyzerSettings);
-
-                var solutionAnalysisResult = AnalyzeProjects(
-                    solutionFilename, projects,
-                    analyzerResults, analysisActions,
-                    isIncremental: true, targetFramework);
-
-                var projectActions = projects
-                       .Select((project) => new KeyValuePair<string, ProjectActions>
-                       (project, analysisActions.FirstOrDefault(p => p.ProjectFile == project)?.ProjectActions ?? new ProjectActions()))
-                       .Where(p => p.Value != null)
-                       .ToDictionary(p => p.Key, p => p.Value);
-
-                TraceEvent.End(_logger, $"Incremental solution assessment: {solutionFilename}");
-                return solutionAnalysisResult;
+                return GetSolutionAnalysisResult(solutionFilename, projects, analyzerResults, targetFramework, true);
             }
             catch (OutOfMemoryException e)
             {
@@ -228,6 +215,7 @@ namespace PortingAssistant.Client.Analysis
             }
             finally
             {
+                TraceEvent.End(_logger, $"Incremental solution assessment: {solutionFilename}");
                 CommonUtils.RunGarbageCollection(_logger, "PortingAssistantAnalysisHandler.AnalyzeSolutionIncremental");
             }
         }
@@ -314,15 +302,7 @@ namespace PortingAssistant.Client.Analysis
                 TraceEvent.Start(_logger, $"Compatibility assessment of solution without generator: {solutionFilename}");
                 var analyzerResults = await RunCoderlyzerAnalysis(solutionFilename, projects, analyzerSettings);
 
-                var analysisActions = AnalyzeActions(projects, targetFramework, analyzerResults, solutionFilename, analyzerSettings);
-
-                var solutionAnalysisResult = AnalyzeProjects(
-                    solutionFilename, projects,
-                    analyzerResults, analysisActions,
-                    isIncremental: false, targetFramework);
-
-                TraceEvent.End(_logger, $"Compatibility assessment of solution without generator: {solutionFilename}");
-                return solutionAnalysisResult;
+                return GetSolutionAnalysisResult(solutionFilename, projects, analyzerResults, targetFramework);
             }
             catch (OutOfMemoryException e)
             {
@@ -332,6 +312,7 @@ namespace PortingAssistant.Client.Analysis
             }
             finally
             {
+                TraceEvent.End(_logger, $"Compatibility assessment of solution without generator: {solutionFilename}");
                 CommonUtils.RunGarbageCollection(_logger, "PortingAssistantAnalysisHandler.AnalyzeSolution");
             }
 
@@ -570,7 +551,7 @@ namespace PortingAssistant.Client.Analysis
                     ProjectType = analyzer.ProjectResult.ProjectType,
                     FeatureType = projectFeatureType,
                     SourceFileAnalysisResults = sourceFileAnalysisResults,
-                    MetaReferences = analyzer.ProjectBuildResult.Project.MetadataReferences.Select(m => m.Display).ToList(),
+                    MetaReferences = analyzer.ProjectBuildResult.Project?.MetadataReferences?.Select(m => m.Display).ToList(),
                     PreportMetaReferences = analyzer.ProjectBuildResult.PreportReferences,
                     ProjectRules = projectActions.ProjectRules,
                     VisualBasicProjectRules = projectActions.VbProjectRules,
@@ -626,6 +607,73 @@ namespace PortingAssistant.Client.Analysis
                     ConcurrentThreads = 1
                 };
             
+        }
+
+        public Dictionary<string, ProjectAnalysisResult> GetCompatibilityResults(
+            string solutionFilename,
+            List<string> projects,
+            List<AnalyzerResult> analyzerResults,
+            string targetFramework = DEFAULT_TARGET)
+        {
+            try
+            {
+               TraceEvent.Start(_logger, $"Compatibility assessment of solution with pre-analyzed results for : {solutionFilename}");
+                return GetSolutionAnalysisResult(solutionFilename, projects, analyzerResults, targetFramework);
+            }
+            catch (OutOfMemoryException e)
+            {
+                _logger.LogError("GetCompatibilityResults for {0} failed with error {1}", solutionFilename, e);
+                MemoryUtils.LogMemoryConsumption(_logger);
+                throw e;
+            }
+            finally
+            {
+                TraceEvent.End(_logger, $"Compatibility assessment of solution with pre-analyzed results for : {solutionFilename}");
+                CommonUtils.RunGarbageCollection(_logger, "PortingAssistantAnalysisHandler.AnalyzeSolution");
+            }
+
+        }
+
+        public Dictionary<string, ProjectAnalysisResult> GetCompatibilityResultsIncremental(
+            string solutionFilename,
+            List<string> projects,
+            List<AnalyzerResult> analyzerResults,
+            string targetFramework = DEFAULT_TARGET)
+        {
+            try
+            {
+                TraceEvent.Start(_logger, $"Incremental solution assessment: {solutionFilename}");
+                return GetSolutionAnalysisResult(solutionFilename, projects, analyzerResults, targetFramework, true);
+            }
+            catch (OutOfMemoryException e)
+            {
+                _logger.LogError("Analyze solution {0} with error {1}", solutionFilename, e);
+                MemoryUtils.LogMemoryConsumption(_logger);
+                throw e;
+            }
+            finally
+            {
+                TraceEvent.End(_logger, $"Incremental solution assessment: {solutionFilename}");
+                CommonUtils.RunGarbageCollection(_logger, "PortingAssistantAnalysisHandler.GetCompatibilityResultsIncremental");
+            }
+        }
+
+        private Dictionary<string, ProjectAnalysisResult> GetSolutionAnalysisResult(
+            string solutionFilename,
+            List<string> projects,
+            List<AnalyzerResult> analyzerResults,
+            string targetFramework = DEFAULT_TARGET,
+            bool isIncrementalAnalysis = false
+            )
+        {
+            var analysisActions = AnalyzeActions(projects, targetFramework, analyzerResults, solutionFilename);
+
+            var solutionAnalysisResult = AnalyzeProjects(
+                solutionFilename, projects,
+                analyzerResults, analysisActions,
+                isIncremental: isIncrementalAnalysis, targetFramework);
+
+            return solutionAnalysisResult;
         }
     }
 }

@@ -24,6 +24,9 @@ namespace PortingAssistant.Client.Analysis
         Task<Dictionary<string, ProjectAnalysisResult>> AnalyzeSolutionIncremental(string solutionFilename, List<string> projects, 
             string targetFramework = "net6.0", AnalyzerSettings settings = null);
 
+        Dictionary<string, ProjectAnalysisResult> GetCompatibilityResults(string solutionFilename, List<string> projects, List<AnalyzerResult> analyzerResults, string targetFramework = "net6.0");
+        Dictionary<string, ProjectAnalysisResult> GetCompatibilityResultsIncremental(string solutionFilename, List<string> projects, List<AnalyzerResult> analyzerResults,
+            string targetFramework = "net6.0");
         IAsyncEnumerable<ProjectAnalysisResult> AnalyzeSolutionGeneratorAsync(string solutionFilename, List<string> projects, string targetFramework = "net6.0", [EnumeratorCancellation] CancellationToken ct = default);
     }
 }

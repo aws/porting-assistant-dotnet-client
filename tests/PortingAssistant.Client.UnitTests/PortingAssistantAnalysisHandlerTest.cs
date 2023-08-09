@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Buildalyzer;
 using Microsoft.Build.Construction;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -367,6 +368,104 @@ namespace PortingAssistant.Client.Tests
                             "Declaration: Compatible:1, Incompatible:0, Unknown:17, Deprecated:0, Actions:0" + Environment.NewLine +
                             "Enum: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0" + Environment.NewLine +
                             "Struct: Compatible:0, Incompatible:0, Unknown:0, Deprecated:0, Actions:0" + Environment.NewLine, str);
+        }
+        [Test]
+        public async Task GetCompatibilityResultsWellDefinedSolutionSucceeds()
+        {
+            var package = new PackageVersionPair
+            {
+                PackageId = "Newtonsoft.Json",
+                Version = "13.0.1",
+                PackageSourceType = PackageSourceType.NUGET
+            };
+
+            //prepopulate analyzer results from codelyzer
+            var analyzerResults = _analysisHandler.RunCoderlyzerAnalysis(_solutionFile, _projectPaths);
+            var result = _analysisHandler.GetCompatibilityResults(_solutionFile, _projectPaths, await analyzerResults);
+
+
+            var projectAnalysisResult = result.Values.First();
+            Task.WaitAll(projectAnalysisResult.PackageAnalysisResults.Values.ToArray());
+            var packageAnalysisResult = projectAnalysisResult.PackageAnalysisResults.First(p => p.Key.PackageId == "Newtonsoft.Json").Value.Result;
+
+            Assert.AreEqual(package, packageAnalysisResult.PackageVersionPair);
+            Assert.AreEqual(Compatibility.COMPATIBLE, packageAnalysisResult.CompatibilityResults.GetValueOrDefault(DEFAULT_TARGET).Compatibility);
+            Assert.AreEqual("13.0.2", packageAnalysisResult.CompatibilityResults.GetValueOrDefault(DEFAULT_TARGET).CompatibleVersions.First());
+            Assert.AreEqual("13.0.2", packageAnalysisResult.Recommendations.RecommendedActions.First().Description);
+            Assert.AreEqual(RecommendedActionType.UpgradePackage, packageAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
+
+            var sourceFile = projectAnalysisResult.SourceFileAnalysisResults.Find(s => s.SourceFileName == "Program.cs");
+            Assert.NotNull(sourceFile);
+            Assert.NotNull(sourceFile.ApiAnalysisResults);
+
+            var apiAnalysisResult = sourceFile.ApiAnalysisResults.Find(r => r.CodeEntityDetails.OriginalDefinition == "Newtonsoft.Json.JsonConvert.SerializeObject(object?)");
+            Assert.NotNull(apiAnalysisResult);
+
+            Assert.AreEqual("Newtonsoft.Json", apiAnalysisResult.CodeEntityDetails.Package.PackageId);
+            Assert.AreEqual("13.0.1", apiAnalysisResult.CodeEntityDetails.Package.Version);
+            Assert.AreEqual("Newtonsoft.Json.JsonConvert.SerializeObject(object?)",
+                apiAnalysisResult.CodeEntityDetails.OriginalDefinition);
+            Assert.AreEqual(Compatibility.COMPATIBLE, apiAnalysisResult.CompatibilityResults.GetValueOrDefault(DEFAULT_TARGET).Compatibility);
+            Assert.AreEqual("13.0.2", apiAnalysisResult.Recommendations.RecommendedActions.First().Description);
+        }
+
+        [Test]
+        public async Task VBGetCompatibilityResultsWellDefinedSolutionSucceeds()
+        {
+            var package = new PackageVersionPair
+            {
+                PackageId = "Newtonsoft.Json",
+                Version = "13.0.1",
+                PackageSourceType = PackageSourceType.NUGET
+            };
+            //prepopulate analyzer results from codelyzer
+            var analyzerResults = _analysisHandler.RunCoderlyzerAnalysis(_vbSolutionFile, _vbProjectPaths);
+            var result = _analysisHandler.GetCompatibilityResults(_vbSolutionFile, _vbProjectPaths, await analyzerResults);
+
+            var projectAnalysisResult = result.Values.First();
+            Task.WaitAll(projectAnalysisResult.PackageAnalysisResults.Values.ToArray());
+            var packageAnalysisResult = projectAnalysisResult.PackageAnalysisResults.First(p => p.Key.PackageId == "Newtonsoft.Json").Value.Result;
+
+            Assert.AreEqual(package, packageAnalysisResult.PackageVersionPair);
+            Assert.AreEqual(Compatibility.COMPATIBLE, packageAnalysisResult.CompatibilityResults.GetValueOrDefault(DEFAULT_TARGET).Compatibility);
+            Assert.AreEqual("13.0.2", packageAnalysisResult.CompatibilityResults.GetValueOrDefault(DEFAULT_TARGET).CompatibleVersions.First());
+            Assert.AreEqual("13.0.2", packageAnalysisResult.Recommendations.RecommendedActions.First().Description);
+            Assert.AreEqual(RecommendedActionType.UpgradePackage, packageAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
+
+            var sourceFile = projectAnalysisResult.SourceFileAnalysisResults.Find(s => s.SourceFileName == "Program.vb");
+            Assert.NotNull(sourceFile);
+            Assert.NotNull(sourceFile.ApiAnalysisResults);
+
+            var apiAnalysisResult = sourceFile.ApiAnalysisResults.Find(r => r.CodeEntityDetails.OriginalDefinition == "Newtonsoft.Json.JsonConvert.SerializeObject(Object)");
+            Assert.NotNull(apiAnalysisResult);
+
+            Assert.AreEqual("Newtonsoft.Json", apiAnalysisResult.CodeEntityDetails.Package.PackageId);
+            Assert.AreEqual("13.0.1", apiAnalysisResult.CodeEntityDetails.Package.Version);
+            Assert.AreEqual("Newtonsoft.Json.JsonConvert.SerializeObject(Object)",
+                apiAnalysisResult.CodeEntityDetails.OriginalDefinition);
+            Assert.AreEqual(Compatibility.COMPATIBLE, apiAnalysisResult.CompatibilityResults.GetValueOrDefault(DEFAULT_TARGET).Compatibility);
+            Assert.AreEqual("13.0.2", apiAnalysisResult.Recommendations.RecommendedActions.First().Description);
+        }
+
+        [Test]
+        public async Task GetCompatibilityResultsBadProjectDoesNotThrowException()
+        {
+            //prepopulate analyzer results from codelyzer
+            var analyzerResults = _analysisHandler.RunCoderlyzerAnalysis(_solutionFile, new List<string> { "Sample.csproj" });
+            var result = _analysisHandler.GetCompatibilityResults(_solutionFile, new List<string> { "Sample.csproj" }, await analyzerResults);
+            Assert.IsNull(result.GetValueOrDefault("Sample.csproj", null));
+        }
+
+        [Test]
+        public Task GetCompatibilityResultsNullPathThrowsException()
+        {
+            //prepopulate analyzer results from codelyzer
+            var analyzerResults = _analysisHandler.RunCoderlyzerAnalysis(_solutionFile, new List<string> { "Sample.csproj" });
+            Assert.ThrowsAsync<ArgumentNullException>(async () =>
+            {
+                var result = _analysisHandler.GetCompatibilityResults(null, _projectPaths, await analyzerResults);
+            });
+            return Task.CompletedTask;
         }
     }
 }
