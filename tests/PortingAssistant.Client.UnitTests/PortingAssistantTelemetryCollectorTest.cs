@@ -6,12 +6,12 @@ using PortingAssistant.Client.Model;
 using PortingAssistantExtensionTelemetry;
 using System.Security.Cryptography;
 using PortingAssistantExtensionTelemetry.Model;
+using Serilog;
 
 namespace PortingAssistant.Client.UnitTests
 {
     public class TelemetryCollectorTests
     {
-
         [Test]
         public void CreateSolutionMetric_Returns_Expected_Metric()
         {
@@ -102,7 +102,7 @@ namespace PortingAssistant.Client.UnitTests
                 Description = description,
                 LogFilePath = Path.Combine(logs, "portingAssistant-client-cli-test.log"),
                 MetricsFilePath = Path.Combine(logs, "portingAssistant-client-cli-test.metrics"),
-                Suffix = suffix,               
+                Suffix = suffix,
             };
             Assert.AreEqual(teleConfig.InvokeUrl, invokeUrl);
             Assert.AreEqual(teleConfig.Region, region);
@@ -112,5 +112,91 @@ namespace PortingAssistant.Client.UnitTests
             Assert.AreEqual(teleConfig.Suffix, suffix);
         }
 
+        [Test]
+        public void NullProject_Returns_EmptyProjectMetric()
+        {
+            ProjectDetails nullProjectDetails = null;
+
+            TelemetryCollector.Builder(Log.Logger, Directory.GetCurrentDirectory());
+            var projectMetric = TelemetryCollector.CreateProjectMetric(
+                nullProjectDetails,
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                int.MinValue,
+                string.Empty,
+                SHA256.Create(),
+                DateTime.Now,
+                string.Empty,
+                string.Empty
+            );
+
+            Assert.AreEqual(projectMetric.numNugets, 0);
+            Assert.AreEqual(projectMetric.numReferences, 0);
+            Assert.AreEqual(projectMetric.linesOfCode, 0);
+            Assert.IsTrue(string.IsNullOrWhiteSpace(projectMetric.projectGuid));
+            Assert.IsTrue(string.IsNullOrWhiteSpace(projectMetric.projectType));
+            Assert.IsTrue(string.IsNullOrWhiteSpace(projectMetric.projectName));
+            Assert.IsTrue(string.IsNullOrWhiteSpace(projectMetric.language));
+            Assert.IsTrue(string.IsNullOrWhiteSpace(projectMetric.solutionPath));
+            Assert.IsTrue(string.IsNullOrWhiteSpace(projectMetric.SolutionGuid));
+            Assert.IsFalse(projectMetric.isBuildFailed);
+            Assert.IsNull(projectMetric.sourceFrameworks);
+        }
+
+        [Test]
+        public void NullProject_Returns_EmptySolutionMetric()
+        {
+            SolutionDetails solutionDetails = null;
+            TelemetryCollector.Builder(Log.Logger, Directory.GetCurrentDirectory());
+            var solutionMetric = TelemetryCollector.CreateSolutionMetric(
+                solutionDetails,
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                int.MinValue,
+                string.Empty,
+                SHA256.Create(),
+                DateTime.Now
+            );
+
+            Assert.AreEqual(solutionMetric.analysisTime, 0);
+            Assert.AreEqual(solutionMetric.linesOfCode, 0);
+            Assert.AreEqual(solutionMetric.numLogicalCores, 0);
+            Assert.AreEqual(solutionMetric.systemMemory, 0);
+            Assert.IsTrue(string.IsNullOrWhiteSpace(solutionMetric.solutionName));
+            Assert.IsTrue(string.IsNullOrWhiteSpace(solutionMetric.ApplicationGuid));
+            Assert.IsTrue(string.IsNullOrWhiteSpace(solutionMetric.RepositoryUrl));
+            Assert.IsTrue(string.IsNullOrWhiteSpace(solutionMetric.solutionPath));
+            Assert.IsTrue(string.IsNullOrWhiteSpace(solutionMetric.SolutionGuid));
+        }
+
+        [Test]
+        public void VbProjectProject_Returns_VBLanguage()
+        {
+            var projectDetails = new ProjectDetails();
+            projectDetails.ProjectFilePath = "any.vbproj";
+            projectDetails.TargetFrameworks = new List<string>();
+            projectDetails.ProjectGuid = string.Empty;
+            projectDetails.ProjectName = string.Empty;
+            projectDetails.ProjectType = string.Empty;
+            projectDetails.PackageReferences = new List<PackageVersionPair>();
+            projectDetails.ProjectReferences = new List<ProjectReference>();
+
+            var projectMetric = TelemetryCollector.CreateProjectMetric(
+                projectDetails,
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                int.MinValue,
+                string.Empty,
+                SHA256.Create(),
+                DateTime.Now,
+                string.Empty,
+                string.Empty
+            );
+            
+            Assert.AreEqual(projectMetric.language, "visualbasic");
+        }
     }
 }

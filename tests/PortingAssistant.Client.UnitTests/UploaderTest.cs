@@ -4,13 +4,10 @@ using NUnit.Framework;
 using PortingAssistantExtensionTelemetry.Model;
 using PortingAssistant.Client.Telemetry;
 using System.Collections.Generic;
-using System.Linq;
 using Moq;
 using System.Net;
 using Newtonsoft.Json;
 using Amazon.Runtime;
-using NUnit.Framework.Internal;
-using Serilog;
 
 namespace PortingAssistant.Client.UnitTests
 {
@@ -172,6 +169,53 @@ namespace PortingAssistant.Client.UnitTests
             bool actualSuccessStatus = TelemetryClientFactory.TryGetClient(null, teleConfig, out ITelemetryClient client);
             Assert.IsFalse(actualSuccessStatus);
             Assert.IsNull(client);
+        }
+
+        [Test]
+        public void Uploader_CollectsExceptions_When_ExceptionsAreThrownDuringRun()
+        {
+            var currentDir = Directory.GetCurrentDirectory();
+            var extension = ".new";
+            
+            // We want to simulate a log upload which requires finding at least 1 file < 21 days old.
+            // We are creating new files here to ensure we always have 2 files that meet the requirement.
+            GenerateTestLogFile(currentDir, extension);
+            GenerateTestLogFile(currentDir, extension);
+
+            // Define test parameters
+            var telemetryConfig = new TelemetryConfiguration
+            {
+                LogsPath = currentDir,
+                Suffix = new List<string> { extension },
+                LogsFolderSizeLimit = 1
+            };
+            var shareMetrics = true;
+
+            // Mock the client
+            var telemetryClientMock = new Mock<ITelemetryClient>();
+            telemetryClientMock.Setup(client => 
+                client.SendAsync(It.IsAny<TelemetryRequest>()))
+                .Throws(new Exception());
+            var telemetryClientThatAlwaysThrows = telemetryClientMock.Object;
+
+            var uploader = new Uploader(
+                telemetryConfig,
+                telemetryClientThatAlwaysThrows,
+                null,
+                shareMetrics);
+            var isUploadSuccessful = uploader.Run();
+
+            Assert.IsTrue(isUploadSuccessful);
+            CollectionAssert.IsNotEmpty(uploader.Errors);
+        }
+
+        private static string GenerateTestLogFile(string currentDir, string extension)
+        {
+            var fileName = Guid.NewGuid();
+            var newFile = Path.Combine(currentDir, $"{fileName}{extension}");
+            File.WriteAllText(newFile, "Test file. Can be deleted without consequence.");
+
+            return newFile;
         }
     }
 }

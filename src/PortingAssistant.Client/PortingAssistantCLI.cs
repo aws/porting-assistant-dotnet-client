@@ -4,8 +4,6 @@ using System.IO;
 using System.Linq;
 using CommandLine;
 using CommandLine.Text;
-using Newtonsoft.Json;
-using NuGet.Protocol.Plugins;
 using PortingAssistant.Client.Common.Utils;
 using PortingAssistantExtensionTelemetry;
 using Serilog.Events;
@@ -91,7 +89,7 @@ namespace PortingAssistant.Client.CLI
         public bool isAssess = false;
         public bool isSchema = false;
         public bool schemaVersion = false;
-
+        
         public void HandleCommand(String[] args)
         {
             var TargetFrameworks = new HashSet<string> {"net7.0", "net6.0", "net5.0", "netcoreapp3.1", "netstandard2.1" };

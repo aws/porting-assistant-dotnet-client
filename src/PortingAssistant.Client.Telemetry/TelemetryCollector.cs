@@ -1,15 +1,10 @@
-﻿using CTA.Rules.Models;
-using Microsoft.CodeAnalysis;
-using Newtonsoft.Json;
-using NuGet.Packaging.Signing;
+﻿using Newtonsoft.Json;
 using PortingAssistant.Client.Model;
 using PortingAssistant.Client.Telemetry.Model;
 using Serilog;
 using System;
-using System.IO;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading;
 using Serilog.Templates;
 using ILogger = Serilog.ILogger;
 using System.Linq;

@@ -21,10 +21,12 @@ namespace PortingAssistant.Client.Telemetry
         public TelemetryClient(AWSCredentials credentials, TelemetryClientConfig config) : base(credentials, config)
         {
         }
-        public TelemetryClient(string awsAccessKeyId, string awsSecretAccessKey, string awsSessionToken, TelemetryClientConfig config) : base(awsAccessKeyId, awsSecretAccessKey, awsSessionToken, config)
+        public TelemetryClient(string awsAccessKeyId, string awsSecretAccessKey, string awsSessionToken, TelemetryClientConfig config) 
+            : base(awsAccessKeyId, awsSecretAccessKey, awsSessionToken, config)
         {
         }
-        public TelemetryClient(string awsAccessKeyId, string awsSecretAccessKey, TelemetryClientConfig config) : base(awsAccessKeyId, awsSecretAccessKey, config)
+        public TelemetryClient(string awsAccessKeyId, string awsSecretAccessKey, TelemetryClientConfig config) 
+            : base(awsAccessKeyId, awsSecretAccessKey, config)
         {
         }
         protected override AbstractAWSSigner CreateSigner()

@@ -27,6 +27,8 @@ namespace PortingAssistant.Client.Telemetry
         private const long LogDirectorySizeLimit = 250000000;
         private readonly bool _shareMetrics;
 
+        public Dictionary<string, int> Errors => _errors;
+
         public Uploader(TelemetryConfiguration telemetryConfig,
             ITelemetryClient telemetryClient,
             ILogger logger,
@@ -76,12 +78,11 @@ namespace PortingAssistant.Client.Telemetry
         {
             try
             {
-                string[] fileEntries = Directory.GetFiles(_configuration.LogsPath)
-                    .Where(f => _configuration.Suffix.ToArray()
-                                    .Any(f.EndsWith) &&
-                                (string.IsNullOrEmpty(_configuration.LogPrefix) ||
-                                 Path.GetFileName(f).StartsWith(_configuration.LogPrefix)) &&
-                                File.GetLastWriteTime(f) > DateTime.Now.Subtract(TimeSpan.FromDays(21)))
+                var fileEntries = Directory.GetFiles(_configuration.LogsPath)
+                    .Where(f => _configuration.Suffix.ToArray().Any(f.EndsWith) 
+                                && (string.IsNullOrEmpty(_configuration.LogPrefix) 
+                                    || Path.GetFileName(f).StartsWith(_configuration.LogPrefix)) 
+                                && File.GetLastWriteTime(f) > DateTime.Now.Subtract(TimeSpan.FromDays(21)))
                     .ToArray();
 
                 foreach (var file in fileEntries)
