@@ -2,6 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Codelyzer.Analysis;
 using Codelyzer.Analysis.Model;
 using CTA.Rules.Models;
 using PortingAssistant.Client.Model;
@@ -17,5 +18,6 @@ namespace PortingAssistant.Client.Client
         Task<List<SourceFileAnalysisResult>> AnalyzeFileAsync(string filePath, string fileContent, string projectFile, string solutionFilePath,
             List<string> preportReferences, List<string> currentReferences, RootNodes rules, ExternalReferences externalReferences, AnalyzerSettings settings);
         List<PortingResult> ApplyPortingChanges(PortingRequest request);
+        SolutionAnalysisResult GetCompatibilityResults(string solutionFilePath, AnalyzerSettings settings, List<AnalyzerResult> analyzerResults);
     }
 }
