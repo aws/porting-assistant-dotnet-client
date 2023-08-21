@@ -73,5 +73,13 @@ namespace PortingAssistant.Client.UnitTests
         {
             Directory.Delete(tmpTestFixturePath, true);
         }
+
+        [Test]
+        public void TestLogSolutionSizeWithNullSolutionPath()
+        {
+            string nullSolutionPath = null;
+            var size = MemoryUtils.LogSolutionSize(testLogger, nullSolutionPath);
+            Assert.AreEqual(0, size);
+        }
     }
 }

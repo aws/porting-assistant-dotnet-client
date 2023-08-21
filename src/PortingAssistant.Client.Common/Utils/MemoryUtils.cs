@@ -69,9 +69,15 @@ namespace PortingAssistant.Client.Common.Utils
         //     the total size of the solution, in bytes, by suming up the
         //     size of each cs file contained in the solution. Then, it
         //     returns the size.
-        public static long LogSolutionSize(ILogger logger, string SolutionPath)
+        public static long LogSolutionSize(ILogger logger, string solutionPath)
         {
-            DirectoryInfo solutionDir = Directory.GetParent(SolutionPath);
+            if (solutionPath == null)
+            {
+                logger.LogInformation(
+                    "Solution path is null");
+                return 0;
+            }
+            DirectoryInfo solutionDir = Directory.GetParent(solutionPath);
             var size = solutionDir.EnumerateFiles(
                 "*.cs", SearchOption.AllDirectories).Sum(fi => fi.Length);
 
@@ -79,7 +85,7 @@ namespace PortingAssistant.Client.Common.Utils
             {
                 logger.LogInformation(
                     "Total size for {0} in bytes: {1}",
-                    SolutionPath, size);
+                    solutionPath, size);
             }
 
             return size;
