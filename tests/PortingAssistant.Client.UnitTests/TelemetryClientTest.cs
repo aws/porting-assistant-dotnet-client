@@ -9,7 +9,12 @@ namespace PortingAssistant.Client.UnitTests
         [Test]
         public void EnablingDefaultCredentials_CreatesTelemetryClient()
         {
-            var telemetryClientConfig = new TelemetryClientConfig("someUrl");
+            var url = "https://8cvsix1u33.execute-api.us-east-1.amazonaws.com/gamma";
+            var telemetryClientConfig = new TelemetryClientConfig(url)
+            {
+                ServiceURL = url
+            };
+
             var fallbackCredentials = FallbackCredentialsFactory.GetCredentials();
             TelemetryClient client;
 
@@ -24,7 +29,7 @@ namespace PortingAssistant.Client.UnitTests
                 "SecretKey",
                 telemetryClientConfig);
             Assert.IsNotNull(client);
-
+            
             client = new TelemetryClient(
                 "AccessKey",
                 "SecretKey",
