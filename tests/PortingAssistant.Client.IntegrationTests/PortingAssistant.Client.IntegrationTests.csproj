@@ -21,6 +21,8 @@
     <ProjectReference Include="..\..\src\PortingAssistant.Client.Common\PortingAssistant.Client.Common.csproj" />
     <ProjectReference Include="..\..\src\PortingAssistant.Client.Client\PortingAssistant.Client.Client.csproj" />
     <ProjectReference Include="..\..\src\PortingAssistant.Client\PortingAssistant.Client.CLI.csproj" />
+    <ProjectReference Include="..\..\src\PortingAssistant.Compatibility.Core\PortingAssistant.Compatibility.Core.csproj" />
+    <ProjectReference Include="..\..\src\PortingAssistant.Compatibility.Common\PortingAssistant.Compatibility.Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>

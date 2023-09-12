@@ -2,6 +2,7 @@
 using System.Text;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using PortingAssistant.Client.Analysis;
 using PortingAssistant.Client.Client.Reports;
 using PortingAssistant.Client.Model;
 
@@ -33,6 +34,9 @@ namespace PortingAssistant.Client.Client
             var services = ServiceCollection.BuildServiceProvider();
             this.PortingAssistantClient = services.GetService<IPortingAssistantClient>();
             this.ReportExporter = services.GetService<IReportExporter>();
+            var cacheService = services.GetService<ICacheService>();
+            cacheService.ValidateCacheFile(configuration);
+
         }
 
         public static PortingAssistantBuilder Build(PortingAssistantConfiguration configuration, Action<ILoggingBuilder> logConfiguration = null)

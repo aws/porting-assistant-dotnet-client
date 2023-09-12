@@ -12,6 +12,7 @@ using Codelyzer.Analysis.Model;
 using Codelyzer.Analysis;
 using System.Threading;
 using System.Runtime.CompilerServices;
+using PortingAssistant.Compatibility.Common.Model;
 
 namespace PortingAssistant.Client.Client
 {
@@ -30,7 +31,8 @@ namespace PortingAssistant.Client.Client
             _portingHandler = portingHandler;
         }
 
-        public async Task<SolutionAnalysisResult> AnalyzeSolutionAsync(string solutionFilePath, AnalyzerSettings settings)
+        public async Task<SolutionAnalysisResult> AnalyzeSolutionAsync(string solutionFilePath, AnalyzerSettings settings,
+            AssessmentType assessmentType = AssessmentType.CompatibilityOnly)
         {
             try
             {
@@ -46,7 +48,7 @@ namespace PortingAssistant.Client.Client
                 if (settings.ContiniousEnabled)
                     projectAnalysisResultsDict = await _analysisHandler.AnalyzeSolutionIncremental(solutionFilePath, projects, targetFramework, settings);
                 else
-                    projectAnalysisResultsDict = await _analysisHandler.AnalyzeSolution(solutionFilePath, projects, targetFramework, settings);
+                    projectAnalysisResultsDict = await _analysisHandler.AnalyzeSolution(solutionFilePath, projects, targetFramework, settings, assessmentType);
 
                 var projectAnalysisResults = projects.Select(async p =>
                 {
@@ -82,6 +84,7 @@ namespace PortingAssistant.Client.Client
             }
         }
 
+        /*
         public async Task<List<SourceFileAnalysisResult>> AnalyzeFileAsync(
             string filePath, 
             string projectFile, 
@@ -114,14 +117,14 @@ namespace PortingAssistant.Client.Client
                 preportReferences, currentReferences, rules, externalReferences, settings.ActionsOnly, settings.CompatibleOnly, targetFramework);
         }
 
-
+        */
 
         public List<PortingResult> ApplyPortingChanges(PortingRequest request)
         {
             try
             {
                 var upgradeVersions = request.RecommendedActions
-                    .Where(r => r.RecommendedActionType == RecommendedActionType.UpgradePackage)
+                    .Where(r => r.RecommendedActionType == Model.RecommendedActionType.UpgradePackage)
                     .Select(recommendation =>
                     {
                         var packageRecommendation = (PackageRecommendation)recommendation;

@@ -86,6 +86,7 @@ namespace PortingAssistant.Client.IntegrationTests
             Assert.AreEqual(actualCachedPackages.Length, 16);
         }
 
+        /*
         [Test]
         public void AnalyzeNetFrameworkSourceFileSucceds()
         {
@@ -131,5 +132,6 @@ namespace PortingAssistant.Client.IntegrationTests
             Assert.AreEqual(RecommendedActionType.NoRecommendation, apiAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
             Assert.Null(apiAnalysisResult.Recommendations.RecommendedActions.First().Description);
         }
+        */
     }
 }
