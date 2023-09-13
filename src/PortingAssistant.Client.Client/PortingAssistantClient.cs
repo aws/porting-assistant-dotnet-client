@@ -16,6 +16,7 @@ using PortingAssistant.Compatibility.Common.Model;
 
 namespace PortingAssistant.Client.Client
 {
+    
     public class PortingAssistantClient : IPortingAssistantClient
     {
         private readonly IPortingAssistantAnalysisHandler _analysisHandler;
@@ -30,6 +31,8 @@ namespace PortingAssistant.Client.Client
             _analysisHandler = AnalysisHandler;
             _portingHandler = portingHandler;
         }
+
+        
 
         public async Task<SolutionAnalysisResult> AnalyzeSolutionAsync(string solutionFilePath, AnalyzerSettings settings,
             AssessmentType assessmentType = AssessmentType.CompatibilityOnly)

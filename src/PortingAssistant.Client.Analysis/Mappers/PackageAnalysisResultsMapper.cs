@@ -14,7 +14,13 @@ namespace PortingAssistant.Client.Analysis.Mappers
     {
         public static Dictionary<PortingAssistant.Client.Model.PackageVersionPair, Task<PortingAssistant.Client.Model.PackageAnalysisResult>> Convert(Dictionary<PortingAssistant.Compatibility.Common.Model.PackageVersionPair, AnalysisResult> packageAnalysisResults)
         {
-            Dictionary<PortingAssistant.Client.Model.PackageVersionPair, Task<PortingAssistant.Client.Model.PackageAnalysisResult>> result = new Dictionary<PortingAssistant.Client.Model.PackageVersionPair, Task<PortingAssistant.Client.Model.PackageAnalysisResult>>();
+            
+            Dictionary<PortingAssistant.Client.Model.PackageVersionPair, Task<PortingAssistant.Client.Model.PackageAnalysisResult>> result
+                = new Dictionary<PortingAssistant.Client.Model.PackageVersionPair, Task<PortingAssistant.Client.Model.PackageAnalysisResult>>();
+            if (packageAnalysisResults == null)
+            {
+                return result;
+            }
             foreach (var r in packageAnalysisResults)
             {
                 var package = PackageVersionPairMapper.Convert(r.Key);

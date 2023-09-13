@@ -125,7 +125,7 @@ namespace PortingAssistant.Client.Analysis.Utils
         {
             ApiAnalysisResult apiAnalysisResult = null;
             //assume the package is nuget
-            if (compatibilityCheckerResponse.ApiAnalysisResults.ContainsKey(package))
+            if (compatibilityCheckerResponse.ApiAnalysisResults!= null && compatibilityCheckerResponse.ApiAnalysisResults.ContainsKey(package))
             {
                 if (compatibilityCheckerResponse.ApiAnalysisResults[package].ContainsKey(codeEntity.OriginalDefinition))
                 {

@@ -16,8 +16,8 @@
   <ItemGroup>
     <ProjectReference Include="..\PortingAssistant.Client.Porting\PortingAssistant.Client.Porting.csproj" />
     <ProjectReference Include="..\PortingAssistant.Client.Analysis\PortingAssistant.Client.Analysis.csproj" />
-    <ProjectReference Include="..\PortingAssistant.Client.NuGet\PortingAssistant.Client.NuGet.csproj" />
     <ProjectReference Include="..\PortingAssistant.Compatibility.Common\PortingAssistant.Compatibility.Common.csproj" />
     <ProjectReference Include="..\PortingAssistant.Compatibility.Core\PortingAssistant.Compatibility.Core.csproj" />
+    <ProjectReference Include="..\PortingAssistant.Client.Telemetry\PortingAssistant.Client.Telemetry.csproj" />
   </ItemGroup>
 </Project>

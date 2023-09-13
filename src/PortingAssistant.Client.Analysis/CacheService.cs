@@ -5,7 +5,6 @@ using PortingAssistant.Compatibility.Common.Model;
 using System.Collections.Generic;
 using System.IO;
 using PortingAssistant.Client.Model;
-using System.Reflection;
 
 namespace PortingAssistant.Client.Analysis
 {
@@ -20,8 +19,6 @@ namespace PortingAssistant.Client.Analysis
         {
             _cacheManager = cacheManager;
             _logger = logger;
-            //_config = config;
-            //ValidateCacheFile();
         }
 
         public bool IsCacheAvailable()
@@ -36,10 +33,19 @@ namespace PortingAssistant.Client.Analysis
 
         public void ValidateCacheFile(PortingAssistantConfiguration config)
         {
+            ValidateCacheFile(config.CompatibilityCheckerCacheFilePath, config.CacheExpirationHours);
+        }
+
+        //public void ValidateCacheFile(PortingAssistantConfiguration config)
+        public void ValidateCacheFile(string cacheFilePath, int cacheExpirationHours = 24)
+        {
             try
             {
-                CacheFilePath = config.CompatibilityCheckerCacheFilePath;
-                var expirationHours = config.CacheExpirationHours;
+                if (!string.IsNullOrEmpty(cacheFilePath)) {
+                    CacheFilePath = cacheFilePath;
+                }
+                //CacheFilePath = config.CompatibilityCheckerCacheFilePath;
+                var expirationHours = cacheExpirationHours;
                 if (!string.IsNullOrEmpty(CacheFilePath) && File.Exists(CacheFilePath))
                 {
                     var fileInfo = new FileInfo(CacheFilePath);
@@ -155,7 +161,7 @@ namespace PortingAssistant.Client.Analysis
         {
             try
             {
-                if (string.IsNullOrEmpty(CacheFilePath))
+                if (string.IsNullOrEmpty(CacheFilePath) || response.PackageAnalysisResults == null )
                 {
                     _logger.LogError("No cache file path has been defined. ");
                     return;
@@ -165,8 +171,8 @@ namespace PortingAssistant.Client.Analysis
                 {
                     var analysisResult = new AnalysisResult()
                     {
-                        CompatibilityResults = p.Value.CompatibilityResults,
-                        Recommendations = p.Value.Recommendations
+                        CompatibilityResults = p.Value?.CompatibilityResults,
+                        Recommendations = p.Value?.Recommendations
                     };
 
                     //add to Cache
@@ -192,6 +198,8 @@ namespace PortingAssistant.Client.Analysis
                 _logger.LogError(ex, $"Failed to call UpdateCacheInLocal function on {CacheFilePath}");
             }
         }
+
+        
     }
 }
 

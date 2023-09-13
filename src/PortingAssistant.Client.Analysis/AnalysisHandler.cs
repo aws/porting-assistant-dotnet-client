@@ -599,10 +599,6 @@ namespace PortingAssistant.Client.Analysis
                 _cacheService.UpdateCacheInLocal(result, rawCompatibilityCheckerRequest.TargetFramework);
                 return result;
             }
-            
-
-            
-
         }
 
         public CompatibilityCheckerResponse PrepareCompatibilityCheckerOutput(

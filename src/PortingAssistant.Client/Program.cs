@@ -85,6 +85,8 @@ namespace PortingAssistant.Client.CLI
                 }
             }
 
+
+
             if (cli.isAssess)
             {
                 try
@@ -102,8 +104,11 @@ namespace PortingAssistant.Client.CLI
                         logConfig.SetMinimumLevel(LogLevel.Debug)
                         .AddSerilog(logger: Log.Logger, dispose: true));
 
-
-                    var portingAssistantClient = portingAssistantBuilder.GetPortingAssistant();
+                    IPortingAssistantClient portingAssistantClient;
+                    
+                    portingAssistantClient = portingAssistantBuilder.GetPortingAssistant();
+                    
+                    
                     var reportExporter = portingAssistantBuilder.GetReportExporter();
                     var solutionSettings = cli.IgnoreProjects != null && cli.IgnoreProjects.Count != 0
                         ? new AnalyzerSettings
@@ -188,6 +193,8 @@ namespace PortingAssistant.Client.CLI
                 }
             }
         }
+
+
 
         private static void UploadLogs(
             string profile, 
