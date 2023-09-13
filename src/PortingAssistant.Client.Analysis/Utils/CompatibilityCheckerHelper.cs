@@ -167,8 +167,10 @@ namespace PortingAssistant.Client.Analysis.Utils
 
             return KeyValuePair.Create(sourceFile.FileFullPath, allNodes);
         }
-        public static CompatibilityCheckerRequest ConvertAnalyzeResultToCompatibilityCheckerRequest(AnalyzerResult analyzer,
-            string targetFramework, out Dictionary<string, List<CodeEntityDetails>> sourceFileToCodeEntityDetails,
+        public static CompatibilityCheckerRequest ConvertAnalyzeResultToCompatibilityCheckerRequest(
+            string solutionFileName, AnalyzerResult analyzer,
+            string targetFramework, out Dictionary<string,
+            List<CodeEntityDetails>> sourceFileToCodeEntityDetails,
             AssessmentType assessmentType = AssessmentType.CompatibilityOnly)
         {
             sourceFileToCodeEntityDetails = null;
@@ -278,7 +280,9 @@ namespace PortingAssistant.Client.Analysis.Utils
                     packageWithApis.Add(package, new HashSet<ApiEntity>());
                 }
             }
-            return new CompatibilityCheckerRequest() { PackageWithApis = packageWithApis,
+            return new CompatibilityCheckerRequest() {
+                SolutionGUID = solutionFileName,
+                PackageWithApis = packageWithApis,
                 TargetFramework = targetFramework , AssessmentType = assessmentType };
                 
         }

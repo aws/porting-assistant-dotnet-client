@@ -363,7 +363,7 @@ namespace PortingAssistant.Client.Analysis
 
                     var analysisActions = AnalyzeActions(new List<string> { projectPath }, targetFramework, new List<AnalyzerResult> { result }, solutionFilename);
 
-                    var analysisResult = AnalyzeProject(projectPath,
+                    var analysisResult = AnalyzeProject(solutionFilename, projectPath,
                          new List<AnalyzerResult> { result }, analysisActions, targetFramework);
                     result.Dispose();
                     yield return analysisResult;
@@ -448,6 +448,7 @@ namespace PortingAssistant.Client.Analysis
                         .Select((project) => new KeyValuePair<string, ProjectAnalysisResult>(
                             project,
                             AnalyzeProject(
+                                solutionFileName,
                                 project,
                                 analyzerResult,
                                 analysisActions,
@@ -464,6 +465,7 @@ namespace PortingAssistant.Client.Analysis
         }
 
         private ProjectAnalysisResult AnalyzeProject(
+            string solutionFileName,
             string project,
             List<AnalyzerResult> analyzers,
             List<ProjectResult> analysisActions,
@@ -493,7 +495,7 @@ namespace PortingAssistant.Client.Analysis
                 
                 Dictionary<string, List<CodeEntityDetails>> sourceFileToCodeEntityDetails;
                 var compatibilityCheckerResponse = ProcessCompatibilityCheckerRequestByApplyingCache
-                    (targetFramework, assessmentType, analyzer, out sourceFileToCodeEntityDetails);
+                    (solutionFileName, targetFramework, assessmentType, analyzer, out sourceFileToCodeEntityDetails);
                 
 
                 var portingActionResults = ProjectActionsToRecommendedActions.Convert(projectActions);
@@ -553,12 +555,13 @@ namespace PortingAssistant.Client.Analysis
             }
         }
 
-        private CompatibilityCheckerResponse ProcessCompatibilityCheckerRequestByApplyingCache(string targetFramework,
+        private CompatibilityCheckerResponse ProcessCompatibilityCheckerRequestByApplyingCache(string solutionFileName, string targetFramework,
             AssessmentType assessmentType, AnalyzerResult analyzer,
             out Dictionary<string, List<CodeEntityDetails>> sourceFileToCodeEntityDetails)
         {
             var rawCompatibilityCheckerRequest = CompatibilityCheckerHelper.ConvertAnalyzeResultToCompatibilityCheckerRequest
-                                (analyzer, targetFramework,
+                                (solutionFileName,
+                analyzer, targetFramework,
                                 out sourceFileToCodeEntityDetails,
                                 assessmentType);
 
