@@ -161,9 +161,14 @@ namespace PortingAssistant.Client.Analysis
         {
             try
             {
-                if (string.IsNullOrEmpty(CacheFilePath) || response.PackageAnalysisResults == null )
+                if (string.IsNullOrEmpty(CacheFilePath) )
                 {
                     _logger.LogError("No cache file path has been defined. ");
+                    return;
+                }
+                if (response.PackageAnalysisResults == null)
+                {
+                    _logger.LogInformation("Empty PackageAnalysisResults in CompatibilityCheckerResponse return");
                     return;
                 }
                 //update Package Analysis Result

@@ -32,10 +32,9 @@ namespace PortingAssistant.Client.Client
             _portingHandler = portingHandler;
         }
 
-        
 
         public async Task<SolutionAnalysisResult> AnalyzeSolutionAsync(string solutionFilePath, AnalyzerSettings settings,
-            AssessmentType assessmentType = AssessmentType.CompatibilityOnly)
+            AssessmentType assessmentType = AssessmentType.FullAssessment)
         {
             try
             {

@@ -27,7 +27,11 @@ namespace PortingAssistant.Client.Analysis.Mappers
                 var task = new PortingAssistant.Client.Model.PackageAnalysisResult()
                 {
                     
-                    Recommendations = new PortingAssistant.Client.Model.Recommendations { RecommendedActions = RecommandationMapper.ConvertToPackageRecommendation(r.Value?.Recommendations?.RecommendedActions) },
+                    Recommendations = new PortingAssistant.Client.Model.Recommendations
+                    {
+                        RecommendedActions = RecommandationMapper.ConvertToPackageRecommendation(r.Value?.Recommendations?.RecommendedActions),
+                        RecommendedPackageVersions = r.Value?.Recommendations?.RecommendedPackageVersions
+                    },
                     PackageVersionPair = package,
                     CompatibilityResults = CompatibilityResultMapper.Convert(r.Value.CompatibilityResults)
                 };

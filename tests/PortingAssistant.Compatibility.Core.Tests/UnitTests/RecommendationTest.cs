@@ -20,7 +20,7 @@ namespace PortingAssistant.Compatibility.Core.Tests.UnitTests
         private Mock<IHttpService> _httpService;
         private ICompatibilityCheckerRecommendationHandler _compatibilityCheckerRecommendationHandler;
 
-        private readonly RecommendationFileDetails _recommendationDetails = new RecommendationFileDetails
+        private readonly RecommendationDetails _recommendationDetails = new RecommendationDetails
         {
             Name = "System.Web.Configuration",
             Version = "1.0.0",
@@ -53,7 +53,7 @@ namespace PortingAssistant.Compatibility.Core.Tests.UnitTests
                                 "netcoreapp3.1"
                             },
                             Description = "System.Web (AKA classic ASP.NET) won't be ported to .NET Core. See https://aka.ms/unsupported-netfx-api.",
-                            Actions = Array.Empty<ActionFileActions>()
+                            
                         },
                         new RecommendedActionModel()
                         {
@@ -64,7 +64,6 @@ namespace PortingAssistant.Compatibility.Core.Tests.UnitTests
                                 "net5.0"
                             },
                             Description = "No Recommendation in net5.0 now",
-                            Actions = Array.Empty<ActionFileActions>()
                         }
                     }
                 }
@@ -93,79 +92,7 @@ namespace PortingAssistant.Compatibility.Core.Tests.UnitTests
                 _httpService.Object, Mock.Of<ILogger<CompatibilityCheckerRecommendationHandler>>());
         }
 
-
-        [Test]
-        public async Task GetRecommendationWithNamespace()
-        {
-            _httpService
-                .Setup(transfer => transfer.DownloadS3FileAsync(It.IsAny<string>()))
-                .Returns(async (string key) =>
-                {
-                    await Task.Delay(1);
-                    var stream = new MemoryStream();
-                    var writer = new StreamWriter(stream);
-                    string test = null;
-                    test = JsonConvert.SerializeObject(_recommendationDetails);
-                    writer.Write(test);
-                    writer.Flush();
-                    stream.Position = 0;
-                    var outputStream = new MemoryStream();
-                    stream.CopyTo(outputStream);
-                    outputStream.Position = 0;
-                    return outputStream;
-                });
-
-            var resultTasks = await _compatibilityCheckerRecommendationHandler.GetRecommendationFileAsync( _namespaces);
-
-            Assert.AreEqual(_recommendationDetails.Name, resultTasks.Values.First().Name);
-            Assert.AreEqual(_recommendationDetails.Version, resultTasks.Values.First().Version);
-            Assert.AreEqual(
-                _recommendationDetails.Recommendations.Length,
-                resultTasks.Values.First().Recommendations.Length);
-            Assert.AreEqual(
-                _recommendationDetails.Recommendations.First().Value,
-                resultTasks.Values.First().Recommendations.First().Value);
-            Assert.AreEqual(
-                _recommendationDetails.Recommendations.First().RecommendedActions.First().Description,
-                resultTasks.Values.First().Recommendations.First().RecommendedActions.First().Description);
-        }
-
-        [Test]
-        public async Task TestUpgradeStrategy()
-        {
-            _httpService
-                .Setup(transfer => transfer.DownloadS3FileAsync(It.IsAny<string>()))
-                .Returns(async (string key) =>
-                {
-                    await Task.Delay(1);
-                    var stream = new MemoryStream();
-                    var writer = new StreamWriter(stream);
-                    string test = null;
-                    test = JsonConvert.SerializeObject(_recommendationDetails);
-                    writer.Write(test);
-                    writer.Flush();
-                    stream.Position = 0;
-                    var outputStream = new MemoryStream();
-                    stream.CopyTo(outputStream);
-                    outputStream.Position = 0;
-                    return outputStream;
-                });
-
-            var apiMethod = "System.Web.Configuration.BrowserCapabilitiesFactory.OperaminiProcessBrowsers(bool, System.Collections.Specialized.NameValueCollection, System.Web.HttpBrowserCapabilities)";
-            var description = "System.Web (AKA classic ASP.NET) won't be ported to .NET Core. See https://aka.ms/unsupported-netfx-api.";
-            var resultTasks = await _compatibilityCheckerRecommendationHandler.GetRecommendationFileAsync (_namespaces);
-            var recommendationDetails = resultTasks.Values.First();
-            var recommendationActionDetails = new RecommendationActionFileDetails();
-            var actions = recommendationDetails.Recommendations.First().RecommendedActions.SelectMany(a => a.Actions).ToList();
-            var recommendation = ApiCompatiblity.UpgradeStrategy(compatibilityResult, apiMethod, recommendationDetails, recommendationActionDetails, actions, "netcoreapp3.1");
-            Assert.AreEqual(RecommendedActionType.ReplaceApi, recommendation.RecommendedActionType);
-            Assert.AreEqual(description, recommendation.Description);
-            recommendation = ApiCompatiblity.UpgradeStrategy(compatibilityResult, apiMethod, recommendationDetails, recommendationActionDetails, actions, "net5.0");
-            Assert.AreEqual(RecommendedActionType.ReplaceApi, recommendation.RecommendedActionType);
-            Assert.AreEqual("No Recommendation in net5.0 now", recommendation.Description);
-            recommendation = ApiCompatiblity.UpgradeStrategy(compatibilityResult, apiMethod, recommendationDetails, recommendationActionDetails, actions, "xxxx");
-            Assert.AreEqual(RecommendedActionType.NoRecommendation, recommendation.RecommendedActionType);
-        }
+        
 
         [Test]
         public void TestPackageCompatibilityResult()
@@ -194,14 +121,14 @@ namespace PortingAssistant.Compatibility.Core.Tests.UnitTests
             };
 
             var compatResults = PackageCompatibility.IsCompatibleAsync(Task.FromResult(packageDetails), packageVersionPair, Mock.Of<ILogger>());
-            var actions = new List<ActionFileActions>();
-            var recommendation = PackageCompatibility.GetPackageAnalysisResult(compatResults.Result, packageVersionPair, "netcoreapp3.1", actions, assessmentType: AssessmentType.FullAssessment);
+            //var actions = new List<ActionFileActions>();
+            var recommendation = PackageCompatibility.GetPackageAnalysisResult(compatResults.Result, packageVersionPair, "netcoreapp3.1", assessmentType: AssessmentType.FullAssessment);
 
             Assert.AreEqual(2, compatResults.Result.CompatibleVersions.Count);
             Assert.AreEqual(1, recommendation.CompatibilityResults["netcoreapp3.1"].CompatibleVersions.Count);
             //Assert.AreEqual("2.0.0", recommendation.Recommendations.RecommendedActions[0].Description);
             // No recommandation attached
-            Assert.AreEqual(0, recommendation.Recommendations.RecommendedActions.Count);
+            Assert.AreEqual(1, recommendation.Recommendations.RecommendedActions.Count);
         }
 
         [Test]
@@ -233,42 +160,7 @@ namespace PortingAssistant.Compatibility.Core.Tests.UnitTests
             Assert.AreEqual(0, compatResults.Result.CompatibleVersions.Count);
             Assert.AreEqual(Common.Model.Compatibility.INCOMPATIBLE, compatibilityResult.Compatibility);
         }
-
-        [Test]
-        public async Task GetRecommendation_NamespaceNotFound_Return404Exception()
-        {
-            _httpService
-                .Setup(transfer => transfer.DownloadS3FileAsync(It.IsAny<string>()))
-                .ThrowsAsync(new Exception("404 not found"));
-
-            var loggerMock = new Mock<ILambdaLogger>();
-
-            IEnumerable<string> namepaces = new List<string>() { "test.namespace" };
-            var resultTasks = await _compatibilityCheckerRecommendationHandler.GetRecommendationFileAsync(namepaces);
-
-            Assert.AreEqual(1, resultTasks.Count);
-            Assert.IsNull(resultTasks[namepaces.First()]);
-            loggerMock.Verify(mock => mock.LogInformation(It.IsAny<string>()), Times.Once);
-            loggerMock.Verify(mock => mock.LogError(It.IsAny<string>()), Times.Never);
-        }
-
-        [Test]
-        public async Task GetRecommendation_ReturnOtherException()
-        {
-            _httpService
-                .Setup(transfer => transfer.DownloadS3FileAsync(It.IsAny<string>()))
-                .ThrowsAsync(new Exception("error"));
-
-            var loggerMock = new Mock<ILambdaLogger>();
-
-            IEnumerable<string> namepaces = new List<string>() { "test.namespace" };
-            var resultTasks = await _compatibilityCheckerRecommendationHandler.GetRecommendationFileAsync( namepaces);
-
-            Assert.AreEqual(1, resultTasks.Count);
-            Assert.IsNull(resultTasks[namepaces.First()]);
-            loggerMock.Verify(mock => mock.LogInformation(It.IsAny<string>()), Times.Never);
-            loggerMock.Verify(mock => mock.LogError(It.IsAny<string>()), Times.Once);
-        }
+        
     }
 
 }

@@ -12,7 +12,7 @@ namespace PortingAssistant.Client.Client
 {
     public interface IPortingAssistantClient
     {
-        Task<SolutionAnalysisResult> AnalyzeSolutionAsync(string solutionFilePath, AnalyzerSettings settings, AssessmentType assessmentType = AssessmentType.CompatibilityOnly);
+        Task<SolutionAnalysisResult> AnalyzeSolutionAsync(string solutionFilePath, AnalyzerSettings settings, AssessmentType assessmentType = AssessmentType.FullAssessment);
         IAsyncEnumerable<ProjectAnalysisResult> AnalyzeSolutionGeneratorAsync(string solutionFilePath, AnalyzerSettings settings, [EnumeratorCancellation] CancellationToken cancellationToken = default);
         /*
         Task<List<SourceFileAnalysisResult>> AnalyzeFileAsync(string filePath, string projectFile, string solutionFilePath, 

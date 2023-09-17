@@ -177,7 +177,7 @@ namespace PortingAssistant.Client.IntegrationTests
                 Version = "3.4.1",
                 PackageSourceType = PackageSourceType.NUGET
             }).Result;
-            Assert.AreEqual(Compatibility.COMPATIBLE,
+            Assert.AreEqual(Model.Compatibility.COMPATIBLE,
                 packageAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").Compatibility);
             Assert.True(packageAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").CompatibleVersions.Count > 0);
             Assert.AreEqual(RecommendedActionType.UpgradePackage, packageAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
@@ -189,7 +189,7 @@ namespace PortingAssistant.Client.IntegrationTests
                 Version = "2.0.1",
                 PackageSourceType = PackageSourceType.NUGET
             }).Result;
-            Assert.AreEqual(Compatibility.COMPATIBLE,
+            Assert.AreEqual(Model.Compatibility.COMPATIBLE,
                 packageAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").Compatibility);
             Assert.AreEqual(0, packageAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").CompatibleVersions.Count);
             Assert.AreEqual(RecommendedActionType.UpgradePackage, packageAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
@@ -201,7 +201,7 @@ namespace PortingAssistant.Client.IntegrationTests
                 Version = "12.0.2",
                 PackageSourceType = PackageSourceType.NUGET
             }).Result;
-            Assert.AreEqual(Compatibility.COMPATIBLE,
+            Assert.AreEqual(Model.Compatibility.COMPATIBLE,
                 packageAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").Compatibility);
             Assert.True(packageAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").CompatibleVersions.Count > 0);
             Assert.AreEqual(RecommendedActionType.UpgradePackage, packageAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
@@ -213,7 +213,7 @@ namespace PortingAssistant.Client.IntegrationTests
                 Version = "3.5.0.2",
                 PackageSourceType = PackageSourceType.NUGET
             }).Result;
-            Assert.AreEqual(Compatibility.INCOMPATIBLE,
+            Assert.AreEqual(Model.Compatibility.INCOMPATIBLE,
                 packageAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").Compatibility);
             Assert.AreEqual(0, packageAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").CompatibleVersions.Count);
             Assert.AreEqual(RecommendedActionType.UpgradePackage, packageAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
@@ -225,7 +225,7 @@ namespace PortingAssistant.Client.IntegrationTests
                 Version = "5.2.7",
                 PackageSourceType = PackageSourceType.NUGET
             }).Result;
-            Assert.AreEqual(Compatibility.INCOMPATIBLE,
+            Assert.AreEqual(Model.Compatibility.INCOMPATIBLE,
                 packageAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").Compatibility);
             Assert.AreEqual(0, packageAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").CompatibleVersions.Count);
             Assert.AreEqual(RecommendedActionType.UpgradePackage, packageAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
@@ -252,7 +252,7 @@ namespace PortingAssistant.Client.IntegrationTests
             Assert.AreEqual("System.Web.Optimization", apiAnalysisResult.CodeEntityDetails.Package.PackageId);
             Assert.AreEqual("1.1.0", apiAnalysisResult.CodeEntityDetails.Package.Version);
             Assert.AreEqual(PackageSourceType.NUGET, apiAnalysisResult.CodeEntityDetails.Package.PackageSourceType);
-            Assert.AreEqual(Compatibility.UNKNOWN, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").Compatibility);
+            Assert.AreEqual(Model.Compatibility.UNKNOWN, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").Compatibility);
             Assert.AreEqual(0, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").CompatibleVersions.Count);
             Assert.AreEqual(RecommendedActionType.NoRecommendation, apiAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
             Assert.Null(apiAnalysisResult.Recommendations.RecommendedActions.First().Description);
@@ -268,7 +268,7 @@ namespace PortingAssistant.Client.IntegrationTests
             Assert.AreEqual("System.Web.Optimization", apiAnalysisResult.CodeEntityDetails.Package.PackageId);
             Assert.AreEqual("1.1.0", apiAnalysisResult.CodeEntityDetails.Package.Version);
             Assert.AreEqual(PackageSourceType.NUGET, apiAnalysisResult.CodeEntityDetails.Package.PackageSourceType);
-            Assert.AreEqual(Compatibility.UNKNOWN, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").Compatibility);
+            Assert.AreEqual(Model.Compatibility.UNKNOWN, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").Compatibility);
             Assert.AreEqual(0, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").CompatibleVersions.Count);
             Assert.AreEqual(RecommendedActionType.NoRecommendation, apiAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
             Assert.Null(apiAnalysisResult.Recommendations.RecommendedActions.First().Description);
@@ -289,7 +289,7 @@ namespace PortingAssistant.Client.IntegrationTests
             Assert.AreEqual("System.Web.Mvc", apiAnalysisResult.CodeEntityDetails.Package.PackageId);
             Assert.AreEqual("5.2.7", apiAnalysisResult.CodeEntityDetails.Package.Version);
             Assert.AreEqual(PackageSourceType.NUGET, apiAnalysisResult.CodeEntityDetails.Package.PackageSourceType);
-            Assert.AreEqual(Compatibility.INCOMPATIBLE, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").Compatibility);
+            Assert.AreEqual(Model.Compatibility.INCOMPATIBLE, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").Compatibility);
             Assert.AreEqual(0, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").CompatibleVersions.Count);
             Assert.AreEqual(RecommendedActionType.NoRecommendation, apiAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
             Assert.Null(apiAnalysisResult.Recommendations.RecommendedActions.First().Description);
@@ -305,7 +305,7 @@ namespace PortingAssistant.Client.IntegrationTests
             Assert.AreEqual("System.Web.Mvc", apiAnalysisResult.CodeEntityDetails.Package.PackageId);
             Assert.AreEqual("5.2.7", apiAnalysisResult.CodeEntityDetails.Package.Version);
             Assert.AreEqual(PackageSourceType.NUGET, apiAnalysisResult.CodeEntityDetails.Package.PackageSourceType);
-            Assert.AreEqual(Compatibility.INCOMPATIBLE, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").Compatibility);
+            Assert.AreEqual(Model.Compatibility.INCOMPATIBLE, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").Compatibility);
             Assert.AreEqual(0, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").CompatibleVersions.Count);
             Assert.AreEqual(RecommendedActionType.NoRecommendation, apiAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
             Assert.Null(apiAnalysisResult.Recommendations.RecommendedActions.First().Description);
@@ -324,7 +324,7 @@ namespace PortingAssistant.Client.IntegrationTests
             Assert.AreEqual("System.Web.Mvc", apiAnalysisResult.CodeEntityDetails.Package.PackageId);
             Assert.AreEqual("5.2.7", apiAnalysisResult.CodeEntityDetails.Package.Version);
             Assert.AreEqual(PackageSourceType.NUGET, apiAnalysisResult.CodeEntityDetails.Package.PackageSourceType);
-            Assert.AreEqual(Compatibility.INCOMPATIBLE, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").Compatibility);
+            Assert.AreEqual(Model.Compatibility.INCOMPATIBLE, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").Compatibility);
             Assert.AreEqual(0, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").CompatibleVersions.Count);
             Assert.AreEqual(RecommendedActionType.NoRecommendation, apiAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
             Assert.Null(apiAnalysisResult.Recommendations.RecommendedActions.First().Description);
@@ -350,7 +350,7 @@ namespace PortingAssistant.Client.IntegrationTests
             Assert.AreEqual("Microsoft.AspNet.Web.Optimization", apiAnalysisResult.CodeEntityDetails.Package.PackageId);
             Assert.AreEqual("1.1.3", apiAnalysisResult.CodeEntityDetails.Package.Version);
             Assert.AreEqual(PackageSourceType.NUGET, apiAnalysisResult.CodeEntityDetails.Package.PackageSourceType);
-            Assert.AreEqual(Compatibility.INCOMPATIBLE, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").Compatibility);
+            Assert.AreEqual(Model.Compatibility.INCOMPATIBLE, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").Compatibility);
             Assert.AreEqual(0, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").CompatibleVersions.Count);
             Assert.AreEqual(RecommendedActionType.NoRecommendation, apiAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
             Assert.Null(apiAnalysisResult.Recommendations.RecommendedActions.First().Description);

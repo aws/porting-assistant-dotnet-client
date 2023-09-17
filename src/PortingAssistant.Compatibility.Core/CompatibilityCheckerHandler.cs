@@ -9,14 +9,12 @@ namespace PortingAssistant.Compatibility.Core
     {
         private ICompatibilityCheckerNuGetHandler _nuGetHandler;
         private ICompatibilityCheckerRecommendationHandler _recommendationHandler;
-        //private ICompatibilityCheckerRecommendationActionHandler _recommendationActionHandler;
         private IHttpService _httpService;
         private readonly ILogger _logger;
 
         public CompatibilityCheckerHandler(
             ICompatibilityCheckerNuGetHandler nuGetHandler,
             ICompatibilityCheckerRecommendationHandler recommendationHandler,
-            //ICompatibilityCheckerRecommendationActionHandler recommendationActionHandler,
             IHttpService httpService,
             ILogger<CompatibilityCheckerHandler> logger)
 		{
@@ -126,7 +124,6 @@ namespace PortingAssistant.Compatibility.Core
                 // Package level.
                 if (packageWithApi.Key.PackageSourceType == PackageSourceType.NUGET)
                 {
-                    //packageWithApi.Key.PackageSourceType = PackageSourceType.NUGET;
                     var nugetPackage = packageWithApi.Key;
                     // Get NuGet package level compatibility result. 
                     var nugetPackageCompatibilityResult = await PackageCompatibility.IsCompatibleAsync(
@@ -146,14 +143,13 @@ namespace PortingAssistant.Compatibility.Core
                 var sdkPackageDetailsDict = packageDetailsDict.Where(s => s.Key.PackageSourceType == PackageSourceType.SDK)
                             .ToDictionary(dict => dict.Key, dict => dict.Value);
                 var apiCompatibilityResultDict =
-                    ApiCompatiblity.IsCompatibleV2(packageWithApi, packageAnalysisCompatCheckerResults, sdkPackageDetailsDict, targetFramework, _httpService);
+                    ApiCompatiblity.IsCompatibleV2(packageWithApi, packageAnalysisCompatCheckerResults, sdkPackageDetailsDict, targetFramework, _httpService, language);
 
+
+                // Fetch Api recommendations.
                 var apiAnalysisResult = new AnalysisResult();
-                Dictionary<string, Task<RecommendationDetails>> apiRecommendationResults = null;
-
-                
-                    // Fetch Api recommendations. 
-                apiRecommendationResults = _recommendationHandler.GetApiRecommendation(namespaces.ToList());
+                Dictionary<string, Task<RecommendationDetails>> apiRecommendationResults=
+                    apiRecommendationResults = _recommendationHandler.GetApiRecommendation(namespaces.ToList());
                 
                 foreach (var api in apiCompatibilityResultDict)
                 {
@@ -236,11 +232,9 @@ namespace PortingAssistant.Compatibility.Core
                         new AnalysisResult
                         {
                             Recommendations = p.Value.Recommendations,
-                            
                         });
                         break;
                     default:
-                    
                         packageAnalysisResults.TryAdd(p.Key,
                         new AnalysisResult
                         {
@@ -255,14 +249,16 @@ namespace PortingAssistant.Compatibility.Core
                 SolutionGUID = solutionGuid,
                 Language = language,
                 PackageAnalysisResults = packageAnalysisResults,
-                ApiAnalysisResults = apiAnalysisCompatCheckerResults
+                ApiAnalysisResults = apiAnalysisCompatCheckerResults,
+                PackageRecommendationResults = packageAnalysisResults,
+                ApiRecommendationResults = apiAnalysisCompatCheckerResults
             };
         }
 
 
-        public CompatibilityCheckerResponse Check(CompatibilityCheckerRequest request)
+        public async Task<CompatibilityCheckerResponse> Check(CompatibilityCheckerRequest request)
         {
-            return Check(request, null).Result;
+            return await Check(request, null);
         }
 
         public static CompatibilityResult GetCompatibilityResult(CompatibilityResult compatibilityResultWithPackage,

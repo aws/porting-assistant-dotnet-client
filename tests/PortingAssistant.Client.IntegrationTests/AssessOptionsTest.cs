@@ -38,7 +38,7 @@ namespace PortingAssistant.Client.IntegrationTests
             string stdout = "";
 
             ProcessStartInfo startInfo = new ProcessStartInfo(
-                "PortingAssistant.Client.CLI.exe");
+            "PortingAssistant.Client.CLI.exe");
             startInfo.WorkingDirectory = TestContext.CurrentContext.TestDirectory;
             startInfo.CreateNoWindow = false;
             startInfo.UseShellExecute = false;

@@ -8,16 +8,27 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
-using PortingAssistant.Client.Analysis.Utils;
+
+using PortingAssistant.Compatibility.Common.Model;
+using PortingAssistant.Compatibility.Common.Interface;
+using PortingAssistant.Compatibility.Common.Utils;
+using PortingAssistant.Compatibility.Core;
 using PortingAssistant.Client.Model;
-using PortingAssistant.Client.NuGet;
-using PortingAssistant.Client.NuGet.Interfaces;
+using RecommendationDetails = PortingAssistant.Compatibility.Common.Model.RecommendationDetails;
+using RecommendationModel = PortingAssistant.Compatibility.Common.Model.RecommendationModel;
+using RecommendedActionModel = PortingAssistant.Compatibility.Common.Model.RecommendedActionModel;
+using Actions = PortingAssistant.Compatibility.Common.Model.Actions;
+using RecommendedActionType = PortingAssistant.Compatibility.Common.Model.RecommendedActionType;
+using PackageDetails = PortingAssistant.Compatibility.Common.Model.PackageDetails;
+using PackageVersionPair = PortingAssistant.Compatibility.Common.Model.PackageVersionPair;
+using PackageSourceType = PortingAssistant.Compatibility.Common.Model.PackageSourceType;
+
 namespace PortingAssistant.Client.UnitTests
 {
     public class PortingAssistantRecommendationTest
     {
         private Mock<IHttpService> _httpService;
-        private IPortingAssistantRecommendationHandler _portingAssistantRecommendationHandler;
+        private ICompatibilityCheckerRecommendationHandler _portingAssistantRecommendationHandler;
 
         private readonly RecommendationDetails _recommendationDetails = new RecommendationDetails
         {
@@ -60,9 +71,9 @@ namespace PortingAssistant.Client.UnitTests
             }
         };
 
-        private readonly CompatibilityResult compatibilityResult = new CompatibilityResult
+        private readonly Compatibility.Common.Model.CompatibilityResult compatibilityResult = new Compatibility.Common.Model.CompatibilityResult
         {
-            Compatibility = Compatibility.INCOMPATIBLE,
+            Compatibility = Compatibility.Common.Model.Compatibility.INCOMPATIBLE,
             CompatibleVersions = new List<string>()
         };
 
@@ -105,9 +116,9 @@ namespace PortingAssistant.Client.UnitTests
 
 
 
-            _portingAssistantRecommendationHandler = new PortingAssistantRecommendationHandler(
+            _portingAssistantRecommendationHandler = new CompatibilityCheckerRecommendationHandler(
                 _httpService.Object,
-                NullLogger<PortingAssistantRecommendationHandler>.Instance
+                NullLogger<CompatibilityCheckerRecommendationHandler>.Instance
                 );
         }
 
@@ -177,10 +188,10 @@ namespace PortingAssistant.Client.UnitTests
                 }
             };
 
-            var compatResults = PackageCompatibility.IsCompatibleAsync(Task.FromResult(packageDetails), packageVersionPair, NullLogger.Instance);
-            var recommendation = PackageCompatibility.GetPackageAnalysisResult(compatResults, packageVersionPair, "netcoreapp3.1").Result;
+            var compatResults = PackageCompatibility.IsCompatibleAsync(Task.FromResult(packageDetails), packageVersionPair, NullLogger.Instance).Result;
+            var recommendation = PackageCompatibility.GetPackageAnalysisResult(compatResults, packageVersionPair, "netcoreapp3.1", AssessmentType.FullAssessment);
 
-            Assert.AreEqual(2, compatResults.Result.CompatibleVersions.Count);
+            Assert.AreEqual(2, compatResults.CompatibleVersions.Count);
             Assert.AreEqual(1, recommendation.CompatibilityResults["netcoreapp3.1"].CompatibleVersions.Count);
             Assert.AreEqual("2.0.0", recommendation.Recommendations.RecommendedActions[0].Description);
         }
@@ -212,7 +223,7 @@ namespace PortingAssistant.Client.UnitTests
             var compatResults = PackageCompatibility.IsCompatibleAsync(Task.FromResult(packageDetails), packageVersionPair, NullLogger.Instance);
 
             Assert.AreEqual(0, compatResults.Result.CompatibleVersions.Count);
-            Assert.AreEqual(Compatibility.INCOMPATIBLE, compatibilityResult.Compatibility);
+            Assert.AreEqual(Compatibility.Common.Model.Compatibility.INCOMPATIBLE, compatibilityResult.Compatibility);
         }
 
         [Test]

@@ -26,7 +26,7 @@ namespace PortingAssistant.Compatibility.Common.Utils
             KeyValuePair<PackageVersionPair, HashSet<ApiEntity>> packageWithApi,
             Dictionary<PackageVersionPair, PackageAnalysisResult> packageAnalysisCompatCheckerResults,
             Dictionary<PackageVersionPair, Task<PackageDetails>> sdkPackageResults,
-            string targetFramework, IHttpService httpService)
+            string targetFramework, IHttpService httpService, Language language = Language.CSharp)
         {
             var sdkPackageDetailsWithIndicesResults = PreProcessPackageDetails(sdkPackageResults);
             var package = packageWithApi.Key;
@@ -37,7 +37,7 @@ namespace PortingAssistant.Compatibility.Common.Utils
             if (packageAnalysisCompatCheckerResults.ContainsKey(package))
             {
                 packageLevelCompatibleResult = packageAnalysisCompatCheckerResults[package].CompatibilityResults[targetFramework];
-                preProcessApiDetailsNugetPackage = PreProcessApiDetailsNugetPackage(packageLevelCompatibleResult, packageWithApi, httpService, targetFramework).Result;
+                preProcessApiDetailsNugetPackage = PreProcessApiDetailsNugetPackage(packageLevelCompatibleResult, packageWithApi, httpService, targetFramework, language).Result;
             }
             else {
                 Console.WriteLine($"packageAnalysisCompatCheckerResults doesn't contain key {package}");
@@ -205,8 +205,12 @@ namespace PortingAssistant.Compatibility.Common.Utils
             }
         }
 
-        public static async Task<Dictionary<ApiEntity,CompatibilityResult>> PreProcessApiDetailsNugetPackage(CompatibilityResult packageCompatibilityResult,
-            KeyValuePair<PackageVersionPair, HashSet<ApiEntity>> packageWithApi, IHttpService httpService, string target = Constants.DefaultAssessmentTargetFramework)
+        public static async Task<Dictionary<ApiEntity,CompatibilityResult>> PreProcessApiDetailsNugetPackage(
+            CompatibilityResult packageCompatibilityResult,
+            KeyValuePair<PackageVersionPair, HashSet<ApiEntity>> packageWithApi,
+            IHttpService httpService,
+            string target = Constants.DefaultAssessmentTargetFramework,
+            Language language = Language.CSharp)
         {
             Dictionary<ApiEntity, CompatibilityResult> result = new Dictionary<ApiEntity, CompatibilityResult> ();
             var defaultCompatibilityResult = new CompatibilityResult
@@ -261,17 +265,21 @@ namespace PortingAssistant.Compatibility.Common.Utils
                 }
 
                 var apiIndexDict = SignatureToIndexPreProcess(apidetails);
+                
                 foreach (var api in packageWithApi.Value)
                 {
                     ApiDetailsV2 selectedAPI = null;
                     
                     //if API methodSignature is not found in the apidetails, set this API to InCompatible
-                    
                     var index = apiIndexDict.GetValueOrDefault(api.OriginalDefinition, -1);
 
-                    if (index >= 0 && index < apidetails.Length)
+                    selectedAPI = index >= 0 && index < apidetails.Length ? apidetails[index] : null;
+                    //for VB if methodSignature can not be found need to check again , remove all ?  from api.OriginalDefinition 
+                    if (selectedAPI == null && language == Language.Vb)
                     {
-                        selectedAPI = apidetails[index];
+                        var vbApiIndexDict = VBSignatureToIndexPreProcess(apidetails);
+                        index = vbApiIndexDict.GetValueOrDefault(api.OriginalDefinition, -1);
+                        selectedAPI = index >= 0 && index < apidetails.Length ? apidetails[index] : null;
                     }
 
                     var compatibleResult = new CompatibilityResult
@@ -554,6 +562,8 @@ namespace PortingAssistant.Compatibility.Common.Utils
             return indexDict;
         }
 
+        
+
         public static Dictionary<string, int> SignatureToIndexPreProcess(ApiDetailsV2[] apiDetails)
         {
             var indexDict = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
@@ -584,7 +594,37 @@ namespace PortingAssistant.Compatibility.Common.Utils
             return indexDict;
         }
 
-        
+        public static Dictionary<string, int> VBSignatureToIndexPreProcess(ApiDetailsV2[] apiDetails)
+        {
+            var indexDict = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            if (apiDetails == null || apiDetails.Length == 0)
+            {
+                return indexDict;
+            }
+
+            for (int i = 0; i < apiDetails.Length; i++)
+            {
+                var api = apiDetails[i];
+
+                var signature = api.methodSignature.Replace("?","");
+
+                if (!string.IsNullOrEmpty(signature) && !indexDict.ContainsKey(signature))
+                {
+                    indexDict.Add(signature, i);
+                }
+
+                var extensionSignature = GetExtensionSignature(api);
+                if (!string.IsNullOrEmpty(extensionSignature) && !indexDict.ContainsKey(extensionSignature))
+                {
+                    indexDict.Add(extensionSignature, i);
+                }
+
+            }
+
+            return indexDict;
+        }
+
+
         public static string GetExtensionSignature(ApiDetails api)
         {
             try

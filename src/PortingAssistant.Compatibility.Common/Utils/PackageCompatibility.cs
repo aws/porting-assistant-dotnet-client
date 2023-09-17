@@ -11,63 +11,40 @@ namespace PortingAssistant.Compatibility.Common.Utils
             string targetFramework, AssessmentType assessmentType)
         {
             var compatibleVersions = result.GetCompatibleVersionsWithoutPreReleases();
-            switch (assessmentType)
+            
+            return new PackageAnalysisResult()
             {
-                case AssessmentType.CompatibilityOnly:
-                    return  new PackageAnalysisResult()
+                PackageVersionPair = packageVersionPair,
+                CompatibilityResults = new Dictionary<string, CompatibilityResult>
+                {
                     {
-                        PackageVersionPair = packageVersionPair,
-                        CompatibilityResults = new Dictionary<string, CompatibilityResult>
+                        targetFramework, new CompatibilityResult
                         {
-                            {
-                                targetFramework, new CompatibilityResult
-                                {
-                                    Compatibility = result.Compatibility,
-                                    CompatibleVersions = compatibleVersions
-                                }
-                            }
+                            Compatibility = result.Compatibility,
+                            CompatibleVersions = compatibleVersions
                         }
-                    };
-                // need CompatibilityResults for api result 
-                // will remove the CompatibilityResults when configure CompatibleCheckerResponse
-                case AssessmentType.RecommendationOnly: 
-                case AssessmentType.FullAssessment:
-                    return new PackageAnalysisResult()
+                    }
+                },
+                Recommendations = new Recommendations
+                {
+                    RecommendedActions = new List<Recommendation>
                     {
-                        PackageVersionPair = packageVersionPair,
-                        CompatibilityResults = new Dictionary<string, CompatibilityResult>
+                        new Recommendation
                         {
-                            {
-                                targetFramework, new CompatibilityResult
-                                {
-                                    Compatibility = result.Compatibility,
-                                    CompatibleVersions = compatibleVersions
-                                }
-                            }
-                        },
-                        Recommendations = new Recommendations
-                        {
-                            RecommendedActions = new List<Recommendation>
-                            {
-                                new Recommendation
-                                {
-                                    PackageId = packageVersionPair.PackageId,
-                                    RecommendedActionType = RecommendedActionType.UpgradePackage,
-                                    Description = compatibleVersions.Count != 0 ? compatibleVersions.First() : null,
-                                    TargetVersions = compatibleVersions
-                                }
-                            },
-                            RecommendedPackageVersions = compatibleVersions
-
+                            PackageId = packageVersionPair.PackageId,
+                            RecommendedActionType = RecommendedActionType.UpgradePackage,
+                            Description = compatibleVersions.Count != 0 ? compatibleVersions.First() : null,
+                            TargetVersions = compatibleVersions
                         }
-                    };
-                default:
-                    throw new Exception($"invalid assessment type {assessmentType}");
-            }
+                    },
+                    RecommendedPackageVersions = compatibleVersions
+                }
+            };
+            
         }
-        /*
+        
         private static Recommendation FetchPackageRecommendation(
-            PackageVersionPair packageVersionPair, List<string> compatibleVersions, List<ActionFileActions>? actions)
+            PackageVersionPair packageVersionPair, List<string> compatibleVersions)
         {
             if (compatibleVersions.Count != 0)
             {
@@ -77,20 +54,6 @@ namespace PortingAssistant.Compatibility.Common.Utils
                     RecommendedActionType = RecommendedActionType.UpgradePackage,
                     Description = compatibleVersions.Count != 0 ? compatibleVersions.First() : null,
                     TargetVersions = compatibleVersions,
-                    Actions = actions,
-                    Version = packageVersionPair.Version
-                };
-            }
-
-            if (actions != null && actions.Count != 0)
-            {
-                return new Recommendation()
-                {
-                    PackageId = packageVersionPair.PackageId,
-                    RecommendedActionType = RecommendedActionType.ReplaceNamespace,
-                    Description = compatibleVersions.Count != 0 ? compatibleVersions.First() : null,
-                    TargetVersions = compatibleVersions,
-                    Actions = actions,
                     Version = packageVersionPair.Version
                 };
             }
@@ -101,11 +64,10 @@ namespace PortingAssistant.Compatibility.Common.Utils
                 RecommendedActionType = RecommendedActionType.NoRecommendation,
                 Description = compatibleVersions.Count != 0 ? compatibleVersions.First() : null,
                 TargetVersions = compatibleVersions,
-                Actions = actions,
                 Version = packageVersionPair.Version
             };
         }
-        */
+        
         public static async Task<CompatibilityResult> IsCompatibleAsync(Task<PackageDetails> packageDetails,
             PackageVersionPair packageVersionPair, ILogger logger, string target = Constants.DefaultAssessmentTargetFramework)
         {

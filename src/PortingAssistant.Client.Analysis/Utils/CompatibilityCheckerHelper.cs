@@ -49,14 +49,15 @@ namespace PortingAssistant.Client.Analysis.Utils
                                 {
                                     RecommendedActions = new List<RecommendedAction>() {
 
-                                     new RecommendedAction () {
-                                        RecommendedActionType = Model.RecommendedActionType.NoRecommendation,
-                                        Description = null,
-                                        TextSpan =  null,
-                                        TargetCPU = null,
-                                        TextChanges = null
-                                      }
-                                    }
+                                        new RecommendedAction() {
+                                            RecommendedActionType = Model.RecommendedActionType.NoRecommendation,
+                                            Description = null,
+                                            TextSpan = null,
+                                            TargetCPU = null,
+                                            TextChanges = null
+                                        }
+                                    },
+                                    RecommendedPackageVersions = new List<string>()
                                 }
                             };
                         }
@@ -83,21 +84,22 @@ namespace PortingAssistant.Client.Analysis.Utils
                                 CompatibilityResults = new Dictionary<string, CompatibilityResult>
                                 {
                                     {
-                                        targetFramework, new CompatibilityResult() { Compatibility = Model.Compatibility.UNKNOWN , CompatibleVersions = new List<string>()}
+                                        targetFramework, new CompatibilityResult() { Compatibility = Model.Compatibility.UNKNOWN, CompatibleVersions = new List<string>() }
                                     }
                                 },
                                 Recommendations = new Model.Recommendations
                                 {
                                     RecommendedActions = new List<RecommendedAction>() {
-                                    new RecommendedAction()
-                                    {
-                                        RecommendedActionType = Model.RecommendedActionType.NoRecommendation,
-                                        Description = null,
-                                        TextSpan = null,
-                                        TargetCPU = null,
-                                        TextChanges = null
-                                    }
-                                }
+                                        new RecommendedAction()
+                                        {
+                                            RecommendedActionType = Model.RecommendedActionType.NoRecommendation,
+                                            Description = null,
+                                            TextSpan = null,
+                                            TargetCPU = null,
+                                            TextChanges = null
+                                        },
+                                    },
+                                    RecommendedPackageVersions = new List<string>()
                                 }
                             };
                         }
@@ -124,6 +126,13 @@ namespace PortingAssistant.Client.Analysis.Utils
             Compatibility.Common.Model.PackageVersionPair package)
         {
             ApiAnalysisResult apiAnalysisResult = null;
+
+            if (compatibilityCheckerResponse == null)
+            {
+                //Default value will be assigned to ApiAnalysisResult
+                return null;
+            }
+                 
             //assume the package is nuget
             if (compatibilityCheckerResponse.ApiAnalysisResults!= null && compatibilityCheckerResponse.ApiAnalysisResults.ContainsKey(package))
             {
@@ -131,6 +140,14 @@ namespace PortingAssistant.Client.Analysis.Utils
                 {
                     var compatibilityResultFromResponse = compatibilityCheckerResponse.ApiAnalysisResults[package][codeEntity.OriginalDefinition].CompatibilityResults;
                     var recommandationFromResponse = compatibilityCheckerResponse.ApiAnalysisResults[package][codeEntity.OriginalDefinition].Recommendations;
+                    if (recommandationFromResponse == null &&
+                        compatibilityCheckerResponse.ApiRecommendationResults != null &&
+                        compatibilityCheckerResponse.ApiRecommendationResults.ContainsKey(package) &&
+                        compatibilityCheckerResponse.ApiRecommendationResults[package].ContainsKey(codeEntity.OriginalDefinition)
+                        )
+                    {
+                        recommandationFromResponse = compatibilityCheckerResponse.ApiRecommendationResults[package][codeEntity.OriginalDefinition].Recommendations;
+                    }
 
                     apiAnalysisResult = new ApiAnalysisResult
                     {
@@ -145,7 +162,8 @@ namespace PortingAssistant.Client.Analysis.Utils
                         },
                         Recommendations = new Model.Recommendations
                         {
-                            RecommendedActions = RecommandationMapper.Convert(recommandationFromResponse?.RecommendedActions)
+                            RecommendedActions = RecommandationMapper.Convert(recommandationFromResponse?.RecommendedActions),
+                            RecommendedPackageVersions = recommandationFromResponse?.RecommendedPackageVersions
                         }
                     };
                 }
@@ -171,7 +189,7 @@ namespace PortingAssistant.Client.Analysis.Utils
             string solutionFileName, AnalyzerResult analyzer,
             string targetFramework, out Dictionary<string,
             List<CodeEntityDetails>> sourceFileToCodeEntityDetails,
-            AssessmentType assessmentType = AssessmentType.CompatibilityOnly)
+            AssessmentType assessmentType = AssessmentType.FullAssessment)
         {
             sourceFileToCodeEntityDetails = null;
             if (analyzer == null || analyzer.ProjectResult == null)
@@ -280,10 +298,16 @@ namespace PortingAssistant.Client.Analysis.Utils
                     packageWithApis.Add(package, new HashSet<ApiEntity>());
                 }
             }
+
+            var fileLanguage = analyzer.ProjectResult.SourceFileResults.FirstOrDefault().Language;
+            Language language = fileLanguage == "Visual Basic"? Language.Vb: Language.CSharp;
+            
             return new CompatibilityCheckerRequest() {
+                Language = language,
                 SolutionGUID = solutionFileName,
                 PackageWithApis = packageWithApis,
-                TargetFramework = targetFramework , AssessmentType = assessmentType };
+                TargetFramework = targetFramework ,
+                AssessmentType = assessmentType };
                 
         }
     }

@@ -26,6 +26,8 @@ namespace PortingAssistant.Client.CLI
     {
         public static void Main(string[] args)
         {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
             PortingAssistantCLI cli = new PortingAssistantCLI();
             cli.HandleCommand(args);
 
@@ -192,6 +194,9 @@ namespace PortingAssistant.Client.CLI
                     Environment.Exit(-1);
                 }
             }
+            sw.Stop();
+            Log.Logger.Information($"Total Execuction Time: " +
+                $"{cli.SolutionPath} is {sw.ElapsedMilliseconds/1000} seconds with AssessmentType {cli.AssessmentType}");
         }
 
 
