@@ -4,7 +4,6 @@ on:
   push:
     branches: 
     - main
-    - bugfix-compatibility-checker
     - release/*
   pull_request:
     branches: [ main ]
@@ -56,7 +55,6 @@ jobs:
     - name: Test
       run: dotnet test --configuration Release --no-restore --verbosity normal
 
-/*
   benchmark-and-regression-check:
     runs-on: windows-latest
     steps: 
@@ -78,7 +76,17 @@ jobs:
         iwr https://go.microsoft.com/fwlink/?linkid=874338 -OutFile installer.exe; 
         Start-Process .\\installer.exe -argumentlist "/passive /norestart" -wait; 
         Write-Host Installed .NET 4.7.2
-    
+    - name: Download Test Projects
+      run: |
+        if (!(test-path -PathType Container c:\\temp)){ mkdir c:\\temp}
+        iwr https://github.com/marknfawaz/TestProjects/archive/refs/heads/master.zip -OutFile c:\\temp\\master.zip
+        Expand-Archive -Path c:\\temp\\master.zip -DestinationPath c:\\temp\\
+        mv c:\\temp\\TestProjects-master\\net472\\OwinExtraAPI c:\\temp\\OwinExtraAPI
+        mkdir c:\\temp\\OwinExtraAPI_output
+        mv c:\\temp\\TestProjects-master\\net472\\IonicZipSample c:\\temp\\IonicZipSample
+        mkdir c:\\temp\\IonicZipSample_output
+        Write-Host Final Temp Dir: 
+        dir c:\\temp
     - name: Install Benchmark Tool
       run: |
         dotnet new tool-manifest
@@ -96,7 +104,6 @@ jobs:
       with:
         name: benchmark-results
         path: .\benchmark\*
-*/
 
   deploy:
     # after trailing tuxnet benchmark tool, add 'benchmark-and-regression-check' to this array
