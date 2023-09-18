@@ -175,14 +175,6 @@ namespace PortingAssistant.Compatibility.Core.Tests.UnitTests
                 Mock.Of<ILogger<CompatibilityCheckerNuGetHandler>>()
                     );
         }
-        /*
-        private ICompatibilityCheckerNuGetHandler GetPortabilityAnalzyerHandler()
-        {
-            var checkers = new List<ICompatibilityChecker>() { _portabilityAnalyzerCompatibilityChecker };
-            return new ICompatibilityCheckerNuGetHandler(
-                    checkers.AsEnumerable()
-                    );
-        }*/
 
         private ICompatibilityCheckerNuGetHandler GetBothNuGetHandler()
         {
@@ -223,38 +215,6 @@ namespace PortingAssistant.Compatibility.Core.Tests.UnitTests
         private void SetMockHttpService(PackageDetails packageDetails)
         {
             _httpService.Reset();
-            //_httpService
-            //    .Setup(transfer => transfer.DownloadS3FileAsync(It.IsAny<string>()))
-            //    .Returns(async (string key) =>
-            //    {
-            //        await Task.Delay(1);
-            //        var stream = new MemoryStream();
-            //        var writer = new StreamWriter(stream);
-            //        if (key.Equals("microsoftlibs.namespace.lookup.json"))
-            //        {
-            //            var test = JsonConvert.SerializeObject(_manifest);
-            //            writer.Write(test);
-            //            writer.Flush();
-            //            stream.Position = 0;
-            //            var outputStream = new MemoryStream();
-            //            stream.CopyTo(outputStream);
-            //            outputStream.Position = 0;
-            //            return outputStream;
-            //        }
-            //        else
-            //        {
-            //            var test = JsonConvert.SerializeObject(new Dictionary<string, PackageDetails> { { "Package", packageDetails } });
-            //            writer.Write(test);
-            //            writer.Flush();
-            //            stream.Position = 0;
-            //            var outputStream = new MemoryStream();
-            //            var gzipStream = new GZipStream(outputStream, CompressionLevel.Fastest);
-            //            stream.CopyTo(gzipStream);
-            //            gzipStream.Flush();
-            //            outputStream.Position = 0;
-            //            return outputStream;
-            //        }
-            //    });
 
             _ = _httpService
                 .Setup(transfer => transfer.DownloadS3FileAsync(It.IsAny<string>()))

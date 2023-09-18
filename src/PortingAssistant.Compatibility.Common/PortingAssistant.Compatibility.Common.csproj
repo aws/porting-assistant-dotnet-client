@@ -27,11 +27,4 @@
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="7.0.0" />
     <PackageReference Include="Amazon.Lambda.Core" Version="2.1.0" />
   </ItemGroup>
-  <ItemGroup>
-    <None Remove="Interface\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="Interface\ICompatibilityCheckerRecommendationActionHandler.cs" />
-    <Compile Remove="Model\RecommendationActionFileDetails.cs" />
-  </ItemGroup>
 </Project>

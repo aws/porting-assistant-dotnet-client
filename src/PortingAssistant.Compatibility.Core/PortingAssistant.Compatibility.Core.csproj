@@ -20,7 +20,4 @@
   <ItemGroup>
     <ProjectReference Include="..\PortingAssistant.Compatibility.Common\PortingAssistant.Compatibility.Common.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="CompatibilityCheckerRecommendationActionHandler.cs" />
-  </ItemGroup>
 </Project>
