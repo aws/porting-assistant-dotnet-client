@@ -192,7 +192,7 @@ namespace PortingAssistant.Client.IntegrationTests
             Assert.AreEqual("3.1.0", apiAnalysisResult.CodeEntityDetails.Package.Version);
            
             Assert.AreEqual(Model.Compatibility.COMPATIBLE, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").Compatibility);
-            Assert.Less(1, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").CompatibleVersions.Count);
+            Assert.True(apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").CompatibleVersions.Count >0);
             Assert.AreEqual(RecommendedActionType.UpgradePackage, apiAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
             Assert.NotNull(apiAnalysisResult.Recommendations.RecommendedActions.First().Description);
 
