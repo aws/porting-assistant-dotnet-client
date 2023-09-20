@@ -41,10 +41,9 @@ namespace PortingAssistant.Compatibility.Core.Checkers
         /// </summary>
         /// <param name="packageVersions">The package versions to check</param>
         /// <returns>The results of the compatibility check</returns>
-        //public async Task<Dictionary<PackageVersionPair, Task<PackageDetails>>> Check(
-        //    IEnumerable<PackageVersionPair> packageVersions)
-        public Dictionary<PackageVersionPair, Task<PackageDetails>> Check(
+        public async Task<Dictionary<PackageVersionPair, Task<PackageDetails>>> Check(
             IEnumerable<PackageVersionPair> packageVersions)
+        
         {
             var compatibilityTaskCompletionSources = new Dictionary<PackageVersionPair, TaskCompletionSource<PackageDetails>>();
 

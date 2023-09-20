@@ -24,7 +24,7 @@ namespace PortingAssistant.Compatibility.Core.Checkers
             _logger = logger;
         }
 
-        public Dictionary<PackageVersionPair, Task<PackageDetails>> Check(
+        public async Task<Dictionary<PackageVersionPair, Task<PackageDetails>>> Check(
              IEnumerable<PackageVersionPair> packageVersions)
         {
             var packagesToCheck = packageVersions;
@@ -57,8 +57,8 @@ namespace PortingAssistant.Compatibility.Core.Checkers
                     }
                 });
             }
-
             return compatibilityTaskCompletionSources.ToDictionary(t => t.Key, t => t.Value.Task);
+            
         }
 
         private async void ProcessCompatibility( IEnumerable<PackageVersionPair> packageVersions,

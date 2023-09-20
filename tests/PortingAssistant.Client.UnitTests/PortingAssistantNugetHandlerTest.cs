@@ -546,7 +546,7 @@ namespace PortingAssistant.Client.Tests
             Assert.Throws<AggregateException>(() =>
             {
                 var resultTasks = externalChecker.Check(packages);
-                Task.WaitAll(resultTasks.Values.ToArray());
+                Task.WaitAll(resultTasks.Result.Values.ToArray());
             });
         }
 
@@ -567,7 +567,7 @@ namespace PortingAssistant.Client.Tests
 
             Assert.Throws<AggregateException>(() =>
             {
-                Task.WaitAll(resultTasks.Values.ToArray());
+                Task.WaitAll(resultTasks.Result.Values.ToArray());
             });
 
         }

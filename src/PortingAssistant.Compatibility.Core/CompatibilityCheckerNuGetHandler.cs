@@ -67,7 +67,7 @@ namespace PortingAssistant.Compatibility.Core
             {
                 try
                 {
-                    var compatibilityResults = compatibilityChecker.Check( distinctPackageVersions);
+                    var compatibilityResults = await compatibilityChecker.Check( distinctPackageVersions);
                     
                     await Task.WhenAll(compatibilityResults.Select(result =>
                     {
