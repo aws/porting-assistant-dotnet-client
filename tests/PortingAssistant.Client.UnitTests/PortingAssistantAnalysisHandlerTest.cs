@@ -329,7 +329,7 @@ namespace PortingAssistant.Client.Tests
 
             var projectAnalysisResult = result.Result.Values.First();
             Task.WaitAll(projectAnalysisResult.PackageAnalysisResults.Values.ToArray());
-            var packageAnalysisResult = projectAnalysisResult.PackageAnalysisResults.FirstOrDefault(p => p.Key.PackageId == "Newtonsoft.Json")?.Value?.Result;
+            var packageAnalysisResult = projectAnalysisResult.PackageAnalysisResults.FirstOrDefault(p => p.Key.PackageId == "Newtonsoft.Json").Value?.Result;
 
             Assert.AreEqual(package, packageAnalysisResult.PackageVersionPair);
             Assert.AreEqual(Model.Compatibility.COMPATIBLE, packageAnalysisResult.CompatibilityResults.GetValueOrDefault(DEFAULT_TARGET).Compatibility);
