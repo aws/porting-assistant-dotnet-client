@@ -36,25 +36,6 @@ namespace PortingAssistant.Compatibility.Core
             Dictionary<PackageVersionPair, Dictionary<string, AnalysisResult>> apiAnalysisCompatCheckerResults =
                 new Dictionary<PackageVersionPair, Dictionary<string, AnalysisResult>>();
 
-
-            
-            //check if need to assign PackageSourceType
-            if (fullSdks != null && fullSdks.Any())
-            {
-                _logger.LogInformation("Get sdk namespaces from the fullSdks input");
-            }
-            else
-            {
-                fullSdks = await _httpService.ListNamespacesObjectAsync();
-                _logger.LogInformation("Retrieve sdk namespaces separately from s3 object");
-            }
-
-            if (fullSdks == null || !fullSdks.Any())
-            {
-                throw new Exception("Fail to get full SDK list. ");
-            }
-
-
             var allPackages = packageWithApis.Keys.ToHashSet();
 
             if (!allPackages.Any())
