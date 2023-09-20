@@ -384,7 +384,7 @@ namespace PortingAssistant.Compatibility.Core.Tests.UnitTests
             Assert.Throws<AggregateException>(() =>
             {
                 var resultTasks = externalChecker.Check( packages);
-                Task.WaitAll(resultTasks.Result.Values.ToArray());
+                Task.WaitAll(resultTasks.Values.ToArray());
             });
         }
 
@@ -405,7 +405,7 @@ namespace PortingAssistant.Compatibility.Core.Tests.UnitTests
 
             Assert.Throws<AggregateException>(() =>
             {
-                Task.WaitAll(resultTasks.Result.Values.ToArray());
+                Task.WaitAll(resultTasks.Values.ToArray());
             });
 
         }
