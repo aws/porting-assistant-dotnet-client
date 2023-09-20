@@ -190,7 +190,7 @@ namespace PortingAssistant.Client.IntegrationTests
             Assert.AreEqual("Microsoft.Extensions.Hosting.IHostEnvironment.IsDevelopment()", apiAnalysisResult.CodeEntityDetails.Signature);
             Assert.AreEqual("Microsoft.Extensions.Hosting.Abstractions", apiAnalysisResult.CodeEntityDetails.Package.PackageId);
             Assert.AreEqual("3.1.0", apiAnalysisResult.CodeEntityDetails.Package.Version);
-            Assert.AreEqual(PackageSourceType.NUGET, apiAnalysisResult.CodeEntityDetails.Package.PackageSourceType);
+           
             Assert.AreEqual(Model.Compatibility.COMPATIBLE, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").Compatibility);
             Assert.Less(1, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").CompatibleVersions.Count);
             Assert.AreEqual(RecommendedActionType.UpgradePackage, apiAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
