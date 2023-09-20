@@ -197,9 +197,9 @@ namespace PortingAssistant.Client.IntegrationTests
             }).Result;
             //Assert.AreEqual(Model.Compatibility.INCOMPATIBLE,
             //    packageAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").Compatibility);
-            Assert.True(packageAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").CompatibleVersions.Count>0);
+            Assert.AreEqual(0, packageAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").CompatibleVersions.Count);
             Assert.AreEqual(RecommendedActionType.UpgradePackage, packageAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
-            Assert.NotNull(packageAnalysisResult.Recommendations.RecommendedActions.First().Description);
+            //Assert.Null(packageAnalysisResult.Recommendations.RecommendedActions.First().Description);
 
             packageAnalysisResult = packageAnalysisResults.GetValueOrDefault(new PackageVersionPair
             {

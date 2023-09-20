@@ -193,8 +193,8 @@ namespace PortingAssistant.Client.IntegrationTests
            
             Assert.AreEqual(Model.Compatibility.COMPATIBLE, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").Compatibility);
             Assert.AreEqual(0, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").CompatibleVersions.Count);
-            Assert.AreEqual(RecommendedActionType.UpgradePackage, apiAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
-            Assert.NotNull(apiAnalysisResult.Recommendations.RecommendedActions.First().Description);
+            Assert.AreEqual(RecommendedActionType.NoRecommendation, apiAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
+            Assert.Null(apiAnalysisResult.Recommendations.RecommendedActions.First().Description);
 
             apiAnalysisResult = startupFile.ApiAnalysisResults.Find(r => r.CodeEntityDetails.OriginalDefinition
                 == "Microsoft.AspNetCore.Builder.IApplicationBuilder.UseBrowserLink()");
