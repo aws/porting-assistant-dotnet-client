@@ -31,74 +31,31 @@ namespace PortingAssistant.Compatibility.Core
             var solutionGuid = request.SolutionGUID;
             var packageWithApis = request.PackageWithApis;
 
-            HashSet<PackageVersionPair> nugetPackages = new HashSet<PackageVersionPair>();
-            HashSet<PackageVersionPair> sdkPackages = new HashSet<PackageVersionPair>();
-
             Dictionary<PackageVersionPair, PackageAnalysisResult> packageAnalysisCompatCheckerResults =
                 new Dictionary<PackageVersionPair, PackageAnalysisResult>();
             Dictionary<PackageVersionPair, Dictionary<string, AnalysisResult>> apiAnalysisCompatCheckerResults =
                 new Dictionary<PackageVersionPair, Dictionary<string, AnalysisResult>>();
 
 
+            
             //check if need to assign PackageSourceType
-            if (packageWithApis.Any(c => c.Key.PackageSourceType == null))
+            if (fullSdks != null && fullSdks.Any())
             {
-                if (fullSdks != null && fullSdks.Any())
-                {
-                    _logger.LogInformation("Get sdk namespaces from the fullSdks input");
-                }
-                else
-                {
-                    fullSdks = await _httpService.ListNamespacesObjectAsync();
-                    _logger.LogInformation("Retrieve sdk namespaces separately from s3 object");
-                }
-                if (fullSdks == null || !fullSdks.Any())
-                {
-                    throw new Exception("Fail to get full SDK list. ");
-                }
+                _logger.LogInformation("Get sdk namespaces from the fullSdks input");
             }
-            // assign packageType to each request object if the type is missing
-            foreach (var packageWithApi in packageWithApis)
+            else
             {
-                if (packageWithApi.Key.PackageSourceType == null)
-                {
-                    if (fullSdks.Contains(packageWithApi.Key.PackageId.ToLower()))
-                    {
-                        packageWithApi.Key.PackageSourceType = PackageSourceType.SDK;
-                    }
-                    else
-                    {
-                        packageWithApi.Key.PackageSourceType = PackageSourceType.NUGET;
-                    }
-                }
+                fullSdks = await _httpService.ListNamespacesObjectAsync();
+                _logger.LogInformation("Retrieve sdk namespaces separately from s3 object");
+            }
+
+            if (fullSdks == null || !fullSdks.Any())
+            {
+                throw new Exception("Fail to get full SDK list. ");
             }
 
 
-            foreach (var packageWithApi in packageWithApis)
-            {
-                if (packageWithApi.Key.PackageSourceType == PackageSourceType.NUGET)
-                {
-                    nugetPackages.Add(packageWithApi.Key);
-                }
-                // SDK package version pair is like "namespace-0.0.0-SDK".
-                if (packageWithApi.Key.PackageSourceType == PackageSourceType.SDK)
-                {
-                    foreach (var apiEntity in packageWithApi.Value)
-                    {
-                        sdkPackages.Add(new PackageVersionPair()
-                        {
-                            PackageId = apiEntity.Namespace,
-                            Version = "0.0.0",
-                            PackageSourceType = PackageSourceType.SDK
-                        });
-                    }
-                }
-            }
-            // All SDK and NuGet packages.
-            var allPackages = nugetPackages
-                .Union(sdkPackages)
-                .ToList();
-
+            var allPackages = packageWithApis.Keys.ToHashSet();
 
             if (!allPackages.Any())
             {
@@ -108,7 +65,10 @@ namespace PortingAssistant.Compatibility.Core
             // Get SDK and NuGet package details from the datastore. 
             Dictionary<PackageVersionPair, Task<PackageDetails>> packageDetailsDict =
                 new Dictionary<PackageVersionPair, Task<PackageDetails>>();
-            packageDetailsDict = _nuGetHandler.GetNugetPackages(allPackages);
+            packageDetailsDict = _nuGetHandler.GetNugetPackages(allPackages.ToList());
+
+            var sdkPackageDetailsDict = packageDetailsDict.Where(s => s.Key.PackageSourceType == PackageSourceType.SDK)
+                            .ToDictionary(dict => dict.Key, dict => dict.Value);
 
             // Compatibility and recommendation results for each packageWithApi.
             foreach (var packageWithApi in packageWithApis)
@@ -134,14 +94,12 @@ namespace PortingAssistant.Compatibility.Core
                         nugetPackage, targetFramework, request.AssessmentType);
                     packageAnalysisCompatCheckerResults[packageWithApi.Key] =
                         packageAnalysisResult;
-                    
                 }
 
                 // API level.
                 // Get API level compatibility result.
                 Dictionary<string, AnalysisResult> apiMethodAnalysisResultDict = new Dictionary<string, AnalysisResult>();
-                var sdkPackageDetailsDict = packageDetailsDict.Where(s => s.Key.PackageSourceType == PackageSourceType.SDK)
-                            .ToDictionary(dict => dict.Key, dict => dict.Value);
+                
                 var apiCompatibilityResultDict =
                     ApiCompatiblity.IsCompatibleV2(packageWithApi, packageAnalysisCompatCheckerResults, sdkPackageDetailsDict, targetFramework, _httpService, language);
 

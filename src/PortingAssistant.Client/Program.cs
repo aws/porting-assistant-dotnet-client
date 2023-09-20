@@ -39,7 +39,7 @@ namespace PortingAssistant.Client.CLI
                 .WriteTo.Console();
 
             var assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var telemetryConfiguration = JsonSerializer.Deserialize<TelemetryConfiguration>(File.ReadAllText(Path.Combine(assemblyPath, "PortingAssistantTelemetryConfig.json")));
+            TelemetryConfiguration telemetryConfiguration = new TelemetryConfiguration();
             if (!string.IsNullOrEmpty(cli.EgressPoint))
             {
                 telemetryConfiguration.InvokeUrl = cli.EgressPoint;
@@ -56,12 +56,17 @@ namespace PortingAssistant.Client.CLI
                 Log.Logger.Information($"Service name is {telemetryConfiguration.ServiceName}");
                 Log.Logger.Information($"Change endpoint to {telemetryConfiguration.InvokeUrl}");
             }
+            else {
+                telemetryConfiguration = JsonSerializer.Deserialize<TelemetryConfiguration>(
+                    File.ReadAllText(Path.Combine(assemblyPath, "PortingAssistantTelemetryConfig.json")));
+
+            }
 
             var configuration = new PortingAssistantConfiguration();
             var roamingFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             var logs = Path.Combine(roamingFolder, "Porting Assistant for .NET", "logs");
             configuration.CompatibilityCheckerCacheFilePath = Path.Combine(roamingFolder,
-                "Porting Assistant for .NET", "compatibility-checker-cache-{assessmentType}.json");
+                "Porting Assistant for .NET", $"compatibility-checker-cache-{cli.AssessmentType}.json");
             var logFilePath = Path.Combine(logs, "portingAssistant-client-cli-.log");
             var metricsFilePath = Path.Combine(logs, "portingAssistant-client-cli-.metrics");
 

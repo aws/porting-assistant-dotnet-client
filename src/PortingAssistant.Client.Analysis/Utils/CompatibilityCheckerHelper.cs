@@ -3,6 +3,7 @@ using Codelyzer.Analysis.Model;
 using PortingAssistant.Client.Analysis.Mappers;
 using PortingAssistant.Client.Model;
 using PortingAssistant.Compatibility.Common.Model;
+using PortingAssistant.Compatibility.Common.Utils;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -63,17 +64,29 @@ namespace PortingAssistant.Client.Analysis.Utils
                         }
 
                         ApiAnalysisResult apiAnalysisResult = RetrieveApiAnalysisResultFromCompatibilityCheckResponse(compatibilityCheckerResponse, targetFramework, codeEntity, package);
-
-                        if (apiAnalysisResult == null)
+                        if (apiAnalysisResult == null )
                         {
+                            
                             var sdkPackage = new Compatibility.Common.Model.PackageVersionPair
                             {
-                                PackageId = codeEntity.Namespace, Version = "0.0.0",
+                                PackageId = package.PackageId, Version = package.Version,
                                 PackageSourceType = Compatibility.Common.Model.PackageSourceType.SDK
                             };
 
                             apiAnalysisResult = RetrieveApiAnalysisResultFromCompatibilityCheckResponse(compatibilityCheckerResponse, targetFramework, codeEntity, sdkPackage);
+                        }
 
+                        if (apiAnalysisResult == null )
+                        {
+                            var sdkPackage = new Compatibility.Common.Model.PackageVersionPair
+                            {
+                                PackageId = codeEntity.Namespace,
+                                Version = "0.0.0",
+                                PackageSourceType = Compatibility.Common.Model.PackageSourceType.SDK
+                            };
+
+                            apiAnalysisResult = RetrieveApiAnalysisResultFromCompatibilityCheckResponse(compatibilityCheckerResponse, targetFramework, codeEntity, sdkPackage);
+                            
                         }
 
                         if (apiAnalysisResult == null)
@@ -140,20 +153,11 @@ namespace PortingAssistant.Client.Analysis.Utils
                 {
                     var compatibilityResultFromResponse = compatibilityCheckerResponse.ApiAnalysisResults[package][codeEntity.OriginalDefinition].CompatibilityResults;
                     var recommandationFromResponse = compatibilityCheckerResponse.ApiAnalysisResults[package][codeEntity.OriginalDefinition].Recommendations;
-                    if (recommandationFromResponse == null &&
-                        compatibilityCheckerResponse.ApiRecommendationResults != null &&
-                        compatibilityCheckerResponse.ApiRecommendationResults.ContainsKey(package) &&
-                        compatibilityCheckerResponse.ApiRecommendationResults[package].ContainsKey(codeEntity.OriginalDefinition)
-                        )
-                    {
-                        recommandationFromResponse = compatibilityCheckerResponse.ApiRecommendationResults[package][codeEntity.OriginalDefinition].Recommendations;
-                    }
+                   
 
                     apiAnalysisResult = new ApiAnalysisResult
                     {
                         CodeEntityDetails = codeEntity,
-
-
                         CompatibilityResults = new Dictionary<string, CompatibilityResult>
                         {
                             { targetFramework,

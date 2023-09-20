@@ -25,7 +25,9 @@ namespace PortingAssistant.Compatibility.Common.Interface
         /// </summary>
         /// <param name="packageVersions">A collection of packages and their versions</param>
         /// <returns></returns>
-        public Task<Dictionary<PackageVersionPair, Task<PackageDetails>>> Check(
+        //public Task<Dictionary<PackageVersionPair, Task<PackageDetails>>> Check(
+        //    IEnumerable<PackageVersionPair> packageVersions);
+        public Dictionary<PackageVersionPair, Task<PackageDetails>> Check(
             IEnumerable<PackageVersionPair> packageVersions);
     }
 }

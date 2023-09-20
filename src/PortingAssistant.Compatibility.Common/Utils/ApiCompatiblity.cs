@@ -137,7 +137,7 @@ namespace PortingAssistant.Compatibility.Common.Utils
                     }
 
                     break;
-
+                case Model.Compatibility.GENERAL_PARSE_ERROR:
                 case Model.Compatibility.UNKNOWN:
                     if (compatibilityResultWithSdk.Compatibility == Model.Compatibility.COMPATIBLE ||
                         compatibilityResultWithSdk.Compatibility == Model.Compatibility.INCOMPATIBLE ||
@@ -281,10 +281,10 @@ namespace PortingAssistant.Compatibility.Common.Utils
                         index = vbApiIndexDict.GetValueOrDefault(api.OriginalDefinition, -1);
                         selectedAPI = index >= 0 && index < apidetails.Length ? apidetails[index] : null;
                     }
-
+                    
                     var compatibleResult = new CompatibilityResult
                     {
-                        Compatibility = (selectedAPI!= null && selectedAPI.IsCompatible) ? Model.Compatibility.COMPATIBLE : Model.Compatibility.INCOMPATIBLE,
+                        Compatibility = (selectedAPI!= null && !selectedAPI.IsCompatible) ? Model.Compatibility.INCOMPATIBLE : Model.Compatibility.COMPATIBLE,
                         CompatibleVersions = packageCompatibilityResult.CompatibleVersions
                     };
                     result.Add(api, compatibleResult);

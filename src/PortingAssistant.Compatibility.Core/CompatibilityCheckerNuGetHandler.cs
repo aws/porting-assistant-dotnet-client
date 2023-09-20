@@ -1,4 +1,8 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using PortingAssistant.Compatibility.Common.Interface;
 using PortingAssistant.Compatibility.Common.Model;
@@ -63,7 +67,8 @@ namespace PortingAssistant.Compatibility.Core
             {
                 try
                 {
-                    var compatibilityResults = await compatibilityChecker.Check( distinctPackageVersions);
+                    var compatibilityResults = compatibilityChecker.Check( distinctPackageVersions);
+                    
                     await Task.WhenAll(compatibilityResults.Select(result =>
                     {
                         return result.Value.ContinueWith(task =>

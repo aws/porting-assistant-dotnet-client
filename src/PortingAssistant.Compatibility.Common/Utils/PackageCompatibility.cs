@@ -115,8 +115,8 @@ namespace PortingAssistant.Compatibility.Common.Utils
                 var compatibleVersionsToRecommend =
                     version.FindGreaterCompatibleVersions(compatibleVersionsForTargetFramework).ToList();
                 compatibleVersionsToRecommend.Sort((a, b) => NuGetVersion.Parse(a).CompareTo(NuGetVersion.Parse(b)));
-
                 Model.Compatibility compatibility;
+                
                 var maxCompatibleVersion = NugetVersionHelper.GetMaxVersion(compatibleVersionsForTargetFramework);
                 if (maxCompatibleVersion != null
                     && !maxCompatibleVersion.IsZeroVersion()

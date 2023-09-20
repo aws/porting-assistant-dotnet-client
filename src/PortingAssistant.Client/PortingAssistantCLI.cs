@@ -52,7 +52,7 @@ namespace PortingAssistant.Client.CLI
         [Option('e', "egress-point", Required = false, Default = "", HelpText = "Set different egress point for logs and metrics upload.")]
         public string EgressPoint { get; set; }
 
-        [Option('a', "assessment-type", Required = false, Default= "CompatibilityOnly", HelpText = "Assessment Type : CompatibilityOnly, FullAssessment, RecommendationOnly")]
+        [Option('a', "assessment-type", Required = false, Default= "FullAssessment", HelpText = "Assessment Type : CompatibilityOnly, FullAssessment, RecommendationOnly")]
         public string AssessmentType { get; set; }
 
         [Usage(ApplicationAlias = "Porting Assistant Client")]
