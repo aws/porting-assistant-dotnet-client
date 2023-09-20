@@ -51,7 +51,7 @@ namespace PortingAssistant.Compatibility.Core.Checkers
             {
                 if (_manifest == null)
                 {
-                    _manifest = GetManifestAsync().Result;
+                    _manifest = await GetManifestAsync();
                 }
                 var foundPackages = new Dictionary<string, List<PackageVersionPair>>();
                 packageVersions.ToList().ForEach(p =>

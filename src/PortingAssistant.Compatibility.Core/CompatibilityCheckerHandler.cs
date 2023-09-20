@@ -24,7 +24,7 @@ namespace PortingAssistant.Compatibility.Core
             _logger = logger;
         }
 
-        public async Task<CompatibilityCheckerResponse> Check(CompatibilityCheckerRequest request, HashSet<string> fullSdks) //ILambdaLogger logger 
+        public CompatibilityCheckerResponse Check(CompatibilityCheckerRequest request, HashSet<string> fullSdks) //ILambdaLogger logger 
         {
             var language = request.Language;
             var targetFramework = request.TargetFramework ?? Constants.DefaultAssessmentTargetFramework;
@@ -67,9 +67,9 @@ namespace PortingAssistant.Compatibility.Core
                 {
                     var nugetPackage = packageWithApi.Key;
                     // Get NuGet package level compatibility result. 
-                    var nugetPackageCompatibilityResult = await PackageCompatibility.IsCompatibleAsync(
+                    var nugetPackageCompatibilityResult = PackageCompatibility.IsCompatibleAsync(
                         packageDetailsDict.GetValueOrDefault(nugetPackage, null),
-                        nugetPackage, _logger, targetFramework);
+                        nugetPackage, _logger, targetFramework).Result;
 
                     var packageAnalysisResult = PackageCompatibility.GetPackageAnalysisResult(nugetPackageCompatibilityResult,
                         nugetPackage, targetFramework, request.AssessmentType);
@@ -195,9 +195,9 @@ namespace PortingAssistant.Compatibility.Core
         }
 
 
-        public async Task<CompatibilityCheckerResponse> Check(CompatibilityCheckerRequest request)
+        public CompatibilityCheckerResponse Check(CompatibilityCheckerRequest request)
         {
-            return await Check(request, null);
+            return Check(request, null);
         }
 
         public static CompatibilityResult GetCompatibilityResult(CompatibilityResult compatibilityResultWithPackage,

@@ -12,8 +12,8 @@ namespace PortingAssistant.Compatibility.Common.Interface
         /// </summary>
         /// <param name="packageVersions">A collection of packages and their versions</param>
         /// <returns></returns>
-        public Task<CompatibilityCheckerResponse> Check(CompatibilityCheckerRequest request, HashSet<string> fullSdks);
+        public CompatibilityCheckerResponse Check(CompatibilityCheckerRequest request, HashSet<string> fullSdks);
 
-        public Task<CompatibilityCheckerResponse> Check(CompatibilityCheckerRequest request);
+        public CompatibilityCheckerResponse Check(CompatibilityCheckerRequest request);
     }
 }

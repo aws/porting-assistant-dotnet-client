@@ -361,7 +361,7 @@ namespace PortingAssistant.Client.Analysis
                     var analysisActions = AnalyzeActions(new List<string> { projectPath }, targetFramework, new List<AnalyzerResult> { result }, solutionFilename);
 
                     var analysisResult = AnalyzeProject(solutionFilename, projectPath,
-                         new List<AnalyzerResult> { result }, analysisActions, targetFramework).Result;
+                         new List<AnalyzerResult> { result }, analysisActions, targetFramework);
                     result.Dispose();
                     yield return analysisResult;
                 }
@@ -451,7 +451,7 @@ namespace PortingAssistant.Client.Analysis
                                 analysisActions,
                                 targetFramework,
                                 assessmentType: assessmentType
-                                ).Result))
+                                )))
                         .Where(p => p.Value != null)
                         .ToDictionary(p => p.Key, p => p.Value);
 
@@ -461,7 +461,7 @@ namespace PortingAssistant.Client.Analysis
             return results;
         }
 
-        private async Task<ProjectAnalysisResult> AnalyzeProject(
+        private ProjectAnalysisResult AnalyzeProject(
             string solutionFileName,
             string project,
             List<AnalyzerResult> analyzers,
@@ -496,7 +496,7 @@ namespace PortingAssistant.Client.Analysis
                                     analyzer, targetFramework,
                                     out sourceFileToCodeEntityDetails,
                                     assessmentType);
-                var compatibilityCheckerResponse = await ProcessCompatibilityCheckerRequestByApplyingCache(project, rawCompatibilityCheckerRequest);
+                var compatibilityCheckerResponse = ProcessCompatibilityCheckerRequestByApplyingCache(project, rawCompatibilityCheckerRequest);
                 
                 var portingActionResults = ProjectActionsToRecommendedActions.Convert(projectActions);
 
@@ -556,7 +556,7 @@ namespace PortingAssistant.Client.Analysis
             }
         }
 
-        private async Task<CompatibilityCheckerResponse> ProcessCompatibilityCheckerRequestByApplyingCache(
+        private CompatibilityCheckerResponse ProcessCompatibilityCheckerRequestByApplyingCache(
             string project, CompatibilityCheckerRequest rawCompatibilityCheckerRequest)
         {
 
@@ -585,7 +585,7 @@ namespace PortingAssistant.Client.Analysis
                 CompatibilityCheckerResponse newResponse = null;
                 if (compatibilityCheckerRequest.PackageWithApis.Count > 0)
                 {
-                    newResponse = await _compatibilityCheckerHandler.Check(compatibilityCheckerRequest, null);
+                    newResponse = _compatibilityCheckerHandler.Check(compatibilityCheckerRequest, null);
                     _cacheService.UpdateCacheInLocal(newResponse, compatibilityCheckerRequest.TargetFramework);
                 }
                 //merge the newResponse and cache result to final output
@@ -599,7 +599,7 @@ namespace PortingAssistant.Client.Analysis
             {
                 sw.Start();
                 _logger.LogInformation("no cache available. use rawCompatibilityCheckerRequest");
-                CompatibilityCheckerResponse result = await _compatibilityCheckerHandler.Check(rawCompatibilityCheckerRequest, null);
+                CompatibilityCheckerResponse result = _compatibilityCheckerHandler.Check(rawCompatibilityCheckerRequest, null);
                 sw.Stop();
                 _logger.LogInformation($"_compatibilityCheckerHandler.Check process time : {sw.ElapsedMilliseconds/1000} seconds for project {project} without cache");
                 _cacheService.UpdateCacheInLocal(result, rawCompatibilityCheckerRequest.TargetFramework);
@@ -763,5 +763,6 @@ namespace PortingAssistant.Client.Analysis
 
             return solutionAnalysisResult;
         }
+
     }
 }
