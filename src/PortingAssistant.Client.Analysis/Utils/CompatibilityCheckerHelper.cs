@@ -153,7 +153,14 @@ namespace PortingAssistant.Client.Analysis.Utils
                 {
                     var compatibilityResultFromResponse = compatibilityCheckerResponse.ApiAnalysisResults[package][codeEntity.OriginalDefinition].CompatibilityResults;
                     var recommandationFromResponse = compatibilityCheckerResponse.ApiAnalysisResults[package][codeEntity.OriginalDefinition].Recommendations;
-                   
+                    if (recommandationFromResponse == null &&
+                        compatibilityCheckerResponse.ApiRecommendationResults != null &&
+                        compatibilityCheckerResponse.ApiRecommendationResults.ContainsKey(package) &&
+                        compatibilityCheckerResponse.ApiRecommendationResults[package].ContainsKey(codeEntity.OriginalDefinition)
+                        )
+                    {
+                        recommandationFromResponse = compatibilityCheckerResponse.ApiRecommendationResults[package][codeEntity.OriginalDefinition].Recommendations;
+                    }
 
                     apiAnalysisResult = new ApiAnalysisResult
                     {

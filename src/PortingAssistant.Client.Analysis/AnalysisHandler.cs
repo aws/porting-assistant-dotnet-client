@@ -567,6 +567,7 @@ namespace PortingAssistant.Client.Analysis
             Dictionary<Compatibility.Common.Model.PackageVersionPair, Dictionary<string, AnalysisResult>> apiAnalysisResultsDic =
                 new Dictionary<Compatibility.Common.Model.PackageVersionPair, Dictionary<string, AnalysisResult>>();
 
+            CompatibilityCheckerResponse compatibilityCheckerResponse;
             Stopwatch sw = new Stopwatch();
             if (_cacheService.IsCacheAvailable())
             {
@@ -590,21 +591,44 @@ namespace PortingAssistant.Client.Analysis
                 }
                 //merge the newResponse and cache result to final output
 
-                var combinedResult = PrepareCompatibilityCheckerOutput(packageAnalysisResultsDic, apiAnalysisResultsDic, newResponse);
+                compatibilityCheckerResponse = PrepareCompatibilityCheckerOutput(packageAnalysisResultsDic, apiAnalysisResultsDic, newResponse);
                 _logger.LogInformation($"_compatibilityCheckerHandler.Check process time : {sw.ElapsedMilliseconds / 1000} seconds for project {project} with cache");
-
-                return combinedResult;
+                
             }
             else
             {
                 sw.Start();
                 _logger.LogInformation("no cache available. use rawCompatibilityCheckerRequest");
-                CompatibilityCheckerResponse result = _compatibilityCheckerHandler.Check(rawCompatibilityCheckerRequest, null);
+                compatibilityCheckerResponse = _compatibilityCheckerHandler.Check(rawCompatibilityCheckerRequest, null);
                 sw.Stop();
                 _logger.LogInformation($"_compatibilityCheckerHandler.Check process time : {sw.ElapsedMilliseconds/1000} seconds for project {project} without cache");
-                _cacheService.UpdateCacheInLocal(result, rawCompatibilityCheckerRequest.TargetFramework);
-                return result;
+                _cacheService.UpdateCacheInLocal(compatibilityCheckerResponse, rawCompatibilityCheckerRequest.TargetFramework);
+                
             }
+            return MergeRecommendationResultToPackageAnalysisResultIfNeeded(rawCompatibilityCheckerRequest.AssessmentType, compatibilityCheckerResponse);
+
+
+        }
+
+        private CompatibilityCheckerResponse MergeRecommendationResultToPackageAnalysisResultIfNeeded(AssessmentType assessmentType, CompatibilityCheckerResponse compatibilityCheckerResponse)
+        {
+            if (assessmentType == AssessmentType.FullAssessment &&
+                compatibilityCheckerResponse != null &&
+                compatibilityCheckerResponse.PackageRecommendationResults != null)
+            {
+                foreach (var packageRecommend in compatibilityCheckerResponse.PackageRecommendationResults)
+                {
+                    if (packageRecommend.Value?.Recommendations != null &&
+                        compatibilityCheckerResponse.PackageAnalysisResults.ContainsKey(packageRecommend.Key) &&
+                        compatibilityCheckerResponse.PackageAnalysisResults[packageRecommend.Key].Recommendations == null
+                        )
+                    {
+                        compatibilityCheckerResponse.PackageAnalysisResults[packageRecommend.Key].Recommendations
+                            = packageRecommend.Value.Recommendations;
+                    }
+                }
+            }
+            return compatibilityCheckerResponse;
         }
 
         public CompatibilityCheckerResponse PrepareCompatibilityCheckerOutput(

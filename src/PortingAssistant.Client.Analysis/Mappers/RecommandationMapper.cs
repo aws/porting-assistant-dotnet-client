@@ -56,6 +56,7 @@ namespace PortingAssistant.Client.Analysis.Mappers
 
         public static List<string> GetCompatibleVersionsWithoutPreReleases(List<string> compatibleVersions)
         {
+            if (compatibleVersions == null) return compatibleVersions;
             return compatibleVersions.Where(v => !v.Contains("-")).ToList();
         }
     }
