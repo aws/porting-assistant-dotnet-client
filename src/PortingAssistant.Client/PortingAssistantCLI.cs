@@ -5,6 +5,7 @@ using System.Linq;
 using CommandLine;
 using CommandLine.Text;
 using PortingAssistant.Client.Common.Utils;
+using PortingAssistant.Compatibility.Common.Model;
 using PortingAssistantExtensionTelemetry;
 using Serilog.Events;
 
@@ -51,6 +52,9 @@ namespace PortingAssistant.Client.CLI
         [Option('e', "egress-point", Required = false, Default = "", HelpText = "Set different egress point for logs and metrics upload.")]
         public string EgressPoint { get; set; }
 
+        [Option('a', "assessment-type", Required = false, Default= "FullAssessment", HelpText = "Assessment Type : CompatibilityOnly, FullAssessment, RecommendationOnly")]
+        public string AssessmentType { get; set; }
+
         [Usage(ApplicationAlias = "Porting Assistant Client")]
         public static IEnumerable<Example> Examples
         {
@@ -89,6 +93,8 @@ namespace PortingAssistant.Client.CLI
         public bool isAssess = false;
         public bool isSchema = false;
         public bool schemaVersion = false;
+
+        public string AssessmentType = "CompatibilityOnly";
         
         public void HandleCommand(String[] args)
         {
@@ -138,6 +144,11 @@ namespace PortingAssistant.Client.CLI
                     if (o.PortingProjects != null)
                     {
                         PortingProjects = o.PortingProjects.ToList();
+                    }
+
+                    if (!string.IsNullOrEmpty(o.AssessmentType))
+                    {
+                        AssessmentType = o.AssessmentType;
                     }
 
                     TelemetryCollector.ToggleMetrics(o.DisabledMetrics);

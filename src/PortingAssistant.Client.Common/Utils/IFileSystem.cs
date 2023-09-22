@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace PortingAssistant.Client.NuGet.Interfaces
+namespace PortingAssistant.Client.Common.Utils
 {
     public interface IFileSystem
     {

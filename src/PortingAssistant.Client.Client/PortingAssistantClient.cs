@@ -12,9 +12,11 @@ using Codelyzer.Analysis.Model;
 using Codelyzer.Analysis;
 using System.Threading;
 using System.Runtime.CompilerServices;
+using PortingAssistant.Compatibility.Common.Model;
 
 namespace PortingAssistant.Client.Client
 {
+    
     public class PortingAssistantClient : IPortingAssistantClient
     {
         private readonly IPortingAssistantAnalysisHandler _analysisHandler;
@@ -30,7 +32,9 @@ namespace PortingAssistant.Client.Client
             _portingHandler = portingHandler;
         }
 
-        public async Task<SolutionAnalysisResult> AnalyzeSolutionAsync(string solutionFilePath, AnalyzerSettings settings)
+
+        public async Task<SolutionAnalysisResult> AnalyzeSolutionAsync(string solutionFilePath, AnalyzerSettings settings,
+            AssessmentType assessmentType = AssessmentType.FullAssessment)
         {
             try
             {
@@ -46,7 +50,7 @@ namespace PortingAssistant.Client.Client
                 if (settings.ContiniousEnabled)
                     projectAnalysisResultsDict = await _analysisHandler.AnalyzeSolutionIncremental(solutionFilePath, projects, targetFramework, settings);
                 else
-                    projectAnalysisResultsDict = await _analysisHandler.AnalyzeSolution(solutionFilePath, projects, targetFramework, settings);
+                    projectAnalysisResultsDict = await _analysisHandler.AnalyzeSolution(solutionFilePath, projects, targetFramework, settings, assessmentType);
 
                 var projectAnalysisResults = projects.Select(async p =>
                 {
@@ -82,46 +86,12 @@ namespace PortingAssistant.Client.Client
             }
         }
 
-        public async Task<List<SourceFileAnalysisResult>> AnalyzeFileAsync(
-            string filePath, 
-            string projectFile, 
-            string solutionFilePath,
-            List<string> preportReferences, 
-            List<string> currentReferences, 
-            RootNodes rules, 
-            ExternalReferences externalReferences, 
-            AnalyzerSettings settings)
-        {
-            var targetFramework = settings.TargetFramework ?? DEFAULT_TARGET;
-
-            return await _analysisHandler.AnalyzeFileIncremental(filePath, projectFile, solutionFilePath,
-                preportReferences, currentReferences, rules, externalReferences, settings.ActionsOnly, settings.CompatibleOnly, targetFramework);
-        }
-        public async Task<List<SourceFileAnalysisResult>> AnalyzeFileAsync(
-            string filePath, 
-            string fileContent, 
-            string projectFile, 
-            string solutionFilePath,
-            List<string> preportReferences, 
-            List<string> currentReferences, 
-            RootNodes rules, 
-            ExternalReferences externalReferences, 
-            AnalyzerSettings settings)
-        {
-            var targetFramework = settings.TargetFramework ?? DEFAULT_TARGET;
-
-            return await _analysisHandler.AnalyzeFileIncremental(filePath, fileContent, projectFile, solutionFilePath,
-                preportReferences, currentReferences, rules, externalReferences, settings.ActionsOnly, settings.CompatibleOnly, targetFramework);
-        }
-
-
-
         public List<PortingResult> ApplyPortingChanges(PortingRequest request)
         {
             try
             {
                 var upgradeVersions = request.RecommendedActions
-                    .Where(r => r.RecommendedActionType == RecommendedActionType.UpgradePackage)
+                    .Where(r => r.RecommendedActionType == Model.RecommendedActionType.UpgradePackage)
                     .Select(recommendation =>
                     {
                         var packageRecommendation = (PackageRecommendation)recommendation;

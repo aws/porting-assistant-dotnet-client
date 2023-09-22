@@ -10,8 +10,30 @@
 	<ItemGroup>
 		<Folder Include="Checkers\" />
 		<Folder Include="InternalNuget\" />
+		<Folder Include="Interfaces\" />
+		<Folder Include="Utils\" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\PortingAssistant.Client.Common\PortingAssistant.Client.Common.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Compile Remove="PortingAssistantNuGetHandler.cs" />
+	  <Compile Remove="PortingAssistantRecommendationHandler.cs" />
+	  <Compile Remove="Interfaces\IHttpService.cs" />
+	  <Compile Remove="Interfaces\IPortingAssistantNuGetHandler.cs" />
+	  <Compile Remove="Interfaces\IPortingAssistantRecommendationHandler.cs" />
+	  <Compile Remove="InternalNuget\IPortingAssistantInternalNuGetCompatibilityHandler.cs" />
+	  <Compile Remove="InternalNuget\PortingAssistantInternalNuGetCompatibilityHandler.cs" />
+	  <Compile Remove="Utils\HttpService.cs" />
+	  <Compile Remove="Checkers\ExternalPackagesCompatibilityChecker.cs" />
+	  <Compile Remove="Checkers\ExternalCompatibilityChecker.cs" />
+	  <Compile Remove="Checkers\SdkCompatibilityChecker.cs" />
+	  <Compile Remove="Checkers\InternalPackagesCompatibilityChecker.cs" />
+	  <Compile Remove="Checkers\PortabilityAnalyzerCompatibilityChecker.cs" />
+	  <Compile Remove="Interfaces\ICompatibilityChecker.cs" />
+	</ItemGroup>
+	<ItemGroup>
+	  <None Remove="Interfaces\" />
+	  <None Remove="Utils\" />
 	</ItemGroup>
 </Project>

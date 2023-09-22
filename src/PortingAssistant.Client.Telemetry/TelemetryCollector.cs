@@ -9,6 +9,7 @@ using Serilog.Templates;
 using ILogger = Serilog.ILogger;
 using System.Linq;
 using System.Net.NetworkInformation;
+using YamlDotNet.Core.Tokens;
 
 namespace PortingAssistantExtensionTelemetry
 {
@@ -222,13 +223,28 @@ namespace PortingAssistantExtensionTelemetry
             //nuget metrics
             result.ProjectAnalysisResults.ForEach(project =>
             {
+                
                 foreach (var nuget in project.PackageAnalysisResults)
                 {
+                    CompatibilityResult defaultCompatibilityResult = new CompatibilityResult()
+                    {
+                        Compatibility = Compatibility.UNKNOWN,
+                        CompatibleVersions = new System.Collections.Generic.List<string>()
+                    };
+
                     nuget.Value.Wait();
                     var packageID = nuget.Value.Result.PackageVersionPair.PackageId;
                     var packageVersion = nuget.Value.Result.PackageVersionPair.Version;
-                    var compatability = nuget.Value.Result.CompatibilityResults[targetFramework].Compatibility;
-                    var nugetMetrics = CreateNugetMetric(targetFramework, version, source, analysisTime, tag, date, packageID, packageVersion, compatability, project.ProjectGuid, solutionDetail.SolutionGuid);
+                    CompatibilityResult compatability;
+                    if (!nuget.Value.Result.CompatibilityResults.TryGetValue(targetFramework, out compatability))
+                    {
+                        compatability = defaultCompatibilityResult;
+                    }
+                    
+                    var nugetMetrics = CreateNugetMetric(targetFramework, version,
+                        source, analysisTime, tag, date, packageID, packageVersion,
+                        compatability.Compatibility, project.ProjectGuid,
+                        solutionDetail.SolutionGuid);
                     TelemetryCollector.Collect<NugetMetrics>(nugetMetrics);
                 }
 

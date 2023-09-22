@@ -13,7 +13,7 @@
     </PackageReference>
     <PackageReference Include="nunit" Version="3.13.2" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.2.1" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
     <PackageReference Include="Newtonsoft.Json.Schema" Version="3.0.14" />
   </ItemGroup>
 
@@ -21,6 +21,8 @@
     <ProjectReference Include="..\..\src\PortingAssistant.Client.Common\PortingAssistant.Client.Common.csproj" />
     <ProjectReference Include="..\..\src\PortingAssistant.Client.Client\PortingAssistant.Client.Client.csproj" />
     <ProjectReference Include="..\..\src\PortingAssistant.Client\PortingAssistant.Client.CLI.csproj" />
+    <ProjectReference Include="..\..\src\PortingAssistant.Compatibility.Core\PortingAssistant.Compatibility.Core.csproj" />
+    <ProjectReference Include="..\..\src\PortingAssistant.Compatibility.Common\PortingAssistant.Compatibility.Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>
