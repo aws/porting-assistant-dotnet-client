@@ -86,41 +86,6 @@ namespace PortingAssistant.Client.Client
             }
         }
 
-        /*
-        public async Task<List<SourceFileAnalysisResult>> AnalyzeFileAsync(
-            string filePath, 
-            string projectFile, 
-            string solutionFilePath,
-            List<string> preportReferences, 
-            List<string> currentReferences, 
-            RootNodes rules, 
-            ExternalReferences externalReferences, 
-            AnalyzerSettings settings)
-        {
-            var targetFramework = settings.TargetFramework ?? DEFAULT_TARGET;
-
-            return await _analysisHandler.AnalyzeFileIncremental(filePath, projectFile, solutionFilePath,
-                preportReferences, currentReferences, rules, externalReferences, settings.ActionsOnly, settings.CompatibleOnly, targetFramework);
-        }
-        public async Task<List<SourceFileAnalysisResult>> AnalyzeFileAsync(
-            string filePath, 
-            string fileContent, 
-            string projectFile, 
-            string solutionFilePath,
-            List<string> preportReferences, 
-            List<string> currentReferences, 
-            RootNodes rules, 
-            ExternalReferences externalReferences, 
-            AnalyzerSettings settings)
-        {
-            var targetFramework = settings.TargetFramework ?? DEFAULT_TARGET;
-
-            return await _analysisHandler.AnalyzeFileIncremental(filePath, fileContent, projectFile, solutionFilePath,
-                preportReferences, currentReferences, rules, externalReferences, settings.ActionsOnly, settings.CompatibleOnly, targetFramework);
-        }
-
-        */
-
         public List<PortingResult> ApplyPortingChanges(PortingRequest request)
         {
             try

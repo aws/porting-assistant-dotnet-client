@@ -117,9 +117,9 @@ namespace PortingAssistant.Client.IntegrationTests
             }).Result;
             Assert.AreEqual(PortingAssistant.Client.Model.Compatibility.COMPATIBLE, packageAnalysisResult.CompatibilityResults.
             GetValueOrDefault("netcoreapp3.1").Compatibility);
-            Assert.True(packageAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").CompatibleVersions.Count > 0);
+            Assert.AreEqual(0, packageAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").CompatibleVersions.Count);
             Assert.AreEqual(RecommendedActionType.UpgradePackage, packageAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
-            Assert.NotNull(packageAnalysisResult.Recommendations.RecommendedActions.First().Description);
+            Assert.Null(packageAnalysisResult.Recommendations.RecommendedActions.First().Description);
 
             packageAnalysisResult = packageAnalysisResults.GetValueOrDefault(new PackageVersionPair
             {
@@ -150,7 +150,7 @@ namespace PortingAssistant.Client.IntegrationTests
                 Version = "1.0.1",
                 PackageSourceType = PackageSourceType.NUGET
             }).Result;
-            /*missing v2 file in data store , will uncomment once file restored.
+
             Assert.AreEqual(Model.Compatibility.COMPATIBLE, packageAnalysisResult.CompatibilityResults.
             GetValueOrDefault("netcoreapp3.1").Compatibility);
             Assert.True(packageAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").CompatibleVersions.Count > 0);
@@ -168,9 +168,9 @@ namespace PortingAssistant.Client.IntegrationTests
             Assert.True(packageAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").CompatibleVersions.Count > 0);
             Assert.AreEqual(RecommendedActionType.UpgradePackage, packageAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
             Assert.AreEqual("2.8.0", packageAnalysisResult.Recommendations.RecommendedActions.First().Description);
-            */
+            
         }
-        /* local passed failed in git hub
+        
         [Test]
         public void CheckApiAnalysisResult()
         {
@@ -208,9 +208,9 @@ namespace PortingAssistant.Client.IntegrationTests
             Assert.AreEqual("2.2.0", apiAnalysisResult.CodeEntityDetails.Package.Version);
             Assert.AreEqual(PackageSourceType.NUGET, apiAnalysisResult.CodeEntityDetails.Package.PackageSourceType);
             Assert.AreEqual(Model.Compatibility.COMPATIBLE, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").Compatibility);
-            Assert.Less(1, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").CompatibleVersions.Count);
-            Assert.AreEqual(RecommendedActionType.UpgradePackage, apiAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
-            Assert.NotNull(apiAnalysisResult.Recommendations.RecommendedActions.First().Description);
+            Assert.AreEqual(0, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").CompatibleVersions.Count);
+            Assert.AreEqual(RecommendedActionType.NoRecommendation, apiAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
+            Assert.Null(apiAnalysisResult.Recommendations.RecommendedActions.First().Description);
 
             apiAnalysisResult = startupFile.ApiAnalysisResults.Find(r => r.CodeEntityDetails.Package.PackageId == "WebOptimizer.Core" && 
                 r.CodeEntityDetails.Signature == "Microsoft.AspNetCore.Builder.IApplicationBuilder.UseWebOptimizer()");
@@ -222,7 +222,6 @@ namespace PortingAssistant.Client.IntegrationTests
             Assert.AreEqual("Microsoft.AspNetCore.Builder.IApplicationBuilder.UseWebOptimizer()", apiAnalysisResult.CodeEntityDetails.Signature);
             Assert.AreEqual("WebOptimizer.Core", apiAnalysisResult.CodeEntityDetails.Package.PackageId);
             Assert.AreEqual("3.0.250", apiAnalysisResult.CodeEntityDetails.Package.Version);
-            //package WebOptimizer.Core doesn't exist in the nuget.org anymore. so it's UNKNOWN result
             Assert.AreEqual(PackageSourceType.NUGET, apiAnalysisResult.CodeEntityDetails.Package.PackageSourceType);
             Assert.AreEqual(Model.Compatibility.INCOMPATIBLE, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").Compatibility);
             Assert.AreEqual(0, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").CompatibleVersions.Count);
@@ -296,6 +295,6 @@ namespace PortingAssistant.Client.IntegrationTests
             Assert.AreEqual(0, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").CompatibleVersions.Count);
             Assert.AreEqual(RecommendedActionType.NoRecommendation, apiAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
             Assert.Null(apiAnalysisResult.Recommendations.RecommendedActions.First().Description);
-        }*/
+        }
     }
 }

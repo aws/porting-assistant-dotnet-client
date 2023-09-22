@@ -14,13 +14,6 @@ namespace PortingAssistant.Client.Analysis
         Task<Dictionary<string, ProjectAnalysisResult>> AnalyzeSolution(string solutionFilename, List<string> projects, string targetFramework = "net6.0", AnalyzerSettings settings = null,
             AssessmentType assessmentType = AssessmentType.FullAssessment);
 
-        /* 
-        Task<List<SourceFileAnalysisResult>> AnalyzeFileIncremental(string filePath, string projectFile, string solutionFileName, List<string> preportReferences
-            , List<string> currentReferences, RootNodes rules, ExternalReferences externalReferences, bool actionsOnly, bool compatibleOnly, string targetFramework = "net6.0");
-        Task<List<SourceFileAnalysisResult>> AnalyzeFileIncremental(string filePath, string fileContent, string projectFile, string solutionFileName, List<string> preportReferences
-        , List<string> currentReferences, RootNodes rules, ExternalReferences externalReferences, bool actionsOnly, bool compatibleOnly, string targetFramework = "net6.0");
-        */
-
         Task<Dictionary<string, ProjectAnalysisResult>> AnalyzeSolutionIncremental(string solutionFilename, List<string> projects,
             string targetFramework = "net6.0", AnalyzerSettings settings = null);
 
