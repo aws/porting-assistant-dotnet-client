@@ -7,7 +7,7 @@ namespace PortingAssistant.Compatibility.Common.Model
     {
         [JsonConverter(typeof(StringEnumConverter))]
         public Compatibility Compatibility { get; set; }
-        public List<string> CompatibleVersions { get; set; }
+        public List<string> CompatibleVersions { get; set; } = new();
 
         /// <summary>
         /// Returns list of compatible versions with and pre-release (alpha, beta, rc) versions filtered out

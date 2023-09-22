@@ -48,6 +48,7 @@ namespace PortingAssistant.Client.Analysis
                 var expirationHours = cacheExpirationHours;
                 if (!string.IsNullOrEmpty(CacheFilePath) && File.Exists(CacheFilePath))
                 {
+                    _logger.LogInformation($"Cache file found: [{CacheFilePath}]");
                     var fileInfo = new FileInfo(CacheFilePath);
                     //cache file was created more than 24 hours ago , need to delete it
                     if ((DateTime.Now - fileInfo.CreationTime).TotalHours > expirationHours)
@@ -69,7 +70,7 @@ namespace PortingAssistant.Client.Analysis
                 }
                 else
                 {
-                    _logger.LogInformation($"no cache file found in [{CacheFilePath}]");
+                    _logger.LogInformation($"No cache file found: [{CacheFilePath}]");
                 }
             }
             catch (Exception ex)
