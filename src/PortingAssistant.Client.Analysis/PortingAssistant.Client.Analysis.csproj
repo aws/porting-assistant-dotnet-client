@@ -7,6 +7,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PortingAssistant.Client.Common\PortingAssistant.Client.Common.csproj" />
-    <ProjectReference Include="..\PortingAssistant.Client.NuGet\PortingAssistant.Client.NuGet.csproj" />
+    <ProjectReference Include="..\PortingAssistant.Compatibility.Common\PortingAssistant.Compatibility.Common.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Utils\ApiCompatiblity.cs" />
+    <Compile Remove="Utils\NugetVersionExtensions.cs" />
+    <Compile Remove="Utils\NugetVersionHelper.cs" />
+    <Compile Remove="Utils\PackageCompatibility.cs" />
   </ItemGroup>
 </Project>

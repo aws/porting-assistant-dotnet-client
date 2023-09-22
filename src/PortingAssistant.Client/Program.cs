@@ -15,10 +15,9 @@ using PortingAssistant.Client.Telemetry;
 using System.Diagnostics;
 using System.Reflection;
 using PortingAssistant.Client.Common.Utils;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using Serilog.Core;
-
+using PortingAssistant.Compatibility.Common.Model;
 
 namespace PortingAssistant.Client.CLI
 
@@ -27,6 +26,8 @@ namespace PortingAssistant.Client.CLI
     {
         public static void Main(string[] args)
         {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
             PortingAssistantCLI cli = new PortingAssistantCLI();
             cli.HandleCommand(args);
 
@@ -38,7 +39,7 @@ namespace PortingAssistant.Client.CLI
                 .WriteTo.Console();
 
             var assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var telemetryConfiguration = JsonSerializer.Deserialize<TelemetryConfiguration>(File.ReadAllText(Path.Combine(assemblyPath, "PortingAssistantTelemetryConfig.json")));
+            TelemetryConfiguration telemetryConfiguration = new TelemetryConfiguration();
             if (!string.IsNullOrEmpty(cli.EgressPoint))
             {
                 telemetryConfiguration.InvokeUrl = cli.EgressPoint;
@@ -55,10 +56,17 @@ namespace PortingAssistant.Client.CLI
                 Log.Logger.Information($"Service name is {telemetryConfiguration.ServiceName}");
                 Log.Logger.Information($"Change endpoint to {telemetryConfiguration.InvokeUrl}");
             }
+            else {
+                telemetryConfiguration = JsonSerializer.Deserialize<TelemetryConfiguration>(
+                    File.ReadAllText(Path.Combine(assemblyPath, "PortingAssistantTelemetryConfig.json")));
+
+            }
 
             var configuration = new PortingAssistantConfiguration();
             var roamingFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             var logs = Path.Combine(roamingFolder, "Porting Assistant for .NET", "logs");
+            configuration.CompatibilityCheckerCacheFilePath = Path.Combine(roamingFolder,
+                "Porting Assistant for .NET", $"compatibility-checker-cache-{cli.AssessmentType}.json");
             var logFilePath = Path.Combine(logs, "portingAssistant-client-cli-.log");
             var metricsFilePath = Path.Combine(logs, "portingAssistant-client-cli-.metrics");
 
@@ -84,17 +92,30 @@ namespace PortingAssistant.Client.CLI
                 }
             }
 
+
+
             if (cli.isAssess)
             {
                 try
                 {
+                    if (!Enum.TryParse<AssessmentType>(cli.AssessmentType, out AssessmentType assessmentType))
+                    {
+                        throw new Exception("Invalid assessmentType. Supported type is CompatibilityOnly, FullAssessment, RecommendationOnly ");
+                    }
+                    
                     TelemetryCollector.Builder(Log.Logger, metricsFilePath);
+                    configuration.CompatibilityCheckerCacheFilePath =
+                        configuration.CompatibilityCheckerCacheFilePath.Replace("{assessmentType}", cli.AssessmentType.ToLower());
 
                     var portingAssistantBuilder = PortingAssistantBuilder.Build(configuration, logConfig =>
                         logConfig.SetMinimumLevel(LogLevel.Debug)
                         .AddSerilog(logger: Log.Logger, dispose: true));
 
-                    var portingAssistantClient = portingAssistantBuilder.GetPortingAssistant();
+                    IPortingAssistantClient portingAssistantClient;
+                    
+                    portingAssistantClient = portingAssistantBuilder.GetPortingAssistant();
+                    
+                    
                     var reportExporter = portingAssistantBuilder.GetReportExporter();
                     var solutionSettings = cli.IgnoreProjects != null && cli.IgnoreProjects.Count != 0
                         ? new AnalyzerSettings
@@ -121,7 +142,7 @@ namespace PortingAssistant.Client.CLI
                     }
                     else
                     {
-                        analyzeResults = portingAssistantClient.AnalyzeSolutionAsync(cli.SolutionPath, solutionSettings);
+                        analyzeResults = portingAssistantClient.AnalyzeSolutionAsync(cli.SolutionPath, solutionSettings, assessmentType);
                         analyzeResults.Wait();
                     }
 
@@ -148,7 +169,7 @@ namespace PortingAssistant.Client.CLI
                             .Where(package =>
                             {
                                 var comp = package.Result.CompatibilityResults.GetValueOrDefault(cli.Target);
-                                return comp.Compatibility != Compatibility.COMPATIBLE && comp.CompatibleVersions.Count != 0;
+                                return comp.Compatibility != Model.Compatibility.COMPATIBLE && comp.CompatibleVersions.Count != 0;
                             })
                             .SelectMany(package => package.Result.Recommendations.RecommendedActions));
                         var portingRequest = new PortingRequest
@@ -178,7 +199,12 @@ namespace PortingAssistant.Client.CLI
                     Environment.Exit(-1);
                 }
             }
+            sw.Stop();
+            Log.Logger.Information($"Total Execuction Time: " +
+                $"{cli.SolutionPath} is {sw.ElapsedMilliseconds/1000} seconds with AssessmentType {cli.AssessmentType}");
         }
+
+
 
         private static void UploadLogs(
             string profile, 

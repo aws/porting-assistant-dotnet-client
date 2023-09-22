@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
-using Codelyzer.Analysis;
 using Codelyzer.Analysis.Model;
 using NuGet.Versioning;
 using PortingAssistant.Client.Model;
@@ -13,86 +10,7 @@ namespace PortingAssistant.Client.Analysis.Utils
 {
     public static class CodeEntityModelToCodeEntities
     {
-        public static List<SourceFileAnalysisResult> AnalyzeResults(
-            Dictionary<string, List<CodeEntityDetails>> sourceFileToCodeEntities,
-            Dictionary<PackageVersionPair, Task<PackageDetails>> packageResults,
-            Dictionary<string, Task<RecommendationDetails>> recommendationResults,
-            Dictionary<string, List<RecommendedAction>> portingActionResults,
-            string targetFramework = "net6.0",
-            bool compatibleOnly = false
-        )
-        {
-            var packageDetailsWithIndicesResults = ApiCompatiblity.PreProcessPackageDetails(packageResults);
-            return sourceFileToCodeEntities.Select(sourceFile =>
-            {
-                return new SourceFileAnalysisResult
-                {
-                    SourceFileName = Path.GetFileName(sourceFile.Key),
-                    SourceFilePath = sourceFile.Key,
-                    RecommendedActions = portingActionResults?.GetValueOrDefault(sourceFile.Key, new List<RecommendedAction>()),
-                    ApiAnalysisResults = sourceFile.Value.Select(codeEntity =>
-                    {
-                        var package = codeEntity.Package;
-
-                        //A code entity with no reference data. This can be any error in the code
-                        if (package == null)
-                        {
-                            return new ApiAnalysisResult
-                            {
-                                CodeEntityDetails = codeEntity,
-                                CompatibilityResults = new Dictionary<string, CompatibilityResult>
-                                {
-                                    {
-                                        targetFramework, new CompatibilityResult() { Compatibility = Compatibility.UNKNOWN }
-                                    }
-                                },
-                                Recommendations = new Model.Recommendations
-                                {
-                                    RecommendedActions = new List<RecommendedAction>()
-                                }
-                            };
-                        }
-                        var sdkpackage = new PackageVersionPair { PackageId = codeEntity.Namespace, Version = "0.0.0", PackageSourceType = PackageSourceType.SDK };
-
-                        // check result with nuget package
-                        var packageDetails = packageDetailsWithIndicesResults.GetValueOrDefault(package, null);
-                        var compatibilityResultWithPackage = ApiCompatiblity.GetCompatibilityResult(packageDetails, codeEntity, targetFramework);
-
-                        // potential check with namespace
-                        var sdkpackageDetails = packageDetailsWithIndicesResults.GetValueOrDefault(sdkpackage, null);
-                        var compatibilityResultWithSdk = ApiCompatiblity.GetCompatibilityResult(sdkpackageDetails, codeEntity, targetFramework);
-                        var compatibilityResult = GetCompatibilityResult(compatibilityResultWithPackage, compatibilityResultWithSdk);
-
-                        if (compatibleOnly)
-                        {
-                            if (!(compatibilityResult.Compatibility == Compatibility.INCOMPATIBLE))
-                                return null;
-                        }
-
-                        var recommendationDetails = recommendationResults.GetValueOrDefault(codeEntity.Namespace, null);
-                        var apiRecommendation = ApiCompatiblity.UpgradeStrategy(compatibilityResult, codeEntity.OriginalDefinition, recommendationDetails, targetFramework);
-
-                        return new ApiAnalysisResult
-                        {
-                            CodeEntityDetails = codeEntity,
-                            CompatibilityResults = new Dictionary<string, CompatibilityResult>
-                            {
-                                { targetFramework, compatibilityResult}
-                            },
-                            Recommendations = new Model.Recommendations
-                            {
-                                RecommendedActions = new List<RecommendedAction>
-                                {
-                                    apiRecommendation
-                                }
-                            }
-                        };
-                    }).Where(codeEntity => codeEntity != null)
-                    .ToList()
-                };
-            }
-            ).ToList();
-        }
+        
 
         public static Dictionary<string, List<CodeEntityDetails>> Convert(
              Dictionary<string, UstList<UstNode>> sourceFileToCodeEntities,
@@ -279,7 +197,7 @@ namespace PortingAssistant.Client.Analysis.Utils
 
             return sdk ?? nugetPackage;
         }
-
+        /*
         public static CompatibilityResult GetCompatibilityResult(CompatibilityResult compatibilityResultWithPackage, CompatibilityResult compatibilityResultWithSdk)
         {
             var compatiblityResult = compatibilityResultWithPackage;
@@ -319,7 +237,7 @@ namespace PortingAssistant.Client.Analysis.Utils
 
             return compatiblityResult;
         }
-
+        */
         public static PackageVersionPair ReferenceToPackageVersionPair(ExternalReference reference, PackageSourceType sourceType = PackageSourceType.NUGET)
         {
             if (reference != null)

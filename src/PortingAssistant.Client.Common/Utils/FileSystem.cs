@@ -1,10 +1,6 @@
-﻿using PortingAssistant.Client.NuGet.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.IO;
 
-namespace PortingAssistant.Client.NuGet.Utils
+namespace PortingAssistant.Client.Common.Utils
 {
     class FileSystem : IFileSystem
     {

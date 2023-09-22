@@ -13,10 +13,11 @@ using Newtonsoft.Json;
 using NuGet.Protocol.Core.Types;
 using NuGet.Versioning;
 using NUnit.Framework;
-using PortingAssistant.Client.Model;
-using PortingAssistant.Client.NuGet;
-using PortingAssistant.Client.NuGet.Interfaces;
-using PortingAssistant.Client.NuGet.InternalNuGet;
+using PortingAssistant.Client.Common.Utils;
+using PortingAssistant.Compatibility.Common.Interface;
+using PortingAssistant.Compatibility.Common.Model;
+using PortingAssistant.Compatibility.Core;
+using PortingAssistant.Compatibility.Core.Checkers;
 using ILogger = NuGet.Common.ILogger;
 
 namespace PortingAssistant.Client.Tests
@@ -24,13 +25,11 @@ namespace PortingAssistant.Client.Tests
     public class PortingAssistantNuGetHandlerTest
     {
         private Mock<IHttpService> _httpService;
-        private Mock<IPortingAssistantInternalNuGetCompatibilityHandler> _internalNuGetCompatibilityHandlerMock;
         private Mock<IFileSystem> _fileSystem;
-        private Mock<InternalPackagesCompatibilityChecker> _internalPackagesCompatibilityChecker;
-        private ExternalPackagesCompatibilityChecker _externalPackagesCompatibilityChecker;
+        private ExternalCompatibilityChecker _externalPackagesCompatibilityChecker;
         private PortabilityAnalyzerCompatibilityChecker _portabilityAnalyzerCompatibilityChecker;
         private SdkCompatibilityChecker _sdkCompatibilityChecker;
-        private Mock<ILogger<PortingAssistantNuGetHandler>> _loggerMock;
+        private Mock<ILogger<CompatibilityCheckerNuGetHandler>> _loggerMock;
         private readonly string _testSolutionDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory,
                 "TestXml", "SolutionWithNugetConfigFile");
 
@@ -107,20 +106,7 @@ namespace PortingAssistant.Client.Tests
         };
 
         private readonly Dictionary<string, string> _manifest = new Dictionary<string, string> { { "Newtonsoft.Json", "microsoftlibs.newtonsoft.json.json" } };
-        private async Task<InternalNuGetCompatibilityResult> GetCompatibilityResult(
-            int timeout, bool compatibility)
-        {
-            await Task.Delay(timeout);
-
-            return new InternalNuGetCompatibilityResult
-            {
-                CompatibleDlls = null,
-                IsCompatible = compatibility,
-                IncompatibleDlls = null,
-                Source = "nuget.woot.com",
-                DependencyPackages = null
-            };
-        }
+        
 
         private IEnumerable<SourceRepository> GetInternalRepository()
         {
@@ -219,7 +205,6 @@ namespace PortingAssistant.Client.Tests
         {
             //httpMessageHandler = new Mock<HttpMessageHandler>
             _httpService = new Mock<IHttpService>();
-            _internalNuGetCompatibilityHandlerMock = new Mock<IPortingAssistantInternalNuGetCompatibilityHandler>();
             _fileSystem = new Mock<IFileSystem>();
         }
 
@@ -261,24 +246,10 @@ namespace PortingAssistant.Client.Tests
                     }
                 });
 
-            _internalNuGetCompatibilityHandlerMock.Reset();
 
-            _internalNuGetCompatibilityHandlerMock
-                .Setup(checker => checker.CheckCompatibilityAsync(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<IEnumerable<SourceRepository>>()))
-                .Returns((string packageName, string version, string targetFramework, IEnumerable<SourceRepository> sourceRepositories) =>
-                {
-                    return GetCompatibilityResult(200, true);
-                });
-
-
-            _externalPackagesCompatibilityChecker = new ExternalPackagesCompatibilityChecker(
+            _externalPackagesCompatibilityChecker = new ExternalCompatibilityChecker(
                 _httpService.Object,
-                NullLogger<ExternalPackagesCompatibilityChecker>.Instance,
-                _fileSystem.Object
+                NullLogger<ExternalCompatibilityChecker>.Instance
                 );
 
             _portabilityAnalyzerCompatibilityChecker = new PortabilityAnalyzerCompatibilityChecker(
@@ -296,17 +267,6 @@ namespace PortingAssistant.Client.Tests
                 NullLogger<PortabilityAnalyzerCompatibilityChecker>.Instance
                 );
 
-            _internalPackagesCompatibilityChecker = new Mock<InternalPackagesCompatibilityChecker>(
-                _internalNuGetCompatibilityHandlerMock.Object,
-                NullLogger<InternalPackagesCompatibilityChecker>.Instance);
-
-
-            _internalPackagesCompatibilityChecker.Reset();
-            _internalPackagesCompatibilityChecker.Setup(checker => checker.GetInternalRepositories(
-                It.IsAny<string>())).Returns(() =>
-                {
-                    return GetInternalRepository();
-                });
 
             _fileSystem.Setup(fileSystem => fileSystem.GetTempPath()).Returns(() => { return "tempPath"; });
             _fileSystem.Setup(fileSystem => fileSystem.FileExists(It.IsAny<string>())).Returns((string file) =>
@@ -348,62 +308,44 @@ namespace PortingAssistant.Client.Tests
             });
         }
 
-        private IPortingAssistantNuGetHandler GetExternalNuGetHandler()
+        private ICompatibilityCheckerNuGetHandler GetExternalNuGetHandler()
         {
             var checkers = new List<ICompatibilityChecker>() { _externalPackagesCompatibilityChecker };
-            return new PortingAssistantNuGetHandler(
-                    NullLogger<PortingAssistantNuGetHandler>.Instance,
-                    checkers.AsEnumerable()
-                    );
+            return new CompatibilityCheckerNuGetHandler(
+                  checkers.AsEnumerable(),
+                    NullLogger<CompatibilityCheckerNuGetHandler>.Instance
+            );
         }
 
-        private IPortingAssistantNuGetHandler GetInternalNuGetHandler()
-        {
-            var checkers = new List<ICompatibilityChecker>() { _internalPackagesCompatibilityChecker.Object };
-            return new PortingAssistantNuGetHandler(
-                    NullLogger<PortingAssistantNuGetHandler>.Instance,
-                    checkers.AsEnumerable()
-                    );
-        }
 
-        private IPortingAssistantNuGetHandler GetNamespaceNugetHandler()
+        private ICompatibilityCheckerNuGetHandler GetNamespaceNugetHandler()
         {
             var checkers = new List<ICompatibilityChecker>() { _sdkCompatibilityChecker };
-            return new PortingAssistantNuGetHandler(
-                    NullLogger<PortingAssistantNuGetHandler>.Instance,
-                    checkers.AsEnumerable()
+            return new CompatibilityCheckerNuGetHandler(
+                checkers.AsEnumerable(),
+                    NullLogger<CompatibilityCheckerNuGetHandler>.Instance
                     );
         }
 
-        private IPortingAssistantNuGetHandler GetPortabilityAnalzyerHandler()
+        private ICompatibilityCheckerNuGetHandler GetPortabilityAnalzyerHandler()
         {
             var checkers = new List<ICompatibilityChecker>() { _portabilityAnalyzerCompatibilityChecker };
-            return new PortingAssistantNuGetHandler(
-                    NullLogger<PortingAssistantNuGetHandler>.Instance,
-                    checkers.AsEnumerable()
+            return new CompatibilityCheckerNuGetHandler(
+                checkers.AsEnumerable(),
+                    NullLogger<CompatibilityCheckerNuGetHandler>.Instance
+                    
                     );
         }
 
-        private IPortingAssistantNuGetHandler GetBothNuGetHandler()
-        {
-            var checkers = new List<ICompatibilityChecker>() { _externalPackagesCompatibilityChecker, _internalPackagesCompatibilityChecker.Object };
-            return new PortingAssistantNuGetHandler(
-                    NullLogger<PortingAssistantNuGetHandler>.Instance,
-                    checkers.AsEnumerable()
-                    );
-        }
-
-        private IPortingAssistantNuGetHandler GetCheckerWithException()
+        private ICompatibilityCheckerNuGetHandler GetCheckerWithException()
         {
             var checker = new Mock<ICompatibilityChecker>();
             checker.Setup(checker => checker.Check(
-                It.IsAny<List<PackageVersionPair>>(),
-                It.IsAny<string>(),
-                It.IsAny<bool>(),
-                It.IsAny<bool>()))
+                It.IsAny<IEnumerable<PackageVersionPair>>()
+                ))
                 .Throws(new Exception("test"));
 
-            _loggerMock = new Mock<ILogger<PortingAssistantNuGetHandler>>();
+            _loggerMock = new Mock<ILogger<CompatibilityCheckerNuGetHandler>>();
 
             _loggerMock.Reset();
 
@@ -415,17 +357,18 @@ namespace PortingAssistant.Client.Tests
                 (Func<It.IsValueType, Exception, string>)It.IsAny<object>()));
 
             var checkers = new List<ICompatibilityChecker>() { checker.Object };
-            return new PortingAssistantNuGetHandler(
-                    _loggerMock.Object,
-                    checkers.AsEnumerable()
+            return new CompatibilityCheckerNuGetHandler(
+                checkers.AsEnumerable(),
+                    _loggerMock.Object
+                    
                     );
         }
 
-        private ExternalPackagesCompatibilityChecker GetExternalPackagesCompatibilityChecker()
+        private ExternalCompatibilityChecker GetExternalPackagesCompatibilityChecker()
         {
-            var externalChecker = new ExternalPackagesCompatibilityChecker(
+            var externalChecker = new ExternalCompatibilityChecker(
                 _httpService.Object,
-                NullLogger<ExternalPackagesCompatibilityChecker>.Instance
+                NullLogger<ExternalCompatibilityChecker>.Instance
             );
 
             return externalChecker;
@@ -476,7 +419,7 @@ namespace PortingAssistant.Client.Tests
             {
               new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.3", PackageSourceType = PackageSourceType.NUGET }
             };
-            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"), false, false);
+            var resultTasks = handler.GetNugetPackages(packages);
             Task.WaitAll(resultTasks.Values.ToArray());
 
             Assert.AreEqual(_packageDetails.Name, resultTasks.Values.First().Result.Name);
@@ -493,7 +436,7 @@ namespace PortingAssistant.Client.Tests
             {
               new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.3", PackageSourceType = PackageSourceType.SDK }
             };
-            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"), false, false);
+            var resultTasks = handler.GetNugetPackages(packages);
             Task.WaitAll(resultTasks.Values.ToArray());
 
             Assert.AreEqual(_packageDetails.Name, resultTasks.Values.First().Result.Name);
@@ -510,7 +453,7 @@ namespace PortingAssistant.Client.Tests
             {
               new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.3", PackageSourceType = PackageSourceType.SDK }
             };
-            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"), false, false);
+            var resultTasks = handler.GetNugetPackages(packages);
             Task.WaitAll(resultTasks.Values.ToArray());
 
             Assert.AreEqual(_packageDetails.Name, resultTasks.Values.First().Result.Name);
@@ -519,34 +462,7 @@ namespace PortingAssistant.Client.Tests
             Assert.AreEqual(_packageDetails.Versions.Count, resultTasks.Values.First().Result.Versions.Count);
         }
 
-        [Test]
-        public void GetNugetPackagesFromInternalNugetRepositorySucceeds()
-        {
-            var handler = GetInternalNuGetHandler();
 
-            _internalNuGetCompatibilityHandlerMock.Reset();
-
-            _internalNuGetCompatibilityHandlerMock
-                .Setup(checker => checker.CheckCompatibilityAsync(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<IEnumerable<SourceRepository>>()))
-                .Returns((string packageName, string version, string targetFramework, IEnumerable<SourceRepository> sourceRepositories) =>
-                {
-                    return GetCompatibilityResult(1, true);
-                });
-
-            var packages = new List<PackageVersionPair>()
-            {
-              new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.3" }
-            };
-            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"), false, false);
-            Task.WaitAll(resultTasks.Values.ToArray());
-
-            Assert.AreEqual(packages.First().PackageId, resultTasks.Values.First().Result.Name);
-            Assert.AreEqual(packages.First().Version, resultTasks.Values.First().Result.Targets["net6.0"].First());
-        }
 
         [Test]
         public void GetNugetPackagesWithIncompatibleExternalNugetRepositorySucceeds()
@@ -556,7 +472,7 @@ namespace PortingAssistant.Client.Tests
             {
               new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.2", PackageSourceType = PackageSourceType.NUGET }
             };
-            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"), false, false);
+            var resultTasks = handler.GetNugetPackages(packages);
             Task.WaitAll(resultTasks.Values.ToArray());
 
             Assert.AreEqual(_packageDetails.Name, resultTasks.Values.First().Result.Name);
@@ -565,105 +481,7 @@ namespace PortingAssistant.Client.Tests
             Assert.AreEqual(_packageDetails.Versions.Count, resultTasks.Values.First().Result.Versions.Count);
         }
 
-        [Test]
-        public void GetNugetPackagesWithIncompatibleInternalNugetRepositorySucceeds()
-        {
-            var handler = GetInternalNuGetHandler();
-            _internalNuGetCompatibilityHandlerMock.Reset();
-
-            _internalNuGetCompatibilityHandlerMock
-                .Setup(checker => checker.CheckCompatibilityAsync(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<IEnumerable<SourceRepository>>()))
-                .Returns((string packageName, string version, string targetFramework, IEnumerable<SourceRepository> sourceRepositories) =>
-                {
-                    return GetCompatibilityResult(1, false);
-                });
-
-            var packages = new List<PackageVersionPair>()
-            {
-              new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.2" }
-            };
-            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"), false, false);
-            Task.WaitAll(resultTasks.Values.ToArray());
-
-            Assert.AreEqual(packages.First().PackageId, resultTasks.Values.First().Result.Name);
-            Assert.AreEqual("net6.0", resultTasks.Values.First().Result.Targets.First().Key);
-            Assert.AreEqual(0, resultTasks.Values.First().Result.Targets["net6.0"].Count);
-        }
-
-        [Test]
-        public void GetNugetPackagesWithNonexistentPackageInInternalNugetRepositoryThrowsException()
-        {
-            _internalPackagesCompatibilityChecker.Reset();
-            _internalPackagesCompatibilityChecker.Setup(checker => checker.GetInternalRepositories(
-                It.IsAny<string>())).Returns(() =>
-                {
-                    return GetInternalRepositoryNotExist();
-                });
-
-            _httpService.Reset();
-            _httpService
-                .Setup(transfer => transfer.DownloadS3FileAsync(It.IsAny<string>()))
-                .Throws(new Exception());
-
-            var handler = GetBothNuGetHandler();
-
-            var packages = new List<PackageVersionPair>()
-            {
-              new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.5", PackageSourceType = PackageSourceType.NUGET }
-            };
-
-            Assert.Throws<AggregateException>(() =>
-            {
-                var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"), false, false);
-                Task.WaitAll(resultTasks.Values.ToArray());
-            });
-        }
-
-        [Test]
-        public void HttpServiceOpenStreamTriesNextPackageVersionOnException()
-        {
-            _internalPackagesCompatibilityChecker.Reset();
-            _internalPackagesCompatibilityChecker.Setup(checker => checker.GetInternalRepositories(
-                It.IsAny<string>())).Returns(() =>
-                {
-                    return GetInternalRepositoryNotExist();
-                });
-
-            _httpService.Reset();
-            _httpService
-                .Setup(transfer => transfer.DownloadS3FileAsync(It.IsAny<string>()))
-                .Throws(new Exception());
-
-            var handler = GetBothNuGetHandler();
-
-            var packages = new List<PackageVersionPair>()
-            {
-              new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.5", PackageSourceType = PackageSourceType.NUGET },
-              new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.6", PackageSourceType = PackageSourceType.NUGET }
-            };
-
-            try
-            {
-                var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"), false, false);
-                Task.WaitAll(resultTasks.Values.ToArray());
-            }
-            catch (Exception)
-            { }
-
-            try
-            {
-                var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"), false, false);
-                Task.WaitAll(resultTasks.Values.ToArray());
-            }
-            catch (Exception)
-            { }
-
-            _httpService.Verify(transfer => transfer.DownloadS3FileAsync(It.IsAny<string>()), Times.Exactly(1));
-        }
+ 
 
         [Test]
         public void HttpServiceOpenStreamCalledOncePerPackage()
@@ -674,7 +492,7 @@ namespace PortingAssistant.Client.Tests
               new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.3", PackageSourceType = PackageSourceType.NUGET },
               new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.4" , PackageSourceType = PackageSourceType.NUGET}
             };
-            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"), false, false);
+            var resultTasks = handler.GetNugetPackages(packages);
             Task.WaitAll(resultTasks.Values.ToArray());
             _httpService.Verify(transfer => transfer.DownloadS3FileAsync(It.IsAny<string>()), Times.Exactly(1));
         }
@@ -689,12 +507,12 @@ namespace PortingAssistant.Client.Tests
               new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.4", PackageSourceType = PackageSourceType.NUGET }
             };
 
-            var resultTasks1 = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"), false, false);
-            var resultTasks2 = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"), false, false);
+            var resultTasks1 = handler.GetNugetPackages(packages);
+            var resultTasks2 = handler.GetNugetPackages(packages);
             Task.WaitAll(resultTasks1.Values.ToArray());
             Task.WaitAll(resultTasks2.Values.ToArray());
 
-            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"), false, false);
+            var resultTasks = handler.GetNugetPackages(packages);
             Task.WaitAll(resultTasks.Values.ToArray());
 
             // Doesn't fire another request when requesting for same package.
@@ -727,8 +545,8 @@ namespace PortingAssistant.Client.Tests
             };
             Assert.Throws<AggregateException>(() =>
             {
-                var resultTasks = externalChecker.Check(packages, null);
-                Task.WaitAll(resultTasks.Values.ToArray());
+                var resultTasks = externalChecker.Check(packages);
+                Task.WaitAll(resultTasks.Result.Values.ToArray());
             });
         }
 
@@ -745,11 +563,11 @@ namespace PortingAssistant.Client.Tests
                 packageVersionPair
             };
 
-            var resultTasks = externalPackagesCompatibilityChecker.Check(packages, null);
+            var resultTasks = externalPackagesCompatibilityChecker.Check(packages);
 
             Assert.Throws<AggregateException>(() =>
             {
-                Task.WaitAll(resultTasks.Values.ToArray());
+                Task.WaitAll(resultTasks.Result.Values.ToArray());
             });
 
         }
@@ -762,7 +580,7 @@ namespace PortingAssistant.Client.Tests
             {
               new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.3" }
             };
-            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"), false, false);
+            var resultTasks = handler.GetNugetPackages(packages);
             _loggerMock.Verify(_ => _.Log(
                 LogLevel.Error,
                 It.IsAny<EventId>(),
@@ -771,84 +589,6 @@ namespace PortingAssistant.Client.Tests
                 (Func<It.IsValueType, Exception, string>)It.IsAny<object>()), Times.Exactly(1));
         }
 
-        [Test]
-        public void GetInternalRepositoryReturnsCorrectInternalRepositories()
-        {
-            var compatibilityChecker = new InternalPackagesCompatibilityChecker(
-                _internalNuGetCompatibilityHandlerMock.Object,
-                NullLogger<InternalPackagesCompatibilityChecker>.Instance);
-
-            var result = compatibilityChecker.GetInternalRepositories(Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln")).ToList();
-
-            Assert.AreEqual("nuget.woot.com", result.First().PackageSource.Name.ToLower());
-        }
-
-        [Test]
-        public void InternalPackagesLoggerLogsExceptions()
-        {
-            var checker = _internalPackagesCompatibilityChecker.Object;
-            var repositories = GetInternalRepositoryThrowsException(new OperationCanceledException());
-
-            var packageVersionPair = new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.5" };
-            var packages = new List<PackageVersionPair>()
-            {
-                packageVersionPair
-            };
-            var result = checker.GetInternalPackagesAsync(packages, repositories);
-            _loggerMock.Verify(_ => _.Log(
-                LogLevel.Information,
-                It.IsAny<EventId>(),
-                It.IsAny<It.IsValueType>(),
-                It.IsAny<Exception>(),
-                (Func<It.IsValueType, Exception, string>)It.IsAny<object>()), Times.Exactly(13));
-
-            repositories = GetInternalRepositoryThrowsException(new AggregateException());
-            result = checker.GetInternalPackagesAsync(packages, repositories);
-
-            _loggerMock.Verify(_ => _.Log(
-                LogLevel.Error,
-                It.IsAny<EventId>(),
-                It.IsAny<It.IsValueType>(),
-                It.IsAny<Exception>(),
-                (Func<It.IsValueType, Exception, string>)It.IsAny<object>()), Times.Exactly(1));
-        }
-
-        [Test]
-        public void CompatibilityCheckOfInternalPackageThrowsExceptionDoesNotRecordTargets()
-        {
-            _internalNuGetCompatibilityHandlerMock.Reset();
-            _internalNuGetCompatibilityHandlerMock
-                .Setup(checker => checker.CheckCompatibilityAsync(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<IEnumerable<SourceRepository>>()))
-                .Throws(new OperationCanceledException());
-
-            var packageVersionPair = new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.5" };
-            var packages = new List<PackageVersionPair>()
-            {
-                packageVersionPair
-            };
-            var result = _internalPackagesCompatibilityChecker.Object.Check(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
-
-            Task.WaitAll(result.Values.ToArray());
-            Assert.AreEqual(0, result.Values.First().Result.Targets.GetValueOrDefault("net6.0").Count);
-
-            _internalNuGetCompatibilityHandlerMock.Reset();
-            _internalNuGetCompatibilityHandlerMock
-                .Setup(checker => checker.CheckCompatibilityAsync(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<IEnumerable<SourceRepository>>()))
-                .Throws(new AggregateException());
-
-            result = _internalPackagesCompatibilityChecker.Object.Check(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"));
-
-            Task.WaitAll(result.Values.ToArray());
-            Assert.AreEqual(0, result.Values.First().Result.Targets.GetValueOrDefault("net6.0").Count);
-        }
 
         [Test]
         public void GetAndCacheNugetPackagesFromS3Succeeds()
@@ -858,7 +598,7 @@ namespace PortingAssistant.Client.Tests
             {
               new PackageVersionPair { PackageId = "Newtonsoft.Json", Version = "12.0.3", PackageSourceType = PackageSourceType.NUGET }
             };
-            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"), true, false);
+            var resultTasks = handler.GetNugetPackages(packages);
             Task.WaitAll(resultTasks.Values.ToArray());
 
             Assert.AreEqual(_packageDetails.Name, resultTasks.Values.First().Result.Name);
@@ -867,6 +607,7 @@ namespace PortingAssistant.Client.Tests
             Assert.AreEqual(_packageDetails.Versions.Count, resultTasks.Values.First().Result.Versions.Count);
         }
 
+        /*
         [Test]
         public void GetAndCacheNugetPackagesFromFileSucceeds()
         {
@@ -875,7 +616,7 @@ namespace PortingAssistant.Client.Tests
             {
               new PackageVersionPair { PackageId = "TestPackage", Version = "12.0.3", PackageSourceType = PackageSourceType.NUGET }
             };
-            var resultTasks = handler.GetNugetPackages(packages, Path.Combine(_testSolutionDirectory, "SolutionWithNugetConfigFile.sln"), true, false);
+            var resultTasks = handler.GetNugetPackages(packages);
             Task.WaitAll(resultTasks.Values.ToArray());
 
             Assert.AreEqual(_packageDetailsFromFile.Name, resultTasks.Values.First().Result.Name);
@@ -883,5 +624,6 @@ namespace PortingAssistant.Client.Tests
             Assert.AreEqual(_packageDetailsFromFile.Targets.Count, resultTasks.Values.First().Result.Targets.Count);
             Assert.AreEqual(_packageDetailsFromFile.Versions.Count, resultTasks.Values.First().Result.Versions.Count);
         }
+        */
     }
 }

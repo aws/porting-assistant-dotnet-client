@@ -40,7 +40,8 @@ namespace PortingAssistant.Client.IntegrationTests
                 Assert.Fail();
             }
 
-            Assert.AreEqual("1.0\r\n", version);
+            version = version.Split("\r\n")[0];
+;           Assert.AreEqual("1.0", version);
         }
 
         [Test]
@@ -73,8 +74,8 @@ namespace PortingAssistant.Client.IntegrationTests
                 Console.WriteLine("Fail to execute PA Client CLI!");
                 Assert.Fail();
             }
-
-            Assert.AreEqual("1.0\r\n", version);
+            version = version.Split("\r\n")[0];
+;           Assert.AreEqual("1.0", version);
         }
     }
 }
