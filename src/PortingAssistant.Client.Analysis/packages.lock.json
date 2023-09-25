@@ -53,25 +53,12 @@
           "AWSSDK.Core": "[3.7.106.13, 4.0.0)"
         }
       },
-      "AWSSDK.Core": {
-        "type": "Transitive",
-        "resolved": "3.7.106.24",
-        "contentHash": "Je4DemiO6Cl6LnIsCvHXH2uCgP3TldVR026mKZto4+n43v+M0u7ouQBJy2oSdNxJ4yXmhdXYEyOBEdHa+Rsi4g=="
-      },
       "AWSSDK.KeyManagementService": {
         "type": "Transitive",
         "resolved": "3.7.101.81",
         "contentHash": "RFGk/dlyS91Iil/kp6Jm0VZwSLcWgisPz68d6xeY75NZjxP7h1n1BXAVXJVIig1LFMBJj7pQeuW5H5jqLnmrJQ==",
         "dependencies": {
           "AWSSDK.Core": "[3.7.106.13, 4.0.0)"
-        }
-      },
-      "AWSSDK.S3": {
-        "type": "Transitive",
-        "resolved": "3.7.104.2",
-        "contentHash": "BxwfsmOi7bneSjUKokyDO6A/YRM36Qn9saThz/QqQKtPm+NF4qrkpdIJunkEMcp30U6i3TCZEUncRhonNYAAOg==",
-        "dependencies": {
-          "AWSSDK.Core": "[3.7.106.24, 4.0.0)"
         }
       },
       "AWSSDK.SQS": {
@@ -2115,6 +2102,20 @@
           "NuGet.Protocol": "[6.6.1, )",
           "Serilog.Extensions.Logging": "[3.0.1, )",
           "semver": "[2.0.6, )"
+        }
+      },
+      "portingassistant.compatibility.common": {
+        "type": "Project",
+        "dependencies": {
+          "AWSSDK.S3": "[3.7.104.2, )",
+          "Amazon.Lambda.Core": "[2.1.0, )",
+          "Microsoft.Extensions.Caching.Memory": "[7.0.0, )",
+          "Microsoft.Extensions.Http": "[7.0.0, )",
+          "Microsoft.Extensions.Http.Polly": "[7.0.5, )",
+          "Newtonsoft.Json": "[13.0.3, )",
+          "NuGet.Packaging": "[6.6.0, )",
+          "Polly": "[7.2.3, )",
+          "Polly.Extensions.Http": "[3.0.0, )"
         }
       },
       "portingassistant.compatibility.common": {
