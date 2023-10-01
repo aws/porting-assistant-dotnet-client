@@ -65,7 +65,7 @@ namespace PortingAssistant.Client.IntegrationTests
         }
 
         [Test]
-        public void RunPortingWithWebFormFrameowork()
+        public void RunPortingWithWebFormFrameworkTest()
         {
             RunCLIToPortSolution();
             string expectedPortedTestSolutionPath = Path.Combine(
