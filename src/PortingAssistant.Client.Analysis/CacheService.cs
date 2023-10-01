@@ -13,9 +13,9 @@ namespace PortingAssistant.Client.Analysis
         private readonly ILogger<CacheService> _logger;
         private readonly ICacheManager _cacheManager;
         public string CacheFilePath { get; set; }
-         
 
-        public CacheService(ICacheManager cacheManager,  ILogger<CacheService> logger)
+
+        public CacheService(ICacheManager cacheManager, ILogger<CacheService> logger)
         {
             _cacheManager = cacheManager;
             _logger = logger;
@@ -36,12 +36,12 @@ namespace PortingAssistant.Client.Analysis
             ValidateCacheFile(config.CompatibilityCheckerCacheFilePath, config.CacheExpirationHours);
         }
 
-        //public void ValidateCacheFile(PortingAssistantConfiguration config)
         public void ValidateCacheFile(string cacheFilePath, int cacheExpirationHours = 24)
         {
             try
             {
-                if (!string.IsNullOrEmpty(cacheFilePath)) {
+                if (!string.IsNullOrEmpty(cacheFilePath))
+                {
                     CacheFilePath = cacheFilePath;
                 }
                 //CacheFilePath = config.CompatibilityCheckerCacheFilePath;
@@ -91,12 +91,12 @@ namespace PortingAssistant.Client.Analysis
             packagesNeedToCheck = new HashSet<Compatibility.Common.Model.PackageVersionPair>();
             packageWithApisNeedToCheck = new Dictionary<Compatibility.Common.Model.PackageVersionPair, HashSet<ApiEntity>>();
 
-            //load results from cache object
-
+            // Load results from cache object
             foreach (var package in allPackages)
             {
                 try
                 {
+                    // TODO: HasCachedPackageAnalysisResult
                     if (_cacheManager.CacheExists(package, targetFramework))
                     {
                         packageAnalysisResultsDic.Add(package, _cacheManager.Get(package, targetFramework));
@@ -110,6 +110,7 @@ namespace PortingAssistant.Client.Analysis
                     var apis = request.PackageWithApis[package];
                     foreach (var api in apis)
                     {
+                        // TODO: HasCachedApiAnalysisResult
                         if (_cacheManager.CacheExists(package, api, targetFramework))
                         {
                             AddCachedApiAnalysisToResult(package, api, _cacheManager.Get(package, api, targetFramework), ref apiAnalysisResultsDic);
@@ -162,7 +163,7 @@ namespace PortingAssistant.Client.Analysis
         {
             try
             {
-                if (string.IsNullOrEmpty(CacheFilePath) )
+                if (string.IsNullOrEmpty(CacheFilePath))
                 {
                     _logger.LogError("No cache file path has been defined. ");
                     return;
@@ -172,24 +173,39 @@ namespace PortingAssistant.Client.Analysis
                     _logger.LogInformation("Empty PackageAnalysisResults in CompatibilityCheckerResponse return");
                     return;
                 }
-                //update Package Analysis Result
-                foreach (var p in response.PackageAnalysisResults)
+
+                // Update Package Analysis Result
+                foreach (var pkgVersionAnalysisResult in response.PackageAnalysisResults)
                 {
-                    var analysisResult = new AnalysisResult()
+                    var pkgVersionPair = pkgVersionAnalysisResult.Key;
+                    var pkgAnalysisResult = pkgVersionAnalysisResult.Value;
+                    var compatibilityResults = pkgAnalysisResult?.CompatibilityResults;
+                    var recommendations = response.GetRecommendationsForPackage(pkgVersionPair);
+
+                    var analysisResult = new AnalysisResult
                     {
-                        CompatibilityResults = p.Value?.CompatibilityResults,
-                        Recommendations = p.Value?.Recommendations
+                        CompatibilityResults = compatibilityResults,
+                        Recommendations = recommendations
                     };
 
-                    //add to Cache
-                    _cacheManager.Add(p.Key, targetFramework, analysisResult);
+                    // Add to cache
+                    _cacheManager.Add(pkgVersionPair, targetFramework, analysisResult);
                 }
 
+                // Update Api Analysis Result
                 foreach (var result in response.ApiAnalysisResults)
                 {
                     foreach (var apiResult in result.Value)
                     {
-                        _cacheManager.Add(result.Key, targetFramework, apiResult.Key, apiResult.Value);
+                        var pkgVersionPair = result.Key;
+                        var methodSignature = apiResult.Key;
+                        var apiAnalysisResult = apiResult.Value;
+                        var recommendations = response.GetRecommendationsForApi(pkgVersionPair, methodSignature);
+                        
+                        apiAnalysisResult.Recommendations = recommendations;
+
+                        // Add to cache
+                        _cacheManager.Add(pkgVersionPair, targetFramework, methodSignature, apiAnalysisResult);
                     }
                 }
 
@@ -204,8 +220,5 @@ namespace PortingAssistant.Client.Analysis
                 _logger.LogError(ex, $"Failed to call UpdateCacheInLocal function on {CacheFilePath}");
             }
         }
-
-        
     }
 }
-
