@@ -51,7 +51,7 @@ namespace PortingAssistant.Client.IntegrationTests
         public void Setup()
         {
             //cleanup cache
-            CacheUtils.CleanupCaches();
+            CacheUtils.CleanupCacheFiles();
 
         }
 

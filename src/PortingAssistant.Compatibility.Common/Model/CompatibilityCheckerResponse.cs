@@ -11,7 +11,7 @@ namespace PortingAssistant.Compatibility.Common.Model
         public Dictionary<PackageVersionPair, Dictionary<string, AnalysisResult>> ApiAnalysisResults { get; set; }
     }
 
-    //no need ApiAnalysisResults for  RecommendationOnly Response
+    // No need ApiAnalysisResults for RecommendationOnly Response
     public class RecommendationOnlyResponse
     {
         public string SolutionGUID { get; set; }
@@ -19,5 +19,29 @@ namespace PortingAssistant.Compatibility.Common.Model
         public Language Language { get; set; }
         public Dictionary<PackageVersionPair, AnalysisResult> PackageRecommendationResults { get; set; }
         public Dictionary<PackageVersionPair, Dictionary<string, AnalysisResult>> ApiRecommendationResults { get; set; }
+
+        public Recommendations? GetRecommendationsForPackage(PackageVersionPair pkgVersionPair)
+        {
+            if (PackageRecommendationResults == null
+                || !PackageRecommendationResults.TryGetValue(pkgVersionPair, out var pkgRecommendationResult))
+            {
+                return null;
+            }
+
+            return pkgRecommendationResult.Recommendations;
+        }
+
+        public Recommendations? GetRecommendationsForApi(PackageVersionPair pkgVersionPair, string methodSignature)
+        {
+            if (ApiRecommendationResults == null
+                || !ApiRecommendationResults.TryGetValue(pkgVersionPair, out var apiRecommendationResultsForPackage)
+                || !apiRecommendationResultsForPackage.TryGetValue(methodSignature, out var apiRecommendationResult)
+               )
+            {
+                return null;
+            }
+
+            return apiRecommendationResult.Recommendations;
+        }
     }
 }

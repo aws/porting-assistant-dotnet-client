@@ -20,11 +20,11 @@ namespace PortingAssistant.Client.IntegrationTests
 
             // Extract the baseline ported project
             expectedPortedTestSolutionExtractionPath = Path.Combine(
-                tmpTestFixturePath, "expected");
+                _tmpTestFixturePath_FirstRun, "expected");
             Directory.CreateDirectory(
                 expectedPortedTestSolutionExtractionPath);
             string expectedTestProjectZipPath = Path.Combine(
-                testDirectoryRoot,
+                _testDirectoryRoot,
                 "TestProjects",
                 "NetFrameworkExample-ported.zip");
             using (ZipArchive archive = ZipFile.Open(
@@ -35,10 +35,10 @@ namespace PortingAssistant.Client.IntegrationTests
             }
 
             // Extract the test project that will be ported during the test
-            actualTestSolutionExtractionPath = tmpTestFixturePath;
+            actualTestSolutionExtractionPath = _tmpTestFixturePath_FirstRun;
             Directory.CreateDirectory(actualTestSolutionExtractionPath);
             using (ZipArchive archive = ZipFile.Open(
-                testProjectZipPath, ZipArchiveMode.Read))
+                _testProjectZipPath, ZipArchiveMode.Read))
             {
                 archive.ExtractToDirectory(
                     actualTestSolutionExtractionPath);
@@ -89,7 +89,7 @@ namespace PortingAssistant.Client.IntegrationTests
 
             ProcessStartInfo startInfo = new ProcessStartInfo(
                 "PortingAssistant.Client.CLI.exe");
-            startInfo.WorkingDirectory = testDirectoryRoot;
+            startInfo.WorkingDirectory = _testDirectoryRoot;
             startInfo.CreateNoWindow = false;
             startInfo.UseShellExecute = false;
             startInfo.RedirectStandardOutput = true;

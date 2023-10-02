@@ -5,22 +5,28 @@ namespace PortingAssistant.Client.IntegrationTests
 {
     public class CorrectnessTestBase
     {
-        protected string testDirectoryRoot;
-        protected string tmpTestFixturePath;
-        protected string testProjectZipPath;
+        protected string _testDirectoryRoot;
+        protected string _tmpTestFixturePath_FirstRun;
+        protected string _tmpTestFixturePath_SecondRun;
+        protected string _testProjectZipPath;
 
         [OneTimeSetUp]
         public virtual void OneTimeSetUp()
         {
-            testDirectoryRoot = TestContext.CurrentContext.TestDirectory;
+            _testDirectoryRoot = TestContext.CurrentContext.TestDirectory;
 
-            tmpTestFixturePath = Path.GetFullPath(Path.Combine(
+            _tmpTestFixturePath_FirstRun = Path.GetFullPath(Path.Combine(
                 Path.GetTempPath(),
                 Path.GetRandomFileName()));
-            Directory.CreateDirectory(tmpTestFixturePath);
+            Directory.CreateDirectory(_tmpTestFixturePath_FirstRun);
 
-            testProjectZipPath = Path.Combine(
-                testDirectoryRoot,
+            _tmpTestFixturePath_SecondRun = Path.GetFullPath(Path.Combine(
+                Path.GetTempPath(),
+                Path.GetRandomFileName()));
+            Directory.CreateDirectory(_tmpTestFixturePath_SecondRun);
+
+            _testProjectZipPath = Path.Combine(
+                _testDirectoryRoot,
                 "TestProjects",
                 "NetFrameworkExample.zip");
         }
@@ -28,7 +34,7 @@ namespace PortingAssistant.Client.IntegrationTests
         [OneTimeTearDown]
         public void Cleanup()
         {
-            Directory.Delete(tmpTestFixturePath, true);
+            Directory.Delete(_tmpTestFixturePath_FirstRun, true);
         }
     }
 }
