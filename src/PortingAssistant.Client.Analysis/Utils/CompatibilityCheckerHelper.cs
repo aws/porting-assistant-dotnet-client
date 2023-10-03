@@ -125,7 +125,9 @@ namespace PortingAssistant.Client.Analysis.Utils
                         return apiAnalysisResult;
 
 
-                    }).Where(codeEntity => codeEntity != null)
+                    }).Where(codeEntity => codeEntity != null 
+                                           && !string.IsNullOrEmpty(codeEntity.CodeEntityDetails.Namespace) 
+                                           && !string.IsNullOrWhiteSpace(codeEntity.CodeEntityDetails.Namespace))
                     .ToList()
                 };
             }
