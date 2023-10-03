@@ -1,6 +1,62 @@
 [
   {
     "PackageVersionPair": {
+      "PackageId": "System.Web.Optimization",
+      "Version": "1.1.0",
+      "PackageSourceType": "NUGET"
+    },
+    "CompatibilityResults": {
+      "netcoreapp3.1": {
+        "Compatibility": "UNKNOWN",
+        "CompatibleVersions": []
+      }
+    },
+    "Recommendations": {
+      "RecommendedActions": [
+        {
+          "PackageId": "System.Web.Optimization",
+          "Version": null,
+          "TargetVersions": [],
+          "RecommendedActionType": "UpgradePackage",
+          "Description": null,
+          "TextSpan": null,
+          "TargetCPU": null,
+          "TextChanges": null
+        }
+      ],
+      "RecommendedPackageVersions": []
+    }
+  },
+  {
+    "PackageVersionPair": {
+      "PackageId": "System.Web.Mvc",
+      "Version": "5.2.7",
+      "PackageSourceType": "NUGET"
+    },
+    "CompatibilityResults": {
+      "netcoreapp3.1": {
+        "Compatibility": "UNKNOWN",
+        "CompatibleVersions": []
+      }
+    },
+    "Recommendations": {
+      "RecommendedActions": [
+        {
+          "PackageId": "System.Web.Mvc",
+          "Version": null,
+          "TargetVersions": [],
+          "RecommendedActionType": "UpgradePackage",
+          "Description": null,
+          "TextSpan": null,
+          "TargetCPU": null,
+          "TextChanges": null
+        }
+      ],
+      "RecommendedPackageVersions": []
+    }
+  },
+  {
+    "PackageVersionPair": {
       "PackageId": "Antlr",
       "Version": "3.5.0.2",
       "PackageSourceType": "NUGET"
@@ -23,7 +79,8 @@
           "TargetCPU": null,
           "TextChanges": null
         }
-      ]
+      ],
+      "RecommendedPackageVersions": []
     }
   },
   {
@@ -61,7 +118,9 @@
           "5.2.0",
           "5.2.1",
           "5.2.2",
-          "5.2.3"
+          "5.2.3",
+          "5.3.0",
+          "5.3.1"
         ]
       }
     },
@@ -96,7 +155,9 @@
             "5.2.0",
             "5.2.1",
             "5.2.2",
-            "5.2.3"
+            "5.2.3",
+            "5.3.0",
+            "5.3.1"
           ],
           "RecommendedActionType": "UpgradePackage",
           "Description": "4.0.0",
@@ -104,6 +165,36 @@
           "TargetCPU": null,
           "TextChanges": null
         }
+      ],
+      "RecommendedPackageVersions": [
+        "4.0.0",
+        "4.1.0",
+        "4.1.1",
+        "4.1.2",
+        "4.1.3",
+        "4.2.1",
+        "4.3.1",
+        "4.4.0",
+        "4.4.1",
+        "4.5.0",
+        "4.5.1",
+        "4.5.2",
+        "4.5.3",
+        "4.6.0",
+        "4.6.1",
+        "5.0.0",
+        "5.0.1",
+        "5.0.2",
+        "5.1.0",
+        "5.1.1",
+        "5.1.2",
+        "5.1.3",
+        "5.2.0",
+        "5.2.1",
+        "5.2.2",
+        "5.2.3",
+        "5.3.0",
+        "5.3.1"
       ]
     }
   },
@@ -123,7 +214,8 @@
           "3.6.0",
           "3.6.1",
           "3.6.3",
-          "3.6.4"
+          "3.6.4",
+          "3.7.0"
         ]
       }
     },
@@ -139,7 +231,8 @@
             "3.6.0",
             "3.6.1",
             "3.6.3",
-            "3.6.4"
+            "3.6.4",
+            "3.7.0"
           ],
           "RecommendedActionType": "UpgradePackage",
           "Description": "3.5.0",
@@ -147,6 +240,16 @@
           "TargetCPU": null,
           "TextChanges": null
         }
+      ],
+      "RecommendedPackageVersions": [
+        "3.5.0",
+        "3.5.0.1",
+        "3.5.1",
+        "3.6.0",
+        "3.6.1",
+        "3.6.3",
+        "3.6.4",
+        "3.7.0"
       ]
     }
   },
@@ -186,6 +289,13 @@
           "TargetCPU": null,
           "TextChanges": null
         }
+      ],
+      "RecommendedPackageVersions": [
+        "1.19.1",
+        "1.19.2",
+        "1.19.3",
+        "1.19.4",
+        "1.19.5"
       ]
     }
   },
@@ -213,7 +323,8 @@
           "TargetCPU": null,
           "TextChanges": null
         }
-      ]
+      ],
+      "RecommendedPackageVersions": []
     }
   },
   {
@@ -240,7 +351,8 @@
           "TargetCPU": null,
           "TextChanges": null
         }
-      ]
+      ],
+      "RecommendedPackageVersions": []
     }
   },
   {
@@ -267,7 +379,8 @@
           "TargetCPU": null,
           "TextChanges": null
         }
-      ]
+      ],
+      "RecommendedPackageVersions": []
     }
   },
   {
@@ -294,7 +407,8 @@
           "TargetCPU": null,
           "TextChanges": null
         }
-      ]
+      ],
+      "RecommendedPackageVersions": []
     }
   },
   {
@@ -305,7 +419,7 @@
     },
     "CompatibilityResults": {
       "netcoreapp3.1": {
-        "Compatibility": "COMPATIBLE",
+        "Compatibility": "INCOMPATIBLE",
         "CompatibleVersions": []
       }
     },
@@ -321,7 +435,8 @@
           "TargetCPU": null,
           "TextChanges": null
         }
-      ]
+      ],
+      "RecommendedPackageVersions": []
     }
   },
   {
@@ -354,6 +469,10 @@
           "TargetCPU": null,
           "TextChanges": null
         }
+      ],
+      "RecommendedPackageVersions": [
+        "3.2.12",
+        "4.0.0"
       ]
     }
   },
@@ -381,7 +500,8 @@
           "TargetCPU": null,
           "TextChanges": null
         }
-      ]
+      ],
+      "RecommendedPackageVersions": []
     }
   },
   {
@@ -408,7 +528,8 @@
           "TargetCPU": null,
           "TextChanges": null
         }
-      ]
+      ],
+      "RecommendedPackageVersions": []
     }
   },
   {
@@ -445,6 +566,12 @@
           "TargetCPU": null,
           "TextChanges": null
         }
+      ],
+      "RecommendedPackageVersions": [
+        "12.0.3",
+        "13.0.1",
+        "13.0.2",
+        "13.0.3"
       ]
     }
   },
@@ -472,7 +599,182 @@
           "TargetCPU": null,
           "TextChanges": null
         }
+      ],
+      "RecommendedPackageVersions": []
+    }
+  },
+  {
+    "PackageVersionPair": {
+      "PackageId": "Antlr3.Runtime",
+      "Version": "3.5.0.2",
+      "PackageSourceType": "NUGET"
+    },
+    "CompatibilityResults": {
+      "netcoreapp3.1": {
+        "Compatibility": "INCOMPATIBLE",
+        "CompatibleVersions": [
+          "3.5.1"
+        ]
+      }
+    },
+    "Recommendations": {
+      "RecommendedActions": [
+        {
+          "PackageId": "Antlr3.Runtime",
+          "Version": null,
+          "TargetVersions": [
+            "3.5.1"
+          ],
+          "RecommendedActionType": "UpgradePackage",
+          "Description": "3.5.1",
+          "TextSpan": null,
+          "TargetCPU": null,
+          "TextChanges": null
+        }
+      ],
+      "RecommendedPackageVersions": [
+        "3.5.1"
       ]
+    }
+  },
+  {
+    "PackageVersionPair": {
+      "PackageId": "System.Web.Helpers",
+      "Version": "3.0.0",
+      "PackageSourceType": "NUGET"
+    },
+    "CompatibilityResults": {
+      "netcoreapp3.1": {
+        "Compatibility": "UNKNOWN",
+        "CompatibleVersions": []
+      }
+    },
+    "Recommendations": {
+      "RecommendedActions": [
+        {
+          "PackageId": "System.Web.Helpers",
+          "Version": null,
+          "TargetVersions": [],
+          "RecommendedActionType": "UpgradePackage",
+          "Description": null,
+          "TextSpan": null,
+          "TargetCPU": null,
+          "TextChanges": null
+        }
+      ],
+      "RecommendedPackageVersions": []
+    }
+  },
+  {
+    "PackageVersionPair": {
+      "PackageId": "System.Web.Razor",
+      "Version": "3.0.0",
+      "PackageSourceType": "NUGET"
+    },
+    "CompatibilityResults": {
+      "netcoreapp3.1": {
+        "Compatibility": "UNKNOWN",
+        "CompatibleVersions": []
+      }
+    },
+    "Recommendations": {
+      "RecommendedActions": [
+        {
+          "PackageId": "System.Web.Razor",
+          "Version": null,
+          "TargetVersions": [],
+          "RecommendedActionType": "UpgradePackage",
+          "Description": null,
+          "TextSpan": null,
+          "TargetCPU": null,
+          "TextChanges": null
+        }
+      ],
+      "RecommendedPackageVersions": []
+    }
+  },
+  {
+    "PackageVersionPair": {
+      "PackageId": "System.Web.WebPages.Deployment",
+      "Version": "3.0.0",
+      "PackageSourceType": "NUGET"
+    },
+    "CompatibilityResults": {
+      "netcoreapp3.1": {
+        "Compatibility": "UNKNOWN",
+        "CompatibleVersions": []
+      }
+    },
+    "Recommendations": {
+      "RecommendedActions": [
+        {
+          "PackageId": "System.Web.WebPages.Deployment",
+          "Version": null,
+          "TargetVersions": [],
+          "RecommendedActionType": "UpgradePackage",
+          "Description": null,
+          "TextSpan": null,
+          "TargetCPU": null,
+          "TextChanges": null
+        }
+      ],
+      "RecommendedPackageVersions": []
+    }
+  },
+  {
+    "PackageVersionPair": {
+      "PackageId": "System.Web.WebPages",
+      "Version": "3.0.0",
+      "PackageSourceType": "NUGET"
+    },
+    "CompatibilityResults": {
+      "netcoreapp3.1": {
+        "Compatibility": "UNKNOWN",
+        "CompatibleVersions": []
+      }
+    },
+    "Recommendations": {
+      "RecommendedActions": [
+        {
+          "PackageId": "System.Web.WebPages",
+          "Version": null,
+          "TargetVersions": [],
+          "RecommendedActionType": "UpgradePackage",
+          "Description": null,
+          "TextSpan": null,
+          "TargetCPU": null,
+          "TextChanges": null
+        }
+      ],
+      "RecommendedPackageVersions": []
+    }
+  },
+  {
+    "PackageVersionPair": {
+      "PackageId": "System.Web.WebPages.Razor",
+      "Version": "3.0.0",
+      "PackageSourceType": "NUGET"
+    },
+    "CompatibilityResults": {
+      "netcoreapp3.1": {
+        "Compatibility": "UNKNOWN",
+        "CompatibleVersions": []
+      }
+    },
+    "Recommendations": {
+      "RecommendedActions": [
+        {
+          "PackageId": "System.Web.WebPages.Razor",
+          "Version": null,
+          "TargetVersions": [],
+          "RecommendedActionType": "UpgradePackage",
+          "Description": null,
+          "TextSpan": null,
+          "TargetCPU": null,
+          "TextChanges": null
+        }
+      ],
+      "RecommendedPackageVersions": []
     }
   }
 ]

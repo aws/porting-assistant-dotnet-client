@@ -10,7 +10,7 @@
   "SourceFileAnalysisResults": [
     {
       "SourceFileName": "BundleConfig.cs",
-      "SourceFilePath": "C:\\Users\\louiejon\\AppData\\Local\\Temp\\hai0b0ku.cbp\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\BundleConfig.cs",
+      "SourceFilePath": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\BundleConfig.cs",
       "ApiAnalysisResults": [
         {
           "CodeEntityDetails": {
@@ -429,203 +429,13 @@
             ],
             "RecommendedPackageVersions": []
           }
-        },
-        {
-          "CodeEntityDetails": {
-            "CodeEntityType": "Declaration",
-            "Name": "ScriptBundle",
-            "Namespace": "",
-            "Signature": "ScriptBundle",
-            "OriginalDefinition": "ScriptBundle",
-            "TextSpan": {
-              "StartCharPosition": 29,
-              "EndCharPosition": 41,
-              "StartLinePosition": 11,
-              "EndLinePosition": 11
-            },
-            "Package": {
-              "PackageId": "",
-              "Version": "",
-              "PackageSourceType": "SDK"
-            }
-          },
-          "CompatibilityResults": {
-            "netcoreapp3.1": {
-              "Compatibility": "UNKNOWN",
-              "CompatibleVersions": []
-            }
-          },
-          "Recommendations": {
-            "RecommendedActions": [
-              {
-                "RecommendedActionType": "NoRecommendation",
-                "Description": null,
-                "TextSpan": null,
-                "TargetCPU": null,
-                "TextChanges": null
-              }
-            ],
-            "RecommendedPackageVersions": []
-          }
-        },
-        {
-          "CodeEntityDetails": {
-            "CodeEntityType": "Declaration",
-            "Name": "ScriptBundle",
-            "Namespace": "",
-            "Signature": "ScriptBundle",
-            "OriginalDefinition": "ScriptBundle",
-            "TextSpan": {
-              "StartCharPosition": 29,
-              "EndCharPosition": 41,
-              "StartLinePosition": 14,
-              "EndLinePosition": 14
-            },
-            "Package": {
-              "PackageId": "",
-              "Version": "",
-              "PackageSourceType": "SDK"
-            }
-          },
-          "CompatibilityResults": {
-            "netcoreapp3.1": {
-              "Compatibility": "UNKNOWN",
-              "CompatibleVersions": []
-            }
-          },
-          "Recommendations": {
-            "RecommendedActions": [
-              {
-                "RecommendedActionType": "NoRecommendation",
-                "Description": null,
-                "TextSpan": null,
-                "TargetCPU": null,
-                "TextChanges": null
-              }
-            ],
-            "RecommendedPackageVersions": []
-          }
-        },
-        {
-          "CodeEntityDetails": {
-            "CodeEntityType": "Declaration",
-            "Name": "ScriptBundle",
-            "Namespace": "",
-            "Signature": "ScriptBundle",
-            "OriginalDefinition": "ScriptBundle",
-            "TextSpan": {
-              "StartCharPosition": 29,
-              "EndCharPosition": 41,
-              "StartLinePosition": 19,
-              "EndLinePosition": 19
-            },
-            "Package": {
-              "PackageId": "",
-              "Version": "",
-              "PackageSourceType": "SDK"
-            }
-          },
-          "CompatibilityResults": {
-            "netcoreapp3.1": {
-              "Compatibility": "UNKNOWN",
-              "CompatibleVersions": []
-            }
-          },
-          "Recommendations": {
-            "RecommendedActions": [
-              {
-                "RecommendedActionType": "NoRecommendation",
-                "Description": null,
-                "TextSpan": null,
-                "TargetCPU": null,
-                "TextChanges": null
-              }
-            ],
-            "RecommendedPackageVersions": []
-          }
-        },
-        {
-          "CodeEntityDetails": {
-            "CodeEntityType": "Declaration",
-            "Name": "ScriptBundle",
-            "Namespace": "",
-            "Signature": "ScriptBundle",
-            "OriginalDefinition": "ScriptBundle",
-            "TextSpan": {
-              "StartCharPosition": 29,
-              "EndCharPosition": 41,
-              "StartLinePosition": 22,
-              "EndLinePosition": 22
-            },
-            "Package": {
-              "PackageId": "",
-              "Version": "",
-              "PackageSourceType": "SDK"
-            }
-          },
-          "CompatibilityResults": {
-            "netcoreapp3.1": {
-              "Compatibility": "UNKNOWN",
-              "CompatibleVersions": []
-            }
-          },
-          "Recommendations": {
-            "RecommendedActions": [
-              {
-                "RecommendedActionType": "NoRecommendation",
-                "Description": null,
-                "TextSpan": null,
-                "TargetCPU": null,
-                "TextChanges": null
-              }
-            ],
-            "RecommendedPackageVersions": []
-          }
-        },
-        {
-          "CodeEntityDetails": {
-            "CodeEntityType": "Declaration",
-            "Name": "StyleBundle",
-            "Namespace": "",
-            "Signature": "StyleBundle",
-            "OriginalDefinition": "StyleBundle",
-            "TextSpan": {
-              "StartCharPosition": 29,
-              "EndCharPosition": 40,
-              "StartLinePosition": 25,
-              "EndLinePosition": 25
-            },
-            "Package": {
-              "PackageId": "",
-              "Version": "",
-              "PackageSourceType": "SDK"
-            }
-          },
-          "CompatibilityResults": {
-            "netcoreapp3.1": {
-              "Compatibility": "UNKNOWN",
-              "CompatibleVersions": []
-            }
-          },
-          "Recommendations": {
-            "RecommendedActions": [
-              {
-                "RecommendedActionType": "NoRecommendation",
-                "Description": null,
-                "TextSpan": null,
-                "TargetCPU": null,
-                "TextChanges": null
-              }
-            ],
-            "RecommendedPackageVersions": []
-          }
         }
       ],
       "RecommendedActions": []
     },
     {
       "SourceFileName": "FilterConfig.cs",
-      "SourceFilePath": "C:\\Users\\louiejon\\AppData\\Local\\Temp\\hai0b0ku.cbp\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\FilterConfig.cs",
+      "SourceFilePath": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\FilterConfig.cs",
       "ApiAnalysisResults": [
         {
           "CodeEntityDetails": {
@@ -702,44 +512,6 @@
             ],
             "RecommendedPackageVersions": []
           }
-        },
-        {
-          "CodeEntityDetails": {
-            "CodeEntityType": "Declaration",
-            "Name": "HandleErrorAttribute",
-            "Namespace": "",
-            "Signature": "HandleErrorAttribute",
-            "OriginalDefinition": "HandleErrorAttribute",
-            "TextSpan": {
-              "StartCharPosition": 29,
-              "EndCharPosition": 49,
-              "StartLinePosition": 10,
-              "EndLinePosition": 10
-            },
-            "Package": {
-              "PackageId": "",
-              "Version": "",
-              "PackageSourceType": "SDK"
-            }
-          },
-          "CompatibilityResults": {
-            "netcoreapp3.1": {
-              "Compatibility": "UNKNOWN",
-              "CompatibleVersions": []
-            }
-          },
-          "Recommendations": {
-            "RecommendedActions": [
-              {
-                "RecommendedActionType": "NoRecommendation",
-                "Description": null,
-                "TextSpan": null,
-                "TargetCPU": null,
-                "TextChanges": null
-              }
-            ],
-            "RecommendedPackageVersions": []
-          }
         }
       ],
       "RecommendedActions": [
@@ -762,7 +534,7 @@
             {
               "NewText": "using Microsoft.AspNetCore.Mvc;\r\n\r\n",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\louiejon\\AppData\\Local\\Temp\\hai0b0ku.cbp\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\FilterConfig.cs",
+                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\FilterConfig.cs",
                 "Span": {
                   "_start": {
                     "_line": 2,
@@ -779,7 +551,7 @@
             {
               "NewText": "",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\louiejon\\AppData\\Local\\Temp\\hai0b0ku.cbp\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\FilterConfig.cs",
+                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\FilterConfig.cs",
                 "Span": {
                   "_start": {
                     "_line": 1,
@@ -814,7 +586,7 @@
             {
               "NewText": "using Microsoft.AspNetCore.Mvc;\r\n\r\n",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\louiejon\\AppData\\Local\\Temp\\hai0b0ku.cbp\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\FilterConfig.cs",
+                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\FilterConfig.cs",
                 "Span": {
                   "_start": {
                     "_line": 2,
@@ -831,7 +603,7 @@
             {
               "NewText": "",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\louiejon\\AppData\\Local\\Temp\\hai0b0ku.cbp\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\FilterConfig.cs",
+                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\FilterConfig.cs",
                 "Span": {
                   "_start": {
                     "_line": 1,
@@ -851,7 +623,7 @@
     },
     {
       "SourceFileName": "RouteConfig.cs",
-      "SourceFilePath": "C:\\Users\\louiejon\\AppData\\Local\\Temp\\hai0b0ku.cbp\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\RouteConfig.cs",
+      "SourceFilePath": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\RouteConfig.cs",
       "ApiAnalysisResults": [
         {
           "CodeEntityDetails": {
@@ -1026,7 +798,7 @@
             {
               "NewText": "using Microsoft.AspNetCore.Mvc;\r\n\r\n",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\louiejon\\AppData\\Local\\Temp\\hai0b0ku.cbp\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\RouteConfig.cs",
+                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\RouteConfig.cs",
                 "Span": {
                   "_start": {
                     "_line": 6,
@@ -1043,7 +815,7 @@
             {
               "NewText": "",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\louiejon\\AppData\\Local\\Temp\\hai0b0ku.cbp\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\RouteConfig.cs",
+                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\RouteConfig.cs",
                 "Span": {
                   "_start": {
                     "_line": 4,
@@ -1078,7 +850,7 @@
             {
               "NewText": "using Microsoft.AspNetCore.Mvc;\r\n\r\n",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\louiejon\\AppData\\Local\\Temp\\hai0b0ku.cbp\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\RouteConfig.cs",
+                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\RouteConfig.cs",
                 "Span": {
                   "_start": {
                     "_line": 6,
@@ -1095,7 +867,7 @@
             {
               "NewText": "",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\louiejon\\AppData\\Local\\Temp\\hai0b0ku.cbp\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\RouteConfig.cs",
+                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\RouteConfig.cs",
                 "Span": {
                   "_start": {
                     "_line": 4,
@@ -1115,7 +887,7 @@
     },
     {
       "SourceFileName": "HomeController.cs",
-      "SourceFilePath": "C:\\Users\\louiejon\\AppData\\Local\\Temp\\hai0b0ku.cbp\\NetFrameworkExample\\NetFrameworkExample\\Controllers\\HomeController.cs",
+      "SourceFilePath": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\Controllers\\HomeController.cs",
       "ApiAnalysisResults": [
         {
           "CodeEntityDetails": {
@@ -1215,82 +987,6 @@
           "CompatibilityResults": {
             "netcoreapp3.1": {
               "Compatibility": "INCOMPATIBLE",
-              "CompatibleVersions": []
-            }
-          },
-          "Recommendations": {
-            "RecommendedActions": [
-              {
-                "RecommendedActionType": "NoRecommendation",
-                "Description": null,
-                "TextSpan": null,
-                "TargetCPU": null,
-                "TextChanges": null
-              }
-            ],
-            "RecommendedPackageVersions": []
-          }
-        },
-        {
-          "CodeEntityDetails": {
-            "CodeEntityType": "Declaration",
-            "Name": "NetFrameworkExample",
-            "Namespace": "",
-            "Signature": "NetFrameworkExample",
-            "OriginalDefinition": "NetFrameworkExample",
-            "TextSpan": {
-              "StartCharPosition": 11,
-              "EndCharPosition": 30,
-              "StartLinePosition": 7,
-              "EndLinePosition": 7
-            },
-            "Package": {
-              "PackageId": "",
-              "Version": "",
-              "PackageSourceType": "SDK"
-            }
-          },
-          "CompatibilityResults": {
-            "netcoreapp3.1": {
-              "Compatibility": "UNKNOWN",
-              "CompatibleVersions": []
-            }
-          },
-          "Recommendations": {
-            "RecommendedActions": [
-              {
-                "RecommendedActionType": "NoRecommendation",
-                "Description": null,
-                "TextSpan": null,
-                "TargetCPU": null,
-                "TextChanges": null
-              }
-            ],
-            "RecommendedPackageVersions": []
-          }
-        },
-        {
-          "CodeEntityDetails": {
-            "CodeEntityType": "Declaration",
-            "Name": "Controllers",
-            "Namespace": "",
-            "Signature": "Controllers",
-            "OriginalDefinition": "Controllers",
-            "TextSpan": {
-              "StartCharPosition": 31,
-              "EndCharPosition": 42,
-              "StartLinePosition": 7,
-              "EndLinePosition": 7
-            },
-            "Package": {
-              "PackageId": "",
-              "Version": "",
-              "PackageSourceType": "SDK"
-            }
-          },
-          "CompatibilityResults": {
-            "netcoreapp3.1": {
-              "Compatibility": "UNKNOWN",
               "CompatibleVersions": []
             }
           },
@@ -1480,7 +1176,7 @@
             {
               "NewText": "using Microsoft.AspNetCore.Mvc;\r\n\r\n",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\louiejon\\AppData\\Local\\Temp\\hai0b0ku.cbp\\NetFrameworkExample\\NetFrameworkExample\\Controllers\\HomeController.cs",
+                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\Controllers\\HomeController.cs",
                 "Span": {
                   "_start": {
                     "_line": 5,
@@ -1497,7 +1193,7 @@
             {
               "NewText": "",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\louiejon\\AppData\\Local\\Temp\\hai0b0ku.cbp\\NetFrameworkExample\\NetFrameworkExample\\Controllers\\HomeController.cs",
+                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\Controllers\\HomeController.cs",
                 "Span": {
                   "_start": {
                     "_line": 4,
@@ -1532,7 +1228,7 @@
             {
               "NewText": "using Microsoft.AspNetCore.Mvc;\r\n\r\n",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\louiejon\\AppData\\Local\\Temp\\hai0b0ku.cbp\\NetFrameworkExample\\NetFrameworkExample\\Controllers\\HomeController.cs",
+                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\Controllers\\HomeController.cs",
                 "Span": {
                   "_start": {
                     "_line": 5,
@@ -1549,7 +1245,7 @@
             {
               "NewText": "",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\louiejon\\AppData\\Local\\Temp\\hai0b0ku.cbp\\NetFrameworkExample\\NetFrameworkExample\\Controllers\\HomeController.cs",
+                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\Controllers\\HomeController.cs",
                 "Span": {
                   "_start": {
                     "_line": 4,
@@ -1569,7 +1265,7 @@
     },
     {
       "SourceFileName": "Global.asax.cs",
-      "SourceFilePath": "C:\\Users\\louiejon\\AppData\\Local\\Temp\\hai0b0ku.cbp\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
+      "SourceFilePath": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
       "ApiAnalysisResults": [
         {
           "CodeEntityDetails": {
@@ -1593,82 +1289,6 @@
           "CompatibilityResults": {
             "netcoreapp3.1": {
               "Compatibility": "INCOMPATIBLE",
-              "CompatibleVersions": []
-            }
-          },
-          "Recommendations": {
-            "RecommendedActions": [
-              {
-                "RecommendedActionType": "NoRecommendation",
-                "Description": null,
-                "TextSpan": null,
-                "TargetCPU": null,
-                "TextChanges": null
-              }
-            ],
-            "RecommendedPackageVersions": []
-          }
-        },
-        {
-          "CodeEntityDetails": {
-            "CodeEntityType": "Declaration",
-            "Name": "System",
-            "Namespace": "",
-            "Signature": "System",
-            "OriginalDefinition": "System",
-            "TextSpan": {
-              "StartCharPosition": 35,
-              "EndCharPosition": 41,
-              "StartLinePosition": 11,
-              "EndLinePosition": 11
-            },
-            "Package": {
-              "PackageId": "",
-              "Version": "",
-              "PackageSourceType": "SDK"
-            }
-          },
-          "CompatibilityResults": {
-            "netcoreapp3.1": {
-              "Compatibility": "UNKNOWN",
-              "CompatibleVersions": []
-            }
-          },
-          "Recommendations": {
-            "RecommendedActions": [
-              {
-                "RecommendedActionType": "NoRecommendation",
-                "Description": null,
-                "TextSpan": null,
-                "TargetCPU": null,
-                "TextChanges": null
-              }
-            ],
-            "RecommendedPackageVersions": []
-          }
-        },
-        {
-          "CodeEntityDetails": {
-            "CodeEntityType": "Declaration",
-            "Name": "Web",
-            "Namespace": "",
-            "Signature": "Web",
-            "OriginalDefinition": "Web",
-            "TextSpan": {
-              "StartCharPosition": 42,
-              "EndCharPosition": 45,
-              "StartLinePosition": 11,
-              "EndLinePosition": 11
-            },
-            "Package": {
-              "PackageId": "",
-              "Version": "",
-              "PackageSourceType": "SDK"
-            }
-          },
-          "CompatibilityResults": {
-            "netcoreapp3.1": {
-              "Compatibility": "UNKNOWN",
               "CompatibleVersions": []
             }
           },
@@ -1896,7 +1516,7 @@
             {
               "NewText": "using Microsoft.AspNetCore.Mvc;\r\n\r\n",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\louiejon\\AppData\\Local\\Temp\\hai0b0ku.cbp\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
+                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
                 "Span": {
                   "_start": {
                     "_line": 7,
@@ -1913,7 +1533,7 @@
             {
               "NewText": "",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\louiejon\\AppData\\Local\\Temp\\hai0b0ku.cbp\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
+                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
                 "Span": {
                   "_start": {
                     "_line": 4,
@@ -1948,7 +1568,7 @@
             {
               "NewText": "using Microsoft.AspNetCore.Mvc;\r\n\r\n",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\louiejon\\AppData\\Local\\Temp\\hai0b0ku.cbp\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
+                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
                 "Span": {
                   "_start": {
                     "_line": 7,
@@ -1965,7 +1585,7 @@
             {
               "NewText": "",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\louiejon\\AppData\\Local\\Temp\\hai0b0ku.cbp\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
+                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
                 "Span": {
                   "_start": {
                     "_line": 4,
@@ -2000,7 +1620,7 @@
             {
               "NewText": "",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\louiejon\\AppData\\Local\\Temp\\hai0b0ku.cbp\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
+                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
                 "Span": {
                   "_start": {
                     "_line": 3,
@@ -2017,7 +1637,7 @@
             {
               "NewText": "using Microsoft.AspNetCore.Http;\r\n\r\n",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\louiejon\\AppData\\Local\\Temp\\hai0b0ku.cbp\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
+                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
                 "Span": {
                   "_start": {
                     "_line": 7,
@@ -2034,7 +1654,7 @@
             {
               "NewText": "using System.Threading.Tasks;\r\n\r\n",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\louiejon\\AppData\\Local\\Temp\\hai0b0ku.cbp\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
+                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
                 "Span": {
                   "_start": {
                     "_line": 7,
@@ -2051,7 +1671,7 @@
             {
               "NewText": "",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\louiejon\\AppData\\Local\\Temp\\hai0b0ku.cbp\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
+                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
                 "Span": {
                   "_start": {
                     "_line": 10,
@@ -2068,7 +1688,7 @@
             {
               "NewText": "RequestDelegate _next = null;",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\louiejon\\AppData\\Local\\Temp\\hai0b0ku.cbp\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
+                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
                 "Span": {
                   "_start": {
                     "_line": 12,
@@ -2085,7 +1705,7 @@
             {
               "NewText": "publicMvcApplication(RequestDelegatenext){}",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\louiejon\\AppData\\Local\\Temp\\hai0b0ku.cbp\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
+                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
                 "Span": {
                   "_start": {
                     "_line": 19,
@@ -2120,7 +1740,7 @@
             {
               "NewText": "",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\louiejon\\AppData\\Local\\Temp\\hai0b0ku.cbp\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
+                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
                 "Span": {
                   "_start": {
                     "_line": 3,
@@ -2137,7 +1757,7 @@
             {
               "NewText": "using Microsoft.AspNetCore.Http;\r\n\r\n",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\louiejon\\AppData\\Local\\Temp\\hai0b0ku.cbp\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
+                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
                 "Span": {
                   "_start": {
                     "_line": 7,
@@ -2154,7 +1774,7 @@
             {
               "NewText": "using System.Threading.Tasks;\r\n\r\n",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\louiejon\\AppData\\Local\\Temp\\hai0b0ku.cbp\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
+                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
                 "Span": {
                   "_start": {
                     "_line": 7,
@@ -2174,13 +1794,13 @@
     },
     {
       "SourceFileName": "AssemblyInfo.cs",
-      "SourceFilePath": "C:\\Users\\louiejon\\AppData\\Local\\Temp\\hai0b0ku.cbp\\NetFrameworkExample\\NetFrameworkExample\\Properties\\AssemblyInfo.cs",
+      "SourceFilePath": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\Properties\\AssemblyInfo.cs",
       "ApiAnalysisResults": [],
       "RecommendedActions": []
     },
     {
       "SourceFileName": ".NETFramework,Version=v4.8.AssemblyAttributes.cs",
-      "SourceFilePath": "C:\\Users\\louiejon\\AppData\\Local\\Temp\\hai0b0ku.cbp\\NetFrameworkExample\\NetFrameworkExample\\obj\\Debug\\.NETFramework,Version=v4.8.AssemblyAttributes.cs",
+      "SourceFilePath": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\obj\\Debug\\.NETFramework,Version=v4.8.AssemblyAttributes.cs",
       "ApiAnalysisResults": [],
       "RecommendedActions": []
     }
