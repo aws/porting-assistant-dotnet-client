@@ -496,8 +496,20 @@ namespace PortingAssistant.Client.Analysis
                                     analyzer, targetFramework,
                                     out sourceFileToCodeEntityDetails,
                                     assessmentType);
-                var compatibilityCheckerResponse = ProcessCompatibilityCheckerRequestByApplyingCache(project, rawCompatibilityCheckerRequest);
-                
+
+                CompatibilityCheckerResponse compatibilityCheckerResponse;
+                if (rawCompatibilityCheckerRequest.PackageWithApis.Any())
+                {
+                    compatibilityCheckerResponse =
+                        ProcessCompatibilityCheckerRequestByApplyingCache(project, rawCompatibilityCheckerRequest);
+                }
+                else
+                {
+                    _logger.LogInformation($"no package with api entities found in project {project}. " +
+                                           $"Return empty CompatibilityCheckerResponse");
+                    compatibilityCheckerResponse = new CompatibilityCheckerResponse();
+                }
+
                 var portingActionResults = ProjectActionsToRecommendedActions.Convert(projectActions);
 
                 var nugets = analyzer.ProjectResult.ExternalReferences.NugetReferences
