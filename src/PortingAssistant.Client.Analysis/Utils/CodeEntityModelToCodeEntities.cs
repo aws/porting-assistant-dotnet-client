@@ -59,7 +59,7 @@ namespace PortingAssistant.Client.Analysis.Utils
 
         public static CodeEntityDetails Convert(InvocationExpression node, ExternalReferences externalReferences)
         {
-            return CreateCodeEntityDetails(node.MethodName, 
+            return CreateCodeEntityDetails(GetMethodClassNode(node)?.FullIdentifier ?? "", node.MethodName, 
                 node.SemanticNamespace, 
                 string.IsNullOrEmpty(node.SemanticMethodSignature) ? node.MethodName : node.SemanticMethodSignature,
                 string.IsNullOrEmpty(node.SemanticOriginalDefinition) ? node.MethodName : node.SemanticOriginalDefinition,
@@ -71,35 +71,36 @@ namespace PortingAssistant.Client.Analysis.Utils
 
         public static CodeEntityDetails Convert(DeclarationNode node, ExternalReferences externalReferences)
         {
-            return CreateCodeEntityDetails(node.Identifier, node.Reference.Namespace, node.Identifier, node.Identifier, CodeEntityType.Declaration, node, node.Reference, externalReferences);
+            return CreateCodeEntityDetails(GetMethodClassNode(node)?.FullIdentifier ?? "", node.Identifier, node.Reference.Namespace, node.Identifier, node.Identifier, CodeEntityType.Declaration, node, node.Reference, externalReferences);
         }
 
         public static CodeEntityDetails Convert(Annotation node, ExternalReferences externalReferences)
         {
-            return CreateCodeEntityDetails(node.Identifier, node.Reference.Namespace, node.Identifier, node.Identifier, CodeEntityType.Annotation, node, node.Reference, externalReferences);
+            return CreateCodeEntityDetails(GetMethodClassNode(node)?.FullIdentifier ?? "", node.Identifier, node.Reference.Namespace, node.Identifier, node.Identifier, CodeEntityType.Annotation, node, node.Reference, externalReferences);
         }
 
         public static CodeEntityDetails Convert(EnumDeclaration node, ExternalReferences externalReferences)
         {
-            return CreateCodeEntityDetails(node.Identifier, node.Reference.Namespace, node.Identifier, node.Identifier, CodeEntityType.Enum, node, node.Reference, externalReferences);
+            return CreateCodeEntityDetails(GetMethodClassNode(node)?.FullIdentifier ?? "", node.Identifier, node.Reference.Namespace, node.Identifier, node.Identifier, CodeEntityType.Enum, node, node.Reference, externalReferences);
         }
 
         public static CodeEntityDetails Convert(StructDeclaration node, ExternalReferences externalReferences)
         {
-            return CreateCodeEntityDetails(node.Identifier, node.Reference.Namespace, node.Identifier, node.Identifier, CodeEntityType.Struct, node, node.Reference, externalReferences);
+            return CreateCodeEntityDetails(GetMethodClassNode(node)?.FullIdentifier ?? "",node.Identifier, node.Reference.Namespace, node.Identifier, node.Identifier, CodeEntityType.Struct, node, node.Reference, externalReferences);
         }
 
         public static CodeEntityDetails Convert(EnumBlock node, ExternalReferences externalReferences)
         {
-            return CreateCodeEntityDetails(node.Identifier, node.Reference.Namespace, node.Identifier, node.Identifier, CodeEntityType.Enum, node, node.Reference, externalReferences);
+            return CreateCodeEntityDetails(GetMethodClassNode(node)?.FullIdentifier ?? "",node.Identifier, node.Reference.Namespace, node.Identifier, node.Identifier, CodeEntityType.Enum, node, node.Reference, externalReferences);
         }
 
         public static CodeEntityDetails Convert(AttributeList node, ExternalReferences externalReferences)
         {
-            return CreateCodeEntityDetails(node.Identifier, node.Reference.Namespace, node.Identifier, node.Identifier, CodeEntityType.Annotation, node, node.Reference, externalReferences);
+            return CreateCodeEntityDetails(GetMethodClassNode(node)?.FullIdentifier??"", node.Identifier, node.Reference.Namespace, node.Identifier, node.Identifier, CodeEntityType.Annotation, node, node.Reference, externalReferences);
         }
 
         private static CodeEntityDetails CreateCodeEntityDetails(
+            string className,
             string name,
             string @namespace,
             string signature,
@@ -126,12 +127,14 @@ namespace PortingAssistant.Client.Analysis.Utils
             }
 
             // Otherwise return the code entity
-            return CreateCodeEntity(name, @namespace, signature, package, originalDefinition,
+            return CreateCodeEntity(className, name, @namespace, signature, package, originalDefinition,
                 codeEntityType, ustNode);
         }
 
 
-        private static CodeEntityDetails CreateCodeEntity(string name,
+        private static CodeEntityDetails CreateCodeEntity(
+            string className,
+            string name,
             string @namespace,
             string signature,
             PackageVersionPair package,
@@ -141,6 +144,7 @@ namespace PortingAssistant.Client.Analysis.Utils
         {
             return new CodeEntityDetails
             {
+                ClassName = className,
                 Name = name,
                 Namespace = @namespace ?? string.Empty,
                 Signature = signature,
@@ -250,6 +254,17 @@ namespace PortingAssistant.Client.Analysis.Utils
                 return new PackageVersionPair { PackageId = reference.Identity, Version = version, PackageSourceType = sourceType };
             }
             return null;
+        }
+
+        private static UstNode GetMethodClassNode(UstNode node)
+        {
+            if (node == null || node.NodeType == null || node.NodeType.Equals(IdConstants.RootIdName)) return null;
+            else if (node.NodeType.Equals(IdConstants.ClassIdName))
+            {
+                return node;
+            }
+            else
+                return GetMethodClassNode(node.Parent);
         }
     }
 }

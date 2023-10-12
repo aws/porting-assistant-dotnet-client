@@ -8,6 +8,7 @@ namespace PortingAssistant.Client.Model
     {
         [JsonConverter(typeof(StringEnumConverter))]
         public CodeEntityType CodeEntityType { get; set; }
+        public string ClassName { get; set; }
         public string Name { get; set; }
         public string Namespace { get; set; }
         public string Signature { get; set; }  //valid for method
