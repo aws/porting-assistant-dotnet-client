@@ -10,11 +10,12 @@
   "SourceFileAnalysisResults": [
     {
       "SourceFileName": "BundleConfig.cs",
-      "SourceFilePath": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\BundleConfig.cs",
+      "SourceFilePath": "C:\\Users\\huawenm\\AppData\\Local\\Temp\\vgj5namm.0rr\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\BundleConfig.cs",
       "ApiAnalysisResults": [
         {
           "CodeEntityDetails": {
             "CodeEntityType": "Method",
+            "ClassName": "NetFrameworkExample.BundleConfig",
             "Name": "Add",
             "Namespace": "System.Web.Optimization",
             "Signature": "System.Web.Optimization.BundleCollection.Add(System.Web.Optimization.Bundle)",
@@ -53,6 +54,7 @@
         {
           "CodeEntityDetails": {
             "CodeEntityType": "Method",
+            "ClassName": "NetFrameworkExample.BundleConfig",
             "Name": "Include",
             "Namespace": "System.Web.Optimization",
             "Signature": "System.Web.Optimization.Bundle.Include(string, params System.Web.Optimization.IItemTransform[])",
@@ -91,6 +93,7 @@
         {
           "CodeEntityDetails": {
             "CodeEntityType": "Method",
+            "ClassName": "NetFrameworkExample.BundleConfig",
             "Name": "Add",
             "Namespace": "System.Web.Optimization",
             "Signature": "System.Web.Optimization.BundleCollection.Add(System.Web.Optimization.Bundle)",
@@ -129,6 +132,7 @@
         {
           "CodeEntityDetails": {
             "CodeEntityType": "Method",
+            "ClassName": "NetFrameworkExample.BundleConfig",
             "Name": "Include",
             "Namespace": "System.Web.Optimization",
             "Signature": "System.Web.Optimization.Bundle.Include(string, params System.Web.Optimization.IItemTransform[])",
@@ -167,6 +171,7 @@
         {
           "CodeEntityDetails": {
             "CodeEntityType": "Method",
+            "ClassName": "NetFrameworkExample.BundleConfig",
             "Name": "Add",
             "Namespace": "System.Web.Optimization",
             "Signature": "System.Web.Optimization.BundleCollection.Add(System.Web.Optimization.Bundle)",
@@ -205,6 +210,7 @@
         {
           "CodeEntityDetails": {
             "CodeEntityType": "Method",
+            "ClassName": "NetFrameworkExample.BundleConfig",
             "Name": "Include",
             "Namespace": "System.Web.Optimization",
             "Signature": "System.Web.Optimization.Bundle.Include(string, params System.Web.Optimization.IItemTransform[])",
@@ -243,6 +249,7 @@
         {
           "CodeEntityDetails": {
             "CodeEntityType": "Method",
+            "ClassName": "NetFrameworkExample.BundleConfig",
             "Name": "Add",
             "Namespace": "System.Web.Optimization",
             "Signature": "System.Web.Optimization.BundleCollection.Add(System.Web.Optimization.Bundle)",
@@ -281,6 +288,7 @@
         {
           "CodeEntityDetails": {
             "CodeEntityType": "Method",
+            "ClassName": "NetFrameworkExample.BundleConfig",
             "Name": "Include",
             "Namespace": "System.Web.Optimization",
             "Signature": "System.Web.Optimization.Bundle.Include(string, params System.Web.Optimization.IItemTransform[])",
@@ -319,6 +327,7 @@
         {
           "CodeEntityDetails": {
             "CodeEntityType": "Method",
+            "ClassName": "NetFrameworkExample.BundleConfig",
             "Name": "Add",
             "Namespace": "System.Web.Optimization",
             "Signature": "System.Web.Optimization.BundleCollection.Add(System.Web.Optimization.Bundle)",
@@ -357,6 +366,7 @@
         {
           "CodeEntityDetails": {
             "CodeEntityType": "Method",
+            "ClassName": "NetFrameworkExample.BundleConfig",
             "Name": "Include",
             "Namespace": "System.Web.Optimization",
             "Signature": "System.Web.Optimization.Bundle.Include(params string[])",
@@ -395,6 +405,7 @@
         {
           "CodeEntityDetails": {
             "CodeEntityType": "Declaration",
+            "ClassName": "NetFrameworkExample.BundleConfig",
             "Name": "BundleCollection",
             "Namespace": "System.Web.Optimization",
             "Signature": "BundleCollection",
@@ -435,11 +446,12 @@
     },
     {
       "SourceFileName": "FilterConfig.cs",
-      "SourceFilePath": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\FilterConfig.cs",
+      "SourceFilePath": "C:\\Users\\huawenm\\AppData\\Local\\Temp\\vgj5namm.0rr\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\FilterConfig.cs",
       "ApiAnalysisResults": [
         {
           "CodeEntityDetails": {
             "CodeEntityType": "Method",
+            "ClassName": "NetFrameworkExample.FilterConfig",
             "Name": "Add",
             "Namespace": "System.Web.Mvc",
             "Signature": "System.Web.Mvc.GlobalFilterCollection.Add(object)",
@@ -478,6 +490,7 @@
         {
           "CodeEntityDetails": {
             "CodeEntityType": "Declaration",
+            "ClassName": "NetFrameworkExample.FilterConfig",
             "Name": "GlobalFilterCollection",
             "Namespace": "System.Web.Mvc",
             "Signature": "GlobalFilterCollection",
@@ -534,7 +547,7 @@
             {
               "NewText": "using Microsoft.AspNetCore.Mvc;\r\n\r\n",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\FilterConfig.cs",
+                "Path": "C:\\Users\\huawenm\\AppData\\Local\\Temp\\vgj5namm.0rr\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\FilterConfig.cs",
                 "Span": {
                   "_start": {
                     "_line": 2,
@@ -551,7 +564,7 @@
             {
               "NewText": "",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\FilterConfig.cs",
+                "Path": "C:\\Users\\huawenm\\AppData\\Local\\Temp\\vgj5namm.0rr\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\FilterConfig.cs",
                 "Span": {
                   "_start": {
                     "_line": 1,
@@ -586,7 +599,7 @@
             {
               "NewText": "using Microsoft.AspNetCore.Mvc;\r\n\r\n",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\FilterConfig.cs",
+                "Path": "C:\\Users\\huawenm\\AppData\\Local\\Temp\\vgj5namm.0rr\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\FilterConfig.cs",
                 "Span": {
                   "_start": {
                     "_line": 2,
@@ -603,7 +616,7 @@
             {
               "NewText": "",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\FilterConfig.cs",
+                "Path": "C:\\Users\\huawenm\\AppData\\Local\\Temp\\vgj5namm.0rr\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\FilterConfig.cs",
                 "Span": {
                   "_start": {
                     "_line": 1,
@@ -623,11 +636,12 @@
     },
     {
       "SourceFileName": "RouteConfig.cs",
-      "SourceFilePath": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\RouteConfig.cs",
+      "SourceFilePath": "C:\\Users\\huawenm\\AppData\\Local\\Temp\\vgj5namm.0rr\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\RouteConfig.cs",
       "ApiAnalysisResults": [
         {
           "CodeEntityDetails": {
             "CodeEntityType": "Method",
+            "ClassName": "NetFrameworkExample.RouteConfig",
             "Name": "IgnoreRoute",
             "Namespace": "System.Web.Mvc",
             "Signature": "System.Web.Routing.RouteCollection.IgnoreRoute(string)",
@@ -666,6 +680,7 @@
         {
           "CodeEntityDetails": {
             "CodeEntityType": "Method",
+            "ClassName": "NetFrameworkExample.RouteConfig",
             "Name": "MapRoute",
             "Namespace": "System.Web.Mvc",
             "Signature": "System.Web.Routing.RouteCollection.MapRoute(string, string, object)",
@@ -704,6 +719,7 @@
         {
           "CodeEntityDetails": {
             "CodeEntityType": "Declaration",
+            "ClassName": "NetFrameworkExample.RouteConfig",
             "Name": "RouteCollection",
             "Namespace": "System.Web.Routing",
             "Signature": "RouteCollection",
@@ -742,6 +758,7 @@
         {
           "CodeEntityDetails": {
             "CodeEntityType": "Declaration",
+            "ClassName": "NetFrameworkExample.RouteConfig",
             "Name": "UrlParameter",
             "Namespace": "System.Web.Mvc",
             "Signature": "UrlParameter",
@@ -798,7 +815,7 @@
             {
               "NewText": "using Microsoft.AspNetCore.Mvc;\r\n\r\n",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\RouteConfig.cs",
+                "Path": "C:\\Users\\huawenm\\AppData\\Local\\Temp\\vgj5namm.0rr\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\RouteConfig.cs",
                 "Span": {
                   "_start": {
                     "_line": 6,
@@ -815,7 +832,7 @@
             {
               "NewText": "",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\RouteConfig.cs",
+                "Path": "C:\\Users\\huawenm\\AppData\\Local\\Temp\\vgj5namm.0rr\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\RouteConfig.cs",
                 "Span": {
                   "_start": {
                     "_line": 4,
@@ -850,7 +867,7 @@
             {
               "NewText": "using Microsoft.AspNetCore.Mvc;\r\n\r\n",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\RouteConfig.cs",
+                "Path": "C:\\Users\\huawenm\\AppData\\Local\\Temp\\vgj5namm.0rr\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\RouteConfig.cs",
                 "Span": {
                   "_start": {
                     "_line": 6,
@@ -867,7 +884,7 @@
             {
               "NewText": "",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\RouteConfig.cs",
+                "Path": "C:\\Users\\huawenm\\AppData\\Local\\Temp\\vgj5namm.0rr\\NetFrameworkExample\\NetFrameworkExample\\App_Start\\RouteConfig.cs",
                 "Span": {
                   "_start": {
                     "_line": 4,
@@ -887,11 +904,12 @@
     },
     {
       "SourceFileName": "HomeController.cs",
-      "SourceFilePath": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\Controllers\\HomeController.cs",
+      "SourceFilePath": "C:\\Users\\huawenm\\AppData\\Local\\Temp\\vgj5namm.0rr\\NetFrameworkExample\\NetFrameworkExample\\Controllers\\HomeController.cs",
       "ApiAnalysisResults": [
         {
           "CodeEntityDetails": {
             "CodeEntityType": "Method",
+            "ClassName": "NetFrameworkExample.Controllers.HomeController",
             "Name": "View",
             "Namespace": "System.Web.Mvc",
             "Signature": "System.Web.Mvc.Controller.View()",
@@ -930,6 +948,7 @@
         {
           "CodeEntityDetails": {
             "CodeEntityType": "Method",
+            "ClassName": "NetFrameworkExample.Controllers.HomeController",
             "Name": "View",
             "Namespace": "System.Web.Mvc",
             "Signature": "System.Web.Mvc.Controller.View()",
@@ -968,6 +987,7 @@
         {
           "CodeEntityDetails": {
             "CodeEntityType": "Method",
+            "ClassName": "NetFrameworkExample.Controllers.HomeController",
             "Name": "View",
             "Namespace": "System.Web.Mvc",
             "Signature": "System.Web.Mvc.Controller.View()",
@@ -1006,6 +1026,7 @@
         {
           "CodeEntityDetails": {
             "CodeEntityType": "Declaration",
+            "ClassName": "NetFrameworkExample.Controllers.HomeController",
             "Name": "Controller",
             "Namespace": "System.Web.Mvc",
             "Signature": "Controller",
@@ -1044,6 +1065,7 @@
         {
           "CodeEntityDetails": {
             "CodeEntityType": "Declaration",
+            "ClassName": "NetFrameworkExample.Controllers.HomeController",
             "Name": "ActionResult",
             "Namespace": "System.Web.Mvc",
             "Signature": "ActionResult",
@@ -1082,6 +1104,7 @@
         {
           "CodeEntityDetails": {
             "CodeEntityType": "Declaration",
+            "ClassName": "NetFrameworkExample.Controllers.HomeController",
             "Name": "ActionResult",
             "Namespace": "System.Web.Mvc",
             "Signature": "ActionResult",
@@ -1120,6 +1143,7 @@
         {
           "CodeEntityDetails": {
             "CodeEntityType": "Declaration",
+            "ClassName": "NetFrameworkExample.Controllers.HomeController",
             "Name": "ActionResult",
             "Namespace": "System.Web.Mvc",
             "Signature": "ActionResult",
@@ -1176,7 +1200,7 @@
             {
               "NewText": "using Microsoft.AspNetCore.Mvc;\r\n\r\n",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\Controllers\\HomeController.cs",
+                "Path": "C:\\Users\\huawenm\\AppData\\Local\\Temp\\vgj5namm.0rr\\NetFrameworkExample\\NetFrameworkExample\\Controllers\\HomeController.cs",
                 "Span": {
                   "_start": {
                     "_line": 5,
@@ -1193,7 +1217,7 @@
             {
               "NewText": "",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\Controllers\\HomeController.cs",
+                "Path": "C:\\Users\\huawenm\\AppData\\Local\\Temp\\vgj5namm.0rr\\NetFrameworkExample\\NetFrameworkExample\\Controllers\\HomeController.cs",
                 "Span": {
                   "_start": {
                     "_line": 4,
@@ -1228,7 +1252,7 @@
             {
               "NewText": "using Microsoft.AspNetCore.Mvc;\r\n\r\n",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\Controllers\\HomeController.cs",
+                "Path": "C:\\Users\\huawenm\\AppData\\Local\\Temp\\vgj5namm.0rr\\NetFrameworkExample\\NetFrameworkExample\\Controllers\\HomeController.cs",
                 "Span": {
                   "_start": {
                     "_line": 5,
@@ -1245,7 +1269,7 @@
             {
               "NewText": "",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\Controllers\\HomeController.cs",
+                "Path": "C:\\Users\\huawenm\\AppData\\Local\\Temp\\vgj5namm.0rr\\NetFrameworkExample\\NetFrameworkExample\\Controllers\\HomeController.cs",
                 "Span": {
                   "_start": {
                     "_line": 4,
@@ -1265,11 +1289,12 @@
     },
     {
       "SourceFileName": "Global.asax.cs",
-      "SourceFilePath": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
+      "SourceFilePath": "C:\\Users\\huawenm\\AppData\\Local\\Temp\\vgj5namm.0rr\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
       "ApiAnalysisResults": [
         {
           "CodeEntityDetails": {
             "CodeEntityType": "Method",
+            "ClassName": "NetFrameworkExample.MvcApplication",
             "Name": "RegisterAllAreas",
             "Namespace": "System.Web.Mvc",
             "Signature": "System.Web.Mvc.AreaRegistration.RegisterAllAreas()",
@@ -1308,6 +1333,7 @@
         {
           "CodeEntityDetails": {
             "CodeEntityType": "Declaration",
+            "ClassName": "NetFrameworkExample.MvcApplication",
             "Name": "HttpApplication",
             "Namespace": "System.Web",
             "Signature": "HttpApplication",
@@ -1346,6 +1372,7 @@
         {
           "CodeEntityDetails": {
             "CodeEntityType": "Declaration",
+            "ClassName": "NetFrameworkExample.MvcApplication",
             "Name": "AreaRegistration",
             "Namespace": "System.Web.Mvc",
             "Signature": "AreaRegistration",
@@ -1384,6 +1411,7 @@
         {
           "CodeEntityDetails": {
             "CodeEntityType": "Declaration",
+            "ClassName": "NetFrameworkExample.MvcApplication",
             "Name": "GlobalFilters",
             "Namespace": "System.Web.Mvc",
             "Signature": "GlobalFilters",
@@ -1422,6 +1450,7 @@
         {
           "CodeEntityDetails": {
             "CodeEntityType": "Declaration",
+            "ClassName": "NetFrameworkExample.MvcApplication",
             "Name": "RouteTable",
             "Namespace": "System.Web.Routing",
             "Signature": "RouteTable",
@@ -1460,6 +1489,7 @@
         {
           "CodeEntityDetails": {
             "CodeEntityType": "Declaration",
+            "ClassName": "NetFrameworkExample.MvcApplication",
             "Name": "BundleTable",
             "Namespace": "System.Web.Optimization",
             "Signature": "BundleTable",
@@ -1516,7 +1546,7 @@
             {
               "NewText": "using Microsoft.AspNetCore.Mvc;\r\n\r\n",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
+                "Path": "C:\\Users\\huawenm\\AppData\\Local\\Temp\\vgj5namm.0rr\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
                 "Span": {
                   "_start": {
                     "_line": 7,
@@ -1533,7 +1563,7 @@
             {
               "NewText": "",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
+                "Path": "C:\\Users\\huawenm\\AppData\\Local\\Temp\\vgj5namm.0rr\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
                 "Span": {
                   "_start": {
                     "_line": 4,
@@ -1568,7 +1598,7 @@
             {
               "NewText": "using Microsoft.AspNetCore.Mvc;\r\n\r\n",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
+                "Path": "C:\\Users\\huawenm\\AppData\\Local\\Temp\\vgj5namm.0rr\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
                 "Span": {
                   "_start": {
                     "_line": 7,
@@ -1585,7 +1615,7 @@
             {
               "NewText": "",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
+                "Path": "C:\\Users\\huawenm\\AppData\\Local\\Temp\\vgj5namm.0rr\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
                 "Span": {
                   "_start": {
                     "_line": 4,
@@ -1620,7 +1650,7 @@
             {
               "NewText": "",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
+                "Path": "C:\\Users\\huawenm\\AppData\\Local\\Temp\\vgj5namm.0rr\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
                 "Span": {
                   "_start": {
                     "_line": 3,
@@ -1637,7 +1667,7 @@
             {
               "NewText": "using Microsoft.AspNetCore.Http;\r\n\r\n",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
+                "Path": "C:\\Users\\huawenm\\AppData\\Local\\Temp\\vgj5namm.0rr\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
                 "Span": {
                   "_start": {
                     "_line": 7,
@@ -1654,7 +1684,7 @@
             {
               "NewText": "using System.Threading.Tasks;\r\n\r\n",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
+                "Path": "C:\\Users\\huawenm\\AppData\\Local\\Temp\\vgj5namm.0rr\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
                 "Span": {
                   "_start": {
                     "_line": 7,
@@ -1671,7 +1701,7 @@
             {
               "NewText": "",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
+                "Path": "C:\\Users\\huawenm\\AppData\\Local\\Temp\\vgj5namm.0rr\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
                 "Span": {
                   "_start": {
                     "_line": 10,
@@ -1688,7 +1718,7 @@
             {
               "NewText": "RequestDelegate _next = null;",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
+                "Path": "C:\\Users\\huawenm\\AppData\\Local\\Temp\\vgj5namm.0rr\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
                 "Span": {
                   "_start": {
                     "_line": 12,
@@ -1705,7 +1735,7 @@
             {
               "NewText": "publicMvcApplication(RequestDelegatenext){}",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
+                "Path": "C:\\Users\\huawenm\\AppData\\Local\\Temp\\vgj5namm.0rr\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
                 "Span": {
                   "_start": {
                     "_line": 19,
@@ -1740,7 +1770,7 @@
             {
               "NewText": "",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
+                "Path": "C:\\Users\\huawenm\\AppData\\Local\\Temp\\vgj5namm.0rr\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
                 "Span": {
                   "_start": {
                     "_line": 3,
@@ -1757,7 +1787,7 @@
             {
               "NewText": "using Microsoft.AspNetCore.Http;\r\n\r\n",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
+                "Path": "C:\\Users\\huawenm\\AppData\\Local\\Temp\\vgj5namm.0rr\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
                 "Span": {
                   "_start": {
                     "_line": 7,
@@ -1774,7 +1804,7 @@
             {
               "NewText": "using System.Threading.Tasks;\r\n\r\n",
               "FileLinePositionSpan": {
-                "Path": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
+                "Path": "C:\\Users\\huawenm\\AppData\\Local\\Temp\\vgj5namm.0rr\\NetFrameworkExample\\NetFrameworkExample\\Global.asax.cs",
                 "Span": {
                   "_start": {
                     "_line": 7,
@@ -1794,13 +1824,13 @@
     },
     {
       "SourceFileName": "AssemblyInfo.cs",
-      "SourceFilePath": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\Properties\\AssemblyInfo.cs",
+      "SourceFilePath": "C:\\Users\\huawenm\\AppData\\Local\\Temp\\vgj5namm.0rr\\NetFrameworkExample\\NetFrameworkExample\\Properties\\AssemblyInfo.cs",
       "ApiAnalysisResults": [],
       "RecommendedActions": []
     },
     {
       "SourceFileName": ".NETFramework,Version=v4.8.AssemblyAttributes.cs",
-      "SourceFilePath": "C:\\Users\\wwangjy\\AppData\\Local\\Temp\\tm0fsdhl.se5\\NetFrameworkExample\\NetFrameworkExample\\obj\\Debug\\.NETFramework,Version=v4.8.AssemblyAttributes.cs",
+      "SourceFilePath": "C:\\Users\\huawenm\\AppData\\Local\\Temp\\vgj5namm.0rr\\NetFrameworkExample\\NetFrameworkExample\\obj\\Debug\\.NETFramework,Version=v4.8.AssemblyAttributes.cs",
       "ApiAnalysisResults": [],
       "RecommendedActions": []
     }
