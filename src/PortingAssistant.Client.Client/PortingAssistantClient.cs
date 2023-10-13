@@ -153,7 +153,7 @@ namespace PortingAssistant.Client.Client
             }
         }
 
-        private SolutionAnalysisResult GenerateSolutionAnalysisResult(string solutionFilePath, Dictionary<string, ProjectAnalysisResult> projectAnalysisResultsDict, List<string> projects)
+        public SolutionAnalysisResult GenerateSolutionAnalysisResult(string solutionFilePath, Dictionary<string, ProjectAnalysisResult> projectAnalysisResultsDict, List<string> projects)
         {
             var failedProjects = new List<string>();
             var projectAnalysisResults = projects.Select(p =>

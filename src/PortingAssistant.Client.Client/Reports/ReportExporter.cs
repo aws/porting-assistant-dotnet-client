@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using PortingAssistant.Client.Model;
+using System.Collections.Immutable;
 
 namespace PortingAssistant.Client.Client.Reports
 {
@@ -42,7 +43,7 @@ namespace PortingAssistant.Client.Client.Reports
 
         public bool GenerateJsonReport(
             SolutionAnalysisResult solutionAnalysisResult,
-            string outputFolder)
+            string outputFolder, bool separateApiAnalyzeByEachCodeFile = false)
         {
             try
             {
@@ -66,9 +67,8 @@ namespace PortingAssistant.Client.Client.Reports
                     Directory.CreateDirectory(FileDir);
                     List<PackageAnalysisResult> packageAnalysisResults = new List<PackageAnalysisResult>();
                     Dictionary<PackageVersionPair, string> packageAnalysisResultErrors = new Dictionary<PackageVersionPair, string>();
-
-                    projectAnalysResult.PackageAnalysisResults.ToList()
-                    .ForEach(p =>
+                    var sorted = projectAnalysResult.PackageAnalysisResults.OrderBy(c=>c.Key.PackageId).ToList();
+                    sorted.ForEach(p =>
                     {
                         if (p.Value.IsCompletedSuccessfully)
                         {
@@ -82,6 +82,8 @@ namespace PortingAssistant.Client.Client.Reports
 
                     //project apis analsis result
                     string ApiAnalyzeFileName = ProjectName + "-api-analysis.json";
+                    projectAnalysResult.SourceFileAnalysisResults.Sort(
+                        (r1, r2) => string.Compare(r1.SourceFileName, r2.SourceFileName, StringComparison.OrdinalIgnoreCase));
                     var projectApiAnalysisResult = projectAnalysResult.IsBuildFailed ? new ProjectApiAnalysisResult
                     {
                         Errors = new List<string> { $"Errors during compilation in {projectAnalysResult.ProjectName}." },
@@ -102,8 +104,19 @@ namespace PortingAssistant.Client.Client.Reports
                         ProjectFile = ProjectName,
                         SourceFileAnalysisResults = projectAnalysResult.SourceFileAnalysisResults
                     };
-                    writeToFiles.Add(WriteReportToFileAsync(projectApiAnalysisResult, Path.Combine(FileDir, ApiAnalyzeFileName)));
 
+                    if (separateApiAnalyzeByEachCodeFile && projectApiAnalysisResult!= null && projectApiAnalysisResult.SourceFileAnalysisResults!= null)
+                    {
+                        projectApiAnalysisResult.SourceFileAnalysisResults?.ForEach(source =>
+                        {
+                            var fileApiAnalyzeName = ProjectName + "-" + Path.GetFileNameWithoutExtension(source.SourceFilePath) + "-api-analysis.json";
+                            writeToFiles.Add(WriteReportToFileAsync(source, Path.Combine(FileDir, fileApiAnalyzeName)));
+                        });
+                    }
+                    else
+                    {
+                        writeToFiles.Add(WriteReportToFileAsync(projectApiAnalysisResult, Path.Combine(FileDir, ApiAnalyzeFileName)));
+                    }
                     //project packages analsis result
                     string PackageAnalyzeFileName = ProjectName + "-package-analysis.json";
                     writeToFiles.Add(WriteReportToFileAsync(packageAnalysisResults, Path.Combine(FileDir, PackageAnalyzeFileName)));
