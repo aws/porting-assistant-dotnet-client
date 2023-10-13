@@ -324,7 +324,30 @@ namespace PortingAssistant.Client.Analysis
                 TraceEvent.End(_logger, $"Compatibility assessment of solution without generator: {solutionFilename}");
                 CommonUtils.RunGarbageCollection(_logger, "PortingAssistantAnalysisHandler.AnalyzeSolution");
             }
+        }
 
+        public async Task<Dictionary<string, ProjectAnalysisResult>> AnalyzeSolution(
+            string solutionFilename,
+            List<string> projects,
+            List<AnalyzerResult> analyzerResults,
+            string targetFramework = DEFAULT_TARGET,
+            AssessmentType assessmentType = AssessmentType.FullAssessment)
+        {
+            try
+            {
+                TraceEvent.Start(_logger, $"Compatibility assessment of solution with AnalysisResult: {solutionFilename}");
+                
+                return GetSolutionAnalysisResult(solutionFilename, projects, analyzerResults, targetFramework, assessmentType: assessmentType);
+            }
+            catch (OutOfMemoryException e)
+            {
+                _logger.LogError("Analyze solution {0} with error {1}", solutionFilename, e);
+                throw e;
+            }
+            finally
+            {
+                TraceEvent.End(_logger, $"Compatibility assessment of solution with AnalysisResult: {solutionFilename}");
+            }
         }
 
         public async IAsyncEnumerable<ProjectAnalysisResult> AnalyzeSolutionGeneratorAsync(
@@ -388,7 +411,7 @@ namespace PortingAssistant.Client.Analysis
             var analyzedProjects = projects.Where(p =>
             {
                 var project = analyzerResults.Find((a) => a.ProjectResult?.ProjectFilePath != null &&
-                    a.ProjectResult.ProjectFilePath.Equals(p));
+                    a.ProjectResult.ProjectFilePath.Equals(p, StringComparison.InvariantCultureIgnoreCase));
                 return project != null;
             }).ToList();
 
@@ -474,12 +497,12 @@ namespace PortingAssistant.Client.Analysis
                 TraceEvent.Start(_logger, $"Compatibility assessment of project {project}");
 
                 var analyzer = analyzers.Find((a) => a.ProjectResult?.ProjectFilePath != null &&
-                    a.ProjectResult.ProjectFilePath.Equals(project));
+                    a.ProjectResult.ProjectFilePath.Equals(project, StringComparison.InvariantCultureIgnoreCase));
 
                 var projectFeatureType = analysisActions.Find((a) => a.ProjectFile != null &&
-                    a.ProjectFile.Equals(project))?.FeatureType.ToString();
+                    a.ProjectFile.Equals(project, StringComparison.InvariantCultureIgnoreCase))?.FeatureType.ToString();
 
-                var projectActions = analysisActions.FirstOrDefault(p => p.ProjectFile == project)?.ProjectActions ?? new ProjectActions();
+                var projectActions = analysisActions.FirstOrDefault(p => p.ProjectFile.Equals(project, StringComparison.InvariantCultureIgnoreCase))?.ProjectActions ?? new ProjectActions();
 
                 if (analyzer == null || analyzer.ProjectResult == null)
                 {
@@ -789,6 +812,7 @@ namespace PortingAssistant.Client.Analysis
             AssessmentType assessmentType = AssessmentType.FullAssessment
             )
         {
+
             var analysisActions = AnalyzeActions(projects, targetFramework, analyzerResults, solutionFilename);
 
             var solutionAnalysisResult = AnalyzeProjects(

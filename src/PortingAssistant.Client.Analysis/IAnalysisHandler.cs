@@ -14,6 +14,13 @@ namespace PortingAssistant.Client.Analysis
         Task<Dictionary<string, ProjectAnalysisResult>> AnalyzeSolution(string solutionFilename, List<string> projects, string targetFramework = "net6.0", AnalyzerSettings settings = null,
             AssessmentType assessmentType = AssessmentType.FullAssessment);
 
+        Task<Dictionary<string, ProjectAnalysisResult>> AnalyzeSolution(
+            string solutionFilename,
+            List<string> projects,
+            List<AnalyzerResult> analyzerResults,
+            string targetFramework,
+            AssessmentType assessmentType = AssessmentType.FullAssessment);
+
         Task<Dictionary<string, ProjectAnalysisResult>> AnalyzeSolutionIncremental(string solutionFilename, List<string> projects,
             string targetFramework = "net6.0", AnalyzerSettings settings = null);
 
