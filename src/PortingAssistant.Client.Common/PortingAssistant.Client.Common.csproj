@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -6,7 +6,7 @@
   <ItemGroup>
     <PackageReference Include="CTA.Rules.PortCore" Version="2.12.18-alpha-g36e0ec71a2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="NuGet.Protocol" Version="6.6.1" />
+    <PackageReference Include="NuGet.Protocol" Version="6.7.0" />
     <PackageReference Include="semver" Version="2.0.6" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="3.0.1" />
   </ItemGroup>
