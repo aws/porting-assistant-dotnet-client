@@ -565,6 +565,7 @@ namespace PortingAssistant.Client.Analysis
                     ExternalReferences = analyzer.ProjectResult.ExternalReferences,
                     ProjectCompatibilityResult = compatibilityResults,
                     LinesOfCode = analyzer.ProjectResult.LinesOfCode,
+                    HasError = compatibilityCheckerResponse.HasError //  compatibilityCheckerResponse Error
                 };
             }
             catch (Exception ex)

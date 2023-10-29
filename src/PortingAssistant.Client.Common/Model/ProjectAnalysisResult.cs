@@ -20,6 +20,7 @@ namespace PortingAssistant.Client.Model
         public ExternalReferences ExternalReferences { get; set; }
         public ProjectCompatibilityResult ProjectCompatibilityResult { get; set; }
 
+        public bool HasError { get; set; } //GetCompatibilityResponse HasError 
         public void Dispose()
         {
             Errors = null;
