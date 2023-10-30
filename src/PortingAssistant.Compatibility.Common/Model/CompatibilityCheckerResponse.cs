@@ -19,7 +19,7 @@ namespace PortingAssistant.Compatibility.Common.Model
         public Language Language { get; set; }
         public Dictionary<PackageVersionPair, AnalysisResult> PackageRecommendationResults { get; set; }
         public Dictionary<PackageVersionPair, Dictionary<string, AnalysisResult>> ApiRecommendationResults { get; set; }
-
+        public bool HasCompatibilityCheckingError { get; set; } = false; 
         public Recommendations? GetRecommendationsForPackage(PackageVersionPair pkgVersionPair)
         {
             if (PackageRecommendationResults == null

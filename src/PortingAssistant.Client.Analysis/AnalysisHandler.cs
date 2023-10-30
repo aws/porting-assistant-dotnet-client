@@ -565,6 +565,7 @@ namespace PortingAssistant.Client.Analysis
                     ExternalReferences = analyzer.ProjectResult.ExternalReferences,
                     ProjectCompatibilityResult = compatibilityResults,
                     LinesOfCode = analyzer.ProjectResult.LinesOfCode,
+                    HasCompatibilityCheckingError = compatibilityCheckerResponse.HasCompatibilityCheckingError //  compatibilityCheckerResponse Error
                 };
             }
             catch (Exception ex)
@@ -653,8 +654,8 @@ namespace PortingAssistant.Client.Analysis
             {
                 foreach (var packageRecommend in compatibilityCheckerResponse.PackageRecommendationResults)
                 {
-                    if (packageRecommend.Value?.Recommendations != null &&
-                        compatibilityCheckerResponse.PackageAnalysisResults.ContainsKey(packageRecommend.Key) &&
+                    if (packageRecommend.Value?.Recommendations != null && compatibilityCheckerResponse.PackageAnalysisResults!= null
+                        && compatibilityCheckerResponse.PackageAnalysisResults.ContainsKey(packageRecommend.Key) &&
                         compatibilityCheckerResponse.PackageAnalysisResults[packageRecommend.Key].Recommendations == null
                         )
                     {

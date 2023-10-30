@@ -19,7 +19,7 @@ namespace PortingAssistant.Client.Model
         public VisualBasicRootNodes VisualBasicProjectRules { get; set; }
         public ExternalReferences ExternalReferences { get; set; }
         public ProjectCompatibilityResult ProjectCompatibilityResult { get; set; }
-
+        public bool HasCompatibilityCheckingError { get; set; } //GetCompatibilityResponse HasError 
         public void Dispose()
         {
             Errors = null;
