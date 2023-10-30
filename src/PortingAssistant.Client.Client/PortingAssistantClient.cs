@@ -202,7 +202,7 @@ namespace PortingAssistant.Client.Client
                 FailedProjects = failedProjects,
                 SolutionDetails = solutionDetails,
                 ProjectAnalysisResults = projectAnalysisResults,
-                HasError = projectAnalysisResults.Any(c=>c.HasError) //if any project has compatibilityCheckerResponse Error
+                HasCompatibilityCheckingError = projectAnalysisResults.Any(c=>c.HasCompatibilityCheckingError) //if any project has compatibilityCheckerResponse Error
             };
         }
     }
