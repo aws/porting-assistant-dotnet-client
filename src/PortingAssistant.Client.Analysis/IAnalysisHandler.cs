@@ -12,14 +12,16 @@ namespace PortingAssistant.Client.Analysis
     {
 
         Task<Dictionary<string, ProjectAnalysisResult>> AnalyzeSolution(string solutionFilename, List<string> projects, string targetFramework = "net6.0", AnalyzerSettings settings = null,
-            AssessmentType assessmentType = AssessmentType.FullAssessment);
+            AssessmentType assessmentType = AssessmentType.FullAssessment,
+            string awsS3Bucket = null, string profile = null, string awsRegion = null, string awsKmsKey = null);
 
         Task<Dictionary<string, ProjectAnalysisResult>> AnalyzeSolution(
             string solutionFilename,
             List<string> projects,
             List<AnalyzerResult> analyzerResults,
             string targetFramework,
-            AssessmentType assessmentType = AssessmentType.FullAssessment);
+            AssessmentType assessmentType = AssessmentType.FullAssessment,
+            string awsS3Bucket = null, string profile = null, string awsRegion = null, string awsKmsKey = null);
 
         Task<Dictionary<string, ProjectAnalysisResult>> AnalyzeSolutionIncremental(string solutionFilename, List<string> projects,
             string targetFramework = "net6.0", AnalyzerSettings settings = null);

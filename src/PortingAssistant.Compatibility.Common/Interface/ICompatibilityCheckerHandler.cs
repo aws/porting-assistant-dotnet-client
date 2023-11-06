@@ -12,7 +12,8 @@ namespace PortingAssistant.Compatibility.Common.Interface
         /// </summary>
         /// <param name="packageVersions">A collection of packages and their versions</param>
         /// <returns></returns>
-        public CompatibilityCheckerResponse Check(CompatibilityCheckerRequest request, HashSet<string> fullSdks);
+        public CompatibilityCheckerResponse Check(CompatibilityCheckerRequest request, HashSet<string> fullSdks,
+            string awsS3Bucket = null, string profile = null, string awsRegion = null, string awsKmsKey = null);
 
         public CompatibilityCheckerResponse Check(CompatibilityCheckerRequest request);
     }

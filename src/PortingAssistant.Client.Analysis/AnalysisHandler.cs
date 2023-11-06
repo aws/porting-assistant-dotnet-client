@@ -304,14 +304,16 @@ namespace PortingAssistant.Client.Analysis
             List<string> projects,
             string targetFramework = DEFAULT_TARGET,
             AnalyzerSettings analyzerSettings = null,
-            AssessmentType assessmentType = AssessmentType.FullAssessment)
+            AssessmentType assessmentType = AssessmentType.FullAssessment,
+            string awsS3Bucket = null, string profile = null, string awsRegion = null, string awsKmsKey = null)
         {
             try
             {
                 TraceEvent.Start(_logger, $"Compatibility assessment of solution without generator: {solutionFilename}");
                 var analyzerResults = await RunCoderlyzerAnalysis(solutionFilename, projects, analyzerSettings);
 
-                return GetSolutionAnalysisResult(solutionFilename, projects, analyzerResults, targetFramework, assessmentType: assessmentType);
+                return GetSolutionAnalysisResult(solutionFilename, projects, analyzerResults, targetFramework, false, assessmentType: assessmentType,
+                    awsS3Bucket, profile, awsRegion, awsKmsKey);
             }
             catch (OutOfMemoryException e)
             {
@@ -331,13 +333,15 @@ namespace PortingAssistant.Client.Analysis
             List<string> projects,
             List<AnalyzerResult> analyzerResults,
             string targetFramework = DEFAULT_TARGET,
-            AssessmentType assessmentType = AssessmentType.FullAssessment)
+            AssessmentType assessmentType = AssessmentType.FullAssessment,
+            string awsS3Bucket = null, string profile = null, string awsRegion = null, string awsKmsKey = null)
         {
             try
             {
                 TraceEvent.Start(_logger, $"Compatibility assessment of solution with AnalysisResult: {solutionFilename}");
                 
-                return GetSolutionAnalysisResult(solutionFilename, projects, analyzerResults, targetFramework, assessmentType: assessmentType);
+                return GetSolutionAnalysisResult(solutionFilename, projects, analyzerResults, targetFramework, false, assessmentType: assessmentType, 
+                    awsS3Bucket, profile, awsRegion, awsKmsKey);
             }
             catch (OutOfMemoryException e)
             {
@@ -459,7 +463,8 @@ namespace PortingAssistant.Client.Analysis
             List<ProjectResult> analysisActions,
             bool isIncremental = false,
             string targetFramework = DEFAULT_TARGET,
-            AssessmentType assessmentType = AssessmentType.FullAssessment)
+            AssessmentType assessmentType = AssessmentType.FullAssessment,
+            string awsS3Bucket = null, string profile = null, string awsRegion = null, string awsKmsKey = null)
         {
             _logger.LogInformation("Memory Consumption before AnalyzeProjects: ");
             MemoryUtils.LogMemoryConsumption(_logger);
@@ -473,7 +478,11 @@ namespace PortingAssistant.Client.Analysis
                                 analyzerResult,
                                 analysisActions,
                                 targetFramework,
-                                assessmentType: assessmentType
+                                assessmentType: assessmentType,
+                                awsS3Bucket,
+                                profile,
+                                awsRegion,
+                                awsKmsKey
                                 )))
                         .Where(p => p.Value != null)
                         .ToDictionary(p => p.Key, p => p.Value);
@@ -490,7 +499,8 @@ namespace PortingAssistant.Client.Analysis
             List<AnalyzerResult> analyzers,
             List<ProjectResult> analysisActions,
             string targetFramework = DEFAULT_TARGET,
-            AssessmentType assessmentType = AssessmentType.FullAssessment)
+            AssessmentType assessmentType = AssessmentType.FullAssessment,
+            string awsS3Bucket = null, string profile = null, string awsRegion = null, string awsKmsKey = null)
         {
             try
             {
@@ -524,7 +534,8 @@ namespace PortingAssistant.Client.Analysis
                 if (rawCompatibilityCheckerRequest.PackageWithApis.Any())
                 {
                     compatibilityCheckerResponse =
-                        ProcessCompatibilityCheckerRequestByApplyingCache(project, rawCompatibilityCheckerRequest);
+                        ProcessCompatibilityCheckerRequestByApplyingCache(project, rawCompatibilityCheckerRequest,
+                            awsS3Bucket, profile, awsRegion, awsKmsKey);
                 }
                 else
                 {
@@ -593,7 +604,8 @@ namespace PortingAssistant.Client.Analysis
         }
 
         private CompatibilityCheckerResponse ProcessCompatibilityCheckerRequestByApplyingCache(
-            string project, CompatibilityCheckerRequest rawCompatibilityCheckerRequest)
+            string project, CompatibilityCheckerRequest rawCompatibilityCheckerRequest,
+            string awsS3Bucket = null, string profile = null, string awsRegion = null, string awsKmsKey = null)
         {
 
             HashSet<Compatibility.Common.Model.PackageVersionPair> nugetPackagesNeedToCheck;
@@ -622,7 +634,8 @@ namespace PortingAssistant.Client.Analysis
                 CompatibilityCheckerResponse newResponse = null;
                 if (compatibilityCheckerRequest.PackageWithApis.Count > 0)
                 {
-                    newResponse = _compatibilityCheckerHandler.Check(compatibilityCheckerRequest, null);
+                    newResponse = _compatibilityCheckerHandler.Check(compatibilityCheckerRequest, null,
+                        awsS3Bucket, profile, awsRegion, awsKmsKey);
                     _cacheService.UpdateCacheInLocal(newResponse, compatibilityCheckerRequest.TargetFramework);
                 }
                 //merge the newResponse and cache result to final output
@@ -635,7 +648,8 @@ namespace PortingAssistant.Client.Analysis
             {
                 sw.Start();
                 _logger.LogInformation("no cache available. use rawCompatibilityCheckerRequest");
-                compatibilityCheckerResponse = _compatibilityCheckerHandler.Check(rawCompatibilityCheckerRequest, null);
+                compatibilityCheckerResponse = _compatibilityCheckerHandler.Check(rawCompatibilityCheckerRequest, null,
+                    awsS3Bucket, profile, awsRegion, awsKmsKey);
                 sw.Stop();
                 _logger.LogInformation($"_compatibilityCheckerHandler.Check process time : {sw.ElapsedMilliseconds/1000} seconds for project {project} without cache");
                 _cacheService.UpdateCacheInLocal(compatibilityCheckerResponse, rawCompatibilityCheckerRequest.TargetFramework);
@@ -810,7 +824,8 @@ namespace PortingAssistant.Client.Analysis
             List<AnalyzerResult> analyzerResults,
             string targetFramework = DEFAULT_TARGET,
             bool isIncrementalAnalysis = false,
-            AssessmentType assessmentType = AssessmentType.FullAssessment
+            AssessmentType assessmentType = AssessmentType.FullAssessment,
+            string awsS3Bucket = null, string profile = null, string awsRegion = null, string awsKmsKey = null
             )
         {
 
@@ -820,7 +835,8 @@ namespace PortingAssistant.Client.Analysis
                 solutionFilename, projects,
                 analyzerResults, analysisActions,
                 isIncremental: isIncrementalAnalysis,
-                targetFramework, assessmentType);
+                targetFramework, assessmentType,
+                awsS3Bucket, profile, awsRegion, awsKmsKey);
 
             return solutionAnalysisResult;
         }

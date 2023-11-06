@@ -24,7 +24,8 @@ namespace PortingAssistant.Compatibility.Core
             _logger = logger;
         }
 
-        public CompatibilityCheckerResponse Check(CompatibilityCheckerRequest request, HashSet<string> fullSdks) //ILambdaLogger logger 
+        public CompatibilityCheckerResponse Check(CompatibilityCheckerRequest request, HashSet<string> fullSdks,
+            string awsS3Bucket = null, string profile = null, string awsRegion = null, string awsKmsKey = null) //ILambdaLogger logger 
         {
             var language = request.Language;
             var targetFramework = request.TargetFramework ?? Constants.DefaultAssessmentTargetFramework;
