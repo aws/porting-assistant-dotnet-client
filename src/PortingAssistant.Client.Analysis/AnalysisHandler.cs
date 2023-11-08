@@ -539,6 +539,7 @@ namespace PortingAssistant.Client.Analysis
                 .Select(r => CodeEntityModelToCodeEntities.ReferenceToPackageVersionPair(r))
                 .ToHashSet();
 
+
                 var sourceFileAnalysisResults = CompatibilityCheckerHelper.AddCompatibilityCheckerResultsToCodeEntities(
                     sourceFileToCodeEntityDetails, compatibilityCheckerResponse, portingActionResults, targetFramework);
                 var compatibilityResults = AnalysisUtils.GenerateCompatibilityResults(sourceFileAnalysisResults,
@@ -823,6 +824,26 @@ namespace PortingAssistant.Client.Analysis
                 targetFramework, assessmentType);
 
             return solutionAnalysisResult;
+        }
+
+        public ProjectAnalysisResult GetProjectAnalysisResult(
+            string solutionFilename,
+            string project,
+            AnalyzerResult analyzerResult,
+            string targetFramework = DEFAULT_TARGET,
+            AssessmentType assessmentType = AssessmentType.FullAssessment
+            )
+        {
+
+            var analysisActions = AnalyzeActions(new List<string> {project}, targetFramework,
+                new List<AnalyzerResult> { analyzerResult }, solutionFilename);
+
+            var projectAnalysisResult = AnalyzeProject(
+                solutionFilename, project,
+                new List<AnalyzerResult> { analyzerResult }, analysisActions,
+                targetFramework, assessmentType);
+
+            return projectAnalysisResult;
         }
 
     }
