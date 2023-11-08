@@ -312,7 +312,8 @@ namespace PortingAssistant.Client.Analysis.Utils
                 }
             }
 
-            var fileLanguage = analyzer.ProjectResult.SourceFileResults.FirstOrDefault().Language;
+            var fileLanguage = analyzer.ProjectResult.SourceFileResults.Any()? 
+                analyzer.ProjectResult.SourceFileResults.FirstOrDefault().Language: "Visual Basic";
             Language language = fileLanguage == "Visual Basic"? Language.Vb: Language.CSharp;
             
             return new CompatibilityCheckerRequest() {

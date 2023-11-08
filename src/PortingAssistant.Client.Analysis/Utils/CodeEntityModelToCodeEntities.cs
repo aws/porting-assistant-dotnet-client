@@ -201,47 +201,7 @@ namespace PortingAssistant.Client.Analysis.Utils
 
             return sdk ?? nugetPackage;
         }
-        /*
-        public static CompatibilityResult GetCompatibilityResult(CompatibilityResult compatibilityResultWithPackage, CompatibilityResult compatibilityResultWithSdk)
-        {
-            var compatiblityResult = compatibilityResultWithPackage;
-
-            switch (compatibilityResultWithPackage.Compatibility)
-            {
-                case Compatibility.COMPATIBLE:
-                    break;
-
-                case Compatibility.INCOMPATIBLE:
-                    if (compatibilityResultWithSdk.Compatibility == Compatibility.COMPATIBLE)
-                    {
-                        compatiblityResult = compatibilityResultWithSdk;
-                    }
-                    break;
-
-                case Compatibility.DEPRECATED:
-                    if (compatibilityResultWithSdk.Compatibility == Compatibility.COMPATIBLE ||
-                        compatibilityResultWithSdk.Compatibility == Compatibility.INCOMPATIBLE)
-                    {
-                        compatiblityResult = compatibilityResultWithSdk;
-                    }
-                    break;
-
-                case Compatibility.UNKNOWN:
-                    if (compatibilityResultWithSdk.Compatibility == Compatibility.COMPATIBLE ||
-                        compatibilityResultWithSdk.Compatibility == Compatibility.INCOMPATIBLE || 
-                        compatibilityResultWithSdk.Compatibility == Compatibility.DEPRECATED)
-                    {
-                        compatiblityResult = compatibilityResultWithSdk;
-                    }
-                    break;
-
-                default:
-                    break;
-            }
-
-            return compatiblityResult;
-        }
-        */
+        
         public static PackageVersionPair ReferenceToPackageVersionPair(ExternalReference reference, PackageSourceType sourceType = PackageSourceType.NUGET)
         {
             if (reference != null)

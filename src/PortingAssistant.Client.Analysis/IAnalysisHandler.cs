@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Codelyzer.Analysis.Model;
+using NuGet.Protocol.Plugins;
 using PortingAssistant.Client.Model;
 using PortingAssistant.Compatibility.Common.Model;
 
@@ -29,5 +30,13 @@ namespace PortingAssistant.Client.Analysis
             string targetFramework = "net6.0");
         IAsyncEnumerable<ProjectAnalysisResult> AnalyzeSolutionGeneratorAsync(string solutionFilename, List<string> projects, 
             string targetFramework = "net6.0", [EnumeratorCancellation] CancellationToken ct = default);
+
+        ProjectAnalysisResult GetProjectAnalysisResult(
+            string solutionFilename,
+            string project,
+            AnalyzerResult analyzerResult,
+            string targetFramework = "net6.0",
+            AssessmentType assessmentType = AssessmentType.FullAssessment
+            );
     }
 }
