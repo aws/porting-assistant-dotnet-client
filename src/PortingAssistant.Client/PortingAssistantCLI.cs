@@ -98,7 +98,7 @@ namespace PortingAssistant.Client.CLI
         
         public void HandleCommand(String[] args)
         {
-            var TargetFrameworks = new HashSet<string> {"net7.0", "net6.0", "net5.0", "netcoreapp3.1", "netstandard2.1" };
+            var TargetFrameworks = new HashSet<string> {"net8.0", "net7.0", "net6.0", "net5.0", "netcoreapp3.1", "netstandard2.1" };
 
             Parser.Default.ParseArguments<AssessOptions, SchemaOptions>(args)
                 .WithNotParsed(HandleParseError)
