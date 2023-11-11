@@ -2128,7 +2128,8 @@
           "Newtonsoft.Json": "[13.0.3, )",
           "NuGet.Packaging": "[6.6.0, )",
           "Polly": "[7.2.3, )",
-          "Polly.Extensions.Http": "[3.0.0, )"
+          "Polly.Extensions.Http": "[3.0.0, )",
+          "System.CodeDom": "[4.4.0, )"
         }
       }
     }

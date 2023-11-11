@@ -9,7 +9,7 @@ namespace PortingAssistant.Client.Analysis
         public void ValidateCacheFile(Model.PortingAssistantConfiguration config);
         public void ValidateCacheFile(string cacheFilePath, int cacheExpirationHours = 24);
         public void ApplyCacheToCompatibleCheckerResults(CompatibilityCheckerRequest compatibilityCheckerRequest,
-            List<PackageVersionPair> packageVersionPairs, out HashSet<PackageVersionPair> nugetPackagesNeedToCheck,
+            List<PackageVersionPair> packageVersionPairs, 
             out Dictionary<PackageVersionPair, HashSet<ApiEntity>> packageWithApisNeedToCheck,
             ref Dictionary<PackageVersionPair, AnalysisResult> packageAnalysisResultsDic,
             ref Dictionary<PackageVersionPair, Dictionary<string, AnalysisResult>> apiAnalysisResultsDic);

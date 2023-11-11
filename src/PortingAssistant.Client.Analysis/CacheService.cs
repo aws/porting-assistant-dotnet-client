@@ -82,13 +82,12 @@ namespace PortingAssistant.Client.Analysis
 
         public void ApplyCacheToCompatibleCheckerResults(CompatibilityCheckerRequest request,
             List<Compatibility.Common.Model.PackageVersionPair> allPackages,
-            out HashSet<Compatibility.Common.Model.PackageVersionPair> packagesNeedToCheck,
             out Dictionary<Compatibility.Common.Model.PackageVersionPair, HashSet<ApiEntity>> packageWithApisNeedToCheck,
             ref Dictionary<Compatibility.Common.Model.PackageVersionPair, AnalysisResult> packageAnalysisResultsDic,
             ref Dictionary<Compatibility.Common.Model.PackageVersionPair, Dictionary<string, AnalysisResult>> apiAnalysisResultsDic)
         {
             var targetFramework = request.TargetFramework;
-            packagesNeedToCheck = new HashSet<Compatibility.Common.Model.PackageVersionPair>();
+            var packagesOnlyNeedToCheck = new HashSet<Compatibility.Common.Model.PackageVersionPair>();
             packageWithApisNeedToCheck = new Dictionary<Compatibility.Common.Model.PackageVersionPair, HashSet<ApiEntity>>();
 
             // Load results from cache object
@@ -104,7 +103,7 @@ namespace PortingAssistant.Client.Analysis
                     }
                     else if (package.PackageSourceType == Compatibility.Common.Model.PackageSourceType.NUGET)
                     {
-                        packagesNeedToCheck.Add(package);
+                        packagesOnlyNeedToCheck.Add(package);
                     }
 
                     var apis = request.PackageWithApis[package];
@@ -133,6 +132,15 @@ namespace PortingAssistant.Client.Analysis
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, $"fail to apply cache result on package {package}");
+                }
+            }
+            
+            // merge packagesNeedToCheck with packageWithApisNeedToCheck
+            foreach (var p in packagesOnlyNeedToCheck)
+            {
+                if (!packageWithApisNeedToCheck.ContainsKey(p))
+                {
+                    packageWithApisNeedToCheck.Add(p, new HashSet<ApiEntity>());
                 }
             }
         }
