@@ -220,6 +220,7 @@ namespace PortingAssistant.Compatibility.Common.Utils
                 Compatibility = Model.Compatibility.UNKNOWN,
                 CompatibleVersions = new List<string>()
             };
+            
             // If necessary data to determine compatibility is missing, return unknown compatibility
             if (packageCompatibilityResult == null)
             {
@@ -455,8 +456,7 @@ namespace PortingAssistant.Compatibility.Common.Utils
                 return DEFAULT_RECOMMENDATION;
             }
         }
-
-
+        
         private static Recommendation FetchApiRecommendation(
             string apiMethodSignature,
             Task<RecommendationDetails>
@@ -588,9 +588,7 @@ namespace PortingAssistant.Compatibility.Common.Utils
                 {
                     indexDict.Add(extensionSignature, i);
                 }
-
             }
-
             return indexDict;
         }
 
