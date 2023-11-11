@@ -611,7 +611,8 @@ namespace PortingAssistant.Client.Analysis
                 _logger.LogInformation("local cache available.  try apply it on rawCompatibilityCheckerRequest");
                 //apply Cache result 
                 _cacheService.ApplyCacheToCompatibleCheckerResults(rawCompatibilityCheckerRequest, rawCompatibilityCheckerRequest.PackageWithApis.Keys.ToList(),
-                    out nugetPackagesNeedToCheck, out packageWithApisNeedToCheck, ref packageAnalysisResultsDic, ref apiAnalysisResultsDic);
+                    out packageWithApisNeedToCheck, ref packageAnalysisResultsDic, ref apiAnalysisResultsDic);
+                
                 var compatibilityCheckerRequest = new CompatibilityCheckerRequest
                 {
                     AssessmentType = rawCompatibilityCheckerRequest.AssessmentType,
