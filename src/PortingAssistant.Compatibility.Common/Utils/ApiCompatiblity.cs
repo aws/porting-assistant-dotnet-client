@@ -218,6 +218,7 @@ namespace PortingAssistant.Compatibility.Common.Utils
                 Compatibility = Model.Compatibility.UNKNOWN,
                 CompatibleVersions = new List<string>()
             };
+            
             // If necessary data to determine compatibility is missing, return unknown compatibility
             if (packageCompatibilityResult == null)
             {
@@ -453,8 +454,7 @@ namespace PortingAssistant.Compatibility.Common.Utils
                 return DEFAULT_RECOMMENDATION;
             }
         }
-
-
+        
         private static Recommendation FetchApiRecommendation(
             string apiMethodSignature,
             Task<RecommendationDetails>
@@ -588,9 +588,7 @@ namespace PortingAssistant.Compatibility.Common.Utils
                 {
                     indexDict.Add(extensionSignature, i);
                 }
-
             }
-
             return indexDict;
         }
 
@@ -633,8 +631,14 @@ namespace PortingAssistant.Compatibility.Common.Utils
                 {
                     return null;
                 }
+                
+                var newMethodParameters = new List<string>();
+                foreach (var param in api.MethodParameters )
+                {
+                    newMethodParameters.Add( param.Split(" ")[0]);
+                }
 
-                var possibleExtension = api.MethodParameters[0];
+                var possibleExtension = newMethodParameters[0];
                 var methodSignatureIndex = api.MethodSignature.IndexOf("(") >= 0 ? api.MethodSignature.IndexOf("(") : api.MethodSignature.Length;
                 var sliceMethodSignature = api.MethodSignature.Substring(0, methodSignatureIndex);
                 var methondNameIndex = sliceMethodSignature.LastIndexOf(api.MethodName);
