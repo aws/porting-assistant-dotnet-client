@@ -258,5 +258,103 @@ namespace PortingAssistant.Compatibility.Core.Tests.UnitTests
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Count, Is.EqualTo(0));
         }
+        
+        [TestCase("Microsoft.AspNetCore.Hosting.IHostingEnvironment", "Microsoft.AspNetCore.Hosting.IHostingEnvironment")]
+        [TestCase("Microsoft.AspNetCore.Hosting.IHostingEnvironment hostingEnvironment", "Microsoft.AspNetCore.Hosting.IHostingEnvironment")]
+        [TestCase("System.Collections.Generic.IReadOnlyDictionary<string, T>", "System.Collections.Generic.IReadOnlyDictionary<string, T>")]
+        [TestCase("System.Collections.Generic.IReadOnlyDictionary<string, T> SomeDict", "System.Collections.Generic.IReadOnlyDictionary<string, T>")]
+        [TestCase("System.Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>", "System.Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>")]
+        [TestCase("System.Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult> SomeFunc", "System.Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TResult>")]
+        [TestCase("System.Func<Microsoft.AspNetCore.Mvc.ActionContext, Microsoft.AspNetCore.Mvc.IActionResult> value", "System.Func<Microsoft.AspNetCore.Mvc.ActionContext, Microsoft.AspNetCore.Mvc.IActionResult>")]
+        [TestCase("object[] value", "object[]")]
+        [TestCase("out System.Net.IPEndPoint? result", "out System.Net.IPEndPoint?")]
+        [TestCase("params string[] include", "params string[]")]
+        [TestCase("params System.Linq.Expressions.Expression<System.Func<TModel, object>>[] includeExpressions", "params System.Linq.Expressions.Expression<System.Func<TModel, object>>[]")]
+        [TestCase("ref bool initialized", "ref bool")]
+        public void RemoveParameterName_Removes_Parameter_Names(
+            string methodParameter,
+            string expectedResult)
+        {
+            var actualResult = ApiCompatiblity.RemoveParameterName(methodParameter);
+            Assert.AreEqual(expectedResult, actualResult);
+        }
+
+        [TestCase(
+            "CloneIfDifferentComparer", 
+            "System.Collections.Generic.IReadOnlyDictionary<string, T>",
+            "System.StringComparer", 
+            "Microsoft.TemplateEngine.Utils.DictionaryExtensions.CloneIfDifferentComparer<T>(System.Collections.Generic.IReadOnlyDictionary<string, T>, System.StringComparer)",
+            "System.Collections.Generic.IReadOnlyDictionary<string, T>.CloneIfDifferentComparer<T>(System.StringComparer)")]
+        [TestCase(
+            "CloneIfDifferentComparer",
+            "System.Collections.Generic.IReadOnlyDictionary<string, T> someDict",
+            "System.StringComparer someComparer",
+            "Microsoft.TemplateEngine.Utils.DictionaryExtensions.CloneIfDifferentComparer<T>(System.Collections.Generic.IReadOnlyDictionary<string, T>, System.StringComparer)",
+            "System.Collections.Generic.IReadOnlyDictionary<string, T>.CloneIfDifferentComparer<T>(System.StringComparer)")]
+        public void GetExtensionSignature_Returns_FormattedExtension_Without_ParameterNames(string methodName, string parameter1, string parameter2, string methodSignature, string? expectedResult)
+        {
+            var apiDetails = new ApiDetails
+            {
+                MethodName = methodName,
+                MethodParameters = new [] { parameter1, parameter2},
+                MethodSignature = methodSignature
+            };
+
+            var actualResult = ApiCompatiblity.GetExtensionSignature(apiDetails);
+            Assert.AreEqual(expectedResult, actualResult);
+        }
+
+        [TestCase(
+            "CloneIfDifferentComparer",
+            "System.Collections.Generic.IReadOnlyDictionary<string, T>",
+            "System.StringComparer",
+            "Microsoft.TemplateEngine.Utils.DictionaryExtensions.CloneIfDifferentComparer<T>(System.Collections.Generic.IReadOnlyDictionary<string, T>, System.StringComparer)",
+            "System.Collections.Generic.IReadOnlyDictionary<string, T>.CloneIfDifferentComparer<T>(System.StringComparer)")]
+        [TestCase(
+            "CloneIfDifferentComparer",
+            "System.Collections.Generic.IReadOnlyDictionary<string, T> someDict",
+            "System.StringComparer someComparer",
+            "Microsoft.TemplateEngine.Utils.DictionaryExtensions.CloneIfDifferentComparer<T>(System.Collections.Generic.IReadOnlyDictionary<string, T>, System.StringComparer)",
+            "System.Collections.Generic.IReadOnlyDictionary<string, T>.CloneIfDifferentComparer<T>(System.StringComparer)")]
+        public void GetExtensionSignature_Returns_FormattedExtension_Without_ParameterNames_ForV2(string methodName, string parameter1, string parameter2, string methodSignature, string? expectedResult)
+        {
+            var apiDetails = new ApiDetailsV2
+            {
+                methodName = methodName,
+                methodParameters = new [] { parameter1, parameter2 },
+                methodSignature = methodSignature
+            };
+
+            var actualResult = ApiCompatiblity.GetExtensionSignature(apiDetails);
+            Assert.AreEqual(expectedResult, actualResult);
+        }
+
+        [Test]
+        public void GetExtensionSignature_Returns_Null_When_NoParametersArePassed()
+        {
+            var apiDetails = new ApiDetails
+            {
+                MethodName = "AnyMethod",
+                MethodParameters = new string[] { },
+                MethodSignature = "AnySignature"
+            };
+
+            var actualResult = ApiCompatiblity.GetExtensionSignature(apiDetails);
+            Assert.AreEqual(null, actualResult);
+        }
+
+        [Test]
+        public void GetExtensionSignature_Returns_Null_When_NoParametersArePassed_ForV2()
+        {
+            var apiDetails = new ApiDetailsV2()
+            {
+                methodName = "AnyMethod",
+                methodParameters = new string[] { },
+                methodSignature = "AnySignature"
+            };
+
+            var actualResult = ApiCompatiblity.GetExtensionSignature(apiDetails);
+            Assert.AreEqual(null, actualResult);
+        }
     }
 }

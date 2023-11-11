@@ -1,26 +1,28 @@
-﻿using Amazon.Runtime.Internal.Endpoints.StandardLibrary;
-using Amazon.Runtime.Internal.Transform;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using NuGet.Versioning;
 using PortingAssistant.Compatibility.Common.Interface;
 using PortingAssistant.Compatibility.Common.Model;
-using System;
-using System.Collections.Generic;
-using System.IO;
+using System.CodeDom.Compiler;
 using System.IO.Compression;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PortingAssistant.Compatibility.Common.Utils
 {
     public static class ApiCompatiblity
     {
+        private static CodeDomProvider? _codeDomProvider;
+        private static CodeDomProvider CodeDomProvider
+        {
+            get
+            { 
+                _codeDomProvider ??= CodeDomProvider.CreateProvider("C#");
+                return _codeDomProvider;
+            }
+        }
+
         private static readonly Recommendation DEFAULT_RECOMMENDATION = new Recommendation
         {
             RecommendedActionType = RecommendedActionType.NoRecommendation
         };
-
 
         public static Dictionary<ApiEntity, CompatibilityResult> IsCompatibleV2(
             KeyValuePair<PackageVersionPair, HashSet<ApiEntity>> packageWithApi,
@@ -562,8 +564,6 @@ namespace PortingAssistant.Compatibility.Common.Utils
             return indexDict;
         }
 
-        
-
         public static Dictionary<string, int> SignatureToIndexPreProcess(ApiDetailsV2[] apiDetails)
         {
             var indexDict = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
@@ -624,6 +624,28 @@ namespace PortingAssistant.Compatibility.Common.Utils
             return indexDict;
         }
 
+        public static string RemoveParameterName(string methodParameter)
+        {
+            const string spaceChar = " ";
+            var startOfParameterName = methodParameter.LastIndexOf(spaceChar);
+
+            // If there are no spaces in the method parameter, no op
+            if (startOfParameterName == -1)
+            {
+                return methodParameter;
+            }
+
+            var potentialParameterName = methodParameter.Substring(startOfParameterName);
+
+            // If potential parameter name is valid, we want to remove it
+            if (CodeDomProvider.IsValidIdentifier(potentialParameterName.Trim()))
+            {
+                return methodParameter.Remove(startOfParameterName);
+            }
+            
+            // The potential parameter name was not a valid identifier, no op
+            return methodParameter;
+        }
 
         public static string GetExtensionSignature(ApiDetails api)
         {
@@ -633,13 +655,15 @@ namespace PortingAssistant.Compatibility.Common.Utils
                 {
                     return null;
                 }
-
-                var possibleExtension = api.MethodParameters[0];
+                
+                var methodParameters = api.MethodParameters.Select(RemoveParameterName).ToList();
+                
+                var possibleExtension = methodParameters[0];
                 var methodSignatureIndex = api.MethodSignature.IndexOf("(") >= 0 ? api.MethodSignature.IndexOf("(") : api.MethodSignature.Length;
                 var sliceMethodSignature = api.MethodSignature.Substring(0, methodSignatureIndex);
-                var methondNameIndex = sliceMethodSignature.LastIndexOf(api.MethodName);
-                var methodName = sliceMethodSignature.Substring(methondNameIndex >= 0 ? methondNameIndex : sliceMethodSignature.Length);
-                var methodSignature = $"{possibleExtension}.{methodName}({String.Join(", ", api.MethodParameters.Skip(1))})";
+                var methodNameIndex = sliceMethodSignature.LastIndexOf(api.MethodName);
+                var methodName = sliceMethodSignature.Substring(methodNameIndex >= 0 ? methodNameIndex : sliceMethodSignature.Length);
+                var methodSignature = $"{possibleExtension}.{methodName}({String.Join(", ", methodParameters.Skip(1))})";
                 return methodSignature;
             }
             catch
@@ -648,7 +672,6 @@ namespace PortingAssistant.Compatibility.Common.Utils
             }
         }
         
-
         public static string GetExtensionSignature(ApiDetailsV2 api)
         {
             try
@@ -658,18 +681,14 @@ namespace PortingAssistant.Compatibility.Common.Utils
                     return null;
                 }
 
-                var newMethodParameters = new List<string>();
-                foreach (var param in api.methodParameters )
-                {
-                    newMethodParameters.Add( param.Split(" ")[0]);
-                }
+                var methodParameters = api.methodParameters.Select(RemoveParameterName).ToList();
 
-                var possibleExtension = newMethodParameters[0];
+                var possibleExtension = methodParameters[0];
                 var methodSignatureIndex = api.methodSignature.IndexOf("(") >= 0 ? api.methodSignature.IndexOf("(") : api.methodSignature.Length;
                 var sliceMethodSignature = api.methodSignature.Substring(0, methodSignatureIndex);
-                var methondNameIndex = sliceMethodSignature.LastIndexOf(api.methodName);
-                var methodName = sliceMethodSignature.Substring(methondNameIndex >= 0 ? methondNameIndex : sliceMethodSignature.Length);
-                var methodSignature = $"{possibleExtension}.{methodName}({String.Join(", ", newMethodParameters.Skip(1))})";
+                var methodNameIndex = sliceMethodSignature.LastIndexOf(api.methodName);
+                var methodName = sliceMethodSignature.Substring(methodNameIndex >= 0 ? methodNameIndex : sliceMethodSignature.Length);
+                var methodSignature = $"{possibleExtension}.{methodName}({string.Join(", ", methodParameters.Skip(1))})";
                 return methodSignature;
             }
             catch
