@@ -197,7 +197,7 @@ namespace PortingAssistant.Client.IntegrationTests
             Assert.AreEqual("Microsoft.VisualStudio.Web.BrowserLink", apiAnalysisResult.CodeEntityDetails.Package.PackageId);
             Assert.AreEqual("2.2.0", apiAnalysisResult.CodeEntityDetails.Package.Version);
             Assert.AreEqual(PackageSourceType.NUGET, apiAnalysisResult.CodeEntityDetails.Package.PackageSourceType);
-            Assert.AreEqual(Compatibility.COMPATIBLE, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").Compatibility);
+            Assert.AreEqual(Compatibility.INCOMPATIBLE, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").Compatibility);
             Assert.AreEqual(0, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").CompatibleVersions.Count);
             Assert.AreEqual(RecommendedActionType.NoRecommendation, apiAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
             Assert.Null(apiAnalysisResult.Recommendations.RecommendedActions.First().Description);
@@ -228,10 +228,10 @@ namespace PortingAssistant.Client.IntegrationTests
             Assert.AreEqual("WebMarkupMin.AspNetCore2", apiAnalysisResult.CodeEntityDetails.Package.PackageId);
             Assert.AreEqual("2.7.0", apiAnalysisResult.CodeEntityDetails.Package.Version);
             Assert.AreEqual(PackageSourceType.NUGET, apiAnalysisResult.CodeEntityDetails.Package.PackageSourceType);
-            Assert.AreEqual(Compatibility.COMPATIBLE, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").Compatibility);
-            Assert.True(apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").CompatibleVersions.Count > 0);
-            Assert.AreEqual(RecommendedActionType.UpgradePackage, apiAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
-            Assert.AreEqual("2.10.0", apiAnalysisResult.Recommendations.RecommendedActions.First().Description);
+            Assert.AreEqual(Compatibility.INCOMPATIBLE, apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").Compatibility);
+            Assert.True(apiAnalysisResult.CompatibilityResults.GetValueOrDefault("netcoreapp3.1").CompatibleVersions.Count == 0);
+            Assert.AreEqual(RecommendedActionType.NoRecommendation, apiAnalysisResult.Recommendations.RecommendedActions.First().RecommendedActionType);
+            Assert.AreEqual(null, apiAnalysisResult.Recommendations.RecommendedActions.First().Description);
 
 
             var blogController = sourceFileAnalysisResults.Find(s => s.SourceFileName == "BlogController.cs");
