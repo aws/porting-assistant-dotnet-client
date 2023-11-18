@@ -45,10 +45,11 @@ namespace PortingAssistant.Client.IntegrationTests
             }
         }
 
-        [Test]
-        public void PortingFrameworkProjectProducesExpectedPortedProject()
+        [TestCase("net6.0")]
+        [TestCase("net8.0")]
+        public void PortingFrameworkProjectProducesExpectedPortedProject(string targetFramework)
         {
-            RunCLIToPortSolution();
+            RunCLIToPortSolution(targetFramework);
             string expectedPortedTestSolutionPath = Path.Combine(
                 expectedPortedTestSolutionExtractionPath,
                 "NetFrameworkExample-ported","NetFrameworkExample");
@@ -73,7 +74,7 @@ namespace PortingAssistant.Client.IntegrationTests
                 filesToIgnore));
         }
 
-        private void RunCLIToPortSolution()
+        private void RunCLIToPortSolution(string targetFramework)
         {
             string actualTestSolutionPath = Path.Combine(
                 actualTestSolutionExtractionPath,
@@ -97,7 +98,8 @@ namespace PortingAssistant.Client.IntegrationTests
             startInfo.WindowStyle = ProcessWindowStyle.Hidden;
             startInfo.Arguments = "assess -s " + actualTestSolutionPath
                 + " " + "-o " + actualAnalysisResultRootDir
-                + " " + "-p " + "NetFrameworkExample";
+                + " " + "-p " + "NetFrameworkExample"
+                + " " + "-t " + targetFramework;
 
             try
             {
