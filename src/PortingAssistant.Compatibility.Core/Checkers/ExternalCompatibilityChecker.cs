@@ -9,7 +9,7 @@ namespace PortingAssistant.Compatibility.Core.Checkers
 {
     public class ExternalCompatibilityChecker : ICompatibilityChecker
     {
-        private readonly IHttpService _httpService;
+        private readonly IRegionalDatastoreService _regionalDatastoreService;
         private static readonly int _maxProcessConcurrency = 3;
         private static readonly SemaphoreSlim _semaphore = new SemaphoreSlim(_maxProcessConcurrency);
         private ILogger _logger;
@@ -17,10 +17,10 @@ namespace PortingAssistant.Compatibility.Core.Checkers
         public virtual PackageSourceType CompatibilityCheckerType => PackageSourceType.NUGET;
 
         public ExternalCompatibilityChecker(
-            IHttpService httpService,
+            IRegionalDatastoreService regionalDatastoreService,
             ILogger<ExternalCompatibilityChecker> logger)
         {
-            _httpService = httpService;
+            _regionalDatastoreService = regionalDatastoreService;
             _logger = logger;
         }
 
@@ -80,7 +80,7 @@ namespace PortingAssistant.Compatibility.Core.Checkers
                 {
                     HashSet<string>? apis = null; // OriginalDefinition
                     PackageDetails packageDetails = null;
-                    packageDetails = await GetPackageDetailFromS3(fileToDownload, _httpService, apis); 
+                    packageDetails = await GetPackageDetailFromS3(fileToDownload, _regionalDatastoreService, apis); 
 
                     if (packageDetails == null || packageDetails.Name == null || !string.Equals(packageDetails.Name.Trim().ToLower(),
                         packageToDownload.Trim().ToLower(), StringComparison.OrdinalIgnoreCase))
@@ -190,9 +190,9 @@ namespace PortingAssistant.Compatibility.Core.Checkers
         }
 
 
-        public async Task<PackageDetails> GetPackageDetailFromS3(string fileToDownload, IHttpService httpService, HashSet<string> apis = null)
+        public async Task<PackageDetails> GetPackageDetailFromS3(string fileToDownload, IRegionalDatastoreService regionalDatastoreService, HashSet<string> apis = null)
         {
-            using var stream = await httpService.DownloadS3FileAsync(fileToDownload);
+            using var stream = await regionalDatastoreService.DownloadRegionalS3FileAsync(fileToDownload, isRegionalCall: true);
             if (stream == null)
             {
                 return null;

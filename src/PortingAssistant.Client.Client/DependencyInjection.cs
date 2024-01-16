@@ -38,6 +38,7 @@ namespace PortingAssistant.Client.Client
             serviceCollection.AddTransient<ICompatibilityChecker, Compatibility.Core.Checkers.SdkCompatibilityChecker>();
             serviceCollection.AddTransient<ICompatibilityChecker, Compatibility.Core.Checkers.PortabilityAnalyzerCompatibilityChecker>();
             serviceCollection.AddTransient<IHttpService, Compatibility.Common.Utils.HttpService>();
+            serviceCollection.AddTransient<IRegionalDatastoreService, Compatibility.Common.Utils.RegionalDatastoreService>();
         }
 
         public static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()

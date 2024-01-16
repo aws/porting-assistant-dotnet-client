@@ -9,10 +9,10 @@ namespace PortingAssistant.Compatibility.Core.Checkers
         public override PackageSourceType CompatibilityCheckerType => PackageSourceType.NUGET;
         public ILogger _logger;
         public NugetCompatibilityChecker(
-            IHttpService httpService,
+            IRegionalDatastoreService regionalDatastoreService,
             ILogger<NugetCompatibilityChecker> logger
         )
-            : base(httpService, logger)
+            : base(regionalDatastoreService, logger)
         {
         }
     }
