@@ -208,7 +208,8 @@ namespace PortingAssistant.Client.Tests
         {
             //httpMessageHandler = new Mock<HttpMessageHandler>
             _httpService = new Mock<IHttpService>();
-            _regionalDatastoreService = new RegionalDatastoreService(_httpService.Object);
+            var datastoreServiceLoggerMock = new Mock<ILogger<RegionalDatastoreService>>();
+            _regionalDatastoreService = new RegionalDatastoreService(_httpService.Object, datastoreServiceLoggerMock.Object);
             _fileSystem = new Mock<IFileSystem>();
         }
 

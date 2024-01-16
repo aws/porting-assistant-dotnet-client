@@ -70,7 +70,8 @@ namespace PortingAssistant.Compatibility.Core.Tests.UnitTests
         public void OneTimeSetup()
         {
             _httpService = new Mock<IHttpService>();
-            _regionalDatastoreService = new RegionalDatastoreService(_httpService.Object);
+            var datastoreServiceLoggerMock = new Mock<ILogger<RegionalDatastoreService>>();
+            _regionalDatastoreService = new RegionalDatastoreService(_httpService.Object, datastoreServiceLoggerMock.Object);
         }
 
         [SetUp]
