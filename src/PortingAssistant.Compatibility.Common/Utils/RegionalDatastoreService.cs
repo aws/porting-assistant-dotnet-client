@@ -26,14 +26,6 @@ namespace PortingAssistant.Compatibility.Common.Utils
             }
         }
 
-        public RegionalDatastoreService(IHttpService httpService, AmazonS3Client s3Client, bool isLambdaEnvSetup, string regionaS3BucketName)
-        {
-            _httpService = httpService;
-            _s3Client = s3Client;
-            _isLambdaEnvSetup = isLambdaEnvSetup;
-            _regionaS3BucketName = regionaS3BucketName;
-        }
-
         public async Task<Stream> DownloadGitHubFileAsync(string fileToDownload)
         {
             return await _httpService.DownloadGitHubFileAsync(fileToDownload);

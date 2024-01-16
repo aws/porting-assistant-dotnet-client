@@ -208,8 +208,7 @@ namespace PortingAssistant.Client.Tests
         {
             //httpMessageHandler = new Mock<HttpMessageHandler>
             _httpService = new Mock<IHttpService>();
-            var mockS3Client = new Mock<AmazonS3Client>();
-            _regionalDatastoreService = new RegionalDatastoreService(_httpService.Object, mockS3Client.Object, false, "mockS3BucketName");
+            _regionalDatastoreService = new RegionalDatastoreService(_httpService.Object);
             _fileSystem = new Mock<IFileSystem>();
         }
 
