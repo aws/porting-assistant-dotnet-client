@@ -22,13 +22,11 @@ namespace PortingAssistant.Compatibility.Common.Utils
             _httpService = httpService;
             _logger = logger;
             string region = Environment.GetEnvironmentVariable("AWS_REGION");
-            string stage = Environment.GetEnvironmentVariable("stage");
 
-            if (!string.IsNullOrEmpty(region) && (stage == Constants.BetaStageName || stage == Constants.GammaStageName || stage == Constants.ProdStageName)) 
+            if (!string.IsNullOrEmpty(region)) 
             {
                 _isLambdaEnvSetup = true;
-                _regionaS3BucketName = stage == Constants.ProdStageName ? 
-                    $"portingassistant-datastore-{region}" : $"portingassistant-datastore-{stage}-{region}"; 
+                _regionaS3BucketName = $"portingassistant-datastore-{region}"; 
                 _s3Client = new AmazonS3Client(RegionEndpoint.GetBySystemName(region));
             }
         }
