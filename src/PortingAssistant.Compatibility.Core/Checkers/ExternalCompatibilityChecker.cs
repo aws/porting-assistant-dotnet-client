@@ -80,7 +80,7 @@ namespace PortingAssistant.Compatibility.Core.Checkers
                 {
                     HashSet<string>? apis = null; // OriginalDefinition
                     PackageDetails packageDetails = null;
-                    packageDetails = await GetPackageDetailFromS3(fileToDownload, _regionalDatastoreService, apis); 
+                    packageDetails = await GetPackageDetailFromS3(fileToDownload, apis); 
 
                     if (packageDetails == null || packageDetails.Name == null || !string.Equals(packageDetails.Name.Trim().ToLower(),
                         packageToDownload.Trim().ToLower(), StringComparison.OrdinalIgnoreCase))
@@ -190,9 +190,9 @@ namespace PortingAssistant.Compatibility.Core.Checkers
         }
 
 
-        public async Task<PackageDetails> GetPackageDetailFromS3(string fileToDownload, IRegionalDatastoreService regionalDatastoreService, HashSet<string> apis = null)
+        public async Task<PackageDetails> GetPackageDetailFromS3(string fileToDownload, HashSet<string> apis = null)
         {
-            using var stream = await regionalDatastoreService.DownloadRegionalS3FileAsync(fileToDownload, isRegionalCall: true);
+            using var stream = await _regionalDatastoreService.DownloadRegionalS3FileAsync(fileToDownload, isRegionalCall: true);
             if (stream == null)
             {
                 return null;

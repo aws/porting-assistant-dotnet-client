@@ -3,6 +3,7 @@ using Amazon.S3;
 using PortingAssistant.Compatibility.Common.Interface;
 using Amazon.S3.Model;
 using Microsoft.Extensions.Logging;
+using System.Net;
 
 namespace PortingAssistant.Compatibility.Common.Utils
 {
@@ -26,7 +27,8 @@ namespace PortingAssistant.Compatibility.Common.Utils
             if (!string.IsNullOrEmpty(region)) 
             {
                 _isLambdaEnvSetup = true;
-                _regionaS3BucketName = $"portingassistant-datastore-{region}"; 
+                _regionaS3BucketName = $"portingassistant-datastore-{region}";
+                _logger.LogInformation($"Read region from environment: {region}, set S3 bucket name: {_regionaS3BucketName}");
                 _s3Client = new AmazonS3Client(RegionEndpoint.GetBySystemName(region));
             }
         }
@@ -50,8 +52,17 @@ namespace PortingAssistant.Compatibility.Common.Utils
                     };
                     using (GetObjectResponse response = await _s3Client.GetObjectAsync(request))
                     {
-                        _logger.LogInformation($"Downloaded {fileToDownload} from " + _regionaS3BucketName);
-                        return response.ResponseStream;
+                        if (response.HttpStatusCode == HttpStatusCode.OK)
+                        {
+                            _logger.LogInformation($"Downloaded {fileToDownload} from " + _regionaS3BucketName);
+                            return response.ResponseStream;
+                        }
+                        else
+                        {
+                            _logger.LogWarning($"Issues during downloading through S3 client from " + _regionaS3BucketName);
+                            _logger.LogInformation($"Downloading file through Http client...");
+                            return await _httpService.DownloadS3FileAsync(fileToDownload);
+                        }   
                     }
 
                 }
