@@ -7,6 +7,8 @@ using PortingAssistant.Compatibility.Common.Model;
 using PortingAssistant.Compatibility.Core.Checkers;
 using Assert = NUnit.Framework.Assert;
 using Microsoft.Extensions.Logging;
+using PortingAssistant.Compatibility.Common.Utils;
+using Amazon.S3;
 
 namespace PortingAssistant.Compatibility.Core.Tests.UnitTests
 {
@@ -14,6 +16,7 @@ namespace PortingAssistant.Compatibility.Core.Tests.UnitTests
     public class NugetHandlerTest
     {
         private Mock<IHttpService> _httpService;
+        private IRegionalDatastoreService _regionalDatastoreService;
         private Mock<ICompatibilityCheckerNuGetHandler> _compatibilityCheckerNuGetHandler;
         private NugetCompatibilityChecker _nugetCompatibilityChecker;
         private PortabilityAnalyzerCompatibilityChecker _portabilityAnalyzerCompatibilityChecker;
@@ -67,6 +70,8 @@ namespace PortingAssistant.Compatibility.Core.Tests.UnitTests
         public void OneTimeSetup()
         {
             _httpService = new Mock<IHttpService>();
+            var datastoreServiceLoggerMock = new Mock<ILogger<RegionalDatastoreService>>();
+            _regionalDatastoreService = new RegionalDatastoreService(_httpService.Object, datastoreServiceLoggerMock.Object);
         }
 
         [SetUp]
@@ -142,17 +147,17 @@ namespace PortingAssistant.Compatibility.Core.Tests.UnitTests
              _logger = Mock.Of<ILogger<ICompatibilityChecker>>();
 
             _nugetCompatibilityChecker = new NugetCompatibilityChecker(
-                _httpService.Object,
+                _regionalDatastoreService,
                 Mock.Of<ILogger<NugetCompatibilityChecker>>()
                 );
 
             _portabilityAnalyzerCompatibilityChecker = new PortabilityAnalyzerCompatibilityChecker(
-                _httpService.Object,
+                _regionalDatastoreService,
                 Mock.Of<ILogger<PortabilityAnalyzerCompatibilityChecker>>()
                 );
 
             _sdkCompatibilityChecker = new SdkCompatibilityChecker(
-                _httpService.Object,
+                _regionalDatastoreService,
                 Mock.Of<ILogger<SdkCompatibilityChecker>>()
                 );
 
@@ -207,7 +212,7 @@ namespace PortingAssistant.Compatibility.Core.Tests.UnitTests
         private NugetCompatibilityChecker GetExternalPackagesCompatibilityChecker()
         {
             var externalChecker = new NugetCompatibilityChecker(
-                _httpService.Object, Mock.Of<ILogger<NugetCompatibilityChecker>>());
+                _regionalDatastoreService, Mock.Of<ILogger<NugetCompatibilityChecker>>());
 
             return externalChecker;
         }

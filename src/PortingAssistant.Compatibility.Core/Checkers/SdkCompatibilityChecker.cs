@@ -14,9 +14,9 @@ namespace PortingAssistant.Compatibility.Core.Checkers
         public override PackageSourceType CompatibilityCheckerType => PackageSourceType.SDK;
         private ILogger _logger;
         public SdkCompatibilityChecker(
-            IHttpService httpService,
+            IRegionalDatastoreService regionalDatastoreService,
             ILogger<SdkCompatibilityChecker> logger)
-            : base(httpService, logger)
+            : base(regionalDatastoreService, logger)
         {
         }
     }

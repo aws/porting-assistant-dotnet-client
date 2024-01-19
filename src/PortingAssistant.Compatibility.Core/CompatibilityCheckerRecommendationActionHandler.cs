@@ -9,18 +9,18 @@ namespace PortingAssistant.Compatibility.Core
     // The CompatibilityCheckerRecommendationActionHandler checks and gets recommendation action file details ("namespace.json") from the datastore, if any.
     public class CompatibilityCheckerRecommendationActionHandler : ICompatibilityCheckerRecommendationActionHandler
     {
-        private readonly IHttpService _httpService;
+        private readonly IRegionalDatastoreService _regionalDatastoreService;
         private const string _recommendationFileSuffix = ".json";
         private ILogger _logger;
         public PackageSourceType CompatibilityCheckerType => PackageSourceType.RECOMMENDATION;
 
 
         public CompatibilityCheckerRecommendationActionHandler(
-            IHttpService httpService,
+            IRegionalDatastoreService regionalDatastoreService,
             ILogger<CompatibilityCheckerRecommendationActionHandler> logger
             )
         {
-            _httpService = httpService;
+            _regionalDatastoreService = regionalDatastoreService;
             _logger = logger;
         }
 
@@ -39,7 +39,7 @@ namespace PortingAssistant.Compatibility.Core
                 Stream? stream = null;
                 try
                 {
-                    stream = await _httpService.DownloadS3FileAsync(recommendationDownloadPath);
+                    stream = await _regionalDatastoreService.DownloadRegionalS3FileAsync(recommendationDownloadPath, isRegionalCall: true);
                     using var streamReader = new StreamReader(stream);
                     var recommendationFromS3 = JsonConvert.DeserializeObject<RecommendationActionFileDetails>(await streamReader.ReadToEndAsync());
                     recommendationActionDetailsNamespaceDict.Add(namespaceName, recommendationFromS3);

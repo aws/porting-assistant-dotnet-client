@@ -15,7 +15,7 @@ namespace PortingAssistant.Compatibility.Core.Checkers
     public class PortabilityAnalyzerCompatibilityChecker : ICompatibilityChecker
     {
         private const string NamespaceLookupFile = "microsoftlibs.namespace.lookup.json";
-        private readonly IHttpService _httpService;
+        private readonly IRegionalDatastoreService _regionalDatastoreService;
         private Dictionary<string, string> _manifest;
         private static readonly int _maxProcessConcurrency = 3;
         private static readonly SemaphoreSlim _semaphore = new SemaphoreSlim(_maxProcessConcurrency);
@@ -27,11 +27,11 @@ namespace PortingAssistant.Compatibility.Core.Checkers
         /// </summary>
         /// <param name="httpService">The transferUtility object to read data from S3</param>
         public PortabilityAnalyzerCompatibilityChecker(
-            IHttpService httpService,
+            IRegionalDatastoreService regionalDatastoreService,
             ILogger<PortabilityAnalyzerCompatibilityChecker> logger
             )
         {
-            _httpService = httpService;
+            _regionalDatastoreService = regionalDatastoreService;
             _manifest = null;
             _logger = logger;
         }
@@ -124,7 +124,7 @@ namespace PortingAssistant.Compatibility.Core.Checkers
                 try
                 {
                     _logger.LogInformation($"Downloading {url.Key} from {CompatibilityCheckerType}");
-                    using var stream = await _httpService.DownloadS3FileAsync(url.Key);
+                    using var stream = await _regionalDatastoreService.DownloadRegionalS3FileAsync(url.Key, isRegionalCall: true);
                     using var gzipStream = new GZipStream(stream, CompressionMode.Decompress);
                     using var streamReader = new StreamReader(gzipStream);
                     var packageFromS3 = JsonConvert.DeserializeObject<PackageFromS3>(streamReader.ReadToEnd());
@@ -185,7 +185,7 @@ namespace PortingAssistant.Compatibility.Core.Checkers
         private async Task<Dictionary<string, string>> GetManifestAsync()
         {
             // Download the lookup file "microsoftlibs.namespace.lookup.json" from S3.
-            using var stream = await _httpService.DownloadS3FileAsync(NamespaceLookupFile);
+            using var stream = await _regionalDatastoreService.DownloadRegionalS3FileAsync(NamespaceLookupFile, isRegionalCall: true);
             using var streamReader = new StreamReader(stream);
             var result = streamReader.ReadToEnd();
             return JsonConvert.DeserializeObject<JObject>(result).ToObject<Dictionary<string, string>>();

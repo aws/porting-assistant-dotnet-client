@@ -11,5 +11,11 @@ namespace PortingAssistant.Compatibility.Common.Utils
         public const string DefaultAssessmentTargetFramework = "net6.0";
 
         public const string DestinationKeySuffix = "compatibility-result.json";
+
+        public const string BetaStageName = "beta";
+
+        public const string GammaStageName = "gamma";
+
+        public const string ProdStageName = "prod";
     }
 }

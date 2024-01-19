@@ -6,6 +6,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
+using Amazon.S3;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
@@ -16,6 +17,7 @@ using NUnit.Framework;
 using PortingAssistant.Client.Common.Utils;
 using PortingAssistant.Compatibility.Common.Interface;
 using PortingAssistant.Compatibility.Common.Model;
+using PortingAssistant.Compatibility.Common.Utils;
 using PortingAssistant.Compatibility.Core;
 using PortingAssistant.Compatibility.Core.Checkers;
 using ILogger = NuGet.Common.ILogger;
@@ -26,6 +28,7 @@ namespace PortingAssistant.Client.Tests
     {
         private Mock<IHttpService> _httpService;
         private Mock<IFileSystem> _fileSystem;
+        private IRegionalDatastoreService _regionalDatastoreService;
         private ExternalCompatibilityChecker _externalPackagesCompatibilityChecker;
         private PortabilityAnalyzerCompatibilityChecker _portabilityAnalyzerCompatibilityChecker;
         private SdkCompatibilityChecker _sdkCompatibilityChecker;
@@ -205,6 +208,8 @@ namespace PortingAssistant.Client.Tests
         {
             //httpMessageHandler = new Mock<HttpMessageHandler>
             _httpService = new Mock<IHttpService>();
+            var datastoreServiceLoggerMock = new Mock<ILogger<RegionalDatastoreService>>();
+            _regionalDatastoreService = new RegionalDatastoreService(_httpService.Object, datastoreServiceLoggerMock.Object);
             _fileSystem = new Mock<IFileSystem>();
         }
 
@@ -248,22 +253,22 @@ namespace PortingAssistant.Client.Tests
 
 
             _externalPackagesCompatibilityChecker = new ExternalCompatibilityChecker(
-                _httpService.Object,
+                _regionalDatastoreService,
                 NullLogger<ExternalCompatibilityChecker>.Instance
                 );
 
             _portabilityAnalyzerCompatibilityChecker = new PortabilityAnalyzerCompatibilityChecker(
-                _httpService.Object,
+                _regionalDatastoreService,
                 NullLogger<PortabilityAnalyzerCompatibilityChecker>.Instance
                 );
 
             _sdkCompatibilityChecker = new SdkCompatibilityChecker(
-                _httpService.Object,
+                _regionalDatastoreService,
                 NullLogger<SdkCompatibilityChecker>.Instance
                 );
 
             _portabilityAnalyzerCompatibilityChecker = new PortabilityAnalyzerCompatibilityChecker(
-                _httpService.Object,
+                _regionalDatastoreService,
                 NullLogger<PortabilityAnalyzerCompatibilityChecker>.Instance
                 );
 
@@ -367,7 +372,7 @@ namespace PortingAssistant.Client.Tests
         private ExternalCompatibilityChecker GetExternalPackagesCompatibilityChecker()
         {
             var externalChecker = new ExternalCompatibilityChecker(
-                _httpService.Object,
+                _regionalDatastoreService,
                 NullLogger<ExternalCompatibilityChecker>.Instance
             );
 
