@@ -52,28 +52,31 @@ namespace PortingAssistant.Client.Telemetry
 
     public static class TelemetryClientFactory
     {
-        public static bool TryGetClient(string profile, TelemetryConfiguration config, out ITelemetryClient client, bool enabledDefaultCredentials = false)
-        {   
+        public static bool TryGetClient(string profile, TelemetryConfiguration config, out ITelemetryClient client,
+            bool enabledDefaultCredentials = false, AWSCredentials? awsCredentials = null)
+        {
             client = null;
-            if (string.IsNullOrEmpty(profile)) { return false; }
-            var chain = new CredentialProfileStoreChain();
-            AWSCredentials awsCredentials;
-            if (enabledDefaultCredentials)
+            if (awsCredentials == null)
             {
-                awsCredentials = FallbackCredentialsFactory.GetCredentials();
-                if (awsCredentials == null)
+                if (string.IsNullOrEmpty(profile)) { return false; }
+                var chain = new CredentialProfileStoreChain();
+                if (enabledDefaultCredentials)
                 {
-                    return false;
+                    awsCredentials = FallbackCredentialsFactory.GetCredentials();
+                    if (awsCredentials == null)
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    if (!chain.TryGetAWSCredentials(profile, out awsCredentials))
+                    {
+                        return false;
+                    }
                 }
             }
             else
-            {
-                if (!chain.TryGetAWSCredentials(profile, out awsCredentials))
-                {
-                    return false;
-                }
-            }
-            if (awsCredentials != null)
             {
                 client = new TelemetryClient(awsCredentials, new TelemetryClientConfig(config.InvokeUrl)
                 {
@@ -82,7 +85,7 @@ namespace PortingAssistant.Client.Telemetry
                     ServiceURL = config.InvokeUrl,
                 });
                 return true;
-            }           
+            }
             return false;
         }
     }
