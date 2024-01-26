@@ -21,16 +21,18 @@ namespace PortingAssistant.Compatibility.Common.Utils
             )
         {
             _httpService = httpService;
+            // This service is used by service and non-service clients. We use Console.WriteLine instead of private logger to write into CloudWatch
             _logger = logger;
             string region = Environment.GetEnvironmentVariable("AWS_REGION");
             string stage = Environment.GetEnvironmentVariable("stage");
+            Console.WriteLine($"Read stage, region from environment: {stage}, {region}.");
 
             if (!string.IsNullOrEmpty(region) && (stage == Constants.BetaStageName || stage == Constants.GammaStageName || stage == Constants.ProdStageName)) 
             {
                 _isLambdaEnvSetup = true;
                 _regionaS3BucketName = stage == Constants.ProdStageName ?
                     $"portingassistant-datastore-{region}" : $"portingassistant-datastore-{stage}-{region}";
-                _logger.LogInformation($"Read stage, region from environment: {stage}, {region}, set S3 bucket name: {_regionaS3BucketName}");
+                Console.WriteLine($"Set S3 bucket name: {_regionaS3BucketName}.");
                 _s3Client = new AmazonS3Client(RegionEndpoint.GetBySystemName(region));
             }
         }
@@ -44,7 +46,7 @@ namespace PortingAssistant.Compatibility.Common.Utils
         {
             try 
             {
-                _logger.LogInformation($"Downloading {fileToDownload} from regional S3 " + _regionaS3BucketName);
+                Console.WriteLine($"Downloading {fileToDownload} from regional S3 {_regionaS3BucketName}");
                 if (isRegionalCall && _isLambdaEnvSetup)
                 {
                     GetObjectRequest request = new GetObjectRequest
@@ -56,13 +58,12 @@ namespace PortingAssistant.Compatibility.Common.Utils
                     {
                         if (response.HttpStatusCode == HttpStatusCode.OK)
                         {
-                            _logger.LogInformation($"Downloaded {fileToDownload} from " + _regionaS3BucketName);
+                            Console.WriteLine($"Downloaded {fileToDownload} from {_regionaS3BucketName}.");
                             return response.ResponseStream;
                         }
                         else
                         {
-                            _logger.LogWarning($"Issues during downloading through S3 client from " + _regionaS3BucketName);
-                            _logger.LogInformation($"Downloading file through Http client...");
+                            Console.WriteLine($"Issues during downloading through S3 client from {_regionaS3BucketName}, downloading file through Http client...");
                             return await _httpService.DownloadS3FileAsync(fileToDownload);
                         }   
                     }
@@ -75,7 +76,7 @@ namespace PortingAssistant.Compatibility.Common.Utils
             }
             catch (Exception ex) 
             {
-                _logger.LogError($"fail to download {fileToDownload}. " + ex.Message);
+                Console.WriteLine($"Fail to download {fileToDownload}: " + ex);
                 return null;
             }
             
