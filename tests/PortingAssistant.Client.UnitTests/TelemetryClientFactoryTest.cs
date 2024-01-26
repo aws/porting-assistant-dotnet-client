@@ -1,4 +1,5 @@
 ﻿using System;
+using Amazon.Runtime;
 using NUnit.Framework;
 using PortingAssistant.Client.Telemetry;
 using PortingAssistantExtensionTelemetry.Model;
@@ -24,6 +25,42 @@ namespace PortingAssistant.Client.UnitTests
                 enabledDefaultCredentials);
 
             Assert.IsTrue(isClientCreated);
+        }
+
+        [Test]
+        public void CreatesTelemetryClient_WithCredentials()
+        {
+            string profile = null;
+            var telemetryConfig = new TelemetryConfiguration()
+            {
+                InvokeUrl = @"https://8cvsix1u33.execute-api.us-east-1.amazonaws.com/gamma",
+                Region = "us-east-1",
+            };
+            AWSCredentials credentials = new BasicAWSCredentials("accessKey", "secretKey");
+            ITelemetryClient client;
+
+            bool result = TelemetryClientFactory.TryGetClient(profile, telemetryConfig, out client, awsCredentials: credentials);
+
+            Assert.IsTrue(result);
+            Assert.IsNotNull(client);
+        }
+
+        [Test]
+        public void CreatesTelemetryClient_WithoutProfileOrCredentials_Failed()
+        {
+            string profile = null;
+            var telemetryConfig = new TelemetryConfiguration()
+            {
+                InvokeUrl = @"https://8cvsix1u33.execute-api.us-east-1.amazonaws.com/gamma",
+                Region = "us-east-1",
+            };
+            AWSCredentials credentials = null;
+            ITelemetryClient client;
+
+            bool result = TelemetryClientFactory.TryGetClient(profile, telemetryConfig, out client, awsCredentials: credentials);
+
+            Assert.IsFalse(result);
+            Assert.IsNull(client);
         }
     }
 }

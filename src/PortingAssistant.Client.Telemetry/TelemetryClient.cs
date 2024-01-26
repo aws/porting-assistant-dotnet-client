@@ -58,7 +58,8 @@ namespace PortingAssistant.Client.Telemetry
             client = null;
             if (awsCredentials == null)
             {
-                if (string.IsNullOrEmpty(profile)) { return false; }
+                if (string.IsNullOrEmpty(profile) && !enabledDefaultCredentials)
+                    return false;
                 var chain = new CredentialProfileStoreChain();
                 if (enabledDefaultCredentials)
                 {
@@ -76,17 +77,13 @@ namespace PortingAssistant.Client.Telemetry
                     }
                 }
             }
-            else
+            client = new TelemetryClient(awsCredentials, new TelemetryClientConfig(config.InvokeUrl)
             {
-                client = new TelemetryClient(awsCredentials, new TelemetryClientConfig(config.InvokeUrl)
-                {
-                    RegionEndpoint = RegionEndpoint.GetBySystemName(config.Region),
-                    MaxErrorRetry = 2,
-                    ServiceURL = config.InvokeUrl,
-                });
-                return true;
-            }
-            return false;
+                RegionEndpoint = RegionEndpoint.GetBySystemName(config.Region),
+                MaxErrorRetry = 2,
+                ServiceURL = config.InvokeUrl,
+            });
+            return true;
         }
     }
 
