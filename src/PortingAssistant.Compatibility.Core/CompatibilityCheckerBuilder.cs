@@ -71,6 +71,7 @@ namespace PortingAssistant.Compatibility.Core
             ServiceCollection.AddTransient<ICompatibilityChecker, PortabilityAnalyzerCompatibilityChecker>();
             ServiceCollection.AddTransient<ICompatibilityCheckerHandler, CompatibilityCheckerHandler>();
             ServiceCollection.AddTransient<IHttpService, HttpService>();
+            ServiceCollection.AddTransient<IRegionalDatastoreService, Compatibility.Common.Utils.RegionalDatastoreService>();
             ServiceCollection.AddHttpClient("s3")
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(GetRetryPolicy());
