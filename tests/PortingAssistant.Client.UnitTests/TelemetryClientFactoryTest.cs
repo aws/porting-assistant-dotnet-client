@@ -15,7 +15,7 @@ namespace PortingAssistant.Client.UnitTests
             var enabledDefaultCredentials = true;
             var telemetryConfig = new TelemetryConfiguration()
             {
-                InvokeUrl = @"https://8cvsix1u33.execute-api.us-east-1.amazonaws.com/gamma",
+                InvokeUrl = @"https://dummy.amazonaws.com/gamma",
                 Region = "us-east-1",
             };
             var isClientCreated = TelemetryClientFactory.TryGetClient(
@@ -33,7 +33,7 @@ namespace PortingAssistant.Client.UnitTests
             string profile = null;
             var telemetryConfig = new TelemetryConfiguration()
             {
-                InvokeUrl = @"https://8cvsix1u33.execute-api.us-east-1.amazonaws.com/gamma",
+                InvokeUrl = @"https://dummy.amazonaws.com/gamma",
                 Region = "us-east-1",
             };
             AWSCredentials credentials = new BasicAWSCredentials("accessKey", "secretKey");
@@ -51,7 +51,7 @@ namespace PortingAssistant.Client.UnitTests
             string profile = null;
             var telemetryConfig = new TelemetryConfiguration()
             {
-                InvokeUrl = @"https://8cvsix1u33.execute-api.us-east-1.amazonaws.com/gamma",
+                InvokeUrl = @"https://dummy.amazonaws.com/gamma",
                 Region = "us-east-1",
             };
             AWSCredentials credentials = null;
