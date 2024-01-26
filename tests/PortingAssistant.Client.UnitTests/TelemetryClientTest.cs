@@ -9,7 +9,7 @@ namespace PortingAssistant.Client.UnitTests
         [Test]
         public void EnablingDefaultCredentials_CreatesTelemetryClient()
         {
-            var url = "https://8cvsix1u33.execute-api.us-east-1.amazonaws.com/gamma";
+            var url = "https://dummy.amazonaws.com/gamma";
             var telemetryClientConfig = new TelemetryClientConfig(url)
             {
                 ServiceURL = url
