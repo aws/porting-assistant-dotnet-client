@@ -9,7 +9,14 @@ using Serilog.Templates;
 using ILogger = Serilog.ILogger;
 using System.Linq;
 using System.Net.NetworkInformation;
-using YamlDotNet.Core.Tokens;
+using PortingAssistant.Compatibility.Common.Model;
+using System.Collections;
+using System.Collections.Generic;
+using Microsoft.CodeAnalysis.Diagnostics;
+using CodeEntityType = PortingAssistant.Client.Model.CodeEntityType;
+using CompatibilityResult = PortingAssistant.Client.Model.CompatibilityResult;
+using Amazon.Runtime.Internal.Transform;
+using PortingAssistant.Compatibility.Common.Utils;
 
 namespace PortingAssistantExtensionTelemetry
 {
@@ -144,9 +151,10 @@ namespace PortingAssistantExtensionTelemetry
                 DateTime date,
                 string packageId,
                 string packageVersion,
-                Compatibility compatibility,
+                PortingAssistant.Client.Model.Compatibility compatibility,
                 string projectGuid,
-                string solutionGuid
+                string solutionGuid,
+                string? accountId = null
             ) {
             return new NugetMetrics
             {
@@ -161,6 +169,7 @@ namespace PortingAssistantExtensionTelemetry
                 compatibility = compatibility,
                 projectGuid = projectGuid,
                 solutionGuid = solutionGuid,
+                accountId = accountId,
                 SessionId = _sessionId
             };
         }
@@ -174,7 +183,8 @@ namespace PortingAssistantExtensionTelemetry
                 string tag,
                 DateTime date,
                 string projectGuid,
-                string solutionGuid
+                string solutionGuid,
+                string? accountId = null
             )
         { 
             return new APIMetrics
@@ -193,6 +203,7 @@ namespace PortingAssistantExtensionTelemetry
                 packageVersion = apiAnalysisResult.CodeEntityDetails.Package.Version,
                 projectGuid = projectGuid,
                 solutionGuid = solutionGuid,
+                accountId = accountId,
                 SessionId = _sessionId
             };
         }
@@ -226,16 +237,16 @@ namespace PortingAssistantExtensionTelemetry
                 
                 foreach (var nuget in project.PackageAnalysisResults)
                 {
-                    CompatibilityResult defaultCompatibilityResult = new CompatibilityResult()
+                    PortingAssistant.Client.Model.CompatibilityResult defaultCompatibilityResult = new PortingAssistant.Client.Model.CompatibilityResult()
                     {
-                        Compatibility = Compatibility.UNKNOWN,
+                        Compatibility = PortingAssistant.Client.Model.Compatibility.UNKNOWN,
                         CompatibleVersions = new System.Collections.Generic.List<string>()
                     };
 
                     nuget.Value.Wait();
                     var packageID = nuget.Value.Result.PackageVersionPair.PackageId;
                     var packageVersion = nuget.Value.Result.PackageVersionPair.Version;
-                    CompatibilityResult compatability;
+                    PortingAssistant.Client.Model.CompatibilityResult compatability;
                     if (!nuget.Value.Result.CompatibilityResults.TryGetValue(targetFramework, out compatability))
                     {
                         compatability = defaultCompatibilityResult;
@@ -275,6 +286,71 @@ namespace PortingAssistantExtensionTelemetry
                 var apiMetrics = CreateAPIMetric(api, targetFramework, version, source, tag, date, projectGuid, solutionGuid);
                 TelemetryCollector.Collect<APIMetrics>(apiMetrics);
             }
+        }
+
+        public static void DllAssessmentCollect(CompatibilityCheckerResponse result, string targetFramework, string version, string source, double analysisTime, string tag, string accountId)
+        {
+            var date = DateTime.Now;
+            var metrics = new ArrayList();
+            var count = 0;
+
+            // nuget metrics
+            foreach (var nuget in result.PackageAnalysisResults)
+            {
+                var packageID = nuget.Key.PackageId;
+                var packageVersion = nuget.Key.Version;
+                PortingAssistant.Client.Model.Compatibility compatibility = (PortingAssistant.Client.Model.Compatibility)nuget.Value.CompatibilityResults[targetFramework].Compatibility;
+                var nugetMetrics = CreateNugetMetric(targetFramework, version, source, analysisTime, tag, date, packageID, packageVersion, compatibility, null, null, accountId);
+                metrics.Add(nugetMetrics);
+                count++;
+                if (count >= 2000)
+                {
+                    Collect(metrics);
+                    metrics.Clear();
+                    count = 0;
+                }
+            }
+
+            //API metrics
+            var apiAnalysisResults = result.ApiAnalysisResults;
+            foreach (var apiResult in apiAnalysisResults)
+            {
+                var packageVersionPair = apiResult.Key;
+                foreach (var analysisResultPair in apiResult.Value)
+                {
+                    var apiAnalysisResult = new ApiAnalysisResult
+                    {
+                        CodeEntityDetails = new CodeEntityDetails
+                        {
+                            Package = new PortingAssistant.Client.Model.PackageVersionPair
+                            {
+                                PackageId = packageVersionPair.PackageId,
+                                Version = packageVersionPair.Version,
+                                PackageSourceType = (PortingAssistant.Client.Model.PackageSourceType)packageVersionPair.PackageSourceType
+                            },
+                            CodeEntityType = CodeEntityType.Method,
+                            OriginalDefinition = analysisResultPair.Key,
+                            Namespace = packageVersionPair.PackageId
+                        },
+                        CompatibilityResults = analysisResultPair.Value.CompatibilityResults
+                            .ToDictionary(kvp => kvp.Key, kvp => new CompatibilityResult
+                            {
+                                Compatibility = (PortingAssistant.Client.Model.Compatibility)kvp.Value.Compatibility,
+                                CompatibleVersions = kvp.Value.CompatibleVersions
+                            })
+                    };
+                    var apiMetrics = CreateAPIMetric(apiAnalysisResult, targetFramework, version, source, tag, date, null, null, accountId);
+                    metrics.Add(apiMetrics);
+                    count++;
+                    if (count >= 2000)
+                    {
+                        Collect(metrics);
+                        metrics.Clear();
+                        count = 0;
+                    }
+                }
+            }
+            Collect(metrics);
         }
 
         public static void ToggleMetrics(bool disabledMetrics)
