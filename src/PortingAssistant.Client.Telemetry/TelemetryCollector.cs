@@ -288,7 +288,7 @@ namespace PortingAssistantExtensionTelemetry
             }
         }
 
-        public static void DllAssessmentCollect(CompatibilityCheckerResponse result, string targetFramework, string version, string source, double analysisTime, string tag, string accountId)
+        public static void SolutionAssessmentCollect(CompatibilityCheckerResponse result, string targetFramework, string version, string source, double analysisTime, string tag, string accountId)
         {
             var date = DateTime.Now;
             var metrics = new ArrayList();
