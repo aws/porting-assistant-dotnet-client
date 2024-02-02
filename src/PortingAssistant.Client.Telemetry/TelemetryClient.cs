@@ -52,38 +52,38 @@ namespace PortingAssistant.Client.Telemetry
 
     public static class TelemetryClientFactory
     {
-        public static bool TryGetClient(string profile, TelemetryConfiguration config, out ITelemetryClient client, bool enabledDefaultCredentials = false)
-        {   
+        public static bool TryGetClient(string profile, TelemetryConfiguration config, out ITelemetryClient client,
+            bool enabledDefaultCredentials = false, AWSCredentials? awsCredentials = null)
+        {
             client = null;
-            if (string.IsNullOrEmpty(profile)) { return false; }
-            var chain = new CredentialProfileStoreChain();
-            AWSCredentials awsCredentials;
-            if (enabledDefaultCredentials)
+            if (awsCredentials == null)
             {
-                awsCredentials = FallbackCredentialsFactory.GetCredentials();
-                if (awsCredentials == null)
-                {
+                if (string.IsNullOrEmpty(profile) && !enabledDefaultCredentials)
                     return false;
+                var chain = new CredentialProfileStoreChain();
+                if (enabledDefaultCredentials)
+                {
+                    awsCredentials = FallbackCredentialsFactory.GetCredentials();
+                    if (awsCredentials == null)
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    if (!chain.TryGetAWSCredentials(profile, out awsCredentials))
+                    {
+                        return false;
+                    }
                 }
             }
-            else
+            client = new TelemetryClient(awsCredentials, new TelemetryClientConfig(config.InvokeUrl)
             {
-                if (!chain.TryGetAWSCredentials(profile, out awsCredentials))
-                {
-                    return false;
-                }
-            }
-            if (awsCredentials != null)
-            {
-                client = new TelemetryClient(awsCredentials, new TelemetryClientConfig(config.InvokeUrl)
-                {
-                    RegionEndpoint = RegionEndpoint.GetBySystemName(config.Region),
-                    MaxErrorRetry = 2,
-                    ServiceURL = config.InvokeUrl,
-                });
-                return true;
-            }           
-            return false;
+                RegionEndpoint = RegionEndpoint.GetBySystemName(config.Region),
+                MaxErrorRetry = 2,
+                ServiceURL = config.InvokeUrl,
+            });
+            return true;
         }
     }
 
