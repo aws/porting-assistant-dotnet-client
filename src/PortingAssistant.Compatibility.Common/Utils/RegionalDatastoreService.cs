@@ -48,10 +48,10 @@ namespace PortingAssistant.Compatibility.Common.Utils
         {
             try 
             {
-                Console.WriteLine($"Downloading {fileToDownload} from regional S3 {_regionaS3BucketName}");
                 string? content = null;
                 if (isRegionalCall && _isLambdaEnvSetup && await CheckObjectExistsAsync(fileToDownload))
                 {
+                    Console.WriteLine($"Downloading {fileToDownload} from regional S3 {_regionaS3BucketName}");
                     GetObjectRequest request = new GetObjectRequest
                     {
                         BucketName = _regionaS3BucketName,
@@ -69,7 +69,7 @@ namespace PortingAssistant.Compatibility.Common.Utils
                 }
                 if (content == null)
                 {
-                    Console.WriteLine($"{fileToDownload} doesn't exist in {_regionaS3BucketName} or has null value, downloading file through Http client...");
+                    Console.WriteLine($"Not a Lambda environment, or {fileToDownload} doesn't exist in {_regionaS3BucketName} or has null value, downloading file through Http client...");
                     content = await ParseS3ObjectToString(await _httpService.DownloadS3FileAsync(fileToDownload), fileToDownload);
                 }
                 return content;
@@ -116,7 +116,7 @@ namespace PortingAssistant.Compatibility.Common.Utils
             string? content = null;
             if (fileToDownload.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
             {
-                using (StreamReader reader = new StreamReader(stream, Encoding.UTF8))
+                using (StreamReader reader = new StreamReader(stream))
                 {
                     content = await reader.ReadToEndAsync();
                 }
@@ -129,14 +129,14 @@ namespace PortingAssistant.Compatibility.Common.Utils
                     {
                         await decompressionStream.CopyToAsync(memoryStream);
                         memoryStream.Seek(0, SeekOrigin.Begin);
-                        using (StreamReader reader = new StreamReader(memoryStream, Encoding.UTF8))
+                        using (StreamReader reader = new StreamReader(memoryStream))
                         {
                             content = await reader.ReadToEndAsync();       
                         }
                     }
                 }
             }
-            Console.WriteLine($"Decompressed object content for: {fileToDownload}");
+            Console.WriteLine($"Read object content for: {fileToDownload}");
             return content;
         }
     }
