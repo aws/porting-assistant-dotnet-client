@@ -113,21 +113,31 @@ namespace PortingAssistant.Compatibility.Common.Utils
             {
                 return null;
             }
-            using (var decompressionStream = new GZipStream(stream, CompressionMode.Decompress))
+            string? content = null;
+            if (fileToDownload.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
             {
-                using (var memoryStream = new MemoryStream())
+                using (StreamReader reader = new StreamReader(stream, Encoding.UTF8))
                 {
-                    await decompressionStream.CopyToAsync(memoryStream);
-                    memoryStream.Seek(0, SeekOrigin.Begin);
-
-                    using (StreamReader reader = new StreamReader(memoryStream, Encoding.UTF8))
+                    content = await reader.ReadToEndAsync();
+                }
+            }
+            else
+            {
+                using (var decompressionStream = new GZipStream(stream, CompressionMode.Decompress))
+                {
+                    using (var memoryStream = new MemoryStream())
                     {
-                        string content = await reader.ReadToEndAsync();
-                        Console.WriteLine($"Decompressed object content for: {fileToDownload}");
-                        return content;
+                        await decompressionStream.CopyToAsync(memoryStream);
+                        memoryStream.Seek(0, SeekOrigin.Begin);
+                        using (StreamReader reader = new StreamReader(memoryStream, Encoding.UTF8))
+                        {
+                            content = await reader.ReadToEndAsync();       
+                        }
                     }
                 }
             }
+            Console.WriteLine($"Decompressed object content for: {fileToDownload}");
+            return content;
         }
     }
 }
