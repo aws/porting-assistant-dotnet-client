@@ -150,7 +150,7 @@ namespace PortingAssistant.Compatibility.Common.Utils
             }
             catch (Exception e)
             {
-                logger.LogError($"parse package version {packageVersionPair.PackageId} {packageVersionPair.Version} with error {e}");
+                Console.WriteLine($"parse package version {packageVersionPair.PackageId} {packageVersionPair.Version} with error {e}");
                 return new CompatibilityResult
                 {
                     Compatibility = Model.Compatibility.GENERAL_PARSE_ERROR,

@@ -4,6 +4,8 @@ using PortingAssistant.Compatibility.Common.Interface;
 using Amazon.S3.Model;
 using Microsoft.Extensions.Logging;
 using System.Net;
+using System.IO.Compression;
+using System.Text;
 
 namespace PortingAssistant.Compatibility.Common.Utils
 {
@@ -42,12 +44,13 @@ namespace PortingAssistant.Compatibility.Common.Utils
             return await _httpService.DownloadGitHubFileAsync(fileToDownload);
         }
 
-        public async Task<Stream?> DownloadRegionalS3FileAsync(string fileToDownload, bool isRegionalCall = false)
+        public async Task<string?> DownloadRegionalS3FileAsync(string fileToDownload, bool isRegionalCall = false)
         {
             try 
             {
                 Console.WriteLine($"Downloading {fileToDownload} from regional S3 {_regionaS3BucketName}");
-                if (isRegionalCall && _isLambdaEnvSetup)
+                string? content = null;
+                if (isRegionalCall && _isLambdaEnvSetup && await CheckObjectExistsAsync(fileToDownload))
                 {
                     GetObjectRequest request = new GetObjectRequest
                     {
@@ -55,24 +58,22 @@ namespace PortingAssistant.Compatibility.Common.Utils
                         Key = fileToDownload
                     };
                     using (GetObjectResponse response = await _s3Client.GetObjectAsync(request))
+                    using (Stream responseStream = response.ResponseStream)
                     {
-                        if (response.HttpStatusCode == HttpStatusCode.OK)
+                        if (response.HttpStatusCode == HttpStatusCode.OK && responseStream != null && responseStream.CanRead)
                         {
                             Console.WriteLine($"Downloaded {fileToDownload} from {_regionaS3BucketName}.");
-                            return response.ResponseStream;
-                        }
-                        else
-                        {
-                            Console.WriteLine($"Issues during downloading through S3 client from {_regionaS3BucketName}, downloading file through Http client...");
-                            return await _httpService.DownloadS3FileAsync(fileToDownload);
-                        }   
+                            content = await ParseS3ObjectToString(responseStream, fileToDownload);
+                        } 
                     }
-
                 }
-                else
+                if (content == null)
                 {
-                    return await _httpService.DownloadS3FileAsync(fileToDownload);
+                    Console.WriteLine($"{fileToDownload} doesn't exist in {_regionaS3BucketName} or has null value, downloading file through Http client...");
+                    content = await ParseS3ObjectToString(await _httpService.DownloadS3FileAsync(fileToDownload), fileToDownload);
                 }
+                return content;
+
             }
             catch (Exception ex) 
             {
@@ -86,6 +87,47 @@ namespace PortingAssistant.Compatibility.Common.Utils
         public Task<HashSet<string>> ListRegionalNamespacesObjectAsync(bool isRegionalCall = false)
         {
             return _httpService.ListNamespacesObjectAsync();
+        }
+
+        public async Task<bool> CheckObjectExistsAsync(string objectKey)
+        {
+            try
+            {
+                await _s3Client.GetObjectMetadataAsync(_regionaS3BucketName, objectKey);
+                return true; // Object exists
+            }
+            catch (AmazonS3Exception ex)
+            {
+                if (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    return false; // Object does not exist
+                }
+
+                // Handle other exceptions
+                throw;
+            }
+        }
+
+        public async Task<string?> ParseS3ObjectToString(Stream stream, string fileToDownload) {
+            if (stream == null)
+            {
+                return null;
+            }
+            using (var decompressionStream = new GZipStream(stream, CompressionMode.Decompress))
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    await decompressionStream.CopyToAsync(memoryStream);
+                    memoryStream.Seek(0, SeekOrigin.Begin);
+
+                    using (StreamReader reader = new StreamReader(memoryStream, Encoding.UTF8))
+                    {
+                        string content = await reader.ReadToEndAsync();
+                        Console.WriteLine($"Decompressed object content for: {fileToDownload}");
+                        return content;
+                    }
+                }
+            }
         }
     }
 }

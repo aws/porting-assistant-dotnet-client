@@ -114,7 +114,7 @@ namespace PortingAssistant.Compatibility.Core.Checkers
                     }
                     else
                     {
-                        _logger.LogError($"Failed when downloading and parsing {fileToDownload} from {CompatibilityCheckerType}, {ex}");
+                        Console.WriteLine($"Failed when downloading and parsing {fileToDownload} from {CompatibilityCheckerType}, {ex}");
                     }
 
                     foreach (var packageVersion in groupedPackageVersions.Value)
@@ -192,22 +192,30 @@ namespace PortingAssistant.Compatibility.Core.Checkers
 
         public async Task<PackageDetails> GetPackageDetailFromS3(string fileToDownload, HashSet<string> apis = null)
         {
-            using var stream = await _regionalDatastoreService.DownloadRegionalS3FileAsync(fileToDownload, isRegionalCall: true);
-            if (stream == null)
+            string? content = await _regionalDatastoreService.DownloadRegionalS3FileAsync(fileToDownload, isRegionalCall: true);
+            if (content == null)
             {
+                Console.WriteLine($"Stream content is null for {fileToDownload}");
                 return null;
             }
-            using var gzipStream = new GZipStream(stream, CompressionMode.Decompress);
-            using var streamReader = new StreamReader(gzipStream);
-            var data = JsonConvert.DeserializeObject<PackageFromS3>(streamReader.ReadToEnd());
-            var packageDetails = data.Package ?? data.Namespaces;
-            // api filter. Only details of the apis from the input file will be returned instead of returning all apis details of the package. 
-            if (apis != null && apis.Count > 0)
+            
+            try
             {
-                var selectedApiDetails = packageDetails.Api.Where(c => apis.Contains(c.MethodSignature));
-                packageDetails.Api = selectedApiDetails.ToArray();
+                var data = JsonConvert.DeserializeObject<PackageFromS3>(content);
+                var packageDetails = data.Package ?? data.Namespaces;
+                // api filter. Only details of the apis from the input file will be returned instead of returning all apis details of the package. 
+                if (apis != null && apis.Count > 0)
+                {
+                    var selectedApiDetails = packageDetails.Api.Where(c => apis.Contains(c.MethodSignature));
+                    packageDetails.Api = selectedApiDetails.ToArray();
+                }
+                return packageDetails;
             }
-            return packageDetails;
+            catch (Exception ex) 
+            {
+                Console.WriteLine($"Failed to deserialize {fileToDownload}: " + ex.StackTrace);
+                throw ex;
+            }   
         }
 
     }
