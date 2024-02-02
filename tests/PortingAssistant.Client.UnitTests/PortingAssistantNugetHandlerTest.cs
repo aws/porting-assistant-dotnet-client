@@ -450,7 +450,6 @@ namespace PortingAssistant.Client.Tests
             Assert.AreEqual(_packageDetails.Versions.Count, resultTasks.Values.First().Result.Versions.Count);
         }
 
-        /*
         [Test]
         public void GetPackageWithPortabilityAnalyzerCatalogSucceeds()
         {
@@ -467,7 +466,6 @@ namespace PortingAssistant.Client.Tests
             Assert.AreEqual(_packageDetails.Targets.Count, resultTasks.Values.First().Result.Targets.Count);
             Assert.AreEqual(_packageDetails.Versions.Count, resultTasks.Values.First().Result.Versions.Count);
         }
-        */
 
 
         [Test]

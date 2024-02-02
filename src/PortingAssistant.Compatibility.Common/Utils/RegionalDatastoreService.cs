@@ -44,7 +44,7 @@ namespace PortingAssistant.Compatibility.Common.Utils
             return await _httpService.DownloadGitHubFileAsync(fileToDownload);
         }
 
-        public async Task<string?> DownloadRegionalS3FileAsync(string fileToDownload, bool isRegionalCall = false)
+        public async Task<string?> DownloadRegionalS3FileAsync(string fileToDownload, bool isRegionalCall = false, bool compressed = true)
         {
             try 
             {
@@ -63,14 +63,14 @@ namespace PortingAssistant.Compatibility.Common.Utils
                         if (response.HttpStatusCode == HttpStatusCode.OK && responseStream != null && responseStream.CanRead)
                         {
                             Console.WriteLine($"Downloaded {fileToDownload} from {_regionaS3BucketName}.");
-                            content = await ParseS3ObjectToString(responseStream, fileToDownload);
+                            content = await ParseS3ObjectToString(responseStream, fileToDownload, compressed);
                         } 
                     }
                 }
                 if (content == null)
                 {
                     Console.WriteLine($"Not a Lambda environment, or {fileToDownload} doesn't exist in {_regionaS3BucketName} or has null value, downloading file through Http client...");
-                    content = await ParseS3ObjectToString(await _httpService.DownloadS3FileAsync(fileToDownload), fileToDownload);
+                    content = await ParseS3ObjectToString(await _httpService.DownloadS3FileAsync(fileToDownload), fileToDownload, compressed);
                 }
                 return content;
 
@@ -108,13 +108,13 @@ namespace PortingAssistant.Compatibility.Common.Utils
             }
         }
 
-        public async Task<string?> ParseS3ObjectToString(Stream stream, string fileToDownload) {
+        public async Task<string?> ParseS3ObjectToString(Stream stream, string fileToDownload, bool compressed) {
             if (stream == null)
             {
                 return null;
             }
             string? content = null;
-            if (fileToDownload.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+            if (!compressed)
             {
                 using (StreamReader reader = new StreamReader(stream))
                 {

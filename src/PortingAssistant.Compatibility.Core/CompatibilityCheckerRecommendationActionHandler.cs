@@ -39,7 +39,7 @@ namespace PortingAssistant.Compatibility.Core
                 Stream? stream = null;
                 try
                 {
-                    string? content = await _regionalDatastoreService.DownloadRegionalS3FileAsync(recommendationDownloadPath, isRegionalCall: true);
+                    string? content = await _regionalDatastoreService.DownloadRegionalS3FileAsync(recommendationDownloadPath, isRegionalCall: true, compressed: false);
                     var recommendationFromS3 = JsonConvert.DeserializeObject<RecommendationActionFileDetails>(content);
                     recommendationActionDetailsNamespaceDict.Add(namespaceName, recommendationFromS3);
                 }

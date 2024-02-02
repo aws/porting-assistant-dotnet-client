@@ -183,7 +183,7 @@ namespace PortingAssistant.Compatibility.Core.Checkers
         private async Task<Dictionary<string, string>> GetManifestAsync()
         {
             // Download the lookup file "microsoftlibs.namespace.lookup.json" from S3.
-            string? content = await _regionalDatastoreService.DownloadRegionalS3FileAsync(NamespaceLookupFile, isRegionalCall: true);
+            string? content = await _regionalDatastoreService.DownloadRegionalS3FileAsync(NamespaceLookupFile, isRegionalCall: true, compressed: false);
             return JsonConvert.DeserializeObject<JObject>(content).ToObject<Dictionary<string, string>>();
         }
 
