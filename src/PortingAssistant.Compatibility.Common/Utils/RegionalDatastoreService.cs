@@ -77,7 +77,7 @@ namespace PortingAssistant.Compatibility.Common.Utils
             }
             catch (Exception ex) 
             {
-                Console.WriteLine($"Fail to download {fileToDownload}: " + ex);
+                Console.WriteLine($"Fail to download {fileToDownload}: " + ex.StackTrace);
                 return null;
             }
             
