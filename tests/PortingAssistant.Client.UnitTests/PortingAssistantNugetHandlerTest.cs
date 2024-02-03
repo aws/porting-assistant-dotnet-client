@@ -468,6 +468,7 @@ namespace PortingAssistant.Client.Tests
         }
 
 
+
         [Test]
         public void GetNugetPackagesWithIncompatibleExternalNugetRepositorySucceeds()
         {
