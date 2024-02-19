@@ -114,7 +114,7 @@ namespace PortingAssistant.Compatibility.Core.Checkers
                     }
                     else
                     {
-                        Console.WriteLine($"Failed when downloading and parsing {fileToDownload} from {CompatibilityCheckerType}, {ex}");
+                        _logger.LogError($"Failed when downloading and parsing {fileToDownload} from {CompatibilityCheckerType}, {ex}");
                     }
 
                     foreach (var packageVersion in groupedPackageVersions.Value)
@@ -198,24 +198,15 @@ namespace PortingAssistant.Compatibility.Core.Checkers
                 Console.WriteLine($"Stream content is null for {fileToDownload}");
                 return null;
             }
-            
-            try
+            var data = JsonConvert.DeserializeObject<PackageFromS3>(content);
+            var packageDetails = data.Package ?? data.Namespaces;
+            // api filter. Only details of the apis from the input file will be returned instead of returning all apis details of the package. 
+            if (apis != null && apis.Count > 0)
             {
-                var data = JsonConvert.DeserializeObject<PackageFromS3>(content);
-                var packageDetails = data.Package ?? data.Namespaces;
-                // api filter. Only details of the apis from the input file will be returned instead of returning all apis details of the package. 
-                if (apis != null && apis.Count > 0)
-                {
-                    var selectedApiDetails = packageDetails.Api.Where(c => apis.Contains(c.MethodSignature));
-                    packageDetails.Api = selectedApiDetails.ToArray();
-                }
-                return packageDetails;
+                var selectedApiDetails = packageDetails.Api.Where(c => apis.Contains(c.MethodSignature));
+                packageDetails.Api = selectedApiDetails.ToArray();
             }
-            catch (Exception ex) 
-            {
-                Console.WriteLine($"Failed to deserialize {fileToDownload}: " + ex.StackTrace);
-                throw ex;
-            }   
+            return packageDetails;
         }
 
     }

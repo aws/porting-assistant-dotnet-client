@@ -5,7 +5,6 @@ using Amazon.S3.Model;
 using Microsoft.Extensions.Logging;
 using System.Net;
 using System.IO.Compression;
-using System.Text;
 
 namespace PortingAssistant.Compatibility.Common.Utils
 {
@@ -114,14 +113,7 @@ namespace PortingAssistant.Compatibility.Common.Utils
                 return null;
             }
             string? content = null;
-            if (!compressed)
-            {
-                using (StreamReader reader = new StreamReader(stream))
-                {
-                    content = await reader.ReadToEndAsync();
-                }
-            }
-            else
+            if (compressed)
             {
                 using (var decompressionStream = new GZipStream(stream, CompressionMode.Decompress))
                 {
@@ -131,9 +123,16 @@ namespace PortingAssistant.Compatibility.Common.Utils
                         memoryStream.Seek(0, SeekOrigin.Begin);
                         using (StreamReader reader = new StreamReader(memoryStream))
                         {
-                            content = await reader.ReadToEndAsync();       
+                            content = await reader.ReadToEndAsync();
                         }
                     }
+                }
+            }
+            else
+            {
+                using (StreamReader reader = new StreamReader(stream))
+                {
+                    content = await reader.ReadToEndAsync();
                 }
             }
             Console.WriteLine($"Read object content for: {fileToDownload}");
