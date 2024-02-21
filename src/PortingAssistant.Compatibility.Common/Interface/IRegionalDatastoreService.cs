@@ -2,10 +2,10 @@
 {
     public interface IRegionalDatastoreService
     {
-        public Task<Stream?> DownloadRegionalS3FileAsync(string fileToDownload, bool isRegionalCall = false);
-
+        public Task<string?> DownloadRegionalS3FileAsync(string fileToDownload, bool isRegionalCall = false, bool compressed = true);
         public Task<HashSet<string>> ListRegionalNamespacesObjectAsync(bool isRegionalCall = false);
-
         public Task<Stream> DownloadGitHubFileAsync(string fileToDownload);
+        public Task<bool> CheckObjectExistsAsync(string objectKey);
+        public Task<string?> ParseS3ObjectToString(Stream stream, string fileToDownload, bool compressed);
     }
 }

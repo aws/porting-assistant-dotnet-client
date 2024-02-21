@@ -124,10 +124,8 @@ namespace PortingAssistant.Compatibility.Core.Checkers
                 try
                 {
                     _logger.LogInformation($"Downloading {url.Key} from {CompatibilityCheckerType}");
-                    using var stream = await _regionalDatastoreService.DownloadRegionalS3FileAsync(url.Key, isRegionalCall: true);
-                    using var gzipStream = new GZipStream(stream, CompressionMode.Decompress);
-                    using var streamReader = new StreamReader(gzipStream);
-                    var packageFromS3 = JsonConvert.DeserializeObject<PackageFromS3>(streamReader.ReadToEnd());
+                    string? content = await _regionalDatastoreService.DownloadRegionalS3FileAsync(url.Key, isRegionalCall: true);
+                    var packageFromS3 = JsonConvert.DeserializeObject<PackageFromS3>(content);
                     packageFromS3.Package.Name = url.Value.First().PackageId;
                     foreach (var packageVersion in url.Value)
                     {
@@ -185,10 +183,8 @@ namespace PortingAssistant.Compatibility.Core.Checkers
         private async Task<Dictionary<string, string>> GetManifestAsync()
         {
             // Download the lookup file "microsoftlibs.namespace.lookup.json" from S3.
-            using var stream = await _regionalDatastoreService.DownloadRegionalS3FileAsync(NamespaceLookupFile, isRegionalCall: true);
-            using var streamReader = new StreamReader(stream);
-            var result = streamReader.ReadToEnd();
-            return JsonConvert.DeserializeObject<JObject>(result).ToObject<Dictionary<string, string>>();
+            string? content = await _regionalDatastoreService.DownloadRegionalS3FileAsync(NamespaceLookupFile, isRegionalCall: true, compressed: false);
+            return JsonConvert.DeserializeObject<JObject>(content).ToObject<Dictionary<string, string>>();
         }
 
         private class PackageFromS3

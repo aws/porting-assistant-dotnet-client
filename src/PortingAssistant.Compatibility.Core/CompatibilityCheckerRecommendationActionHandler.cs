@@ -39,9 +39,8 @@ namespace PortingAssistant.Compatibility.Core
                 Stream? stream = null;
                 try
                 {
-                    stream = await _regionalDatastoreService.DownloadRegionalS3FileAsync(recommendationDownloadPath, isRegionalCall: true);
-                    using var streamReader = new StreamReader(stream);
-                    var recommendationFromS3 = JsonConvert.DeserializeObject<RecommendationActionFileDetails>(await streamReader.ReadToEndAsync());
+                    string? content = await _regionalDatastoreService.DownloadRegionalS3FileAsync(recommendationDownloadPath, isRegionalCall: true, compressed: false);
+                    var recommendationFromS3 = JsonConvert.DeserializeObject<RecommendationActionFileDetails>(content);
                     recommendationActionDetailsNamespaceDict.Add(namespaceName, recommendationFromS3);
                 }
                 catch (Exception ex)

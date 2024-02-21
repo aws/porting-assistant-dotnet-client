@@ -192,14 +192,13 @@ namespace PortingAssistant.Compatibility.Core.Checkers
 
         public async Task<PackageDetails> GetPackageDetailFromS3(string fileToDownload, HashSet<string> apis = null)
         {
-            using var stream = await _regionalDatastoreService.DownloadRegionalS3FileAsync(fileToDownload, isRegionalCall: true);
-            if (stream == null)
+            string? content = await _regionalDatastoreService.DownloadRegionalS3FileAsync(fileToDownload, isRegionalCall: true);
+            if (content == null)
             {
+                Console.WriteLine($"Stream content is null for {fileToDownload}");
                 return null;
             }
-            using var gzipStream = new GZipStream(stream, CompressionMode.Decompress);
-            using var streamReader = new StreamReader(gzipStream);
-            var data = JsonConvert.DeserializeObject<PackageFromS3>(streamReader.ReadToEnd());
+            var data = JsonConvert.DeserializeObject<PackageFromS3>(content);
             var packageDetails = data.Package ?? data.Namespaces;
             // api filter. Only details of the apis from the input file will be returned instead of returning all apis details of the package. 
             if (apis != null && apis.Count > 0)
